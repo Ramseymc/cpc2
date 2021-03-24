@@ -1,0 +1,36 @@
+{
+  "name": "cpc",
+  "version": "1.0.0",
+  "description": "Construction App",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wayne Bruton",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "cloudinary": "^1.25.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "events": "^3.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.32",
+    "multer": "^1.4.2",
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.4.17",
+    "otp-generator": "^2.0.0",
+    "pdfkit": "^0.11.0",
+    "pdfmake": "^0.1.70",
+    "xero-node": "^4.9.1"
+  }
+}
