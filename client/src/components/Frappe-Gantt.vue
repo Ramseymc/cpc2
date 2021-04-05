@@ -13,17 +13,17 @@ export default {
     viewMode: {
       type: String,
       required: false,
-      default: "Day",
+      default: "Day"
     },
     tasks: {
       type: Array,
       required: true,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   data() {
     return {
-      gantt: {},
+      gantt: {}
     };
   },
   watch: {
@@ -32,7 +32,7 @@ export default {
     },
     tasks() {
       this.updateTasks();
-    },
+    }
   },
   mounted() {
     this.setupGanttChart();
@@ -61,7 +61,7 @@ export default {
         bar_corner_radius: 3,
         date_format: "YYYY-MM-DD HH:mm",
         padding: 18,
-        on_click: (task) => {
+        on_click: task => {
           this.$emit("task-updated", task);
         },
         on_date_change: (task, start, end) => {
@@ -69,7 +69,7 @@ export default {
         },
         on_progress_change: (task, progress) => {
           this.$emit("task-progress-updated", { task, progress });
-        },
+        }
       });
       this.updateTasks();
       this.updateViewMode();
@@ -81,8 +81,8 @@ export default {
     },
     updateTasks() {
       this.gantt.refresh(this.tasks);
-    },
-  },
+    }
+  }
 };
 </script>
 

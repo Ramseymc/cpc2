@@ -7,19 +7,22 @@
     <v-col cols="10" offset="1" v-if="desserts.length" xs-12>
       <v-card xs-12 :max-height="maxHeight">
         <!-- FILTER DETAILS -->
-        <v-card-title style="font-size: 80%;" @click="showSort"
-          >Sort Options
-          <v-btn icon
-            ><v-icon x-large>mdi-chevron-down</v-icon></v-btn
-          ></v-card-title
-        >
-        <v-btn
-          v-if="filterUnitValue || filterBlockValue || filterTaskValue"
-          @click="clearFilter"
-          color="#0F0F0F"
-          text
-          >Clear Sort</v-btn
-        >
+        <div style="display:flex; justify-content: space-around;">
+          <v-card-title style="font-size: 80%;" @click="showSort"
+            >Sort Options
+            <v-btn icon
+              ><v-icon x-large>mdi-chevron-down</v-icon></v-btn
+            ></v-card-title
+          >
+          <v-btn
+            v-if="filterUnitValue || filterBlockValue || filterTaskValue"
+            @click="clearFilter"
+            color="#0F0F0F"
+            text
+            >Clear Sort</v-btn
+          >
+        </div>
+
         <!-- <v-row style="padding: 5px;"> -->
         <v-row v-if="showSorting">
           <v-col cols="4">

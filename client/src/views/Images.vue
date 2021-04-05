@@ -105,10 +105,15 @@
                       <v-icon :id="card.id" color="orange">mdi-email</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn :id="card.id" icon @click="deleteImage" v-if="userRole < 2" >
+                    <v-btn
+                      :id="card.id"
+                      icon
+                      @click="deleteImage"
+                      v-if="userRole < 2"
+                    >
                       <v-icon color="red">mdi-trash-can</v-icon>
                     </v-btn>
-                    <v-spacer v-if="userRole < 2"></v-spacer >
+                    <v-spacer v-if="userRole < 2"></v-spacer>
                   </v-card-actions>
                 </v-card>
               </v-col>
@@ -483,7 +488,7 @@ export default {
   },
   mounted() {
     this.getImagesFromDataBase();
-    console.log(this.$store.state.userRole)
+    console.log(this.$store.state.userRole);
   },
   methods: {
     async sendEmail(event) {

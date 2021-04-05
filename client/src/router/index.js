@@ -28,12 +28,12 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "Schedule" */ "../views/Schedule.vue")
   },
-  {
-    path: "/gantt",
-    name: "Gantt",
-    component: () =>
-      import(/* webpackChunkName: "Gantt" */ "../views/ProjectGant.vue")
-  },
+  // {
+  //   path: "/gantt",
+  //   name: "Gantt",
+  //   component: () =>
+  //     import(/* webpackChunkName: "Gantt" */ "../views/ProjectGant.vue")
+  // },
   {
     path: "/login",
     name: "Login",
@@ -92,12 +92,12 @@ const routes = [
         /* webpackChunkName: "paymentCertificates" */ "../views/PaymentCertificates.vue"
       )
   },
-  {
-    path: "/cashflow",
-    name: "Cashflow",
-    component: () =>
-      import(/* webpackChunkName: "Cashflow" */ "../views/Cashflow.vue")
-  },
+  // {
+  //   path: "/cashflow",
+  //   name: "Cashflow",
+  //   component: () =>
+  //     import(/* webpackChunkName: "Cashflow" */ "../views/Cashflow.vue")
+  // },
   {
     path: "/paymentsdue",
     name: "paymentsdue",
@@ -144,11 +144,35 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "Deliveries" */ "../views/Deliveries.vue")
   },
+  // {
+  //   path: "/ganttv2",
+  //   name: "ganttv2",
+  //   component: () =>
+  //     import(/* webpackChunkName: "ganttv2" */ "../views/GantView2.vue")
+  // },
+  // {
+  //   path: "/ganttv3",
+  //   name: "ganttv3",
+  //   component: () =>
+  //     import(/* webpackChunkName: "ganttv2" */ "../views/GanttView3.vue")
+  // },
+  // {
+  //   path: "/ganttv3A",
+  //   name: "ganttv3A",
+  //   component: () =>
+  //     import(/* webpackChunkName: "ganttv3A" */ "../views/Gantt3.vue")
+  // },
   {
-    path: "/ganttv2",
-    name: "ganttv2",
+    path: "/gantt4",
+    name: "gantt4",
     component: () =>
-      import(/* webpackChunkName: "ganttv2" */ "../views/GantView2.vue")
+      import(/* webpackChunkName: "ganttv3A" */ "../views/Gantt4.vue")
+  },
+  {
+    path: "/DateReset",
+    name: "DateReset",
+    component: () =>
+      import(/* webpackChunkName: "DateReset" */ "../views/DatesReset.vue")
   },
   {
     path: "/qualitycontrol",

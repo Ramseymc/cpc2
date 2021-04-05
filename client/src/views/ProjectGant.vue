@@ -155,7 +155,7 @@
             >
               <div
                 class="list-group-item"
-                v-for="(element) in list1"
+                v-for="element in list1"
                 :key="element.name"
               >
                 {{ element.name }}
@@ -173,7 +173,7 @@
             >
               <div
                 class="list-group-item"
-                v-for="(element) in list2"
+                v-for="element in list2"
                 :key="element.name"
               >
                 {{ element.name }}
@@ -212,19 +212,19 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `Gantt here.`,
-      },
+        content: `Gantt here.`
+      }
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true,
-    },
+      amp: true
+    }
   },
   components: {
     FrappeGantt,
     // Drag,
     // Drop,
-    draggable,
+    draggable
   },
   data() {
     return {
@@ -232,7 +232,7 @@ export default {
         { name: "John", id: 1 },
         { name: "Joao", id: 2 },
         { name: "Jean", id: 3 },
-        { name: "Gerard", id: 4 },
+        { name: "Gerard", id: 4 }
       ],
       list2: [
         // { name: "Juan", id: 5 },
@@ -248,7 +248,7 @@ export default {
       removeDependancyCheck: false,
       mode: "Day",
       tasks: [],
-      debugEventLog: [],
+      debugEventLog: []
     };
   },
   async mounted() {
@@ -258,14 +258,14 @@ export default {
     this.list1 = [];
     await axios({
       method: "get",
-      url: `${url}/progressGantt/${this.$store.state.development.id}`,
+      url: `${url}/progressGantt/${this.$store.state.development.id}`
     }).then(
-      (response) => {
+      response => {
         if (response.data.success === false) {
           return this.$router.push({ name: "Login" });
         }
 
-        response.data.forEach((el) => {
+        response.data.forEach(el => {
           let insert = {
             id: `${el.taskType}-${el.unitId}-${el.fix}`,
             name: `${el.taskName}: ${el.subsectionName} - ${el.unitName} - ${el.fix} fix`,
@@ -275,13 +275,13 @@ export default {
             fix: el.fix,
             unitNumber: el.unitId,
             taskType: el.taskType,
-            dependencies: JSON.parse(el.dependencies),
+            dependencies: JSON.parse(el.dependencies)
           };
           this.tasks.push(insert);
           this.list1.push(insert);
         });
       },
-      (error) => {
+      error => {
         console.log(error);
       }
     );
@@ -297,7 +297,7 @@ export default {
     },
     clone: function(el) {
       return {
-        name: el.name + " cloned",
+        name: el.name + " cloned"
       };
     },
     log: function(evt) {
@@ -375,36 +375,36 @@ export default {
         name: id,
         start: "2019-01-01",
         end: "2019-01-05",
-        progress: Math.random() * 100,
+        progress: Math.random() * 100
       });
     },
     changeDependancies() {
       this.dialog2 = true;
     },
     async processDependancies() {
-      let thisIsDependant = this.tasks.filter((el) => {
+      let thisIsDependant = this.tasks.filter(el => {
         return el.name === this.thisIsDependant;
       });
       let thisIsDependantId = thisIsDependant[0].id;
       if (!this.removeDependancyCheck) {
         let onThese = [];
-        this.onThese.forEach((el) => {
+        this.onThese.forEach(el => {
           let name = el;
-          this.tasks.forEach((el2) => {
+          this.tasks.forEach(el2 => {
             if (el2.name === name) {
               onThese.push(el2.id);
             }
           });
         });
-        this.tasks.forEach((el) => {
+        this.tasks.forEach(el => {
           if (el.id === thisIsDependantId) {
-            onThese.forEach((el2) => {
+            onThese.forEach(el2 => {
               el.dependencies.push(el2);
             });
           }
         });
       } else {
-        this.tasks.forEach((el) => {
+        this.tasks.forEach(el => {
           if (el.id === thisIsDependantId) {
             el.dependencies = [];
           }
@@ -414,12 +414,12 @@ export default {
       await axios({
         method: "post",
         url: `${url}/progressDependency`,
-        data: data,
+        data: data
       })
-        .then((error) => {
+        .then(error => {
           console.log(error);
         })
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
       //SHOULD THIS MOVE INTO THEN???
@@ -436,8 +436,8 @@ export default {
     },
     demoViewMode(viewMode) {
       this.mode = viewMode;
-    },
-  },
+    }
+  }
 };
 </script>
 

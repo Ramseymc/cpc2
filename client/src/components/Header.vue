@@ -176,22 +176,49 @@ export default {
             id: "schedule",
             color: "amber accent-3"
           },
+          // {
+          //   title: "Gantt",
+          //   name: "Gantt",
+          //   icon: "mdi-chart-gantt",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "gantt",
+          //   color: "light-green accent-2"
+          // },
+          // {
+          //   title: "Gantt V2",
+          //   name: "ganttv2",
+          //   icon: "mdi-chart-gantt",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "ganttv2",
+          //   color: "light-green accent-2"
+          // },
+          // {
+          //   title: "Gantt V3",
+          //   name: "ganttv3",
+          //   icon: "mdi-chart-gantt",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "ganttv3",
+          //   color: "light-green accent-2"
+          // },
+          // {
+          //   title: "Gantt V3A",
+          //   name: "ganttv3A",
+          //   icon: "mdi-chart-gantt",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "ganttv3A",
+          //   color: "light-green accent-2"
+          // },
           {
-            title: "Gantt",
-            name: "Gantt",
+            title: "Gantt 4",
+            name: "gantt4",
             icon: "mdi-chart-gantt",
             role: 3,
             menu: 1,
-            id: "gantt",
-            color: "light-green accent-2"
-          },
-          {
-            title: "Gantt V2",
-            name: "ganttv2",
-            icon: "mdi-chart-gantt",
-            role: 3,
-            menu: 1,
-            id: "ganttv2",
+            id: "gantt4",
             color: "light-green accent-2"
           },
           {
@@ -242,15 +269,15 @@ export default {
         id: "paymentCertificates",
         color: "teal",
         items: [
-          {
-            title: "Cashflow",
-            name: "Cashflow",
-            icon: "mdi-cash-multiple",
-            role: 3,
-            menu: 1,
-            id: "Cashflow",
-            color: "purple accent-1"
-          },
+          // {
+          //   title: "Cashflow",
+          //   name: "Cashflow",
+          //   icon: "mdi-cash-multiple",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "Cashflow",
+          //   color: "purple accent-1"
+          // },
           {
             title: "Payments Due",
             name: "paymentsdue",
@@ -375,6 +402,15 @@ export default {
             menu: 1,
             id: "SupplierChange",
             color: "teal"
+          },
+          {
+            title: "Reset Dates",
+            name: "DateReset",
+            icon: "mdi-notebook-edit",
+            role: 3,
+            menu: 1,
+            id: "DateReset",
+            color: "yellow"
           }
         ]
       },
@@ -418,12 +454,12 @@ export default {
         id: "signup"
       },
       {
-        title: "Gantt V2",
-        name: "ganttv2",
+        title: "Gantt V3A",
+        name: "ganttv3A",
         icon: "mdi-chart-gantt",
         role: 3,
         menu: 1,
-        id: "ganttv2",
+        id: "ganttv3A",
         color: "light-green accent-2"
       },
 
@@ -499,12 +535,12 @@ export default {
         id: "signup"
       },
       {
-        title: "Gantt V2",
-        name: "ganttv2",
+        title: "Gantt V3A",
+        name: "ganttv3A",
         icon: "mdi-chart-gantt",
         role: 3,
         menu: 1,
-        id: "ganttv2",
+        id: "ganttv3A",
         color: "light-green accent-2"
       },
       {

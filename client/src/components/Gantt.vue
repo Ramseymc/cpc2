@@ -24,15 +24,15 @@ export default {
     // },
   },
   beforeMount() {
-    gantt.config.grid_width = 350;
+    gantt.config.grid_width = 450;
     gantt.config.show_grid = this.showGrid;
     gantt.config.auto_scheduling = true;
     gantt.config.columns = [
-      { name: "text", tree: true, width: "*", resize: true },
-      { name: "start_date", align: "center", resize: true },
-      { name: "duration", align: "center", resize: true }
-      // { name: "add", width: 44 },
-      // { name: "dependencies", align: "center", resize: true },
+      { name: "text", tree: true, width: 250, resize: true },
+      { name: "start_date", align: "center", width: 90, resize: true },
+      { name: "duration", align: "center", width: 50, resize: true },
+      { name: "add", width: 44 },
+      { name: "dependencies", align: "center", width: 90, resize: true }
     ];
     //  gantt.config.task_height = 10
     // gantt.task.color = "red";
@@ -92,42 +92,45 @@ export default {
         }
       });
       // 3333333333333
-      gantt.attachEvent("onTaskDrag", function(id, mode, task, original){
-          var modes = gantt.config.drag_mode;
-          console.log(task)
-          console.log(original)
-          if(mode == modes.move){
-              var diff = task.start_date - original.start_date;
-              // console.log(diff)
-              gantt.eachTask(function(child){
-                console.log("Hello:",child)
-                  child.start_date = new Date(+child.start_date + diff);
-                  console.log(child.start_date)
-                  child.end_date = new Date(+child.end_date + diff);
-                  gantt.refreshTask(child.id, true);
-              },id );
-          }
+      gantt.attachEvent("onTaskDrag", function(id, mode, task, original) {
+        var modes = gantt.config.drag_mode;
+        console.log(task);
+        console.log(original);
+        if (mode == modes.move) {
+          var diff = task.start_date - original.start_date;
+          // console.log(diff)
+          gantt.eachTask(function(child) {
+            console.log("Hello:", child);
+            child.start_date = new Date(+child.start_date + diff);
+            console.log(child.start_date);
+            child.end_date = new Date(+child.end_date + diff);
+            gantt.refreshTask(child.id, true);
+          }, id);
+        }
       });
       //rounds positions of the child items to scale
-      gantt.attachEvent("onAfterTaskDrag", function(id, mode){
-          var modes = gantt.config.drag_mode;
-          console.log(mode)
-          if(mode == modes.move ){
-              var state = gantt.getState();
-              console.log(state)
-              gantt.eachTask(function(child){
-                console.log("Hello:",child)
+      gantt.attachEvent("onAfterTaskDrag", function(id, mode) {
+        var modes = gantt.config.drag_mode;
+        console.log(mode);
+        if (mode == modes.move) {
+          var state = gantt.getState();
+          console.log(state);
+          gantt.eachTask(function(child) {
+            console.log("Hello:", child);
 
-                  child.start_date = gantt.roundDate({
-                      date:child.start_date,
-                      unit:state.scale_unit,
-                      step:state.scale_step
-                  });
-                  child.end_date = gantt.calculateEndDate(child.start_date,
-                      child.duration, gantt.config.duration_unit);
-                  gantt.updateTask(child.id);
-              },id );
-          }
+            child.start_date = gantt.roundDate({
+              date: child.start_date,
+              unit: state.scale_unit,
+              step: state.scale_step
+            });
+            child.end_date = gantt.calculateEndDate(
+              child.start_date,
+              child.duration,
+              gantt.config.duration_unit
+            );
+            gantt.updateTask(child.id);
+          }, id);
+        }
       });
 
       // 3333333333333

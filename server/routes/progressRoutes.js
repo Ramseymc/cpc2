@@ -9,6 +9,11 @@ const pool = require("./connection");
 const chalk = require("chalk");
 const { checktoken, jwtSignUser } = require("./checkToken");
 const moment = require("moment");
+var dayjs = require('dayjs')
+var utc = require('dayjs/plugin/utc') // dependent on utc plugin
+var timezone = require('dayjs/plugin/timezone')
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 router.get("/start", checktoken, (req, res) => {
   res.json({ Awesome: "It Works!!!!" });
@@ -280,13 +285,13 @@ router.post("/progressPostRetained", (req, res) => {
 });
 
 router.get("/tasks/:unit/:taskType", (req, res) => {
-  let mysql1 = `select t.id, t.taskType,t.supplier,s.retention,  t.unitNumber, t.taskDescription,coalesce(p.lastCertificateIssuedAt,0) as lastCertificateIssuedAt, t.price, t.fix, t.startDate, t.endDate, p.id as progressID, p.task, 
+  let mysql1 = `select t.id, t.taskType,t.supplier,s.retention,  t.unitNumber, t.taskDescription,coalesce(p.lastCertificateIssuedAt,0) as lastCertificateIssuedAt, t.price, t.fix, t.startDate, t.endDate,t.duration,  p.id as progressID, p.task, 
     coalesce(p.progress,0) as progress, p.progressDate, round((t.price * coalesce(p.progress,0) / 100),0) as done, 
     (t.price - round((t.price * coalesce(p.progress,0) / 100),0)) as remaining
      from suppliers s, tasks t
     left join progress p
     on t.id = p.task
-    where t.unitNumber = ${req.params.unit} and t.taskType = ${req.params.taskType} and s.id = t.supplier order by t.fix, t.taskDescription`;
+    where t.unitNumber = ${req.params.unit} and t.taskType = ${req.params.taskType} and s.id = t.supplier order by t.fix, t.id, t.startDate, t.taskDescription`;
   let mysql2 = `select id as progressID, supplier, taskType, unitNumber, progress,totalRetention, retentionToDate, progressDate, certificateIssued, lastCertificateIssuedAt, lastCertificateNumber, paymentDetails, updatedBy, lastUpdate 
     from progressRetention where unitNumber = ${req.params.unit} and taskType = ${req.params.taskType}`;
   let mysql = `${mysql1};${mysql2}`;
@@ -304,10 +309,16 @@ router.get("/tasks/:unit/:taskType", (req, res) => {
         remaining = result[0].filter((el) => {
           return el.progress <= 100;
         });
+        remaining.forEach((el) => {
+          console.log(new Date(el.startDate).getTimezoneOffset())
+          el.startDate = dayjs(el.startDate).add(new Date(el.startDate).getTimezoneOffset(),'minutes').format("YYYY-MM-DD HH:mm:ss")
+          el.endDate = dayjs(el.endDate).add(new Date(el.endDate).getTimezoneOffset(),'minutes').format("YYYY-MM-DD HH:mm:ss")
+        })
         let finalResult = {
           remaining,
           retention: result[1],
         };
+        console.log(finalResult.remaining)
         res.json(finalResult);
       }
     });

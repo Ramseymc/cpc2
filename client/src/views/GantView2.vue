@@ -4,6 +4,73 @@
       <v-btn text @click="showGrid">Grid</v-btn>
       <v-btn text @click="checkTasks">Messages</v-btn>
     </div>
+    <v-col cols="10" offset="1" xs-12>
+      <v-card xs-12 :max-height="maxHeight">
+        <!-- FILTER DETAILS -->
+        <div style="display:flex; justify-content: space-around;">
+          <v-card-title style="font-size: 80%;" @click="showSort"
+            >Sort Options
+            <v-btn icon
+              ><v-icon x-large>mdi-chevron-down</v-icon></v-btn
+            ></v-card-title
+          >
+          <v-btn
+            style="font-weight: bold;"
+            v-if="filterUnitValue || filterBlockValue || filterTaskValue"
+            @click="clearFilter"
+            color="red"
+            text
+            >Clear Sort</v-btn
+          >
+        </div>
+
+        <!-- <v-row style="padding: 5px;"> -->
+        <v-row>
+          <v-col cols="4">
+            <v-autocomplete
+              class="ml-4"
+              v-model="filterBlockValue"
+              :items="blockFilter"
+              dense
+              filled
+              label="Block"
+              color="#0F0F0F"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="4">
+            <v-autocomplete
+              v-model="filterUnitValue"
+              :items="unitFilter"
+              dense
+              filled
+              label="Unit"
+              color="#0F0F0F"
+              @change="filterDataforGrid"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="4">
+            <v-autocomplete
+              class="mr-4"
+              v-model="filterTaskValue"
+              :items="taskFilter"
+              dense
+              filled
+              label="Task"
+              color="#0F0F0F"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
+        <!-- <v-col cols="12">
+          <v-btn
+            v-if="filterUnitValue || filterBlockValue || filterTaskValue"
+            @click="clearFilter"
+            color="#0F0F0F"
+            text
+            >Clear Sort</v-btn
+          >
+        </v-col> -->
+      </v-card>
+    </v-col>
     <div class="right-container" v-if="showLeft">
       <div class="gantt-selected-info">
         <div v-if="selectedTask">
@@ -32,6 +99,7 @@
         </li>
       </ul>
     </div>
+    <!-- //tasks -->
     <gantt
       :key="componentKey"
       class="left-container"
@@ -55,9 +123,18 @@ export default {
   components: { Gantt },
   data() {
     return {
+      maxHeight: 50,
+      showSorting: false,
       gridWidth: true,
       componentKey: 0,
       showLeft: false,
+      filterData: [],
+      blockFilter: [],
+      unitFilter: [],
+      taskFilter: [],
+      filterBlockValue: "",
+      filterUnitValue: "",
+      filterTaskValue: "",
 
       tasks: {
         data: [
@@ -106,12 +183,47 @@ export default {
   // created() {
   //   this.gridWidth = this.$store.state.gridWidth
   // },
+  computed: {
+    // dataFiltered() {
+    //   if (this.filterUnitValue === "") {
+    //     return this.tasks;
+    //   } else {
+    //     // const filter = "nature";
+    //     // const filteredResult = initialState.filter((item) => {
+    //     //   return item.tags.indexOf(filter) >= 0;
+    //     // });
+    //     let data = this.tasks.data.filter((el) => {
+    //       // console.log(this.tasks);
+    //       return (
+    //         !this.filterUnitValue ||
+    //         el.text.toLowerCase().indexOf(this.filterUnitValue.toLowerCase()) >
+    //           -1
+    //         //   ||
+    //         // el.unitName.toLowerCase().indexOf(this.searchImages.toLowerCase()) >
+    //         //   -1 ||
+    //         // el.comments.toLowerCase().indexOf(this.searchImages.toLowerCase()) >
+    //         //   -1 ||
+    //         // el.createdAt
+    //         //   .toLowerCase()
+    //         //   .indexOf(this.searchImages.toLowerCase()) > -1 ||
+    //         // el.uploadedBy
+    //         //   .toLowerCase()
+    //         //   .indexOf(this.searchImages.toLowerCase()) > -1
+    //       );
+    //     });
+    //      this.tasks.data = data
+    //     return this.tasks;
+    //   }
+    // },
+  },
   beforeMount() {
-    this.tasks.data = [];
-    this.getData();
+    // this.tasks.data = [];
+    // this.getData();
   },
   mounted() {
     setTimeout(() => {
+      this.tasks.data = [];
+      this.getData();
       this.componentKey++;
     }, 150);
   },
@@ -149,6 +261,47 @@ export default {
     // console.log(this.tasks.data);
   },
   methods: {
+    filterDataforGrid() {
+      this.getData().then(() => {
+        setTimeout(() => {
+          this.componentKey++;
+        }, 100);
+      });
+
+      // if (this.filterUnitValue !== "") {
+      //   let data = this.tasks.data.filter((el) => {
+      //     return el.text.toLowerCase().indexOf(this.filterUnitValue.toLowerCase()) >
+      //       -1;
+      //   });
+      //   this.tasks.data = data;
+
+      //   // return this.tasks
+      // }
+      // console.log(this.tasks.data)
+      // setTimeout(() => {
+      // this.componentKey++
+
+      // }, 500)
+    },
+    clearFilter() {
+      this.filterBlockValue = "";
+      this.filterUnitValue = "";
+      this.filterTaskValue = "";
+    },
+    // createFilters() {
+    //   if (this.filterUnitValue !== "") {
+
+    //   }
+    // },
+    showSort() {
+      console.log("Show Sort");
+      this.showSorting = !this.showSorting;
+      if (this.showSorting) {
+        this.maxHeight = 150;
+      } else {
+        this.maxHeight = 50;
+      }
+    },
     async getData() {
       axios.defaults.headers.common["Authorization"] = this.$store.state.token;
       this.tasks.data = [];
@@ -165,7 +318,16 @@ export default {
           this.tasks.data = [];
           this.tasks.links = [];
           console.log(response.data);
-          response.data.forEach(el => {
+          let data = response.data;
+          if (this.filterUnitValue !== "") {
+            data = data.filter(el => {
+              return el.unitName === this.filterUnitValue;
+            });
+          }
+          console.log(data);
+          data.forEach(el => {
+            console.log(el);
+            // if (el.unitName === this.filterUnitValue)
             let dependencies = JSON.parse(el.dependencies);
             if (dependencies === null) {
               dependencies = [];
@@ -192,6 +354,7 @@ export default {
           });
           console.log(this.tasks.data);
           this.tasks.links = [];
+          let filterData = [];
           this.tasks.data.forEach((el, index) => {
             if (el.dependencies !== null) {
               let insert = {
@@ -202,15 +365,48 @@ export default {
               };
               this.tasks.links.push(insert);
             }
+            // let insert2 = {
+            //   id: el.id,
+            //   tex: el.text
+            // }
+            filterData.push(el.text);
+            this.filterData = filterData;
           });
         },
         error => {
           console.log(error);
         }
       );
+      let taskFilter = [];
+      let blockFilter = [];
+      let unitFilter = [];
+      // console.log(this.filterData);
+      this.filterData.forEach(el => {
+        let splitData = el.split(/:|-| fix/);
+        taskFilter.push(splitData[0]);
+        unitFilter.push(splitData[1].trim());
+      });
+      taskFilter = Array.from(new Set(taskFilter));
+      unitFilter = Array.from(new Set(unitFilter));
+      console.log(taskFilter);
+      console.log(unitFilter);
+      unitFilter.forEach(el => {
+        blockFilter.push(`Block ${el.substr(0, 1)}`);
+      });
+      blockFilter = Array.from(new Set(blockFilter));
+      console.log(blockFilter);
+      this.unitFilter = unitFilter;
+      this.blockFilter = blockFilter;
+      this.taskFilter = taskFilter;
 
       // console.log(this.tasks.data);
       this.tasksDataOriginal = JSON.stringify(this.tasks.data);
+      setTimeout(() => {
+        this.$nextTick(() => {
+          console.log(this.tasks.data);
+        }, 300);
+        this.componentKey++;
+      }, 200);
       // console.log(this.tasksDataOriginal)
     },
     showGrid() {

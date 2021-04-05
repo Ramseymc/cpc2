@@ -2,6 +2,7 @@
   <div class="about">
     <v-container>
       <h1>Progress</h1>
+      <!-- <v-btn>reset</v-btn> -->
       <h3
         v-if="taskTypeChosen.length && taskType.length"
         style="color: #0F0F0F;"
@@ -144,6 +145,33 @@
           </template>
         </v-progress-linear>
         <span>Total Value: {{ totalAmount }}</span>
+
+        <v-progress-linear
+          v-if="averageTime <= allTaskProgress"
+          :value="averageTime"
+          style="margin-top: 5px;"
+          color="green"
+          height="12"
+        >
+          <template v-slot:default="{ value }">
+            <small style="color: white;">{{ Math.ceil(value) }}%</small>
+          </template>
+        </v-progress-linear>
+
+        <v-progress-linear
+          v-else
+          :value="averageTime"
+          style="margin-top: 5px;"
+          color="red"
+          height="12"
+        >
+          <template v-slot:default="{ value }">
+            <small style="color: white;">{{ Math.ceil(value) }}%</small>
+          </template>
+        </v-progress-linear>
+        <span>Now: {{ today }}</span>
+
+        <!-- <span>Total Value: {{ totalAmount }}</span> -->
         <v-list two-line v-show="showDetail">
           <v-list-item-group v-model="selected" multiple>
             <!-- <template v-for="item in items"> -->
@@ -182,10 +210,64 @@
                         >
                       </template>
                     </v-progress-linear>
+                    <v-divider></v-divider>
+                    <div style="display: flex; justify-content: space-between;">
+                      <span
+                        ><small>{{ item.startDate }}</small></span
+                      >
+                      <span
+                        style="color:red;"
+                        v-if="item.currentTime > item.progress"
+                        ><small><strong>Behind Schedule</strong></small></span
+                      >
+                      <span style="color:green" v-else
+                        ><small><strong>On Schedule</strong></small></span
+                      >
+                      <span
+                        ><small>{{ item.endDate }}</small></span
+                      >
+                    </div>
+                    <!-- @mouseover="changeValue" -->
+                    <v-progress-linear
+                      v-if="item.currentTime > item.progress"
+                      style="margin-top: 5px;"
+                      :value="item.currentTime"
+                      color="red"
+                      height="10"
+                      class="test"
+                    >
+                      <template v-slot:default="{ value }">
+                        <small style="color: white;"
+                          >{{ Math.ceil(value) }}%</small
+                        >
+                      </template>
+                    </v-progress-linear>
+                    <v-progress-linear
+                      v-else
+                      style="margin-top: 5px;"
+                      :value="item.currentTime"
+                      color="green"
+                      height="10"
+                      class="test"
+                    >
+                      <template v-slot:default="{ value }">
+                        <small style="color: white;"
+                          >{{ Math.ceil(value) }}%</small
+                        >
+                      </template>
+                    </v-progress-linear>
                   </v-list-item-content>
                 </template>
+                <v-list-item-action>
+                  <v-btn icon :id="item.id" @click="addTime"
+                    ><v-icon color="green">mdi-camera-timer</v-icon></v-btn
+                  >
+                </v-list-item-action>
               </v-list-item>
             </template>
+            <v-list-item>
+              <!-- <template v-slot:default="{ active }"> -->
+            </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-card>
@@ -236,10 +318,81 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialog3" persistent max-width="400px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Push Time forwards</span>
+        </v-card-title>
+        <v-card-text>
+          <span>This will affect all linked tasks</span><br />
+          <span>Are you sure?</span><br />
+
+          <!-- v-model="allTaskProgress" -->
+          <vue-numeric-input
+            v-model="addDays"
+            style="background-color: white;"
+            label="Testing"
+            :min="-100"
+            :max="100"
+            :step="1"
+          ></vue-numeric-input>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="dialog3 = false">
+            Cancel
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            v-if="addDays !== 0"
+            color="blue darken-1"
+            text
+            @click="saveAddedTime"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+// dayjs.extend(utc)
+// dayjs.extend(utc)
+dayjs.extend(utc);
+dayjs.extend(timezone);
+import businessDays from "dayjs-business-days";
+
+// dayjs.extend(dayjsBusinessDays);
+// const goodFriday = "2021-04-02"
+// const easterMonday = "2021-04-05"
+
+const options = {
+  holidays: [
+    "2021-04-02",
+    "2021-04-05",
+    "2021-04-27",
+    "2021-06-16",
+    "2021-08-09",
+    "2021-09-24",
+    "2021-12-16",
+    "2021-12-27"
+  ],
+  holidayFormat: "YYYY-MM-DD"
+};
+dayjs.extend(businessDays, options);
+
+// dayjs.extend(dayjsBusinessDays);
+
+// const options = {
+//   holidays: ['2020-12-25'],
+//   holidayFormat: 'YYYY-MM-DD',
+// };
+// dayjs.extend(businessDays, options);
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
 export default {
@@ -260,12 +413,17 @@ export default {
   },
   data() {
     return {
+      addDays: 0,
+      addDaysId: 0,
+      today: null,
+      timeProgressActive: true,
       showDetail: true,
       btnIcon: "mdi-arrow-down",
       btnText: "Hide",
       allTaskProgress: 0,
 
       dialog2: false,
+      dialog3: false,
       dialog: false,
       disabled: true,
 
@@ -312,7 +470,8 @@ export default {
 
       totalAmount: "",
       allTaskProgressStart: 0,
-      totalAmountDigits: 0
+      totalAmountDigits: 0,
+      averageTime: 0
     };
   },
   watch: {
@@ -332,10 +491,23 @@ export default {
 
         this.changeIndividualProgress();
       }
+      if (this.items.length) {
+        let average = this.items.reduce((acc, el) => {
+          return acc + el.currentTime;
+        }, 0);
+        average = average / this.items.length;
+
+        this.averageTime = average;
+
+        // this.changeIndividualProgress();
+      }
     }
   },
   async mounted() {
     this.checkToken();
+    console.log(dayjs("2020-12-25").isBusinessDay());
+    // console.log("Christmas Day is holiday?:", dayjs('2020-12-25').options())
+    // console.log("Christmas Day is holiday?:", dayjs('2020-12-25').businessDaysInMonth())
     axios.defaults.headers.common["Authorization"] = this.$store.state.token;
 
     this.items = [];
@@ -640,7 +812,53 @@ export default {
         }).then(
           response => {
             if (response.data.remaining.length) {
+              console.log(response.data);
               this.tasks = response.data.remaining;
+              let today = dayjs().format("YYYY-MM-DD HH:mm:ss");
+              this.today = today;
+
+              // console.log(today)
+              this.tasks.forEach(el => {
+                el.endDate = dayjs(el.endDate).format("YYYY-MM-DD HH:mm:ss");
+                el.startDate = dayjs(el.startDate).format(
+                  "YYYY-MM-DD HH:mm:ss"
+                );
+                // let endDate = dayjs(el.endDate).format("YYYY-MM-DD  HH:mm:ss");
+                // let startDate = dayjs(el.startDate).format("YYYY-MM-DD  HH:mm:ss");
+
+                // el.duration = dayjs(endDate).diff(dayjs(startDate), "day");
+                // if (today >= el.endDate) {
+                //   console.log(el.taskDescription)
+                // }
+
+                if (today > el.endDate) {
+                  el.currentTime = 100;
+                  el.originalTime = el.currentTime;
+                  // let endDate = el.endDate.substr(0,10)
+                  // let diff = dayjs(el.endDate).businessDiff(dayjs(today), "day");
+                  // let duration =
+                  // console.log("diff past", diff);
+                  // console.log(el.taskDescription)
+
+                  // } else if (today >= dayjs(el.startDate) && today < dayjs(el.endDate)){
+                } else if (today <= el.endDate && today >= el.startDate) {
+                  let diff = dayjs(el.endDate).diff(dayjs(today));
+                  let durationDiff = dayjs(el.endDate).diff(
+                    dayjs(el.startDate)
+                  );
+                  // console.log("diff in period", diff);
+                  // console.log(el.description)
+                  el.currentTime = ((durationDiff - diff) / durationDiff) * 100;
+                  // el.currentTime = (((el.duration * 24 * 60 * 60 * 1000) - diff) / (el.duration * 24 * 60 * 60 * 1000)) * 100;
+                  el.originalTime = el.currentTime;
+                } else if (today < el.startDate) {
+                  // let diff = dayjs(endDate).diff(dayjs(today), "day");
+                  // console.log("diff", diff);
+                  el.currentTime = 0;
+                  el.originalTime = el.currentTime;
+                }
+              });
+
               let totalValue = this.tasks.reduce((acc, pv) => {
                 return (
                   acc +
@@ -750,6 +968,72 @@ export default {
           }
         );
       }
+    },
+    addTime(event) {
+      console.log(event.currentTarget.id);
+      this.dialog3 = true;
+      console.log(this.itemsDuplicated);
+      this.addDaysId = parseInt(event.currentTarget.id);
+      // this.itemsDuplicated.forEach((el, index, arr) => {
+      //   if (el.id === parseInt(event.currentTarget.id)) {
+      //     console.log("Index", index)
+      //     console.log(arr[index])
+      //   }
+      // })
+      // console.log(this.fixChosen)
+    },
+    async saveAddedTime() {
+      console.log(this.addDaysId);
+      this.itemsDuplicated.forEach((el, index, arr) => {
+        if (el.id === parseInt(this.addDaysId)) {
+          console.log("Index", index);
+          console.log(arr[index]);
+          for (let i = index; i < this.itemsDuplicated.length; i++) {
+            console.log(i);
+            if (i === index) {
+              this.itemsDuplicated[i].endDate = dayjs(
+                this.itemsDuplicated[i].endDate
+              )
+                .businessDaysAdd(this.addDays)
+                .format("YYYY-MM-DD HH:mm:ss");
+              this.itemsDuplicated[i].duration = dayjs(
+                this.itemsDuplicated[i].endDate
+              ).businessDiff(dayjs(this.itemsDuplicated[i].startDate), "d");
+            } else {
+              this.itemsDuplicated[i].endDate = dayjs(
+                this.itemsDuplicated[i].endDate
+              )
+                .businessDaysAdd(this.addDays)
+                .format("YYYY-MM-DD HH:mm:ss");
+              this.itemsDuplicated[i].startDate = dayjs(
+                this.itemsDuplicated[i].startDate
+              )
+                .businessDaysAdd(this.addDays)
+                .format("YYYY-MM-DD HH:mm:ss");
+              this.itemsDuplicated[i].duration = dayjs(
+                this.itemsDuplicated[i].endDate
+              ).businessDiff(dayjs(this.itemsDuplicated[i].startDate), "d");
+            }
+          }
+        }
+      });
+      let data = this.itemsDuplicated;
+      console.log("length",data.length)
+      await axios({
+        method: "post",
+        url: `${url}/upDateTasksFromProgress`,
+        data: data
+      })
+        .then(response => {
+          console.log(response.data);
+        })
+        .catch(e => {
+          console.log(e);
+        });
+
+      this.dialog3 = false;
+      this.addDays = 0;
+      this.getTasks();
     }
   }
 };
@@ -759,5 +1043,8 @@ export default {
 .listDiv {
   display: flex;
   justify-content: space-evenly;
+}
+.test:readonly {
+  background-color: purple;
 }
 </style>
