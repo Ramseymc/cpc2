@@ -256,6 +256,68 @@
                         >
                       </template>
                     </v-progress-linear>
+                    <!-- ??????????????????????????? -->
+                    <v-progress-linear
+                      v-if="item.baselineCategory === 1"
+                      style="margin-top: 5px;"
+                      value="100"
+                      color="red"
+                      height="7"
+                      class="test"
+                      striped
+                    >
+                      <!-- <template v-slot:default="{ value }">
+                        <small style="color: white;"
+                          >{{ Math.ceil(value) }}%</small
+                        >
+                      </template> -->
+                    </v-progress-linear>
+                    <v-progress-linear
+                      v-else-if="item.baselineCategory === 2"
+                      style="margin-top: 5px;"
+                      value="100"
+                      color="orange"
+                      height="7"
+                      class="test"
+                      striped
+                    >
+                      <!-- <template v-slot:default="{ value }">
+                        <small style="color: white;"
+                          >{{ Math.ceil(value) }}%</small
+                        >
+                      </template> -->
+                    </v-progress-linear>
+                    <v-progress-linear
+                      v-else-if="item.baselineCategory === 3"
+                      style="margin-top: 5px;"
+                      value="100"
+                      color="blue"
+                      height="7"
+                      class="test"
+                      striped
+                    >
+                      <!-- <template v-slot:default="{ value }">
+                        <small style="color: white;"
+                          >{{ Math.ceil(value) }}%</small
+                        >
+                      </template> -->
+                    </v-progress-linear>
+                    <v-progress-linear
+                      v-else
+                      style="margin-top: 5px;"
+                      value="100"
+                      color="green"
+                      height="7"
+                      class="test"
+                      striped
+                    >
+                      <!-- <template v-slot:default="{ value }">
+                        <small style="color: white;"
+                          >{{ Math.ceil(value) }}%</small
+                        >
+                      </template> -->
+                    </v-progress-linear>
+                    <!-- ??????????????????????????? -->
                   </v-list-item-content>
                 </template>
                 <v-list-item-action>
@@ -823,6 +885,32 @@ export default {
                 el.startDate = dayjs(el.startDate).format(
                   "YYYY-MM-DD HH:mm:ss"
                 );
+                el.baselineEndDate = dayjs(el.baselineEndDate).format(
+                  "YYYY-MM-DD HH:mm:ss"
+                );
+                el.baselineStartDate = dayjs(el.baselineStartDate).format(
+                  "YYYY-MM-DD HH:mm:ss"
+                );
+                let diffEndDate = dayjs(el.endDate).businessDiff(
+                  dayjs(el.baselineEndDate),
+                  "d"
+                );
+                console.log("End", diffEndDate);
+                let diffStartDate = dayjs(el.startDate).businessDiff(
+                  dayjs(el.baselineStartDate),
+                  "d"
+                );
+                console.log("Start", diffStartDate);
+                if (diffEndDate > diffStartDate && diffStartDate == 0) {
+                  el.baselineCategory = 1;
+                } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
+                  el.baselineCategory = 2;
+                } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
+                  el.baselineEndDate = 3;
+                } else {
+                  el.baselineCategory = 4;
+                }
+
                 // let endDate = dayjs(el.endDate).format("YYYY-MM-DD  HH:mm:ss");
                 // let startDate = dayjs(el.startDate).format("YYYY-MM-DD  HH:mm:ss");
 
@@ -848,7 +936,8 @@ export default {
                   );
                   // console.log("diff in period", diff);
                   // console.log(el.description)
-                  el.currentTime = ((durationDiff - diff) / durationDiff) * 100;
+                  el.currentTime =
+                    ((diff - (durationDiff - diff)) / durationDiff) * 100;
                   // el.currentTime = (((el.duration * 24 * 60 * 60 * 1000) - diff) / (el.duration * 24 * 60 * 60 * 1000)) * 100;
                   el.originalTime = el.currentTime;
                 } else if (today < el.startDate) {
@@ -1018,7 +1107,7 @@ export default {
         }
       });
       let data = this.itemsDuplicated;
-      console.log("length",data.length)
+      console.log("length", data.length);
       await axios({
         method: "post",
         url: `${url}/upDateTasksFromProgress`,

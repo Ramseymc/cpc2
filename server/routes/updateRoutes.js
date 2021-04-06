@@ -344,10 +344,15 @@ router.get("/getAllTasks", (req, res) => {
 
 
 router.post("/postTaskUpdates", (req, res) => {
+  // let data = []
+  // data.push(req.body.info)
+  // console.log(req.body.info)
   let mysql = "";
-  req.body.forEach(el => {
+  req.body.info.forEach(el => {
+  // req.body.info.forEach(el => {
     mysql = `${mysql} update tasks set startDate = '${el.startDate}', endDate = '${el.endDate}', duration = ${el.duration}, parentId = '${el.parentId}', dependantOn = '${el.dependantOn}' where id = ${el.id};`
   });
+  console.log(mysql)
   pool.getConnection(function (err, connection) {
     if (err) {
       connection.release();

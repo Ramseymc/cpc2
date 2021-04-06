@@ -468,6 +468,33 @@ export default {
           if (response.data.success === false) {
             return this.$router.push({ name: "Login" });
           }
+          let now = new Date();
+          console.log("Hello", response.data[4]);
+          console.log("Cool", response.data[0]);
+          response.data[0].forEach(el => {
+            let filteredData = response.data[4].filter(el2 => {
+              return (
+                el.taskType === el2.taskType &&
+                el.fix === el2.fix &&
+                el.subsectionName === el2.subsectionName &&
+                el.supplier === el2.supplier &&
+                el.unitNumber === el2.unitNumber
+              );
+            });
+            // console.log(filteredData)
+
+            el.startDate = filteredData[0].startDate;
+            el.endDate = filteredData[filteredData.length - 1].endDate;
+            if (
+              moment(now) > moment(el.endDate) &&
+              el.totalBudget - (el.totalBudget * (el.progress, 0)) / 100 > 0
+            ) {
+              el.schedule = "Behind";
+            } else {
+              el.schedule = "";
+            }
+            // if (now )
+          });
           response.data[0].forEach(el => {
             el.PCIssuedArray = response.data[1].filter(el2 => {
               return (

@@ -15,14 +15,14 @@ const { checktoken, jwtSignUser } = require("./checkToken");
 // group by s.supplierName,p.createdAt, p.certificateNumber,p.invoiceNumber
 
 router.get("/progressResults/:id", checktoken, (req, res) => {
-  let mysql1 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.startDate, t.endDate, t.supplier, 
-  sum(round(t.price,2)) as totalBudget, round(sum(t.price * coalesce(p.progress,0)/100),2) as totalUsed,  round(sum(t.price) - sum((t.price * coalesce(p.progress,0) / 100)),2) as Remaining,
- if(now() > t.endDate and sum(t.price) - sum((t.price * coalesce(p.progress,0) / 100)) > 0, "Behind", "") as schedule
+  let mysql1 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.supplier,coalesce(p.progress,0) as progress, 
+  sum(round(t.price,2)) as totalBudget, round(sum(t.price * coalesce(p.progress,0)/100),2) as totalUsed,  round(sum(t.price) - sum((t.price * coalesce(p.progress,0) / 100)),2) as Remaining
+
 from units u, taskTypes tt,subsection s,  tasks t
   left join progress p
   on p.task = t.id
   where u.id = t.unitNumber and tt.id = t.taskType and t.development = ${req.params.id} and s.id = u.subsection
-  group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix ,t.startDate, t.endDate ,t.supplier
+  group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix  ,t.supplier, p.progress
   order by s.subsectionName, u.unitName, tt.taskName, t.fix`;
   let mysql2 = `select p.task, tt.taskName, p.unitNumber,  u.unitName,t.fix,  pc.certificateNumber,
   round(coalesce(sum(pc.toDate),0),2) as PCToDate, round(coalesce(sum(pc.afterRetention),0),2) as PCIssued, round(coalesce(sum(pc.amountPaid),0),2) as PCPaid, round(coalesce(sum(pc.retained),0),2) as Retained
@@ -37,7 +37,14 @@ from units u, taskTypes tt,subsection s,  tasks t
   let mysql4 = `select distinct p.development, p.supplier,s.supplierName, p.unitName,  p.depositRecoveredThisStatement as recovered from  suppliers s,paymentCertificates p
   where p.depositRecoveredThisStatement > 0 and p.supplier = s.id and p.development = ${req.params.id}
 `
-  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4}`;
+  let mysql5 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.startDate,t.endDate, t.supplier
+  from units u, taskTypes tt,subsection s,  tasks t
+    left join progress p
+    on p.task = t.id
+    where u.id = t.unitNumber and tt.id = t.taskType and t.development = ${req.params.id} and s.id = u.subsection
+    group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix ,t.startDate,t.endDate ,t.supplier
+    order by s.subsectionName, u.unitName, tt.taskName, t.fix`
+  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5}`;
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);

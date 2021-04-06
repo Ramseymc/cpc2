@@ -285,7 +285,7 @@ router.post("/progressPostRetained", (req, res) => {
 });
 
 router.get("/tasks/:unit/:taskType", (req, res) => {
-  let mysql1 = `select t.id, t.taskType,t.supplier,s.retention,  t.unitNumber, t.taskDescription,coalesce(p.lastCertificateIssuedAt,0) as lastCertificateIssuedAt, t.price, t.fix, t.startDate, t.endDate,t.duration,  p.id as progressID, p.task, 
+  let mysql1 = `select t.id, t.taskType,t.supplier,s.retention,  t.unitNumber, t.taskDescription,coalesce(p.lastCertificateIssuedAt,0) as lastCertificateIssuedAt, t.price, t.fix, t.startDate, t.endDate,t.baselineStartDate, t.baselineEndDate, t.duration,  p.id as progressID, p.task, 
     coalesce(p.progress,0) as progress, p.progressDate, round((t.price * coalesce(p.progress,0) / 100),0) as done, 
     (t.price - round((t.price * coalesce(p.progress,0) / 100),0)) as remaining
      from suppliers s, tasks t
@@ -313,6 +313,8 @@ router.get("/tasks/:unit/:taskType", (req, res) => {
           console.log(new Date(el.startDate).getTimezoneOffset())
           el.startDate = dayjs(el.startDate).add(new Date(el.startDate).getTimezoneOffset(),'minutes').format("YYYY-MM-DD HH:mm:ss")
           el.endDate = dayjs(el.endDate).add(new Date(el.endDate).getTimezoneOffset(),'minutes').format("YYYY-MM-DD HH:mm:ss")
+          el.baselineStartDate = dayjs(el.baselineStartDate).add(new Date(el.baselineStartDate).getTimezoneOffset(),'minutes').format("YYYY-MM-DD HH:mm:ss")
+          el.baselineEndDate = dayjs(el.baselineEndDate).add(new Date(el.baselineEndDate).getTimezoneOffset(),'minutes').format("YYYY-MM-DD HH:mm:ss")
         })
         let finalResult = {
           remaining,

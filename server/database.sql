@@ -1262,8 +1262,14 @@ insert into qcquestionnaireTemplate (shortName, category, name) values
 ("Brickwork","Brickwork","Cavity inspected and clean?"),
 ("Brickwork","Brickwork","Pointing done appropriately, no overrun onto face, clean and neat?");
 
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
 
 alter table tasks add column dependantOn varchar(160);
 alter table tasks add column parentId varchar(160);
 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+ startDate TIMESTAMP DEFAULT NOW(),
+
+alter table tasks add column baselineStartDate TIMESTAMP DEFAULT startDate;
+alter table tasks add column baselineEndDate TIMESTAMP DEFAULT endDate;

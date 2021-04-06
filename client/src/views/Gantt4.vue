@@ -109,7 +109,7 @@ export default {
   },
   data() {
     return {
-      Anychart: Anychart,
+      anychart: Anychart,
       chart: null,
       treeData: null,
       componentKey: 0,
