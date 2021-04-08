@@ -463,7 +463,8 @@ export default {
   async mounted() {
     this.checkToken();
     this.consentUrl = "";
-    await this.getXeroCredentials();
+    // await this.getXeroCredentials();
+    await this.getSuppliers(); //Put above in and let this go when Xero sorted
   },
   computed: {
     suppliersFiltered() {
@@ -555,11 +556,13 @@ export default {
       })
         .then(
           response => {
-            if (response.data.err) {
+            if (!response.data.err) {
               this.getConnected();
             } else {
               this.getSuppliers();
             }
+            console.log(response.data);
+            this.getSuppliers();
           },
           error => {
             console.log("the Error", error);
@@ -581,15 +584,16 @@ export default {
       })
         .then(
           response => {
+            console.log(response.data);
             if (response.data.err) {
               this.getConnected();
             } else {
-              let suppliers = response.data.suppliers;
-              suppliers.forEach(el => {
-                if (el.isSupplier === false && el.isCustomer === false) {
-                  el.color = "red";
-                }
-              });
+              // let suppliers = response.data.suppliers;
+              // suppliers.forEach(el => {
+              //   if (el.isSupplier === false && el.isCustomer === false) {
+              //     el.color = "red";
+              //   }
+              // });
               this.suppliersInApp = response.data.mysqlResult;
               this.suppliersInApp.forEach(el => {
                 el.pmtTerms = this.terms.filter(el2 => {
@@ -600,12 +604,12 @@ export default {
                 } else {
                   el.vatVendor = false;
                 }
-                let contactID = el.contactID;
-                suppliers = suppliers.filter(el2 => {
-                  return el2.contactID !== contactID;
-                });
+                // let contactID = el.contactID;
+                // suppliers = suppliers.filter(el2 => {
+                //   return el2.contactID !== contactID;
+                // });
               });
-              this.items = suppliers;
+              // this.items = suppliers;
             }
           },
           error => {

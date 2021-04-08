@@ -8,8 +8,6 @@ var fs = require("fs");
 const { response } = require("express");
 const runReport = require("./reportsPDF");
 
-
-
 router.get("/suppliers", (req, res) => {
   let mysql = `select * from suppliers order by supplierName`;
   pool.getConnection(function (err, connection) {
@@ -100,7 +98,7 @@ router.post("/addDeposit", (req, res) => {
 
 router.post("/certificates", (req, res) => {
   let mysql1 = `select * from paymentCertificates where supplier = ${req.body.id}`;
-  let mysql2 = `select distinct t.id, p.id as progressId, t.supplier,t.taskDescription, t.fix, tt.taskName, u.unitName, round(t.price, 2) as price,s.retention, p.progress, 
+  let mysql2 = `select distinct t.id, p.id as progressId, t.supplier,s.vatVendor,t.taskDescription, t.fix, tt.taskName, u.unitName, round(t.price, 2) as price,s.retention, p.progress, 
   round(((t.price * p.progress / 100) - (t.price * p.lastCertificateIssuedAt / 100)),2) as toDate, p.lastCertificateIssuedAt, p.certificateIssued, p.lastCertificateNumber 
   from tasks t, progress p, units u, taskTypes tt, suppliers s
     where t.id = p.task and t.supplier = ${req.body.id} and t.development = ${req.body.development} and t.unitNumber = u.id and t.taskType = tt.id and s.id = t.supplier 
@@ -210,8 +208,6 @@ router.post("/updateStatusNotYetPaid", (req, res) => {
 });
 
 router.post("/processCertificate", (req, res) => {
-
-  
   let certificateDetailsToPost = req.body.certificateDetailsToPost;
 
   let totalValue = certificateDetailsToPost.reduce((acc, pv) => {
@@ -242,76 +238,69 @@ router.post("/processCertificate", (req, res) => {
 
   let mysql4;
   if (req.body.depositDetails.length) {
-  if (!req.body.previousCertificates.length) {
-    if (
-      totalValue -
-        recoveries -
-        penalties -
-        damages -
-        (totalValue - sumofAfterRetention) >=
-      depositPaid
-    ) {
-      depositRecovered = depositPaid;
-      depositRecoveredThisStatement = depositRecovered;
-
-    } else {
-      depositRecovered =
-        totalValue -
-        recoveries -
-        penalties -
-        damages -
-        (totalValue - sumofAfterRetention);
-      depositRecoveredThisStatement = depositRecovered;
-   
-    }
-    depositRemaining = depositPaid - depositRecovered;
-    mysql4 = `update depositsMade set certificateNumber = '${certificateNumber}', depositRecovered = ${depositRecovered}, depositRemaining = ${depositRemaining} where id = ${depositId}`;
-  } else {
-    if (req.body.depositDetails[0].depositRemaining > 0) {
+    if (!req.body.previousCertificates.length) {
       if (
         totalValue -
           recoveries -
           penalties -
           damages -
           (totalValue - sumofAfterRetention) >=
-        req.body.depositDetails[0].depositRemaining
+        depositPaid
       ) {
-        depositRecovered =
-          req.body.depositDetails[0].depositRemaining +
-          req.body.depositDetails[0].depositRecovered;
-        depositRecoveredThisStatement =
-          req.body.depositDetails[0].depositRemaining;
-   
-
-
+        depositRecovered = depositPaid;
+        depositRecoveredThisStatement = depositRecovered;
       } else {
         depositRecovered =
-  
           totalValue -
           recoveries -
           penalties -
           damages -
-          (totalValue - sumofAfterRetention) +
-          req.body.depositDetails[0].depositRecovered;
-          depositRecoveredThisStatement =
-          totalValue -
-          recoveries -
-          penalties -
-          damages -
-          (totalValue - sumofAfterRetention)
-      
-
+          (totalValue - sumofAfterRetention);
+        depositRecoveredThisStatement = depositRecovered;
       }
       depositRemaining = depositPaid - depositRecovered;
       mysql4 = `update depositsMade set certificateNumber = '${certificateNumber}', depositRecovered = ${depositRecovered}, depositRemaining = ${depositRemaining} where id = ${depositId}`;
     } else {
-      mysql4 = `update depositsMade set certificateNumber = '${
-        req.body.previousCertificates[req.body.previousCertificates.length - 1]
-          .certificateNumber
-      }' where id = ${depositId}`;
+      if (req.body.depositDetails[0].depositRemaining > 0) {
+        if (
+          totalValue -
+            recoveries -
+            penalties -
+            damages -
+            (totalValue - sumofAfterRetention) >=
+          req.body.depositDetails[0].depositRemaining
+        ) {
+          depositRecovered =
+            req.body.depositDetails[0].depositRemaining +
+            req.body.depositDetails[0].depositRecovered;
+          depositRecoveredThisStatement =
+            req.body.depositDetails[0].depositRemaining;
+        } else {
+          depositRecovered =
+            totalValue -
+            recoveries -
+            penalties -
+            damages -
+            (totalValue - sumofAfterRetention) +
+            req.body.depositDetails[0].depositRecovered;
+          depositRecoveredThisStatement =
+            totalValue -
+            recoveries -
+            penalties -
+            damages -
+            (totalValue - sumofAfterRetention);
+        }
+        depositRemaining = depositPaid - depositRecovered;
+        mysql4 = `update depositsMade set certificateNumber = '${certificateNumber}', depositRecovered = ${depositRecovered}, depositRemaining = ${depositRemaining} where id = ${depositId}`;
+      } else {
+        mysql4 = `update depositsMade set certificateNumber = '${
+          req.body.previousCertificates[
+            req.body.previousCertificates.length - 1
+          ].certificateNumber
+        }' where id = ${depositId}`;
+      }
     }
   }
-}
 
   let sqlStr = ``;
 
@@ -393,7 +382,7 @@ router.post("/processCertificate", (req, res) => {
   // let mysql4 = `update depositsMade set certificateNumber = '${certificateNumber}', depositRecovered = ${depositRecovered}, depositRemaining = ${depositRemaining} where id = ${depositId}`;
   let mysql;
   if (req.body.depositDetails.length) {
-  mysql = `${mysql1};${mysql2}${mysql3}${mysql4}`;
+    mysql = `${mysql1};${mysql2}${mysql3}${mysql4}`;
   } else {
     mysql = `${mysql1};${mysql2}${mysql3}`;
   }
@@ -409,7 +398,7 @@ router.post("/processCertificate", (req, res) => {
       } else {
         res.json(result);
         let mysqlCert = `select p.development, p.supplier,p.unitName, p.certificateNumber, p.ContractValue, p.previousValues, p.currentValue, p.grossValue, p.recoveries, p.penalties, 
-        p.damages, p.retained,  p.netCurrentCertificateValue, p.certificateDate, s.vat_number, s.supplierName, s.first_name, s.last_name, s.emailAddress, s.default_number, s.mobile_number, s.street_address, s.postal_address,
+        p.damages, p.retained,  p.netCurrentCertificateValue, p.certificateDate, s.vat_number, s.supplierName, s.first_name, s.last_name, s.emailAddress, s.default_number, s.mobile_number, s.street_address, s.postal_address,s.vatVendor,
         p.depositPaid, p.depositRecovered, p.depositRemaining, p.depositRecoveredThisStatement
          from paymentCertificates p 
         left join
@@ -430,28 +419,51 @@ router.post("/processCertificate", (req, res) => {
               el.price = el.price.toFixed(2);
               el.toDate = el.toDate.toFixed(2);
             });
+            console.log(thisData)
             thisData.forEach((el) => {
               el.certificateDate = el.certificateDate
                 .toISOString()
                 .substring(0, 10);
-              el.currentValue = (el.currentValue / 1.15).toFixed(2);
-              el.previousValues = (el.previousValues / 1.15).toFixed(2);
-              el.grossValue = (el.grossValue / 1.15).toFixed(2);
-              el.vat = (el.grossValue * 0.15).toFixed(2);
-              el.netBeforVat = (el.netCurrentCertificateValue / 1.15).toFixed(
+                let vatRate = 1
+                if (!el.vatVendor) {
+                  vatRate = 1
+                } else {
+                  vatRate = 1.15
+                }
+              
+              el.currentValue = (el.currentValue / vatRate).toFixed(2);
+              el.previousValues = (el.previousValues / vatRate).toFixed(2);
+              el.grossValue = (el.grossValue / vatRate).toFixed(2);
+              el.netBeforVat = (el.netCurrentCertificateValue / vatRate).toFixed(
                 2
               );
-              el.afterDepositDeducted = el.netCurrentCertificateValue - el.depositRecoveredThisStatement 
-              el.afterDepositDeducted = convertToString(el.afterDepositDeducted)
-              el.depositRecoveredThisStatement = convertToString(el.depositRecoveredThisStatement)
-              el.depositPaid = convertToString(el.depositPaid)
-              el.depositRecovered = convertToString(el.depositRecovered)
-              el.depositRemaining = convertToString(el.depositRemaining)
-              el.retained = (el.retained / 1.15).toFixed(2);
-              el.ContractValue = (el.ContractValue / 1.15).toFixed(2);
+
+              if (el.vatVendor) {
+                el.vat = (el.grossValue * (vatRate - 1)).toFixed(2);
+              } else {
+                el.vat = 0;
+                el.netCurrentCertificateValue = el.netBeforVat
+                
+              }
+              
+              el.afterDepositDeducted =
+                el.netCurrentCertificateValue -
+                el.depositRecoveredThisStatement;
+              el.afterDepositDeducted = convertToString(
+                el.afterDepositDeducted
+              );
+              el.depositRecoveredThisStatement = convertToString(
+                el.depositRecoveredThisStatement
+              );
+              el.depositPaid = convertToString(el.depositPaid);
+              el.depositRecovered = convertToString(el.depositRecovered);
+              el.depositRemaining = convertToString(el.depositRemaining);
+              el.retained = (el.retained / vatRate).toFixed(2);
+              el.ContractValue = (el.ContractValue / vatRate).toFixed(2);
               el.recoveries = el.recoveries.toFixed(2);
               el.penalties = el.penalties.toFixed(2);
               el.damages = el.damages.toFixed(2);
+              el.grossValue = el.currentValue - el.retained - el.previousValues
               el.currentValue = convertToString(el.currentValue);
               el.previousValues = convertToString(el.previousValues);
               el.grossValue = convertToString(el.grossValue);

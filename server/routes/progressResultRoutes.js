@@ -15,14 +15,14 @@ const { checktoken, jwtSignUser } = require("./checkToken");
 // group by s.supplierName,p.createdAt, p.certificateNumber,p.invoiceNumber
 
 router.get("/progressResults/:id", checktoken, (req, res) => {
-  let mysql1 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.supplier,coalesce(p.progress,0) as progress, 
+  let mysql1 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.supplier,su.vatVendor,
   sum(round(t.price,2)) as totalBudget, round(sum(t.price * coalesce(p.progress,0)/100),2) as totalUsed,  round(sum(t.price) - sum((t.price * coalesce(p.progress,0) / 100)),2) as Remaining
 
-from units u, taskTypes tt,subsection s,  tasks t
+from units u, taskTypes tt,subsection s,suppliers su,  tasks t
   left join progress p
   on p.task = t.id
-  where u.id = t.unitNumber and tt.id = t.taskType and t.development = ${req.params.id} and s.id = u.subsection
-  group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix  ,t.supplier, p.progress
+  where u.id = t.unitNumber and tt.id = t.taskType and t.development = ${req.params.id} and s.id = u.subsection and t.supplier = su.id
+  group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix  ,t.supplier, su.vatVendor
   order by s.subsectionName, u.unitName, tt.taskName, t.fix`;
   let mysql2 = `select p.task, tt.taskName, p.unitNumber,  u.unitName,t.fix,  pc.certificateNumber,
   round(coalesce(sum(pc.toDate),0),2) as PCToDate, round(coalesce(sum(pc.afterRetention),0),2) as PCIssued, round(coalesce(sum(pc.amountPaid),0),2) as PCPaid, round(coalesce(sum(pc.retained),0),2) as Retained

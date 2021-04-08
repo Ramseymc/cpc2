@@ -179,7 +179,7 @@ const runReport = (data, data2) => {
       {
         image: "logo",
         width: 110,
-        alignment: "center",
+        alignment: "left",
       },
       // { text: "\n" },
 
@@ -216,7 +216,7 @@ const runReport = (data, data2) => {
       },
       // { text: "\n" },
       {
-        text: `Employer: Cape Projects Contruction (pty) Ltd.`,
+        text: `Employer: Cape Projects Construction (pty) Ltd.`,
         alignment: "left",
         fontSize: 10,
         bold: true,
@@ -339,42 +339,24 @@ const runReport = (data, data2) => {
               "",
             ],
 
-            [
-              {
-                text: " ",
-              },
-              {
-                text: " ",
-              },
-              {
-                text: " ",
-              },
-              {
-                text: " ",
-              },
-              {
-                text: " ",
-              },
-            ],
-            [
-              {
-                border: [false, false, false, false],
-                fontSize: 9,
-                colSpan: 3,
-                text:
-                  "Security adjustments applicable [8.3.1;19.3.3] if applicable, state %",
-              },
-              "",
-              "",
-              {
-                border: [true, true, true, true],
-                // fillColor: "#dddddd",
-                text: `${data[0].retained}`,
-                alignment: "right",
-                fontSize: 9,
-              },
-              "",
-            ],
+            // [
+            //   {
+            //     text: " ",
+            //   },
+            //   {
+            //     text: " ",
+            //   },
+            //   {
+            //     text: " ",
+            //   },
+            //   {
+            //     text: " ",
+            //   },
+            //   {
+            //     text: " ",
+            //   },
+            // ],
+          
             [
               {
                 text: " ",
@@ -410,6 +392,43 @@ const runReport = (data, data2) => {
                 alignment: "right",
                 fontSize: 9,
               },
+            ],
+            [
+              {
+                text: " ",
+              },
+              {
+                text: " ",
+              },
+              {
+                text: " ",
+              },
+              {
+                text: " ",
+              },
+              {
+                text: " ",
+              },
+            ],
+            [
+              {
+                border: [false, false, false, false],
+                fontSize: 9,
+                colSpan: 3,
+                text:
+                  "Security adjustments applicable [8.3.1;19.3.3] if applicable, state %",
+              },
+              "",
+              "",
+              "",
+              {
+                border: [true, true, true, true],
+                // fillColor: "#dddddd",
+                text: `${data[0].retained}`,
+                alignment: "right",
+                fontSize: 9,
+              },
+              
             ],
             [
               {

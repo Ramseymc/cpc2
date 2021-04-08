@@ -1,7 +1,7 @@
 <template>
   <!-- <div> -->
   <v-app-bar app color="#0F0F0F" dark class="mobile">
-    <div class="d-flex align-center" v-if="windowSize > 767">
+    <!-- <div class="d-flex align-center" v-if="windowSize > 767">
       <v-img
         :to="{ name: 'Home' }"
         alt="Vuetify Logo"
@@ -11,10 +11,10 @@
         transition="scale-transition"
         width="40"
       />
-    </div>
+    </div> -->
 
     <v-btn text min-width="100" style="font-size: 120%;" :to="{ name: 'Home' }"
-      >Cape Projects</v-btn
+      >CPC {{ this.$store.state.development.developmentName }}</v-btn
     >
     <v-spacer></v-spacer>
 
@@ -158,6 +158,15 @@ export default {
         color: "yellow",
         items: [
           {
+            title: "Quality Control",
+            name: "QualityControl",
+            icon: "mdi-quality-high",
+            role: 3,
+            menu: 1,
+            id: "QualityControl",
+            color: "orange"
+          },
+          {
             title: "Progress",
             name: "Progress",
             icon: "mdi-percent",
@@ -165,6 +174,24 @@ export default {
             menu: 1,
             id: "signup",
             color: "lime accent-2"
+          },
+          {
+            title: "Gantt Chart",
+            name: "gantt4",
+            icon: "mdi-chart-gantt",
+            role: 3,
+            menu: 1,
+            id: "gantt4",
+            color: "light-green accent-2"
+          },
+          {
+            title: "Payment Certificates",
+            name: "paymentCertificates",
+            icon: "mdi-certificate",
+            role: 3,
+            menu: 1,
+            id: "paymentCertificates",
+            color: "lime"
           },
 
           {
@@ -176,51 +203,7 @@ export default {
             id: "schedule",
             color: "amber accent-3"
           },
-          // {
-          //   title: "Gantt",
-          //   name: "Gantt",
-          //   icon: "mdi-chart-gantt",
-          //   role: 3,
-          //   menu: 1,
-          //   id: "gantt",
-          //   color: "light-green accent-2"
-          // },
-          // {
-          //   title: "Gantt V2",
-          //   name: "ganttv2",
-          //   icon: "mdi-chart-gantt",
-          //   role: 3,
-          //   menu: 1,
-          //   id: "ganttv2",
-          //   color: "light-green accent-2"
-          // },
-          // {
-          //   title: "Gantt V3",
-          //   name: "ganttv3",
-          //   icon: "mdi-chart-gantt",
-          //   role: 3,
-          //   menu: 1,
-          //   id: "ganttv3",
-          //   color: "light-green accent-2"
-          // },
-          // {
-          //   title: "Gantt V3A",
-          //   name: "ganttv3A",
-          //   icon: "mdi-chart-gantt",
-          //   role: 3,
-          //   menu: 1,
-          //   id: "ganttv3A",
-          //   color: "light-green accent-2"
-          // },
-          {
-            title: "Gantt 4",
-            name: "gantt4",
-            icon: "mdi-chart-gantt",
-            role: 3,
-            menu: 1,
-            id: "gantt4",
-            color: "light-green accent-2"
-          },
+
           {
             title: "Retentions",
             name: "Retention",
@@ -238,54 +221,6 @@ export default {
             menu: 1,
             id: "images",
             color: "yellow"
-          },
-          {
-            title: "Payment Certificates",
-            name: "paymentCertificates",
-            icon: "mdi-certificate",
-            role: 3,
-            menu: 1,
-            id: "paymentCertificates",
-            color: "lime"
-          },
-          {
-            title: "Quality Control",
-            name: "QualityControl",
-            icon: "mdi-quality-high",
-            role: 3,
-            menu: 1,
-            id: "QualityControl",
-            color: "orange"
-          }
-        ]
-      },
-
-      {
-        title: "Cashflow & Payments",
-        name: "paymentCertificates",
-        icon: "mdi-account-cash",
-        role: 3,
-        menu: 1,
-        id: "paymentCertificates",
-        color: "teal",
-        items: [
-          // {
-          //   title: "Cashflow",
-          //   name: "Cashflow",
-          //   icon: "mdi-cash-multiple",
-          //   role: 3,
-          //   menu: 1,
-          //   id: "Cashflow",
-          //   color: "purple accent-1"
-          // },
-          {
-            title: "Payments Due",
-            name: "paymentsdue",
-            icon: "mdi-basket",
-            role: 3,
-            menu: 1,
-            id: "paymentsdue",
-            color: "teal accent-2"
           }
         ]
       },
@@ -325,6 +260,35 @@ export default {
             menu: 1,
             id: "Deliveries",
             color: "amber"
+          }
+        ]
+      },
+      {
+        title: "Cashflow & Payments",
+        name: "paymentCertificates",
+        icon: "mdi-account-cash",
+        role: 3,
+        menu: 1,
+        id: "paymentCertificates",
+        color: "teal",
+        items: [
+          {
+            title: "Cashflow",
+            name: "Cashflow",
+            icon: "mdi-cash-multiple",
+            role: 3,
+            menu: 1,
+            id: "Cashflow",
+            color: "purple accent-1"
+          },
+          {
+            title: "Payments Due",
+            name: "paymentsdue",
+            icon: "mdi-basket",
+            role: 3,
+            menu: 1,
+            id: "paymentsdue",
+            color: "teal accent-2"
           }
         ]
       },

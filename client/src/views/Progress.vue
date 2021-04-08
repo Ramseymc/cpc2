@@ -18,6 +18,20 @@
         >Amend Selection</v-btn
       >
       <br />
+      <v-btn
+        v-if="items.length"
+        class="mx-2"
+        fab
+        dark
+        large
+        color="black"
+        @click="aboutDialog = true"
+      >
+        <v-icon dark>
+          mdi-help
+        </v-icon>
+      </v-btn>
+      <br />
       <br />
       <v-card v-if="showChoices" class="mx-auto" max-width="1050" tile>
         <br />
@@ -175,10 +189,13 @@
         <v-list two-line v-show="showDetail">
           <v-list-item-group v-model="selected" multiple>
             <!-- <template v-for="item in items"> -->
+            <!-- :style="{ 'background-color': item.color }" -->
+            <!-- :style="{ 'border':'10px solid' + item.color }" -->
             <template v-for="item in items">
               <v-list-item
+                class="listItem"
                 :key="item.id"
-                style="border-bottom: 1px solid black;"
+                :style="{ 'border-right': '25px solid' + item.color }"
                 :id="item.id"
               >
                 <template :id="item.id">
@@ -216,11 +233,11 @@
                         ><small>{{ item.startDate }}</small></span
                       >
                       <span
-                        style="color:red;"
+                        style="color:black;"
                         v-if="item.currentTime > item.progress"
                         ><small><strong>Behind Schedule</strong></small></span
                       >
-                      <span style="color:green" v-else
+                      <span style="color:black" v-else
                         ><small><strong>On Schedule</strong></small></span
                       >
                       <span
@@ -233,11 +250,11 @@
                       style="margin-top: 5px;"
                       :value="item.currentTime"
                       color="red"
-                      height="10"
+                      height="12"
                       class="test"
                     >
                       <template v-slot:default="{ value }">
-                        <small style="color: white;"
+                        <small style="color: white; padding: 1px 1px;"
                           >{{ Math.ceil(value) }}%</small
                         >
                       </template>
@@ -246,8 +263,8 @@
                       v-else
                       style="margin-top: 5px;"
                       :value="item.currentTime"
-                      color="green"
-                      height="10"
+                      color="#76FF03"
+                      height="12"
                       class="test"
                     >
                       <template v-slot:default="{ value }">
@@ -257,7 +274,7 @@
                       </template>
                     </v-progress-linear>
                     <!-- ??????????????????????????? -->
-                    <v-progress-linear
+                    <!-- <v-progress-linear
                       v-if="item.baselineCategory === 1"
                       style="margin-top: 5px;"
                       value="100"
@@ -266,11 +283,11 @@
                       class="test"
                       striped
                     >
-                      <!-- <template v-slot:default="{ value }">
+                      <template v-slot:default="{ value }">
                         <small style="color: white;"
                           >{{ Math.ceil(value) }}%</small
                         >
-                      </template> -->
+                      </template>
                     </v-progress-linear>
                     <v-progress-linear
                       v-else-if="item.baselineCategory === 2"
@@ -281,11 +298,11 @@
                       class="test"
                       striped
                     >
-                      <!-- <template v-slot:default="{ value }">
+                      <template v-slot:default="{ value }">
                         <small style="color: white;"
                           >{{ Math.ceil(value) }}%</small
                         >
-                      </template> -->
+                      </template>
                     </v-progress-linear>
                     <v-progress-linear
                       v-else-if="item.baselineCategory === 3"
@@ -296,11 +313,11 @@
                       class="test"
                       striped
                     >
-                      <!-- <template v-slot:default="{ value }">
+                      <template v-slot:default="{ value }">
                         <small style="color: white;"
                           >{{ Math.ceil(value) }}%</small
                         >
-                      </template> -->
+                      </template>
                     </v-progress-linear>
                     <v-progress-linear
                       v-else
@@ -311,18 +328,18 @@
                       class="test"
                       striped
                     >
-                      <!-- <template v-slot:default="{ value }">
+                      <template v-slot:default="{ value }">
                         <small style="color: white;"
                           >{{ Math.ceil(value) }}%</small
                         >
-                      </template> -->
-                    </v-progress-linear>
+                      </template>
+                    </v-progress-linear> -->
                     <!-- ??????????????????????????? -->
                   </v-list-item-content>
                 </template>
                 <v-list-item-action>
                   <v-btn icon :id="item.id" @click="addTime"
-                    ><v-icon color="green">mdi-camera-timer</v-icon></v-btn
+                    ><v-icon color="black">mdi-camera-timer</v-icon></v-btn
                   >
                 </v-list-item-action>
               </v-list-item>
@@ -416,6 +433,57 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="aboutDialog" scrollable max-width="70vw">
+      <!-- <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          color="primary"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
+          Open Dialog
+        </v-btn>
+      </template> -->
+      <v-card>
+        <v-card-title>Legends</v-card-title>
+        <v-divider></v-divider>
+        <v-card-text style="height: 300px; background-color: lightgrey;">
+          <p>
+            <strong style="color: green;"
+              ><u>Green Backgound / Border</u></strong
+            >
+            - Task within orginal timeframe.
+          </p>
+          <p>
+            <strong style="color: red;"><u>Red Backgound / Border</u></strong> -
+            Task time extended due to delays.
+          </p>
+          <p>
+            <strong style="color: yellow;"
+              ><u>Yellow Backgound / Border</u></strong
+            >
+            - Task time moved out but time to deliver is the same.
+          </p>
+          <p>
+            <strong style="color: blue;"><u>Blue Backgound / Border</u></strong>
+            - Task time shortened and less than original baseline.
+          </p>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="aboutDialog = false">
+            Close
+          </v-btn>
+          <!-- <v-btn
+            color="blue darken-1"
+            text
+            @click="aboutDialog = false"
+          >
+            Save
+          </v-btn> -->
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -488,6 +556,7 @@ export default {
       dialog3: false,
       dialog: false,
       disabled: true,
+      aboutDialog: false,
 
       windowWidth: null,
       flex: 12,
@@ -873,6 +942,7 @@ export default {
           url: `${url}/tasks/${this.unitParam}/${this.taskTypeParam}`
         }).then(
           response => {
+            console.log(response.data);
             if (response.data.remaining.length) {
               console.log(response.data);
               this.tasks = response.data.remaining;
@@ -881,6 +951,10 @@ export default {
 
               // console.log(today)
               this.tasks.forEach(el => {
+                if (!el.vatVendor) {
+                  el.price = el.price / 1.15;
+                  el.remaining = el.remaining / 1.15;
+                }
                 el.endDate = dayjs(el.endDate).format("YYYY-MM-DD HH:mm:ss");
                 el.startDate = dayjs(el.startDate).format(
                   "YYYY-MM-DD HH:mm:ss"
@@ -895,54 +969,36 @@ export default {
                   dayjs(el.baselineEndDate),
                   "d"
                 );
-                console.log("End", diffEndDate);
+                // console.log("End", diffEndDate);
                 let diffStartDate = dayjs(el.startDate).businessDiff(
                   dayjs(el.baselineStartDate),
                   "d"
                 );
-                console.log("Start", diffStartDate);
+                // console.log("Start", diffStartDate);
                 if (diffEndDate > diffStartDate && diffStartDate == 0) {
                   el.baselineCategory = 1;
+                  el.color = "#F44336";
                 } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
                   el.baselineCategory = 2;
+                  el.color = "#F57C00";
                 } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
                   el.baselineEndDate = 3;
+                  el.color = "#40C4FF";
                 } else {
                   el.baselineCategory = 4;
+                  el.color = "#4CAF50";
                 }
-
-                // let endDate = dayjs(el.endDate).format("YYYY-MM-DD  HH:mm:ss");
-                // let startDate = dayjs(el.startDate).format("YYYY-MM-DD  HH:mm:ss");
-
-                // el.duration = dayjs(endDate).diff(dayjs(startDate), "day");
-                // if (today >= el.endDate) {
-                //   console.log(el.taskDescription)
-                // }
-
                 if (today > el.endDate) {
                   el.currentTime = 100;
                   el.originalTime = el.currentTime;
-                  // let endDate = el.endDate.substr(0,10)
-                  // let diff = dayjs(el.endDate).businessDiff(dayjs(today), "day");
-                  // let duration =
-                  // console.log("diff past", diff);
-                  // console.log(el.taskDescription)
-
-                  // } else if (today >= dayjs(el.startDate) && today < dayjs(el.endDate)){
                 } else if (today <= el.endDate && today >= el.startDate) {
                   let diff = dayjs(el.endDate).diff(dayjs(today));
                   let durationDiff = dayjs(el.endDate).diff(
                     dayjs(el.startDate)
                   );
-                  // console.log("diff in period", diff);
-                  // console.log(el.description)
-                  el.currentTime =
-                    ((diff - (durationDiff - diff)) / durationDiff) * 100;
-                  // el.currentTime = (((el.duration * 24 * 60 * 60 * 1000) - diff) / (el.duration * 24 * 60 * 60 * 1000)) * 100;
+                  el.currentTime = ((durationDiff - diff) / durationDiff) * 100;
                   el.originalTime = el.currentTime;
                 } else if (today < el.startDate) {
-                  // let diff = dayjs(endDate).diff(dayjs(today), "day");
-                  // console.log("diff", diff);
                   el.currentTime = 0;
                   el.originalTime = el.currentTime;
                 }
@@ -988,7 +1044,6 @@ export default {
 
               this.items = this.tasks.filter(el => {
                 return el.lastCertificateIssuedAt !== 100;
-                // return el.progress !== 100;
               });
               this.items.forEach(el => {
                 el.editDate = new Date().toISOString().substr(0, 10);
@@ -1063,13 +1118,6 @@ export default {
       this.dialog3 = true;
       console.log(this.itemsDuplicated);
       this.addDaysId = parseInt(event.currentTarget.id);
-      // this.itemsDuplicated.forEach((el, index, arr) => {
-      //   if (el.id === parseInt(event.currentTarget.id)) {
-      //     console.log("Index", index)
-      //     console.log(arr[index])
-      //   }
-      // })
-      // console.log(this.fixChosen)
     },
     async saveAddedTime() {
       console.log(this.addDaysId);
@@ -1135,5 +1183,8 @@ export default {
 }
 .test:readonly {
   background-color: purple;
+}
+.listItem {
+  border-bottom: solid 1px black;
 }
 </style>

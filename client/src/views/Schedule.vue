@@ -472,6 +472,17 @@ export default {
           console.log("Hello", response.data[4]);
           console.log("Cool", response.data[0]);
           response.data[0].forEach(el => {
+            if (!el.vatVendor) {
+              console.log("cool");
+              el.PCIssued = el.PCIssued / 1.15;
+              el.PCPaid = el.PCPaid / 1.15;
+              el.Remaining = parseFloat(el.Remaining) / 1.15;
+              el.Retained = el.Retained / 1.15;
+              el.budgetLessPaid = parseFloat(el.budgetLessPaid) / 1.15;
+              el.due = parseFloat(el.due) / 1.15;
+              el.totalBudget = el.totalBudget / 1.15;
+              el.totalUsed = el.totalUsed / 1.15;
+            }
             let filteredData = response.data[4].filter(el2 => {
               return (
                 el.taskType === el2.taskType &&

@@ -7,9 +7,9 @@
       <!-- <br /> -->
 
       <!-- <h5 class="display-2 font-weight-bold mb-3 mt-10" style="color: #BC9654;"> -->
-      <h5 class="display-1 font-weight-bold mb-1 mt-2" style="color: #BC9654;">
+      <!-- <h5 class="display-1 font-weight-bold mb-1 mt-2" style="color: #BC9654;">
         {{ this.$store.state.development.developmentName }}
-      </h5>
+      </h5> -->
       <!-- <div class="d-flex align-center" style="background-color: red; display: flex; justify-content: center;">
       <v-img
         alt="Vuetify Logo"

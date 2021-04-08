@@ -155,7 +155,7 @@ router.post("/addTaskTypes", checktoken, (req, res) => {
 router.post("/getAllTasksforGant", (req, res) => {
 // console.log(req.body.id)
   // let mysql = `select * from tasks order by taskType, unitNumber, fix, id `;
-  let mysql = `select t.id, t.taskType, tt.taskName, t.supplier,s.retention, ss.subsectionName, t.unitNumber,u.unitName ,t.taskDescription,coalesce(p.lastCertificateIssuedAt,0) as lastCertificateIssuedAt, t.price, t.fix, t.startDate, t.endDate,t.duration,  p.id as progressID, p.task,t.dependantOn,t.parentId, 
+  let mysql = `select t.id, t.taskType, tt.taskName, t.supplier,s.retention, ss.subsectionName, t.unitNumber,u.unitName ,t.taskDescription,coalesce(p.lastCertificateIssuedAt,0) as lastCertificateIssuedAt, t.price, t.fix, t.startDate, t.endDate,t.baselineStartDate, t.baselineEndDate,t.duration,  p.id as progressID, p.task,t.dependantOn,t.parentId, 
   coalesce(p.progress,0) as progress, p.progressDate, round((t.price * coalesce(p.progress,0) / 100),0) as done, 
   (t.price - round((t.price * coalesce(p.progress,0) / 100),0)) as remaining
    from suppliers s, taskTypes tt, subsection ss,units u,tasks t

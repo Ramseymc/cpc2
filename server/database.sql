@@ -1271,5 +1271,5 @@ alter table tasks add column parentId varchar(160);
 
  startDate TIMESTAMP DEFAULT NOW(),
 
-alter table tasks add column baselineStartDate TIMESTAMP DEFAULT startDate;
-alter table tasks add column baselineEndDate TIMESTAMP DEFAULT endDate;
+alter table tasks add column baselineStartDate TIMESTAMP DEFAULT now();
+alter table tasks add column baselineEndDate TIMESTAMP DEFAULT now();

@@ -1010,6 +1010,7 @@ export default {
       })
         .then(
           response => {
+            console.log(response.data);
             this.certificates = response.data[0];
             if (this.certificates.length) {
               this.hideFullyIssued = true;
@@ -1040,6 +1041,10 @@ export default {
 
             let groupingByUnitFix = [];
             response.data[1].forEach(el => {
+              if (!el.vatVendor) {
+                el.price = el.price / 1.15;
+                el.toDate = el.toDate / 1.15;
+              }
               let insertStr = `${el.unitName}-${el.taskName}-${el.fix}`;
               groupingByUnitFix.push(insertStr);
             });

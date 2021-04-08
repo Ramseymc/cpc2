@@ -92,12 +92,12 @@ const routes = [
         /* webpackChunkName: "paymentCertificates" */ "../views/PaymentCertificates.vue"
       )
   },
-  // {
-  //   path: "/cashflow",
-  //   name: "Cashflow",
-  //   component: () =>
-  //     import(/* webpackChunkName: "Cashflow" */ "../views/Cashflow.vue")
-  // },
+  {
+    path: "/cashflow",
+    name: "Cashflow",
+    component: () =>
+      import(/* webpackChunkName: "Cashflow" */ "../views/Cashflow.vue")
+  },
   {
     path: "/paymentsdue",
     name: "paymentsdue",

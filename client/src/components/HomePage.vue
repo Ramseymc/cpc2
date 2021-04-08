@@ -15,7 +15,8 @@
       <v-col class="mb-4">
         <!-- <br /><br /> -->
         <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Cape Projects
+          Welcome to Cape Projects -
+          {{ this.$store.state.development.developmentName }}
         </h1>
       </v-col>
 
@@ -30,7 +31,7 @@
 
 <script>
 export default {
-  name: "HomePage"
+  name: "HomePage",
 };
 </script>
 
