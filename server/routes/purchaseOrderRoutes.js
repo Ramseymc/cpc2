@@ -200,9 +200,9 @@ router.post("/POInformationForEdit", (req, res) => {
 });
 
 router.post("/purchaseOrders", (req, res) => {
-  let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.fulfilled,p.sentToSupplier, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost from purchaseOrders p, suppliers s
+  let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.comments, p.fulfilled,p.sentToSupplier, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost from purchaseOrders p, suppliers s
     where p.supplier = s.id and p.development = ${req.body.id}
-    group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.fulfilled, p.sentToSupplier
+    group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.comments, p.fulfilled, p.sentToSupplier
     order by p.deliveryDate`;
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -266,7 +266,7 @@ router.post("/PONumbers", (req, res) => {
 });
 
 router.post("/getPO", (req, res) => {
-  let mysql = `select  p.id,p.delivered, s.subsectionName as subsection,   p.PONumber,p.deliveryDate, p.itemDescription, p.reference, p.quantity, p.unitDescription from purchaseOrders p, subsection s
+  let mysql = `select  p.id,p.delivered, s.subsectionName as subsection,   p.PONumber,p.deliveryDate, p.itemDescription, p.reference, p.quantity, p.unitDescription, p.comments from purchaseOrders p, subsection s
     where p.PONumber = '${req.body.poNumber}' and p.development = ${req.body.id} and p.fulfilled = false and p.subsection = s.id`;
 
   pool.getConnection(function (err, connection) {
@@ -295,11 +295,11 @@ router.post("/postdeliveries", (req, res) => {
   req.body.forEach((el) => {
     sql1 =
       sql1 +
-      `Update purchaseOrders set delivered = ${el.delivered}, fulfilled = ${el.fulfilled} where id = ${el.id};`;
+      `Update purchaseOrders set delivered = ${el.delivered}, fulfilled = ${el.fulfilled}, comments = '${el.comments}' where id = ${el.id};`;
     sql2 =
       sql2 +
-      `insert into deliveries (PONumber, purchaseNumber, development, supplier, expectedDeliveryDate, quantityExpected, quantityDelivered, enteredBy) values 
-                    ('${el.PONumber}', ${el.id}, ${el.development}, ${el.supplier}, '${el.deliveryDate}', ${el.quantity}, ${el.delivered}, '${el.enteredBy}');`;
+      `insert into deliveries (PONumber, purchaseNumber, development, supplier, expectedDeliveryDate, quantityExpected, quantityDelivered, enteredBy, comments) values 
+                    ('${el.PONumber}', ${el.id}, ${el.development}, ${el.supplier}, '${el.deliveryDate}', ${el.quantity}, ${el.delivered}, '${el.enteredBy}', '${el.comments}');`;
   });
 
   let mysql = `${sql1}${sql2}`;
@@ -362,7 +362,7 @@ router.post("/processXeroUpdates", (req, res) => {
 
 router.post("/POEditData", (req, res) => {
   console.log(req.body);
-  let mysql = `select  p.id, p.PONumber, p.subsection, p.unitNumber, p.supplier, p.reference, p.deliveryDate, p.itemDescription, p.quantity, p.unitDescription, p.unitCost, p.totalCost, p.vat, p.nettCost from purchaseOrders p
+  let mysql = `select  p.id, p.PONumber, p.subsection, p.unitNumber, p.supplier, p.reference, p.deliveryDate, p.itemDescription, p.quantity, p.unitDescription, p.unitCost, p.totalCost, p.vat, p.nettCost, p.comments from purchaseOrders p
   where p.development = ${req.body.id} and PONumber = '${req.body.PONumber}'`;
   pool.getConnection(function (err, connection) {
     if (err) {

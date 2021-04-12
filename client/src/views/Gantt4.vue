@@ -57,6 +57,10 @@
         ><v-icon :color="showGridColor">{{ showGridIcon }}</v-icon>
         {{ showGrid ? "Hide Grid" : "Show Grid" }}
       </v-btn>
+      <v-btn text  style="margin: 20px;" @click="legendDialog = true"
+        ><v-icon color="red">mdi-map-legend</v-icon>
+        
+      </v-btn>
     </div>
     <v-progress-circular
       style="margin-top: 100px;"
@@ -74,7 +78,49 @@
         <VueAnychart :key="componentKey" />
       </section>
     </div>
+    <v-row justify="center">
+    <v-dialog
+      v-model="legendDialog"
+      persistent
+      max-width="500"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Legend
+        </v-card-title>
+        <v-card-text>
+           <strong><u>Top Line - Actual Progess</u></strong><br>
+          <div style="width: 100%;height: 25px; background-color: blue; color: white;"><strong>Progress to date</strong></div> 
+          <div style="width: 100%;height: 25px; background-color: black;opacity: 0.7; color: white;"><strong>Not yet done</strong></div><br> 
+          <strong><u>Bottom Line - baseline</u></strong><br>
+          <div style="width: 100%;height: 25px; background-color: lime; color: black;"><strong>Task within budgetted timeline</strong></div> 
+          <div style="width: 100%;height: 25px; background-color: red; color: white;"><strong>Task pushed out in time</strong></div> 
+          <div style="width: 100%;height: 25px; background-color: orange; color: black;"><strong>Task in timeline but previous pushed out</strong></div> 
+          <div style="width: 100%;height: 25px; background-color: blue; color: white;"><strong>Task timeline reduced</strong></div>
+         
+          </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <!-- <v-btn
+            color="black darken-1"
+            text
+            @click="dialog = false"
+          >
+            Disagree
+          </v-btn> -->
+          <v-btn
+            color="black darken-1"
+            text
+            @click="legendDialog = false"
+          >
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-row>
   </div>
+  
 </template>
 
 <script>
@@ -131,6 +177,7 @@ export default {
       unitChosen: "",
       taskChosen: "",
       showProgress: true,
+      legendDialog: false
     };
   },
   watch: {
@@ -175,7 +222,8 @@ export default {
       this.treeData = anychart.data.tree(this.data, "as-tree");
       this.chart = anychart.ganttProject();
       this.chart.data(this.treeData);
-      this.chart.defaultRowHeight(24);
+      this.chart.defaultRowHeight(18);
+      this.chart.headerHeight(40);
       this.chart.splitterPosition("19%");
       this.chart.zoomIn(5);
       var marker_1 = this.chart.getTimeline().lineMarker(1);
@@ -219,6 +267,7 @@ export default {
       header.stroke("#64b5f6");
       header.fontColor("#64b5f6");
       header.fontWeight(600);
+      // header.rowHeight(18)
 
       header.level(0).format("{%tickValue}{dateTimeFormat:dd}");
       this.chart.xScale().minimum(this.data[0].actualStart);
@@ -352,6 +401,7 @@ export default {
       })
         .then((response) => {
           console.time("TimeThis");
+          console.log(response.data)
           let finalFixArray = [];
           let fixArray = [];
           response.data.forEach((el) => {
@@ -424,7 +474,8 @@ export default {
             } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
               color = "#40C4FF";
             } else {
-              color = "#4CAF50";
+              color = "lime";
+              // color = "#4CAF50";
             }
             let totalCost = dataStartArray.reduce((prev, el) => {
               return el.price + prev;
@@ -499,7 +550,8 @@ export default {
               } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
                 color = "#40C4FF";
               } else {
-                color = "#4CAF50";
+                // color = "#4CAF50";
+                color = "lime";
               }
               let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
               let insert = {
@@ -525,11 +577,14 @@ export default {
               //   console.log("Err", index, arr.length);
               // }
             });
+
           });
 
           // console.log(finalFixArray);
+
           this.tasks = finalFixArray;
           this.data = finalFixArray;
+          console.log(this.data)
           this.data2 = finalFixArray;
           this.items = [];
           response.data.forEach((el) => {
@@ -550,4 +605,6 @@ export default {
 };
 </script>
 
-<style lang="css"></style>
+<style lang="css">
+
+</style>

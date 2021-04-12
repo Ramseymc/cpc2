@@ -589,6 +589,7 @@ export default {
       })
         .then(
           response => {
+            console.log(response.data)
             this.items = response.data;
             let now = dayjs().format("YYYY-MM-DD");
             this.items.forEach(el => {

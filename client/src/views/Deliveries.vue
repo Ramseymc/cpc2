@@ -80,6 +80,10 @@
                                         disabled
                                       ></v-text-field>
                                     </v-col> -->
+
+                                    <v-col cols="12" sm="12" md="12">
+                                       <v-text-field placeholder="insert reason here" v-model="editedItem.comments"></v-text-field>
+                                    </v-col>
                                     <v-col cols="12" sm="12" md="12">
                                       <v-text-field
                                         v-model="editedItem.itemDescription"
@@ -235,6 +239,7 @@ export default {
       purchaseOrders: [],
       difference: 0,
 
+
       // KKKKKKKKKKKKK
 
       dialog: false,
@@ -276,7 +281,8 @@ export default {
         quantity: 0,
         unitDescription: "",
         delivered: 0,
-        difference: 0
+        difference: 0,
+        comments: ""
       },
       defaultItem: {
         subsection: "",
@@ -286,7 +292,8 @@ export default {
         quantity: 0,
         unitDescription: "",
         delivered: 0,
-        difference: 0
+        difference: 0,
+        comments: ""
       }
     };
   },
@@ -452,6 +459,7 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
+      
       this.dialog = true;
     },
 

@@ -96,6 +96,41 @@
                     v-model="item.constructionManager"
                   ></v-checkbox>
                 </template>
+                <template v-slot:item.uploadImage="{ item }">
+                  <!-- <v-text-field
+                    style="margin-left: 25px;"
+                    v-model="item.comments"
+                  ></v-text-field> -->
+                  <v-btn
+                    :id="item.id"
+                    icon
+                    @click="uploadImage"
+                    v-if="!item.image || item.image === 'null'"
+                    ><v-icon color="blue">mdi-image-plus</v-icon></v-btn
+                  >
+                </template>
+                <template v-slot:item.viewImage="{ item }">
+                  <!-- <v-text-field
+                    style="margin-left: 25px;"
+                    v-model="item.image"
+                  ></v-text-field> -->
+                  <v-btn :id="item.id" icon @click="viewImage" v-if="item.image !== null && item.image !== 'null'"
+                    ><v-icon color="green">mdi-camera-image</v-icon></v-btn
+                  >
+                </template>
+                <template v-slot:item.deleteImage="{ item }">
+                  <!-- <v-text-field
+                    style="margin-left: 25px;"
+                    v-model="item.image"
+                  ></v-text-field> -->
+                  <v-btn
+                    :id="item.id"
+                    icon
+                    @click="deleteImage"
+                    v-if="item.image && item.image !== 'null'"
+                    ><v-icon color="red">mdi-trash-can</v-icon></v-btn
+                  >
+                </template>
                 <template v-slot:item.comments="{ item }">
                   <v-text-field
                     style="margin-left: 25px;"
@@ -144,12 +179,61 @@
         :dialog="true"
       />
     </v-dialog>
+    <v-dialog v-model="uploadDialog" persistent max-width="500">
+      <v-card>
+        <v-card-title class="headline">
+          Upload Image
+        </v-card-title>
+        <v-card-text>
+          <v-file-input v-model="imageFile" accept="image/*" label="File input"></v-file-input>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="black darken-1" text @click="uploadedImageFile" v-if="this.imageFile">
+            Save
+          </v-btn>
+          <v-btn color="black darken-1" text @click="uploadDialog = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+      <v-dialog v-model="viewDialog" :max-width="maxWidth" max-heigh="90vh">
+        <v-card>
+          <v-spacer></v-spacer>
+          <v-card-title class="headline">
+            <v-spacer></v-spacer>
+            <v-btn
+              color="black"
+              text
+              @click="viewDialog = false"
+              style="font-size: 150%; font-weight: bold;"
+              ><v-icon color="red">mdi-arrow-collapse-all</v-icon>
+            </v-btn>
+          </v-card-title>
+
+    
+            <cld-image
+            
+              :cloudName="cloudName"
+              :publicId="publicId"
+              class="white--text align-end"
+              width="95%"
+              height="95%"
+              loading="lazy"
+            >
+              <cld-transformation radius="20" quality="auto" />
+            </cld-image>
+       
+        </v-card>
+      </v-dialog>
   </v-row>
 </template>
 
 <script>
 // import * as dayjs from "dayjs";
 import axios from "axios";
+import { CldImage, CldTransformation  } from "cloudinary-vue";
 import dayjs from "dayjs";
 let url = process.env.VUE_APP_BASEURL;
 export default {
@@ -157,16 +241,27 @@ export default {
     close: Boolean,
     QualityType: String,
     section: String,
-    unit: String
+    unit: String,
   },
   components: {
     // Signature: () => import("../components/Signature"),
-    Signature: () => import("./Signature")
+    Signature: () => import("./Signature"),
+     CldImage,
+     CldTransformation 
   },
   data: () => ({
+    viewDialog: false,
+    maxWidth: "60%",
+    cloudName: `${process.env.VUE_APP_CLOUDNAME}`,
+    preset: `${process.env.VUE_APP_PRESET}`,
+    publicId: "",
     visible: true,
     dialog: false,
     dialog1: false,
+    uploadDialog: false,
+    imageFile: null,
+    currentIdForUploadImage: null,
+    public_id: [],
     itemsPerPage: 100,
     title: "",
     headers: [
@@ -176,23 +271,26 @@ export default {
         value: "name",
         groupable: false,
         sortable: false,
-        width: 300
+        width: 300,
       },
       { text: "Category", value: "category", align: "right", width: 200 },
       {
         text: "Subcontractor",
         value: "subcontactor",
         align: "left",
-        width: 50
+        width: 50,
       },
       { text: "Site Foreman", value: "siteForeman", align: "left", width: 50 },
       {
         text: "Construction Manager",
         value: "constructionManager",
         align: "left",
-        width: 50
+        width: 50,
       },
-      { text: "Comments", value: "comments", align: "left", width: 200 }
+      { text: "", value: "uploadImage", align: "left", width: 50 },
+      { text: "", value: "viewImage", align: "left", width: 50 },
+      { text: "", value: "deleteImage", align: "left", width: 50 },
+      { text: "Comments", value: "comments", align: "left", width: 250 },
     ],
     desserts: [],
     subsection: [],
@@ -210,7 +308,7 @@ export default {
     scSignature: "",
     sfSignature: "",
     pdfExists: false,
-    href: ""
+    href: "",
   }),
   beforeMount() {
     this.closeAll();
@@ -236,15 +334,89 @@ export default {
     this.timestamp = new Date().getTime().toString();
     console.log(this.timestamp);
     this.today = dayjs().format("YYYY-MM-DD");
-    // setTimeout(() => {
-    //   this.$nextTick(() => {
-    //     this.visible = true;
-    //   });
-    // },200);
-    // this.checkChanges()
   },
 
   methods: {
+    async uploadedImageFile() {
+      console.log(this.imageFile)
+       let formData = new FormData()
+        formData.append("image", this.imageFile)
+        formData.append("id", this.currentIdForUploadImage)
+
+
+      await axios({
+          method: "post",
+          url: `${url}/uploadImage`,
+          data: formData,
+        }).then(
+          (response) => {
+            console.log(response.data);
+            this.uploadDialog = false;
+            this.imageFile = null
+            this.desserts.forEach((el) => {
+              if (el.id === parseInt(response.data.id)) {
+                el.image = response.data.public_id
+                console.log(this.desserts)
+
+              } else {
+                console.log("NO GO")
+              }
+            })
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+
+    },
+    async deleteImage(event) {
+      console.log(event.currentTarget.id);
+      let filteredData = this.desserts.filter((el) => {
+        return el.id === parseInt(event.currentTarget.id)
+      })
+      let data = {
+        id: parseInt(event.currentTarget.id),
+        url_id: filteredData[0].image
+      }
+
+      await axios({
+          method: "post",
+          url: `${url}/removeQCImage`,
+          data: data,
+        }).then(
+          (response) => {
+            console.log(response.data);
+            // this.uploadDialog = false;
+            this.imageFile = null
+            console.log(parseInt(response.data.id))
+            this.desserts.forEach((el) => {
+              if (el.id === parseInt(response.data.id)) {
+                el.image = null
+                // console.log(this.desserts)
+              } else {
+                console.log("NO GO DELETION")
+              }
+            })
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+
+    },
+    uploadImage(event) {
+      console.log(event.currentTarget.id);
+      this.currentIdForUploadImage = event.currentTarget.id
+      this.uploadDialog = true;
+    },
+    viewImage(event) {
+      console.log(event.currentTarget.id);
+      let filteredData = this.desserts.filter((el) => {
+        return el.id === parseInt(event.currentTarget.id)
+      })
+      this.publicId = filteredData[0].image
+      this.viewDialog = true
+    },
     createPDF() {
       console.log("OK");
     },
@@ -269,18 +441,18 @@ export default {
           signedSiteforeman: this.signedSiteforeman,
           cmSignature: this.cmSignature,
           scSignature: this.scSignature,
-          sfSignature: this.sfSignature
+          sfSignature: this.sfSignature,
+          public_id: this.public_id,
         };
-
         await axios({
           method: "post",
           url: `${url}/postQC`,
-          data: data
+          data: data,
         }).then(
-          response => {
+          (response) => {
             console.log(response.data);
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
@@ -304,61 +476,30 @@ export default {
           cmSignature: this.cmSignature,
           scSignature: this.scSignature,
           sfSignature: this.sfSignature,
-          signaturesOnly: false
+          signaturesOnly: false,
         };
         console.log("DATA CHANGED");
-
-        // console.log(data)
         await axios({
           method: "post",
           url: `${url}/editQC`,
-          data: data
+          data: data,
         }).then(
-          response => {
+          (response) => {
             console.log(response.data);
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
       } else {
         console.log("NOTHING CHANGED");
       }
-      this.dialog = false;
-      this.$emit("closed", this.dialog);
+      // this.dialog = false;
+      // this.$emit("closed", this.dialog);
     },
     checkChanges(a, b) {
-      console.log("desserts", a);
-      console.log("Duplicate", b);
-      // let a = [
-      //   { value: "4a55eff3-1e0d-4a81-9105-3ddd7521d642", display: "Jamsheer" },
-      //   { value: "644838b3-604d-4899-8b78-09e4799f586f", display: "Muhammed" },
-      //   { value: "b6ee537a-375c-45bd-b9d4-4dd84a75041d", display: "Ravi" },
-      //   { value: "e97339e1-939d-47ab-974c-1b68c9cfb536", display: "Ajmal" },
-      //   { value: "a63a6f77-c637-454e-abf2-dfb9b543af6c", display: "Ryan" },
-      // ];
-      // let b = [
-      //   {
-      //     value: "4a55eff3-1e0d-4a81-9105-3ddd7521d642",
-      //     display: "Jamsheer",
-      //     $$hashKey: "008",
-      //   },
-      //   {
-      //     value: "644838b3-604d-4899-8b78-09e4799f586f",
-      //     display: "Muhammed",
-      //     $$hashKey: "009",
-      //   },
-      //   {
-      //     value: "b6ee537a-375c-45bd-b9d4-4dd84a75041d",
-      //     display: "Ravi",
-      //     $$hashKey: "00A",
-      //   },
-      //   {
-      //     value: "e97339e1-939d-47ab-974c-1b68c9cfb536",
-      //     display: "Ajmal",
-      //     $$hashKey: "00B",
-      //   },
-      // ];
+      // console.log("desserts", a);
+      // console.log("Duplicate", b);
 
       function comparer(otherArray) {
         return function(current) {
@@ -398,31 +539,39 @@ export default {
         shortName: this.QualityType,
         unit: this.unit,
         section: this.section,
-        development: this.$store.state.development.id
+        development: this.$store.state.development.id,
       };
       this.duplicate = "";
       await axios({
         method: "post",
         url: `${url}/getqctemplate`,
-        data: data
+        data: data,
       }).then(
-        response => {
+        (response) => {
           console.log(response.data);
           if (response.data[1].length) {
             this.desserts = response.data[1];
+            // this.desserts.forEach((el) => {
+            //   el.image = "test"
+            // })
             // this.duplicate = JSON.stringify(response.data[1]);
           } else {
             // this.duplicate = "";
             this.desserts = response.data[0];
           }
-          this.desserts.forEach(el => {
+          this.desserts.forEach((el) => {
             if (el.comments === null) {
               el.comments = "";
             }
+            // if (index === 3) {
+            //   el.image = "test";
+            // } else {
+            //   el.image = "";
+            // }
           });
           if (!response.data[1].length) {
             let array = [];
-            this.desserts.forEach(el => {
+            this.desserts.forEach((el) => {
               if (el.comments === null) {
                 el.comments = "";
               }
@@ -433,7 +582,7 @@ export default {
             array = Array.from(new Set(array));
             console.log(array);
             array.forEach((el, index) => {
-              this.desserts.forEach(el2 => {
+              this.desserts.forEach((el2) => {
                 if (el === el2.category) {
                   el2.category = `${index + 1}: ${el}`;
                 }
@@ -457,21 +606,21 @@ export default {
                 this.closeAll();
                 this.duplicate = JSON.stringify(this.desserts);
                 data = {
-                  cert: this.desserts[0].controlTimestamp
+                  cert: this.desserts[0].controlTimestamp,
                 };
                 axios({
                   method: "post",
                   url: `${url}/getqcPDF`,
-                  data: data
+                  data: data,
                 }).then(
-                  response => {
+                  (response) => {
                     console.log(response.data);
                     if (response.data.exists) {
                       this.pdfExists = response.data.exists;
                       this.href = `${process.env.VUE_APP_BASEURL}/${this.desserts[0].controlTimestamp}QCReport.pdf`;
                     }
                   },
-                  error => {
+                  (error) => {
                     console.log(error);
                   }
                 );
@@ -479,7 +628,7 @@ export default {
             });
           }
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -497,14 +646,12 @@ export default {
       this.dialog1 = !this.dialog1;
     },
     closeDialog() {
+      this.saveData()
       this.dialog = false;
       this.$emit("closed", this.dialog);
-      // if (JSON.stringify(this.desserts) != this.duplicate) {
-      //   this.checkChanges(this.desserts, JSON.parse(this.duplicate));
-      // }
     },
     closeAll() {
-      Object.keys(this.$refs).forEach(k => {
+      Object.keys(this.$refs).forEach((k) => {
         // console.log(this.$refs[k])
         if (this.$refs[k] && this.$refs[k].$attrs["data-open"]) {
           this.$refs[k].$el.click();
@@ -512,7 +659,7 @@ export default {
       });
     },
     openAll() {
-      Object.keys(this.$refs).forEach(k => {
+      Object.keys(this.$refs).forEach((k) => {
         if (this.$refs[k] && !this.$refs[k].$attrs["data-open"]) {
           this.$refs[k].$el.click();
         }
@@ -524,14 +671,14 @@ export default {
       if (event.title === "Subcontractor Signature") {
         this.signedSubcontractor = true;
         this.scSignature = event.data;
-        this.desserts.forEach(el => {
+        this.desserts.forEach((el) => {
           el.signedSubcontractor = this.signedSubcontractor;
         });
       }
       if (event.title === "Site Foreman Signature") {
         this.signedSiteforeman = true;
         this.sfSignature = event.data;
-        this.desserts.forEach(el => {
+        this.desserts.forEach((el) => {
           el.signedSiteforeman = this.signedSiteforeman;
         });
       }
@@ -541,7 +688,7 @@ export default {
       ) {
         this.signedConstructionManager = true;
         this.cmSignature = event.data;
-        this.desserts.forEach(el => {
+        this.desserts.forEach((el) => {
           el.signedConstructionManager = this.signedConstructionManager;
         });
         console.log("AWESOME");
@@ -552,8 +699,8 @@ export default {
         this.dialog1 = false;
       }
       console.log(event);
-    }
-  }
+    },
+  },
 };
 </script>
 

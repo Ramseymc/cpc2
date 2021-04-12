@@ -107,24 +107,12 @@ router.post("/uploadCoverImage", upload.array("files"), (req, res) => {
         console.log("FILES DELETED");
       });
     }
-    //     fs.unlink(`${directory}${file}`), err => {
-    //       if (err) throw err;
-    //       console.log("FILES DELETED")
-    //   }
-    // })
   });
 
-  //   const fsp = require('fs').promises;
-
-  // const directory = 'public/uploads/';
-
-  // fsp.rmdir(directory, { recursive: true })
-  //   .then(() => console.log('directory removed!'));
-
-  console.log("FILE", req.files.length);
-  console.log(req.body);
-  console.log(req.body.development);
-  console.log(req.body.block);
+  // console.log("FILE", req.files.length);
+  // console.log(req.body);
+  // console.log(req.body.development);
+  // console.log(req.body.block);
 
   let length = req.files.length;
   let done = 0;

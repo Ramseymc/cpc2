@@ -86,11 +86,11 @@
       </v-card>
       <v-card class="mx-auto" max-width="1050" tile v-if="items.length">
         <v-toolbar color="#0F0F0F" dark>
+          <v-btn v-if="taskTypeIndex > 0 && totalAmountDigits <= allTaskProgressStart" @click="goUp"><v-icon>mdi-chevron-left</v-icon></v-btn>
           <v-toolbar-title style="font-size: 125%;"
             >Progress Items - Unit: {{ unitChosen }} - Fix: {{ items[0].fix }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
-
           <div style="margin-top: 15px; margin-right: 12px;">
             <v-radio-group row v-model="fixChosen">
               <v-radio
@@ -104,23 +104,7 @@
 
             <v-spacer></v-spacer>
           </div>
-
-          <!-- <div>
-            <vue-numeric-input
-              style="background-color: white;"
-              :disabled="fixChosen === 'Ret' && fixes.length > 1"
-              v-model="allTaskProgress"
-              
-              label="Testing"
-              :min="allTaskProgressStart"
-              :max="100"
-              :step="25"
-          
-              @change="changeTotalProgress"
-            ></vue-numeric-input>
-          </div> -->
           <v-spacer></v-spacer>
-
           <div>
             <v-btn icon @click="showTasks"
               ><v-icon>{{ btnIcon }}</v-icon
@@ -145,6 +129,7 @@
               ><v-icon color="lime">mdi-upload-multiple</v-icon></v-btn
             >
           </div>
+          <v-btn v-if="taskTypeIndex < taskType.length - 1 && totalAmountDigits <= allTaskProgressStart" @click="goDown"><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-toolbar>
         <br />
         <v-progress-linear
@@ -338,9 +323,13 @@
                   </v-list-item-content>
                 </template>
                 <v-list-item-action>
+                    <v-btn icon :id="item.id" v-if="item.comments && item.comments !== 'null'" @click="viewComment"
+                    ><v-icon color="orange">mdi-comment-text</v-icon></v-btn
+                  >
                   <v-btn icon :id="item.id" @click="addTime"
                     ><v-icon color="black">mdi-camera-timer</v-icon></v-btn
                   >
+                
                 </v-list-item-action>
               </v-list-item>
             </template>
@@ -406,6 +395,7 @@
         <v-card-text>
           <span>This will affect all linked tasks</span><br />
           <span>Are you sure?</span><br />
+          <v-text-field placeholder="insert reason here" v-model="addDaysComment"></v-text-field>
 
           <!-- v-model="allTaskProgress" -->
           <vue-numeric-input
@@ -433,17 +423,23 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="commentsDialog" persistent max-width="400px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Comments</span>
+        </v-card-title>
+        <v-card-text>
+          {{addDaysComment}}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="commentsDialog = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="aboutDialog" scrollable max-width="70vw">
-      <!-- <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Open Dialog
-        </v-btn>
-      </template> -->
       <v-card>
         <v-card-title>Legends</v-card-title>
         <v-divider></v-divider>
@@ -474,13 +470,6 @@
           <v-btn color="blue darken-1" text @click="aboutDialog = false">
             Close
           </v-btn>
-          <!-- <v-btn
-            color="blue darken-1"
-            text
-            @click="aboutDialog = false"
-          >
-            Save
-          </v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -510,9 +499,9 @@ const options = {
     "2021-08-09",
     "2021-09-24",
     "2021-12-16",
-    "2021-12-27"
+    "2021-12-27",
   ],
-  holidayFormat: "YYYY-MM-DD"
+  holidayFormat: "YYYY-MM-DD",
 };
 dayjs.extend(businessDays, options);
 
@@ -533,17 +522,18 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `Update progress Here.`
-      }
+        content: `Update progress Here.`,
+      },
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true
-    }
+      amp: true,
+    },
   },
   data() {
     return {
       addDays: 0,
+      addDaysComment: "",
       addDaysId: 0,
       today: null,
       timeProgressActive: true,
@@ -557,6 +547,7 @@ export default {
       dialog: false,
       disabled: true,
       aboutDialog: false,
+      commentsDialog: false,
 
       windowWidth: null,
       flex: 12,
@@ -573,6 +564,7 @@ export default {
       unitChosen: [],
       taskType: [],
       taskTypeChosen: [],
+      taskTypeIndex: 0,
       tasks: [],
 
       developmentParam: 0,
@@ -602,13 +594,13 @@ export default {
       totalAmount: "",
       allTaskProgressStart: 0,
       totalAmountDigits: 0,
-      averageTime: 0
+      averageTime: 0,
     };
   },
   watch: {
     fixChosen: function() {
       if (this.items.length) {
-        this.items = this.itemsDuplicated.filter(el => {
+        this.items = this.itemsDuplicated.filter((el) => {
           return el.fix === this.fixChosen;
         });
       }
@@ -632,7 +624,7 @@ export default {
 
         // this.changeIndividualProgress();
       }
-    }
+    },
   },
   async mounted() {
     this.checkToken();
@@ -662,9 +654,24 @@ export default {
     this.getSubsections();
   },
   methods: {
+    goUp() {
+      // console.log("Move Previous");
+      this.taskTypeIndex = this.taskTypeIndex - 1
+      this.taskTypeChosen = this.taskType[this.taskTypeIndex].taskName
+      this.getTasks()
+      console.log(this.taskTypeIndex)
+
+    },
+    goDown() {
+      // console.log("Move Next");
+       this.taskTypeIndex = this.taskTypeIndex + 1
+      this.taskTypeChosen = this.taskType[this.taskTypeIndex].taskName
+      this.getTasks()
+      // console.log(this.taskTypeIndex)
+    },
     changeTotalProgress() {
       this.allTaskProgress = Math.round(this.allTaskProgress / 5) * 5;
-      this.items.forEach(el => {
+      this.items.forEach((el) => {
         el.progress = this.allTaskProgress;
         if (el.progress < el.lastCertificateIssuedAt) {
           el.progress = el.lastCertificateIssuedAt;
@@ -686,7 +693,7 @@ export default {
       });
     },
     changeIndividualProgress() {
-      this.items.forEach(el => {
+      this.items.forEach((el) => {
         if (el.progress < el.lastCertificateIssuedAt) {
           el.progress = el.lastCertificateIssuedAt;
         } else {
@@ -730,14 +737,14 @@ export default {
         unitNumber: this.unitNumber,
         progress: this.done,
         progressDate: this.date,
-        progressId: this.progressId
+        progressId: this.progressId,
       };
       await axios({
         method: "post",
         url: `${url}/progressPost`,
-        data: data
+        data: data,
       })
-        .then(result => {
+        .then((result) => {
           this.dialog = false;
           if (result.status === 200) {
             this.getTasks();
@@ -752,7 +759,7 @@ export default {
     async saveProgressRetention() {
       let progress = [];
       let taskIds = [];
-      this.items.forEach(el => {
+      this.items.forEach((el) => {
         if (el.fix === "Ret") {
           taskIds = [];
           taskIds.push(this.$store.state.development.id);
@@ -768,15 +775,15 @@ export default {
         }
       });
       let data = {
-        allTasks: progress
+        allTasks: progress,
       };
 
       await axios({
         method: "post",
         url: `${url}/progressPostRetained`,
-        data: data
+        data: data,
       })
-        .then(result => {
+        .then((result) => {
           this.dialog = false;
 
           if (result.status === 200) {
@@ -794,7 +801,7 @@ export default {
     async saveProgressAll() {
       let progress = [];
       let taskIds = [];
-      this.items.forEach(el => {
+      this.items.forEach((el) => {
         if (el.fix !== "Ret") {
           taskIds = [];
           taskIds.push(el.id);
@@ -808,15 +815,15 @@ export default {
         }
       });
       let data = {
-        allTasks: progress
+        allTasks: progress,
       };
 
       await axios({
         method: "post",
         url: `${url}/progressPostAll`,
-        data: data
+        data: data,
       })
-        .then(result => {
+        .then((result) => {
           this.dialog = false;
           if (result.status === 200) {
             this.fixes = [];
@@ -833,7 +840,7 @@ export default {
     openPostDialog(event) {
       let targetID = event.currentTarget.id;
       this.taskId = targetID;
-      let itemToPost = this.items.filter(el => {
+      let itemToPost = this.items.filter((el) => {
         return el.id == this.taskId;
       });
       this.progressId = itemToPost[0].progressID;
@@ -852,15 +859,15 @@ export default {
       this.developmentParam = parameter;
       axios({
         method: "get",
-        url: `${url}/subsection/${parameter}`
+        url: `${url}/subsection/${parameter}`,
       }).then(
-        response => {
+        (response) => {
           if (response.data.success === false) {
             return this.$router.push({ name: "Login" });
           }
           this.subsection = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -871,25 +878,25 @@ export default {
       this.items = [];
       let parameter = "";
       if (this.subsection.length) {
-        let unit = this.subsection.filter(el => {
+        let unit = this.subsection.filter((el) => {
           return el.subsectionName === this.subsectionChosen;
         });
         parameter = unit[0].id;
         this.subsectionParam = parameter;
         axios({
           method: "get",
-          url: `${url}/getUnits/${this.developmentParam}/${this.subsectionParam}`
+          url: `${url}/getUnits/${this.developmentParam}/${this.subsectionParam}`,
         }).then(
-          response => {
+          (response) => {
             this.units = response.data;
 
-            this.units.forEach(el => {
+            this.units.forEach((el) => {
               if (el.unitName.substring(1, 2) === ".") {
                 this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
               }
             });
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
@@ -901,7 +908,7 @@ export default {
       this.items = [];
       let parameter = "";
       if (this.units.length) {
-        let unit = this.units.filter(el => {
+        let unit = this.units.filter((el) => {
           return el.unitName === this.unitChosen;
         });
         parameter = unit[0].id;
@@ -909,17 +916,17 @@ export default {
 
         let data = {
           id: this.$store.state.development.id,
-          unit: this.unitParam
+          unit: this.unitParam,
         };
         axios({
           method: "post",
           url: `${url}/taskTypesR`,
-          data: data
+          data: data,
         }).then(
-          response => {
+          (response) => {
             this.taskType = response.data;
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
@@ -928,9 +935,16 @@ export default {
     getTasks() {
       let parameter = "";
       if (this.taskType.length) {
-        let taskType = this.taskType.filter(el => {
+        let taskType = this.taskType.filter((el) => {
           return el.taskName === this.taskTypeChosen;
         });
+        let thisIndex = this.taskType.findIndex((element) => {
+        if (element.taskName === this.taskTypeChosen) {
+          return true;
+        }
+      });
+      // console.log("THIS INDEX",thisIndex)
+      this.taskTypeIndex = thisIndex
         this.fixes = [];
         this.fixValue = [];
         this.fixChosen = "";
@@ -939,9 +953,9 @@ export default {
         this.taskTypeParam = parameter;
         axios({
           method: "get",
-          url: `${url}/tasks/${this.unitParam}/${this.taskTypeParam}`
+          url: `${url}/tasks/${this.unitParam}/${this.taskTypeParam}`,
         }).then(
-          response => {
+          (response) => {
             console.log(response.data);
             if (response.data.remaining.length) {
               console.log(response.data);
@@ -950,7 +964,12 @@ export default {
               this.today = today;
 
               // console.log(today)
-              this.tasks.forEach(el => {
+              this.tasks.forEach((el) => {
+                // if (index === 2) {
+                //   el.comments = "Rain Delays"
+                // } else {
+                //   el.comments = ""
+                // }
                 if (!el.vatVendor) {
                   el.price = el.price / 1.15;
                   el.remaining = el.remaining / 1.15;
@@ -1026,12 +1045,12 @@ export default {
                     totalRetention: totalValue,
                     retentionToDate: 0,
                     progressID: null,
-                    supplier: this.tasks[0].supplier
+                    supplier: this.tasks[0].supplier,
                   };
                   this.tasks.push(item);
                 } else {
                   let item = response.data.retention;
-                  item.forEach(el => {
+                  item.forEach((el) => {
                     el.fix = "Ret";
                     el.totalValue = totalValue;
                     el.totalValueStr = this.convertToString(totalValue);
@@ -1042,15 +1061,15 @@ export default {
                 }
               }
 
-              this.items = this.tasks.filter(el => {
+              this.items = this.tasks.filter((el) => {
                 return el.lastCertificateIssuedAt !== 100;
               });
-              this.items.forEach(el => {
+              this.items.forEach((el) => {
                 el.editDate = new Date().toISOString().substr(0, 10);
               });
 
               let fixes = [];
-              this.items.forEach(el => {
+              this.items.forEach((el) => {
                 fixes.push(el.fix);
               });
               fixes = Array.from(new Set(fixes)).sort();
@@ -1058,7 +1077,7 @@ export default {
               fixes.forEach((el, index) => {
                 let insert = {
                   id: index,
-                  fix: el
+                  fix: el,
                 };
                 this.fixes.push(insert);
               });
@@ -1107,11 +1126,19 @@ export default {
               this.getSubsections();
             }
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
       }
+    },
+    viewComment(event) {
+       console.log(event.currentTarget.id);
+       let filteredData = this.itemsDuplicated.filter((el) => {
+         return el.id === parseInt(event.currentTarget.id)
+       })
+       this.addDaysComment = filteredData[0].comments
+       this.commentsDialog = true
     },
     addTime(event) {
       console.log(event.currentTarget.id);
@@ -1136,6 +1163,7 @@ export default {
               this.itemsDuplicated[i].duration = dayjs(
                 this.itemsDuplicated[i].endDate
               ).businessDiff(dayjs(this.itemsDuplicated[i].startDate), "d");
+              this.itemsDuplicated[i].comments = this.addDaysComment + ' - ' + this.$store.state.userName + ' - ' + new Date().toISOString().substr(0,10)
             } else {
               this.itemsDuplicated[i].endDate = dayjs(
                 this.itemsDuplicated[i].endDate
@@ -1150,6 +1178,7 @@ export default {
               this.itemsDuplicated[i].duration = dayjs(
                 this.itemsDuplicated[i].endDate
               ).businessDiff(dayjs(this.itemsDuplicated[i].startDate), "d");
+              this.itemsDuplicated[i].comments = ""
             }
           }
         }
@@ -1159,20 +1188,21 @@ export default {
       await axios({
         method: "post",
         url: `${url}/upDateTasksFromProgress`,
-        data: data
+        data: data,
       })
-        .then(response => {
+        .then((response) => {
           console.log(response.data);
+          this.addDaysComment = ""
         })
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
 
       this.dialog3 = false;
       this.addDays = 0;
       this.getTasks();
-    }
-  }
+    },
+  },
 };
 </script>
 

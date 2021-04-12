@@ -371,10 +371,41 @@ router.post("/postTaskUpdates", (req, res) => {
   });
 });
 
+router.post("/resetData", (req, res) => {
+  let mysql = `delete from depositsMade;
+  delete from paymentCertificatesDetails;
+  delete from paymentCertificates;
+  delete from progress;
+  delete from progressRetention;
+  delete from deliveries;
+  delete from purchaseOrders;
+  delete from qcquestionnaireDone;
+  update tasks set baselineStartDate = startDate;
+  update tasks set baselineEndDate = endDate;
+  update tasks set comments = null;`
+  // console.log(mysql)
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log(error);
+        res.json(error)
+      } else {
+        console.log(result)
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
 router.post("/upDateTasksFromProgress", (req, res) => {
   let mysql = "";
   req.body.forEach(el => {
-    mysql = `${mysql} update tasks set startDate = '${el.startDate}', endDate = '${el.endDate}', duration = ${el.duration} where id = ${el.id};`
+    mysql = `${mysql} update tasks set startDate = '${el.startDate}', endDate = '${el.endDate}', duration = ${el.duration}, comments = '${el.comments}' where id = ${el.id};`
   });
   console.log(mysql)
   pool.getConnection(function (err, connection) {

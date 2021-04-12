@@ -7,6 +7,38 @@ const moment = require("moment");
 const fs = require("fs");
 const runReport = require("./qualityControlPDF");
 const path = require("path");
+const multer = require("multer");
+var cloudinary = require("cloudinary").v2;
+
+//MULTER FILE FILTER
+const fileFilter = function (req, file, cb) {
+  const allowedTypes = ["image/jpg", "image/jpeg", "image/png"];
+  if (!allowedTypes.includes(file.mimetype)) {
+    const error = new Error("Wrong file type");
+    error.code = "LIMIT_FILE_TYPES";
+    console.log(req.path, error);
+    return cb(error, false);
+  }
+  cb(null, true);
+};
+
+let MAX_SIZE = 2000000;
+const upload = multer({
+  dest: "./public/uploads/",
+  // dest: `${process.env.DRAFT_INITIAL_UPLOADS}`,
+  fileFilter,
+  limits: {
+    fileSize: MAX_SIZE,
+    fieldSize: 100 * 1024 * 1024,
+  },
+});
+
+// CLOUDINARY CONFIG - STICK THIS IN ENV FILE
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 router.get("/qcshortname", (req, res) => {
   let mysql = `select distinct shortName from qcquestionnaireTemplate order by shortName`;
@@ -69,10 +101,73 @@ router.post("/getqcPDF", (req, res) => {
   }
 });
 
+router.post("/removeQCImage", (req, res) => {
+  // res.json({ Awesome: "It works" });
+  cloudinary.uploader.destroy(`${req.body.url_id}`, function (result, error) {
+    console.log(result), console.log(error);
+    let response = {
+      id: req.body.id,
+      deletion: "successful"
+    }
+    res.json(response)
+  });
+});
+
+router.post("/uploadImage", upload.single("image"), (req, res) => {
+  console.log(req.file)
+  console.log(req.body.id)
+  const directory = "public/uploads/";
+  let path;
+
+  fs.readdir(directory, (err, files) => {
+    if (err) throw err;
+    console.log(files);
+
+    for (const file of files) {
+      fs.unlink(`${directory}${file}`, (err) => {
+        if (err) throw err;
+        console.log("FILES DELETED");
+      });
+    }
+  });
+
+  let filename;
+  // let publicId,
+  let public_id = "";
+
+
+    filename = req.file.filename;
+    path = `public/uploads/${filename}`;
+
+    try {
+      cloudinary.uploader.upload(`${path}`, function (error, result) {
+        console.log("RES", result), console.log("ERR", error);
+        public_id = result.public_id;
+        let returnInfo = {
+          public_id: public_id,
+          id: req.body.id
+        }
+        // console.log(public_id);
+        res.json(returnInfo)
+
+      });
+    } catch (e) {
+      res.json({ Error: "There was an error" });
+    }
+
+})
+
 router.post("/postQC", (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
+  console.log(req.body.unit);
+  console.log("file", req.file);
+  // console.log(req.body.info)
+  // req.body.info = JSON.parse(req.body.info);
+  // console.log(req.body.info);
   let length = req.body.info.length - 1;
-  console.log(length);
+  // console.log("LENGTH", length);
+
+  
 
   if (req.body.scSignature !== "") {
     var image = req.body.scSignature;
@@ -100,15 +195,15 @@ router.post("/postQC", (req, res) => {
     });
   }
 
-  let mysql = `Insert into qcquestionnaireDone (development, section, unit, controlDate, controlTimestamp, shortName, name, category, comments, constructionManager, subcontractor, siteforeman, signedConstructionManager, signedSubcontractor, signedSiteforeman) values `;
+  let mysql = `Insert into qcquestionnaireDone (development, section, unit, controlDate, controlTimestamp, shortName, name, category, comments, constructionManager, subcontractor, siteforeman, signedConstructionManager, signedSubcontractor, signedSiteforeman, image) values `;
   let mysqlAdd = "";
   req.body.info.forEach((el, index) => {
     if (index < length) {
       mysqlAdd = `${mysqlAdd} (${req.body.development}, '${req.body.section}', '${req.body.unit}', '${req.body.controlDate}', '${req.body.controlTimestamp}',
-                           '${el.shortName}', '${el.name}', '${el.category}', '${el.comments}', ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${req.body.signedConstructionManager}, ${req.body.signedSubcontractor}, ${req.body.signedSiteforeman}),`;
+                           '${el.shortName}', '${el.name}', '${el.category}', '${el.comments}', ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${req.body.signedConstructionManager}, ${req.body.signedSubcontractor}, ${req.body.signedSiteforeman},'${el.image}'),`;
     } else {
       mysqlAdd = `${mysqlAdd} (${req.body.development}, '${req.body.section}', '${req.body.unit}', '${req.body.controlDate}', ${req.body.controlTimestamp},
-                           '${el.shortName}', '${el.name}', '${el.category}', '${el.comments}', ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${req.body.signedConstructionManager}, ${req.body.signedSubcontractor}, ${req.body.signedSiteforeman});`;
+                           '${el.shortName}', '${el.name}', '${el.category}', '${el.comments}', ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${req.body.signedConstructionManager}, ${req.body.signedSubcontractor}, ${req.body.signedSiteforeman},'${el.image}');`;
     }
   });
   mysql = `${mysql}${mysqlAdd}`;
@@ -238,7 +333,7 @@ router.post("/editQC", (req, res) => {
   console.log(req.body.controlTimestamp);
   req.body.info.forEach((el) => {
     mysql = `${mysql} update qcquestionnaireDone set development = ${req.body.development}, section = '${req.body.section}', unit =  '${req.body.unit}', controlDate =  '${req.body.controlDate}', controlTimestamp =  '${req.body.controlTimestamp}',
-            shortName =  '${el.shortName}', name = '${el.name}', category = '${el.category}', comments = '${el.comments}',constructionManager  =  ${el.constructionManager}, subcontractor = ${el.subcontractor}, siteforeman = ${el.siteforeman}, signedConstructionManager =  ${req.body.signedConstructionManager}, signedSubcontractor = ${req.body.signedSubcontractor}, signedSiteforeman = ${req.body.signedSiteforeman} 
+            shortName =  '${el.shortName}', name = '${el.name}', category = '${el.category}', comments = '${el.comments}',constructionManager  =  ${el.constructionManager}, subcontractor = ${el.subcontractor}, siteforeman = ${el.siteforeman}, signedConstructionManager =  ${req.body.signedConstructionManager}, signedSubcontractor = ${req.body.signedSubcontractor}, signedSiteforeman = ${req.body.signedSiteforeman}, image = '${el.image}' 
             where id = ${el.id};`;
   });
 

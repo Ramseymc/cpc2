@@ -1267,9 +1267,16 @@ insert into qcquestionnaireTemplate (shortName, category, name) values
 alter table tasks add column dependantOn varchar(160);
 alter table tasks add column parentId varchar(160);
 
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
  startDate TIMESTAMP DEFAULT NOW(),
 
 alter table tasks add column baselineStartDate TIMESTAMP DEFAULT now();
 alter table tasks add column baselineEndDate TIMESTAMP DEFAULT now();
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+alter table tasks add column comments varchar(160);
+alter table qcquestionnaireDone add column image varchar(160);
+alter table qcquestionnaireTemplate add column image varchar(160);
+alter table deliveries add column comments varchar(160);
+alter table purchaseOrders add column comments varchar(160);
+

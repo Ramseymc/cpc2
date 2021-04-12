@@ -47,6 +47,9 @@
                 </v-menu>
               </v-col>
 
+
+              <v-spacer></v-spacer>
+              <span style="color: red;"><strong>{{ comments }}</strong></span>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="700px">
                 <template v-slot:activator="{ on, attrs }">
@@ -290,6 +293,7 @@ export default {
     stockItemsToAdd: [],
     totalGross: 0,
     totalVAT: 0,
+    comments: "",
     totalNett: 0,
     deliveryDate: "",
     date: new Date().toISOString().substr(0, 10),
@@ -488,7 +492,7 @@ export default {
             el.gross = el.totalCost;
             el.nett = el.nettCost;
           });
-
+          this.comments = this.desserts[0].comments
           this.deliveryDate = this.desserts[0].deliveryDate.substr(0, 10);
           this.date = this.deliveryDate;
           this.supplierChosen = this.desserts[0].supplier;

@@ -111,7 +111,7 @@
                       @click="deleteImage"
                       v-if="userRole < 2"
                     >
-                      <v-icon color="red">mdi-trash-can</v-icon>
+                      <v-icon color="red" v-if="card.uploadedBy == userName">mdi-trash-can</v-icon>
                     </v-btn>
                     <v-spacer v-if="userRole < 2"></v-spacer>
                   </v-card-actions>
@@ -139,7 +139,7 @@
                 <v-col cols="12" sm="12" md="12">
                   <v-file-input
                     ref="files"
-                    accept="image/png, image/jpeg, image/bmp"
+                    accept="image/png, image/jpeg, image/bmp, image/jpg,"
                     prepend-icon="mdi-camera"
                     label="Upload Image"
                     v-model="files"
@@ -412,6 +412,7 @@ export default {
   },
   data() {
     return {
+      userName: this.$store.state.userName,
       userRole: this.$store.state.userRole,
       multiLine: true,
       snackbar: false,
@@ -785,6 +786,7 @@ export default {
           response => {
             this.cards = [];
             this.cards = response.data;
+            console.log(this.cards)
             // let length = this.cards.length
             this.cards.forEach(el => {
               if (this.windowSize < 767) {
