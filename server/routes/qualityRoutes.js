@@ -9,6 +9,7 @@ const runReport = require("./qualityControlPDF");
 const path = require("path");
 const multer = require("multer");
 var cloudinary = require("cloudinary").v2;
+var uniqid = require("uniqid");
 
 //MULTER FILE FILTER
 const fileFilter = function (req, file, cb) {
@@ -107,15 +108,15 @@ router.post("/removeQCImage", (req, res) => {
     console.log(result), console.log(error);
     let response = {
       id: req.body.id,
-      deletion: "successful"
-    }
-    res.json(response)
+      deletion: "successful",
+    };
+    res.json(response);
   });
 });
 
 router.post("/uploadImage", upload.single("image"), (req, res) => {
-  console.log(req.file)
-  console.log(req.body.id)
+  console.log(req.file);
+  console.log(req.body.id);
   const directory = "public/uploads/";
   let path;
 
@@ -135,27 +136,24 @@ router.post("/uploadImage", upload.single("image"), (req, res) => {
   // let publicId,
   let public_id = "";
 
+  filename = req.file.filename;
+  path = `public/uploads/${filename}`;
 
-    filename = req.file.filename;
-    path = `public/uploads/${filename}`;
-
-    try {
-      cloudinary.uploader.upload(`${path}`, function (error, result) {
-        console.log("RES", result), console.log("ERR", error);
-        public_id = result.public_id;
-        let returnInfo = {
-          public_id: public_id,
-          id: req.body.id
-        }
-        // console.log(public_id);
-        res.json(returnInfo)
-
-      });
-    } catch (e) {
-      res.json({ Error: "There was an error" });
-    }
-
-})
+  try {
+    cloudinary.uploader.upload(`${path}`, function (error, result) {
+      console.log("RES", result), console.log("ERR", error);
+      public_id = result.public_id;
+      let returnInfo = {
+        public_id: public_id,
+        id: req.body.id,
+      };
+      // console.log(public_id);
+      res.json(returnInfo);
+    });
+  } catch (e) {
+    res.json({ Error: "There was an error" });
+  }
+});
 
 router.post("/postQC", (req, res) => {
   // console.log(req.body);
@@ -167,21 +165,20 @@ router.post("/postQC", (req, res) => {
   let length = req.body.info.length - 1;
   // console.log("LENGTH", length);
 
-  
-
+  let uniqueID = uniqid();
   if (req.body.scSignature !== "") {
     var image = req.body.scSignature;
     var data = image.replace(/^data:image\/\w+;base64,/, "");
-    // let fileName = "public/aaaa.png"
-    let fileName = `public/${req.body.controlTimestamp}SC.png`;
+    let fileName = `public/${uniqueID}SC.png`;
     fs.writeFile(fileName, data, { encoding: "base64" }, function (err) {
       console.log("DONE SC");
+      console.log(fileName);
     });
   }
   if (req.body.cmSignature !== "") {
     var image = req.body.cmSignature;
     var data = image.replace(/^data:image\/\w+;base64,/, "");
-    let fileName = `public/${req.body.controlTimestamp}CM.png`;
+    let fileName = `public/${uniqueID}CM.png`;
     fs.writeFile(fileName, data, { encoding: "base64" }, function (err) {
       console.log("DONE!! CM");
     });
@@ -189,25 +186,81 @@ router.post("/postQC", (req, res) => {
   if (req.body.sfSignature !== "") {
     var image = req.body.sfSignature;
     var data = image.replace(/^data:image\/\w+;base64,/, "");
-    let fileName = `public/${req.body.controlTimestamp}SF.png`;
+    let fileName = `public/${uniqueID}SF.png`;
     fs.writeFile(fileName, data, { encoding: "base64" }, function (err) {
       console.log("DONE!! SF");
     });
   }
 
-  let mysql = `Insert into qcquestionnaireDone (development, section, unit, controlDate, controlTimestamp, shortName, name, category, comments, constructionManager, subcontractor, siteforeman, signedConstructionManager, signedSubcontractor, signedSiteforeman, image) values `;
+  let mysql = `Insert into qcquestionnaireDone (development, section, unit, controlDate, controlTimestamp, shortName, name, category, comments, constructionManager, subcontractor, siteforeman, signedConstructionManager, signedSubcontractor, signedSiteforeman,signedConstructionManagerimage, signedSubcontractorimage, signedSiteforemanimage, image) values `;
   let mysqlAdd = "";
+  console.log(req.body.info);
   req.body.info.forEach((el, index) => {
-    if (index < length) {
-      mysqlAdd = `${mysqlAdd} (${req.body.development}, '${req.body.section}', '${req.body.unit}', '${req.body.controlDate}', '${req.body.controlTimestamp}',
-                           '${el.shortName}', '${el.name}', '${el.category}', '${el.comments}', ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${req.body.signedConstructionManager}, ${req.body.signedSubcontractor}, ${req.body.signedSiteforeman},'${el.image}'),`;
+    if (
+      el.subcontractor &&
+      !el.signedSubcontractor &&
+      req.body.scSignature === ""
+    ) {
+      el.subcontractor = false;
+      el.signedSubcontractorImage = null;
+    } else if (
+      el.subcontractor &&
+      !el.signedSubcontractor &&
+      req.body.scSignature !== ""
+    ) {
+      el.signedSubcontractorImage = `'${uniqueID}SC'`;
+      el.signedSubcontractor = true;
     } else {
-      mysqlAdd = `${mysqlAdd} (${req.body.development}, '${req.body.section}', '${req.body.unit}', '${req.body.controlDate}', ${req.body.controlTimestamp},
-                           '${el.shortName}', '${el.name}', '${el.category}', '${el.comments}', ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${req.body.signedConstructionManager}, ${req.body.signedSubcontractor}, ${req.body.signedSiteforeman},'${el.image}');`;
+      // el.signedSubcontractorImage = null;
+      el.signedSubcontractorImage = `'${el.signedSubcontractorImage}'`;
+    }
+    if (
+      el.constructionManager &&
+      !el.signedConstructionManager &&
+      req.body.cmSignature === ""
+    ) {
+      el.constructionManager = false;
+      el.signedConstructionManagerImage = null;
+    } else if (
+      el.constructionManager &&
+      !el.signedConstructionManager &&
+      req.body.cmSignature !== ""
+    ) {
+      el.signedConstructionManagerImage = `'${uniqueID}CM'`;
+      el.signedConstructionManager = true;
+    } else {
+      el.signedConstructionManagerImage = `'${el.signedConstructionManagerImage}'`;
+      // el.signedConstructionManagerImage = null;
+    }
+    if (
+      el.siteforeman &&
+      !el.signedSiteforeman &&
+      req.body.cmSignature === ""
+    ) {
+      el.siteforeman = false;
+      el.signedSiteforemanImage = null;
+    } else if (
+      el.siteforeman &&
+      !el.signedSiteforeman &&
+      req.body.sfSignature !== ""
+    ) {
+      el.signedSiteforemanImage = `'${uniqueID}SF'`;
+      el.signedSiteforeman = true;
+    } else {
+      el.signedSiteforemanImage = `'${el.signedSiteforemanImage}'`;
+      // el.signedSiteforemanImage = null;
+    }
+
+    if (index < length) {
+      mysqlAdd = `${mysqlAdd} (${req.body.development}, "${req.body.section}", "${req.body.unit}", "${req.body.controlDate}", "${req.body.controlTimestamp}",
+                           "${el.shortName}", "${el.name}", "${el.category}", "${el.comments}", ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${el.signedConstructionManager}, ${el.signedSubcontractor}, ${el.signedSiteforeman}, ${el.signedConstructionManagerImage}, ${el.signedSubcontractorImage}, ${el.signedSiteforemanImage}, '${el.image}'),`;
+    } else {
+      mysqlAdd = `${mysqlAdd} (${req.body.development}, "${req.body.section}", "${req.body.unit}", "${req.body.controlDate}", ${req.body.controlTimestamp},
+                           "${el.shortName}", "${el.name}", "${el.category}", "${el.comments}", ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${el.signedConstructionManager}, ${el.signedSubcontractor}, ${el.signedSiteforeman}, ${el.signedConstructionManagerImage}, ${el.signedSubcontractorImage}, ${el.signedSiteforemanImage},'${el.image}');`;
     }
   });
   mysql = `${mysql}${mysqlAdd}`;
-  console.log(mysql);
+  // console.log(mysql);
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log(err);
@@ -229,92 +282,21 @@ router.post("/postQC", (req, res) => {
 });
 
 router.post("/editQC", (req, res) => {
-  // console.log("XXX", req.body);
-
-  // const oldPath = `public/${req.body.info[0].controlTimestamp}CM.png`;
-  // const newPath = `public/${req.body.controlTimestamp}CM.png`;
-
-  // console.log(oldPath);
-  // console.log(newPath);
-  // fs.rename(oldPath, newPath, function (err) {
-  //   if (err) console.log("ERROR: " + err);
-  //   console.log("RENAMED!!!!");
-  // });
-  // fs.rename(oldPath, newPath)
-
-  try {
-    if (fs.existsSync(`public/${req.body.info[0].controlTimestamp}CM.png`)) {
-      fs.unlink(`public/${req.body.info[0].controlTimestamp}CM.png`, (err) => {
-        if (err) throw err;
-        console.log("FILES DELETED");
-      });
-      console.log("The file exists.");
-    } else {
-      console.log("The file does not exist.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
-  try {
-    if (fs.existsSync(`public/${req.body.info[0].controlTimestamp}SC.png`)) {
-      fs.unlink(`public/${req.body.info[0].controlTimestamp}SC.png`, (err) => {
-        if (err) throw err;
-        console.log("FILES DELETED");
-      });
-      console.log("The file exists.");
-    } else {
-      console.log("The file does not exist.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
-  try {
-    if (fs.existsSync(`public/${req.body.info[0].controlTimestamp}SF.png`)) {
-      fs.unlink(`public/${req.body.info[0].controlTimestamp}SF.png`, (err) => {
-        if (err) throw err;
-        console.log("FILES DELETED");
-      });
-      console.log("The file exists.");
-    } else {
-      console.log("The file does not exist.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
-  try {
-    if (
-      fs.existsSync(`public/${req.body.info[0].controlTimestamp}QCReport.pdf`)
-    ) {
-      fs.unlink(
-        `public/${req.body.info[0].controlTimestamp}QCReport.pdf`,
-        (err) => {
-          if (err) throw err;
-          console.log("FILES DELETED");
-        }
-      );
-      console.log("The file exists.");
-    } else {
-      console.log("The file does not exist.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
-
-  console.log("HELLOOOOOOOO");
-  // res.json({awesome: "It works!!!!"})
+  console.log(req.body.info);
+  let uniqueID = uniqid();
   if (req.body.scSignature !== "") {
     var image = req.body.scSignature;
     var data = image.replace(/^data:image\/\w+;base64,/, "");
-    // let fileName = "public/aaaa.png"
-    let fileName = `public/${req.body.controlTimestamp}SC.png`;
+    let fileName = `public/${uniqueID}SC.png`;
     fs.writeFile(fileName, data, { encoding: "base64" }, function (err) {
       console.log("DONE SC");
+      console.log(fileName);
     });
   }
   if (req.body.cmSignature !== "") {
     var image = req.body.cmSignature;
     var data = image.replace(/^data:image\/\w+;base64,/, "");
-    let fileName = `public/${req.body.controlTimestamp}CM.png`;
+    let fileName = `public/${uniqueID}CM.png`;
     fs.writeFile(fileName, data, { encoding: "base64" }, function (err) {
       console.log("DONE!! CM");
     });
@@ -322,22 +304,78 @@ router.post("/editQC", (req, res) => {
   if (req.body.sfSignature !== "") {
     var image = req.body.sfSignature;
     var data = image.replace(/^data:image\/\w+;base64,/, "");
-    let fileName = `public/${req.body.controlTimestamp}SF.png`;
+    let fileName = `public/${uniqueID}SF.png`;
     fs.writeFile(fileName, data, { encoding: "base64" }, function (err) {
       console.log("DONE!! SF");
     });
   }
+  console.log(uniqid());
   // runReport(data)
 
   let mysql = "";
-  console.log(req.body.controlTimestamp);
+  // console.log(req.body.controlTimestamp);
   req.body.info.forEach((el) => {
-    mysql = `${mysql} update qcquestionnaireDone set development = ${req.body.development}, section = '${req.body.section}', unit =  '${req.body.unit}', controlDate =  '${req.body.controlDate}', controlTimestamp =  '${req.body.controlTimestamp}',
-            shortName =  '${el.shortName}', name = '${el.name}', category = '${el.category}', comments = '${el.comments}',constructionManager  =  ${el.constructionManager}, subcontractor = ${el.subcontractor}, siteforeman = ${el.siteforeman}, signedConstructionManager =  ${req.body.signedConstructionManager}, signedSubcontractor = ${req.body.signedSubcontractor}, signedSiteforeman = ${req.body.signedSiteforeman}, image = '${el.image}' 
+    if (
+      el.subcontractor &&
+      !el.signedSubcontractor &&
+      req.body.scSignature === ""
+    ) {
+      el.subcontractor = false;
+      el.signedSubcontractorImage = null;
+    } else if (
+      el.subcontractor &&
+      !el.signedSubcontractor &&
+      req.body.scSignature !== ""
+    ) {
+      el.signedSubcontractorImage = `'${uniqueID}SC'`;
+      el.signedSubcontractor = true;
+    } else {
+      el.signedSubcontractorImage = `'${el.signedSubcontractorImage}'`;
+      // el.signedSubcontractorImage = null;
+    }
+    if (
+      el.constructionManager &&
+      !el.signedConstructionManager &&
+      req.body.cmSignature === ""
+    ) {
+      el.constructionManager = false;
+      el.signedConstructionManagerImage = null;
+    } else if (
+      el.constructionManager &&
+      !el.signedConstructionManager &&
+      req.body.cmSignature !== ""
+    ) {
+      el.signedConstructionManagerImage = `'${uniqueID}CM'`;
+      el.signedConstructionManager = true;
+    } else {
+      el.signedConstructionManagerImage = `'${el.signedConstructionManagerImage}'`;
+      // el.signedConstructionManagerImage = null;
+    }
+    if (
+      el.siteforeman &&
+      !el.signedSiteforeman &&
+      req.body.cmSignature === ""
+    ) {
+      el.siteforeman = false;
+      el.signedSiteforemanImage = null;
+    } else if (
+      el.siteforeman &&
+      !el.signedSiteforeman &&
+      req.body.sfSignature !== ""
+    ) {
+      el.signedSiteforemanImage = `'${uniqueID}SF'`;
+      el.signedSiteforeman = true;
+    } else {
+      el.signedSiteforemanImage = `'${el.signedSiteforemanImage}'`;
+      // el.signedSiteforemanImage = null;
+    }
+
+    mysql = `${mysql} update qcquestionnaireDone set development = ${req.body.development}, section = "${req.body.section}", unit =  "${req.body.unit}", controlDate =  "${req.body.controlDate}", controlTimestamp =  "${req.body.controlTimestamp}",
+            shortName =  "${el.shortName}", name = "${el.name}", category = "${el.category}", comments = "${el.comments}",constructionManager  =  ${el.constructionManager}, subcontractor = ${el.subcontractor}, siteforeman = ${el.siteforeman}, signedConstructionManager =  ${el.signedConstructionManager},  signedSubcontractor = ${el.signedSubcontractor}, signedSiteforeman = ${el.signedSiteforeman},signedSubcontractorimage = ${el.signedSubcontractorImage},signedSiteforemanimage = ${el.signedSiteforemanImage},signedConstructionManagerimage = ${el.signedConstructionManagerImage}, image = "${el.image}" 
             where id = ${el.id};`;
   });
 
-  // console.log(mysql)
+  // console.log(req.body.info)
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log(err);

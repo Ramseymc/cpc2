@@ -9,7 +9,7 @@ const { response } = require("express");
 const runReport = require("./reportsPDF");
 
 router.get("/suppliers", (req, res) => {
-  let mysql = `select * from suppliers order by supplierName`;
+  let mysql = `select * from suppliers where isSubcontractor = true order by supplierName`;
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);

@@ -47,9 +47,10 @@
                 </v-menu>
               </v-col>
 
-
               <v-spacer></v-spacer>
-              <span style="color: red;"><strong>{{ comments }}</strong></span>
+              <span style="color: red;"
+                ><strong>{{ comments }}</strong></span
+              >
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="700px">
                 <template v-slot:activator="{ on, attrs }">
@@ -261,7 +262,7 @@
             Cancel
           </v-btn>
           <v-btn color="green darken-1" text @click="savePO">
-            Update
+            UpdateXX
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -414,6 +415,7 @@ export default {
         el.supplierStreet = supplier[0].street_address;
         el.supplierVATNumber = supplier[0].vat_number;
       });
+      console.log(this.desserts)
       let PODataInsert = this.desserts.filter(el => {
         return el.id === null || el.id === undefined;
       });
@@ -442,6 +444,7 @@ export default {
         stockItemsToAdd: this.stockItemsToAdd,
         stockItemsToUpdate: this.stockItemsToUpdate
       };
+      console.log(data)
 
       await axios({
         method: "post",
@@ -492,7 +495,7 @@ export default {
             el.gross = el.totalCost;
             el.nett = el.nettCost;
           });
-          this.comments = this.desserts[0].comments
+          this.comments = this.desserts[0].comments;
           this.deliveryDate = this.desserts[0].deliveryDate.substr(0, 10);
           this.date = this.deliveryDate;
           this.supplierChosen = this.desserts[0].supplier;
@@ -563,6 +566,7 @@ export default {
     },
 
     save() {
+console.log(this.editedItem)
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
@@ -589,10 +593,15 @@ export default {
       let totalNett = this.desserts.reduce((acc, el) => {
         return acc + parseFloat(el.nett);
       }, 0);
+      console.log(this.editedIndex)
+      console.log(this.editedItem)
+      console.log(this.desserts)
+      
       this.totalNett = totalNett.toFixed(2);
       this.totalGross = this.convertToString(this.totalGross);
       this.totalVAT = this.convertToString(this.totalVAT);
       this.totalNett = this.convertToString(this.totalNett);
+
       this.close();
     },
     async getSubsections() {

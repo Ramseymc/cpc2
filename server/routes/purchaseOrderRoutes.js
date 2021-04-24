@@ -37,7 +37,7 @@ router.post("/POEdit", (req, res) => {
   if (req.body.purchaseOrderToUpdate.length) {
     req.body.purchaseOrderToUpdate.forEach((el) => {
       mysqla = `${mysqla} update purchaseOrders set subsection = ${el.subsection}, unitNumber = ${el.unitNumber}, supplier = ${el.supplierId}, reference = '${el.reference}', deliveryDate = '${el.deliveryDate}',
-        itemDescription = '${el.itemDescription}', quantity = ${el.quantity}, unitDescription = '${el.unitDescription}', unitCost = ${el.price}, totalCost = ${el.totalCost}, vat = ${el.vat}, nettCost = ${el.nettCost} where id = ${el.id};`;
+        itemDescription = '${el.itemDescription}', quantity = ${el.quantity}, unitDescription = '${el.unitDescription}', unitCost = ${el.price}, totalCost = ${parseFloat(el.gross)}, vat = ${el.vat}, nettCost = ${el.nett} where id = ${el.id};`;
     });
   }
   let mysql1 = "";
@@ -126,7 +126,7 @@ router.post("/POPosting", (req, res) => {
 
 router.post("/POInformation", (req, res) => {
   console.log(req.body);
-  let mysql1 = `select * from suppliers order by supplierName`;
+  let mysql1 = `select * from suppliers where isSubcontractor = false order by supplierName`;
   let mysql2 = `select * from stockItems order by itemDescription`;
   let mysql3 = `select * from purchaseOrders where development = ${req.body.id} order by id desc limit 1`;
   let mysql = `${mysql1};${mysql2};${mysql3}`;
@@ -178,7 +178,7 @@ router.post("/deletePurchaseOrder", (req, res) => {
 
 router.post("/POInformationForEdit", (req, res) => {
   console.log(req.body);
-  let mysql1 = `select * from suppliers order by supplierName`;
+  let mysql1 = `select * from suppliers where isSubcontractor = false order by supplierName`;
   let mysql2 = `select * from stockItems order by itemDescription`;
   // let mysql3 = `select * from purchaseOrders where development = ${req.body.id} order by id desc limit 1`;
   let mysql = `${mysql1};${mysql2}`;

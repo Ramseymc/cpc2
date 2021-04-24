@@ -78,6 +78,7 @@
                     color="red darken-3"
                     :ripple="false"
                     v-model="item.subcontractor"
+                    :disabled="item.scDisabled"
                   ></v-checkbox>
                 </template>
                 <template v-slot:item.siteForeman="{ item }">
@@ -86,6 +87,7 @@
                     color="amber"
                     :ripple="false"
                     v-model="item.siteforeman"
+                    :disabled="item.sfDisabled"
                   ></v-checkbox>
                 </template>
                 <template v-slot:item.constructionManager="{ item }">
@@ -94,6 +96,7 @@
                     color="black"
                     :ripple="false"
                     v-model="item.constructionManager"
+                    :disabled="item.cmDisabled"
                   ></v-checkbox>
                 </template>
                 <template v-slot:item.uploadImage="{ item }">
@@ -114,7 +117,11 @@
                     style="margin-left: 25px;"
                     v-model="item.image"
                   ></v-text-field> -->
-                  <v-btn :id="item.id" icon @click="viewImage" v-if="item.image !== null && item.image !== 'null'"
+                  <v-btn
+                    :id="item.id"
+                    icon
+                    @click="viewImage"
+                    v-if="item.image !== null && item.image !== 'null'"
                     ><v-icon color="green">mdi-camera-image</v-icon></v-btn
                   >
                 </template>
@@ -185,11 +192,20 @@
           Upload Image
         </v-card-title>
         <v-card-text>
-          <v-file-input v-model="imageFile" accept="image/*" label="File input"></v-file-input>
+          <v-file-input
+            v-model="imageFile"
+            accept="image/*"
+            label="File input"
+          ></v-file-input>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="black darken-1" text @click="uploadedImageFile" v-if="this.imageFile">
+          <v-btn
+            color="black darken-1"
+            text
+            @click="uploadedImageFile"
+            v-if="this.imageFile"
+          >
             Save
           </v-btn>
           <v-btn color="black darken-1" text @click="uploadDialog = false">
@@ -198,42 +214,39 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-      <v-dialog v-model="viewDialog" :max-width="maxWidth" max-heigh="90vh">
-        <v-card>
+    <v-dialog v-model="viewDialog" :max-width="maxWidth" max-heigh="90vh">
+      <v-card>
+        <v-spacer></v-spacer>
+        <v-card-title class="headline">
           <v-spacer></v-spacer>
-          <v-card-title class="headline">
-            <v-spacer></v-spacer>
-            <v-btn
-              color="black"
-              text
-              @click="viewDialog = false"
-              style="font-size: 150%; font-weight: bold;"
-              ><v-icon color="red">mdi-arrow-collapse-all</v-icon>
-            </v-btn>
-          </v-card-title>
+          <v-btn
+            color="black"
+            text
+            @click="viewDialog = false"
+            style="font-size: 150%; font-weight: bold;"
+            ><v-icon color="red">mdi-arrow-collapse-all</v-icon>
+          </v-btn>
+        </v-card-title>
 
-    
-            <cld-image
-            
-              :cloudName="cloudName"
-              :publicId="publicId"
-              class="white--text align-end"
-              width="95%"
-              height="95%"
-              loading="lazy"
-            >
-              <cld-transformation radius="20" quality="auto" />
-            </cld-image>
-       
-        </v-card>
-      </v-dialog>
+        <cld-image
+          :cloudName="cloudName"
+          :publicId="publicId"
+          class="white--text align-end"
+          width="95%"
+          height="95%"
+          loading="lazy"
+        >
+          <cld-transformation radius="20" quality="auto" />
+        </cld-image>
+      </v-card>
+    </v-dialog>
   </v-row>
 </template>
 
 <script>
 // import * as dayjs from "dayjs";
 import axios from "axios";
-import { CldImage, CldTransformation  } from "cloudinary-vue";
+import { CldImage, CldTransformation } from "cloudinary-vue";
 import dayjs from "dayjs";
 let url = process.env.VUE_APP_BASEURL;
 export default {
@@ -246,8 +259,8 @@ export default {
   components: {
     // Signature: () => import("../components/Signature"),
     Signature: () => import("./Signature"),
-     CldImage,
-     CldTransformation 
+    CldImage,
+    CldTransformation,
   },
   data: () => ({
     viewDialog: false,
@@ -338,89 +351,92 @@ export default {
 
   methods: {
     async uploadedImageFile() {
-      console.log(this.imageFile)
-       let formData = new FormData()
-        formData.append("image", this.imageFile)
-        formData.append("id", this.currentIdForUploadImage)
-
+      console.log(this.imageFile);
+      let formData = new FormData();
+      formData.append("image", this.imageFile);
+      formData.append("id", this.currentIdForUploadImage);
 
       await axios({
-          method: "post",
-          url: `${url}/uploadImage`,
-          data: formData,
-        }).then(
-          (response) => {
-            console.log(response.data);
-            this.uploadDialog = false;
-            this.imageFile = null
-            this.desserts.forEach((el) => {
-              if (el.id === parseInt(response.data.id)) {
-                el.image = response.data.public_id
-                console.log(this.desserts)
-
-              } else {
-                console.log("NO GO")
-              }
-            })
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
-
+        method: "post",
+        url: `${url}/uploadImage`,
+        data: formData,
+      }).then(
+        (response) => {
+          console.log(response.data);
+          this.uploadDialog = false;
+          this.imageFile = null;
+          this.desserts.forEach((el) => {
+            if (el.id === parseInt(response.data.id)) {
+              el.image = response.data.public_id;
+              console.log(this.desserts);
+            } else {
+              console.log("NO GO");
+            }
+          });
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
     },
     async deleteImage(event) {
       console.log(event.currentTarget.id);
       let filteredData = this.desserts.filter((el) => {
-        return el.id === parseInt(event.currentTarget.id)
-      })
+        return el.id === parseInt(event.currentTarget.id);
+      });
       let data = {
         id: parseInt(event.currentTarget.id),
-        url_id: filteredData[0].image
-      }
+        url_id: filteredData[0].image,
+      };
 
       await axios({
-          method: "post",
-          url: `${url}/removeQCImage`,
-          data: data,
-        }).then(
-          (response) => {
-            console.log(response.data);
-            // this.uploadDialog = false;
-            this.imageFile = null
-            console.log(parseInt(response.data.id))
-            this.desserts.forEach((el) => {
-              if (el.id === parseInt(response.data.id)) {
-                el.image = null
-                // console.log(this.desserts)
-              } else {
-                console.log("NO GO DELETION")
-              }
-            })
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
-
+        method: "post",
+        url: `${url}/removeQCImage`,
+        data: data,
+      }).then(
+        (response) => {
+          console.log(response.data);
+          // this.uploadDialog = false;
+          this.imageFile = null;
+          console.log(parseInt(response.data.id));
+          this.desserts.forEach((el) => {
+            if (el.id === parseInt(response.data.id)) {
+              el.image = null;
+              // console.log(this.desserts)
+            } else {
+              console.log("NO GO DELETION");
+            }
+          });
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
     },
     uploadImage(event) {
       console.log(event.currentTarget.id);
-      this.currentIdForUploadImage = event.currentTarget.id
+      this.currentIdForUploadImage = event.currentTarget.id;
       this.uploadDialog = true;
     },
     viewImage(event) {
       console.log(event.currentTarget.id);
       let filteredData = this.desserts.filter((el) => {
-        return el.id === parseInt(event.currentTarget.id)
-      })
-      this.publicId = filteredData[0].image
-      this.viewDialog = true
+        return el.id === parseInt(event.currentTarget.id);
+      });
+      this.publicId = filteredData[0].image;
+      this.viewDialog = true;
     },
     createPDF() {
       console.log("OK");
     },
     async saveData() {
+      // this.desserts.forEach((el) => {
+      //   if (el.subcontractor && this.scSignature === "" && !el.signedSubcontractor && el.signedSubcontractorImage === null) {
+      //     el.subcontractor = false
+      //   } else if (el.subcontractor && this.scSignature !== "" && !el.signedSubcontractor && el.signedSubcontractorImage === null) {
+
+      //   }
+      // })
       if (
         JSON.stringify(this.desserts) !== this.duplicate &&
         this.duplicate === ""
@@ -428,7 +444,7 @@ export default {
         // this.desserts.forEach((el) => {
         //   el.controlTimestamp = this.timestamp
         // })
-        console.log("UNEQUAL");
+        console.log("First Save");
         let data = {
           development: this.$store.state.development.id,
           unit: this.unit,
@@ -444,6 +460,7 @@ export default {
           sfSignature: this.sfSignature,
           public_id: this.public_id,
         };
+        console.log("First Save", data);
         await axios({
           method: "post",
           url: `${url}/postQC`,
@@ -478,7 +495,8 @@ export default {
           sfSignature: this.sfSignature,
           signaturesOnly: false,
         };
-        console.log("DATA CHANGED");
+        console.log("Update Data");
+        console.log("Data update", data);
         await axios({
           method: "post",
           url: `${url}/editQC`,
@@ -494,8 +512,8 @@ export default {
       } else {
         console.log("NOTHING CHANGED");
       }
-      // this.dialog = false;
-      // this.$emit("closed", this.dialog);
+      this.dialog = false;
+      this.$emit("closed", this.dialog);
     },
     checkChanges(a, b) {
       // console.log("desserts", a);
@@ -551,6 +569,23 @@ export default {
           console.log(response.data);
           if (response.data[1].length) {
             this.desserts = response.data[1];
+            this.desserts.forEach((el) => {
+              if (el.signedConstructionManager === 1) {
+                el.cmDisabled = true
+              } else {
+                el.cmDisabled = false
+              }
+              if (el.signedSiteforeman === 1) {
+                el.sfDisabled = true
+              } else {
+                el.sfDisabled = false
+              }
+              if (el.signedSubcontractor === 1) {
+                el.scDisabled = true
+              } else {
+                el.scDisabled = false
+              }
+            })
             // this.desserts.forEach((el) => {
             //   el.image = "test"
             // })
@@ -558,6 +593,14 @@ export default {
           } else {
             // this.duplicate = "";
             this.desserts = response.data[0];
+            this.desserts.forEach((el) => {
+              el.signedConstructionManager = false;
+              el.signedConstructionManagerImage = null;
+              el.signedSubcontractor = false;
+              el.signedSubcontractorImage = null;
+              el.signedSiteforeman = false;
+              el.signedSiteforemanImage = null;
+            });
           }
           this.desserts.forEach((el) => {
             if (el.comments === null) {
@@ -646,7 +689,7 @@ export default {
       this.dialog1 = !this.dialog1;
     },
     closeDialog() {
-      this.saveData()
+      // this.saveData();
       this.dialog = false;
       this.$emit("closed", this.dialog);
     },
@@ -671,16 +714,16 @@ export default {
       if (event.title === "Subcontractor Signature") {
         this.signedSubcontractor = true;
         this.scSignature = event.data;
-        this.desserts.forEach((el) => {
-          el.signedSubcontractor = this.signedSubcontractor;
-        });
+        // this.desserts.forEach(el => {
+        //   el.signedSubcontractor = this.signedSubcontractor;
+        // });
       }
       if (event.title === "Site Foreman Signature") {
         this.signedSiteforeman = true;
         this.sfSignature = event.data;
-        this.desserts.forEach((el) => {
-          el.signedSiteforeman = this.signedSiteforeman;
-        });
+        // this.desserts.forEach(el => {
+        //   el.signedSiteforeman = this.signedSiteforeman;
+        // });
       }
       if (
         event.title ===
@@ -688,9 +731,9 @@ export default {
       ) {
         this.signedConstructionManager = true;
         this.cmSignature = event.data;
-        this.desserts.forEach((el) => {
-          el.signedConstructionManager = this.signedConstructionManager;
-        });
+        // this.desserts.forEach(el => {
+        //   el.signedConstructionManager = this.signedConstructionManager;
+        // });
         console.log("AWESOME");
       }
     },

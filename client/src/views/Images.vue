@@ -111,7 +111,9 @@
                       @click="deleteImage"
                       v-if="userRole < 2"
                     >
-                      <v-icon color="red" v-if="card.uploadedBy == userName">mdi-trash-can</v-icon>
+                      <v-icon color="red" v-if="card.uploadedBy == userName"
+                        >mdi-trash-can</v-icon
+                      >
                     </v-btn>
                     <v-spacer v-if="userRole < 2"></v-spacer>
                   </v-card-actions>
@@ -786,7 +788,7 @@ export default {
           response => {
             this.cards = [];
             this.cards = response.data;
-            console.log(this.cards)
+            console.log(this.cards);
             // let length = this.cards.length
             this.cards.forEach(el => {
               if (this.windowSize < 767) {

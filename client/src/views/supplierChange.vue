@@ -6,7 +6,7 @@
         <!-- <h1>This is a Change Supplier Page</h1> -->
         <v-row class="text-center" max-width="110%">
           <v-col cols="10" offset="1">
-            <h3>Edit Suppliers Used</h3>
+            <h3>Edit Suppliers Used - WIP</h3>
           </v-col>
           <br />
           <v-col cols="8" offset="2">

@@ -26,6 +26,7 @@
       Hello {{ this.$store.state.userName }}
     </h2>
     <v-spacer></v-spacer>
+    <v-btn color="red" :to="{ name: 'TaskList' }">Tasks</v-btn>
 
     <v-btn text v-if="this.$store.state.isLoggedIn" @click="logout">
       <span class="mr-2">Logout</span>
@@ -322,6 +323,15 @@ export default {
         id: "datainput",
         color: "yellow",
         items: [
+          {
+            title: "Project Structure",
+            name: "ProjectStructure",
+            icon: "mdi-chart-timeline",
+            role: 3,
+            menu: 1,
+            id: "ProjectStructure",
+            color: "amber"
+          },
           {
             title: "Import Data",
             name: "importdata",

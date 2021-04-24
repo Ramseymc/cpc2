@@ -82,7 +82,10 @@
                                     </v-col> -->
 
                                     <v-col cols="12" sm="12" md="12">
-                                       <v-text-field placeholder="insert reason here" v-model="editedItem.comments"></v-text-field>
+                                      <v-text-field
+                                        placeholder="insert reason here"
+                                        v-model="editedItem.comments"
+                                      ></v-text-field>
                                     </v-col>
                                     <v-col cols="12" sm="12" md="12">
                                       <v-text-field
@@ -238,7 +241,6 @@ export default {
       purchaseOrder: "",
       purchaseOrders: [],
       difference: 0,
-
 
       // KKKKKKKKKKKKK
 
@@ -459,7 +461,7 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
-      
+
       this.dialog = true;
     },
 

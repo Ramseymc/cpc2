@@ -186,7 +186,7 @@ router.post("/getSuppliersUsed", async (req, res) => {
   });
 });
 
-router.post("/editSupplier", async (req, res) => {
+router.post("/editSupplierInApp", async (req, res) => {
   console.log(req.body.data)
   let mysql = `update suppliers set contactID = '${req.body.data.contactID}',
     vat_number = '${req.body.data.vat_number}',
@@ -200,6 +200,7 @@ router.post("/editSupplier", async (req, res) => {
     postal_address = '${req.body.data.postal_address}',
     retention = ${req.body.data.retention},
     vatVendor = ${req.body.data.vatVendor},
+    isSubcontractor = ${req.body.data.isSubcontractor},
     terms = ${req.body.data.terms} where id = ${req.body.data.id}`
 
     console.log(chalk.red(mysql))
@@ -238,46 +239,46 @@ router.get("/contacts", async (req, res) => {
         let suppliers = {
           message: "nothing to report"
         }
-    res.json({ suppliers, mysqlResult });
+    // res.json({ suppliers, mysqlResult });
 
       }
     });
     connection.release();
   });
 
-  // try {
-  //   await xero.setTokenSet(finalTokenSet);
-  // } catch (e) {
-  //   console.log(chalk.blue("ERR but get through"));
-  // }
-  // const xeroTenantId = activeTenant1;
-  // // const order = 'Name ASC';
-  // const where = "ContactStatus==ACTIVE";
-  // const iDs = [
-  //   "00000000-0000-0000-000-000000000000,00000000-0000-0000-000-000000000000",
-  // ];
-  // const includeArchived = true;
-  // // const ifModifiedSince = new Date("2020-01-11T12:17:43.202-08:00");
-  // const ifModifiedSince = new Date("2020-01-11");
+  try {
+    await xero.setTokenSet(finalTokenSet);
+  } catch (e) {
+    console.log(chalk.blue("ERR but get through"));
+  }
+  const xeroTenantId = activeTenant1;
+  // const order = 'Name ASC';
+  const where = "ContactStatus==ACTIVE";
+  const iDs = [
+    "00000000-0000-0000-000-000000000000,00000000-0000-0000-000-000000000000",
+  ];
+  const includeArchived = true;
+  // const ifModifiedSince = new Date("2020-01-11T12:17:43.202-08:00");
+  const ifModifiedSince = new Date("2020-01-11");
 
-  // try {
-  //   const response = await xero.accountingApi.getContacts(
-  //     activeTenant1,
-  //     ifModifiedSince
-  //   );
-  //   let suppliers = response.body.contacts.filter((el) => {
-  //     return (
-  //       (el.isSupplier ||
-  //         (el.isSupplier === false && el.isCustomer === false)) &&
-  //       el.contactStatus === "ACTIVE"
-  //     );
-  //   });
-  //   suppliers.sort((a, b) => (a.name > b.name ? 1 : -1));
-  //   res.json({ suppliers, mysqlResult });
-  // } catch (err) {
-  //   console.log(err);
-  //   res.json({ err: err });
-  // }
+  try {
+    const response = await xero.accountingApi.getContacts(
+      activeTenant1,
+      ifModifiedSince
+    );
+    let suppliers = response.body.contacts.filter((el) => {
+      return (
+        (el.isSupplier ||
+          (el.isSupplier === false && el.isCustomer === false)) &&
+        el.contactStatus === "ACTIVE"
+      );
+    });
+    suppliers.sort((a, b) => (a.name > b.name ? 1 : -1));
+    res.json({ suppliers, mysqlResult });
+  } catch (err) {
+    console.log(err);
+    res.json({ err: err });
+  }
 });
 
 router.post("/editSupplier", async (req, res) => {

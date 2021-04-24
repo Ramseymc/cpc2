@@ -24,6 +24,7 @@
     "vue": "^2.6.11",
     "vue-currency-input": "^1.22.6",
     "vue-directive-tooltip": "^1.6.3",
+    "vue-draggable": "^2.0.6",
     "vue-easy-dnd": "^1.10.2",
     "vue-masked-input": "^0.5.2",
     "vue-meta": "^2.4.0",

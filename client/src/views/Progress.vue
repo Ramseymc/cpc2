@@ -9,6 +9,12 @@
       >
         {{ taskTypeChosen }}
       </h3>
+      <h3
+        v-if="taskTypeChosen.length && taskType.length"
+        style="color: #0F0F0F;"
+      >
+        {{ supplierChosen }}
+      </h3>
       <br />
       <v-btn
         text
@@ -86,7 +92,13 @@
       </v-card>
       <v-card class="mx-auto" max-width="1050" tile v-if="items.length">
         <v-toolbar color="#0F0F0F" dark>
-          <v-btn v-if="taskTypeIndex > 0 && totalAmountDigits <= allTaskProgressStart" @click="goUp"><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn
+            v-if="
+              taskTypeIndex > 0 && totalAmountDigits <= allTaskProgressStart
+            "
+            @click="goUp"
+            ><v-icon>mdi-chevron-left</v-icon></v-btn
+          >
           <v-toolbar-title style="font-size: 125%;"
             >Progress Items - Unit: {{ unitChosen }} - Fix: {{ items[0].fix }}
           </v-toolbar-title>
@@ -129,7 +141,9 @@
               ><v-icon color="lime">mdi-upload-multiple</v-icon></v-btn
             >
           </div>
-          <v-btn v-if="taskTypeIndex < taskType.length - 1 && totalAmountDigits <= allTaskProgressStart" @click="goDown"><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn v-if="taskTypeIndex < taskType.length - 1" @click="goDown"
+            ><v-icon>mdi-chevron-right</v-icon></v-btn
+          >
         </v-toolbar>
         <br />
         <v-progress-linear
@@ -219,9 +233,19 @@
                       >
                       <span
                         style="color:black;"
-                        v-if="item.currentTime > item.progress"
+                        v-if="
+                          item.currentTime > item.progress && item.progress > 0
+                        "
                         ><small><strong>Behind Schedule</strong></small></span
                       >
+                      <span
+                        style="color:black;"
+                        v-else-if="
+                          item.currentTime > item.progress &&
+                            item.progress === 0
+                        "
+                        ><small><strong></strong></small
+                      ></span>
                       <span style="color:black" v-else
                         ><small><strong>On Schedule</strong></small></span
                       >
@@ -233,10 +257,11 @@
                     <v-progress-linear
                       v-if="item.currentTime > item.progress"
                       style="margin-top: 5px;"
-                      :value="item.currentTime"
-                      color="red"
+                      v-model="item.currentTime"
+                      :color="item.timeColor"
                       height="12"
                       class="test"
+                      @change="updateTimeFactor($event)"
                     >
                       <template v-slot:default="{ value }">
                         <small style="color: white; padding: 1px 1px;"
@@ -247,10 +272,11 @@
                     <v-progress-linear
                       v-else
                       style="margin-top: 5px;"
-                      :value="item.currentTime"
-                      color="#76FF03"
+                      v-model="item.currentTime"
+                      :color="item.timeColorAhead"
                       height="12"
                       class="test"
+                      @change="updateTimeFactor($event)"
                     >
                       <template v-slot:default="{ value }">
                         <small style="color: white;"
@@ -323,13 +349,16 @@
                   </v-list-item-content>
                 </template>
                 <v-list-item-action>
-                    <v-btn icon :id="item.id" v-if="item.comments && item.comments !== 'null'" @click="viewComment"
+                  <v-btn
+                    icon
+                    :id="item.id"
+                    v-if="item.comments && item.comments !== 'null'"
+                    @click="viewComment"
                     ><v-icon color="orange">mdi-comment-text</v-icon></v-btn
                   >
                   <v-btn icon :id="item.id" @click="addTime"
                     ><v-icon color="black">mdi-camera-timer</v-icon></v-btn
                   >
-                
                 </v-list-item-action>
               </v-list-item>
             </template>
@@ -395,7 +424,10 @@
         <v-card-text>
           <span>This will affect all linked tasks</span><br />
           <span>Are you sure?</span><br />
-          <v-text-field placeholder="insert reason here" v-model="addDaysComment"></v-text-field>
+          <v-text-field
+            placeholder="insert reason here"
+            v-model="addDaysComment"
+          ></v-text-field>
 
           <!-- v-model="allTaskProgress" -->
           <vue-numeric-input
@@ -429,7 +461,7 @@
           <span class="headline">Comments</span>
         </v-card-title>
         <v-card-text>
-          {{addDaysComment}}
+          {{ addDaysComment }}
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -499,9 +531,9 @@ const options = {
     "2021-08-09",
     "2021-09-24",
     "2021-12-16",
-    "2021-12-27",
+    "2021-12-27"
   ],
-  holidayFormat: "YYYY-MM-DD",
+  holidayFormat: "YYYY-MM-DD"
 };
 dayjs.extend(businessDays, options);
 
@@ -522,13 +554,13 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `Update progress Here.`,
-      },
+        content: `Update progress Here.`
+      }
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true,
-    },
+      amp: true
+    }
   },
   data() {
     return {
@@ -566,6 +598,7 @@ export default {
       taskTypeChosen: [],
       taskTypeIndex: 0,
       tasks: [],
+      supplierChosen: "",
 
       developmentParam: 0,
       subsectionParam: 0,
@@ -594,13 +627,13 @@ export default {
       totalAmount: "",
       allTaskProgressStart: 0,
       totalAmountDigits: 0,
-      averageTime: 0,
+      averageTime: 0
     };
   },
   watch: {
     fixChosen: function() {
       if (this.items.length) {
-        this.items = this.itemsDuplicated.filter((el) => {
+        this.items = this.itemsDuplicated.filter(el => {
           return el.fix === this.fixChosen;
         });
       }
@@ -624,7 +657,7 @@ export default {
 
         // this.changeIndividualProgress();
       }
-    },
+    }
   },
   async mounted() {
     this.checkToken();
@@ -654,24 +687,58 @@ export default {
     this.getSubsections();
   },
   methods: {
+    async updateTimeFactor(event) {
+      console.log(this.items);
+      // console.log(event.currentTarget.id);
+      console.log(event);
+      let filter = this.items.filter(el => {
+        return el.currentTime === event;
+      });
+      console.log(filter);
+      let data = {
+        task: filter[0].id,
+        progressID: filter[0].progressID,
+        unitNumber: filter[0].unitNumber,
+        currentTime: filter[0].currentTime
+      };
+      console.log(data);
+      await axios({
+        method: "post",
+        url: `${url}/postTimeChange`,
+        data: data
+      })
+        .then(result => {
+          console.log(result.data);
+          // this.dialog = false;
+
+          // if (result.status === 200) {
+          //   this.fixes = [];
+          //   this.getTasks();
+          //   this.dialog = false;
+          // }
+        })
+        .catch(() => {
+          this.snackBarMessage = "There was an error, please try again later!";
+          this.snackbar = true;
+        });
+    },
     goUp() {
       // console.log("Move Previous");
-      this.taskTypeIndex = this.taskTypeIndex - 1
-      this.taskTypeChosen = this.taskType[this.taskTypeIndex].taskName
-      this.getTasks()
-      console.log(this.taskTypeIndex)
-
+      this.taskTypeIndex = this.taskTypeIndex - 1;
+      this.taskTypeChosen = this.taskType[this.taskTypeIndex].taskName;
+      this.getTasks();
+      console.log(this.taskTypeIndex);
     },
     goDown() {
       // console.log("Move Next");
-       this.taskTypeIndex = this.taskTypeIndex + 1
-      this.taskTypeChosen = this.taskType[this.taskTypeIndex].taskName
-      this.getTasks()
+      this.taskTypeIndex = this.taskTypeIndex + 1;
+      this.taskTypeChosen = this.taskType[this.taskTypeIndex].taskName;
+      this.getTasks();
       // console.log(this.taskTypeIndex)
     },
     changeTotalProgress() {
       this.allTaskProgress = Math.round(this.allTaskProgress / 5) * 5;
-      this.items.forEach((el) => {
+      this.items.forEach(el => {
         el.progress = this.allTaskProgress;
         if (el.progress < el.lastCertificateIssuedAt) {
           el.progress = el.lastCertificateIssuedAt;
@@ -693,7 +760,7 @@ export default {
       });
     },
     changeIndividualProgress() {
-      this.items.forEach((el) => {
+      this.items.forEach(el => {
         if (el.progress < el.lastCertificateIssuedAt) {
           el.progress = el.lastCertificateIssuedAt;
         } else {
@@ -737,14 +804,14 @@ export default {
         unitNumber: this.unitNumber,
         progress: this.done,
         progressDate: this.date,
-        progressId: this.progressId,
+        progressId: this.progressId
       };
       await axios({
         method: "post",
         url: `${url}/progressPost`,
-        data: data,
+        data: data
       })
-        .then((result) => {
+        .then(result => {
           this.dialog = false;
           if (result.status === 200) {
             this.getTasks();
@@ -759,7 +826,7 @@ export default {
     async saveProgressRetention() {
       let progress = [];
       let taskIds = [];
-      this.items.forEach((el) => {
+      this.items.forEach(el => {
         if (el.fix === "Ret") {
           taskIds = [];
           taskIds.push(this.$store.state.development.id);
@@ -775,15 +842,15 @@ export default {
         }
       });
       let data = {
-        allTasks: progress,
+        allTasks: progress
       };
 
       await axios({
         method: "post",
         url: `${url}/progressPostRetained`,
-        data: data,
+        data: data
       })
-        .then((result) => {
+        .then(result => {
           this.dialog = false;
 
           if (result.status === 200) {
@@ -800,30 +867,40 @@ export default {
     },
     async saveProgressAll() {
       let progress = [];
-      let taskIds = [];
-      this.items.forEach((el) => {
+      // let taskIds = [];
+      
+      this.items.forEach(el => {
+       
         if (el.fix !== "Ret") {
-          taskIds = [];
-          taskIds.push(el.id);
-          taskIds.push(el.unitNumber);
-          taskIds.push(el.progress);
-          taskIds.push(this.date);
-          // taskIds.push(this.allTaskProgress);
-          taskIds.push(el.progress);
-          taskIds.push(el.progressID);
-          progress.push(taskIds);
+           let insert = {
+             id: el.id,
+             unitNumber: el.unitNumber,
+             progress: el.progress,
+             changed: this.date,
+             progressID: el.progressID
+        }
+        progress.push(insert)
+          // taskIds = [];
+          // taskIds.push(el.id);
+          // taskIds.push(el.unitNumber);
+          // taskIds.push(el.progress);
+          // taskIds.push(this.date);
+          // taskIds.push(el.progress);
+          // taskIds.push(el.progressID);
+          // progress.push(taskIds);
         }
       });
       let data = {
-        allTasks: progress,
+        allTasks: progress
       };
+      console.log(data)
 
       await axios({
         method: "post",
         url: `${url}/progressPostAll`,
-        data: data,
+        data: data
       })
-        .then((result) => {
+        .then(result => {
           this.dialog = false;
           if (result.status === 200) {
             this.fixes = [];
@@ -840,7 +917,7 @@ export default {
     openPostDialog(event) {
       let targetID = event.currentTarget.id;
       this.taskId = targetID;
-      let itemToPost = this.items.filter((el) => {
+      let itemToPost = this.items.filter(el => {
         return el.id == this.taskId;
       });
       this.progressId = itemToPost[0].progressID;
@@ -859,15 +936,15 @@ export default {
       this.developmentParam = parameter;
       axios({
         method: "get",
-        url: `${url}/subsection/${parameter}`,
+        url: `${url}/subsection/${parameter}`
       }).then(
-        (response) => {
+        response => {
           if (response.data.success === false) {
             return this.$router.push({ name: "Login" });
           }
           this.subsection = response.data;
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
@@ -878,25 +955,25 @@ export default {
       this.items = [];
       let parameter = "";
       if (this.subsection.length) {
-        let unit = this.subsection.filter((el) => {
+        let unit = this.subsection.filter(el => {
           return el.subsectionName === this.subsectionChosen;
         });
         parameter = unit[0].id;
         this.subsectionParam = parameter;
         axios({
           method: "get",
-          url: `${url}/getUnits/${this.developmentParam}/${this.subsectionParam}`,
+          url: `${url}/getUnits/${this.developmentParam}/${this.subsectionParam}`
         }).then(
-          (response) => {
+          response => {
             this.units = response.data;
 
-            this.units.forEach((el) => {
+            this.units.forEach(el => {
               if (el.unitName.substring(1, 2) === ".") {
                 this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
               }
             });
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         );
@@ -908,7 +985,7 @@ export default {
       this.items = [];
       let parameter = "";
       if (this.units.length) {
-        let unit = this.units.filter((el) => {
+        let unit = this.units.filter(el => {
           return el.unitName === this.unitChosen;
         });
         parameter = unit[0].id;
@@ -916,17 +993,17 @@ export default {
 
         let data = {
           id: this.$store.state.development.id,
-          unit: this.unitParam,
+          unit: this.unitParam
         };
         axios({
           method: "post",
           url: `${url}/taskTypesR`,
-          data: data,
+          data: data
         }).then(
-          (response) => {
+          response => {
             this.taskType = response.data;
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         );
@@ -935,16 +1012,16 @@ export default {
     getTasks() {
       let parameter = "";
       if (this.taskType.length) {
-        let taskType = this.taskType.filter((el) => {
+        let taskType = this.taskType.filter(el => {
           return el.taskName === this.taskTypeChosen;
         });
-        let thisIndex = this.taskType.findIndex((element) => {
-        if (element.taskName === this.taskTypeChosen) {
-          return true;
-        }
-      });
-      // console.log("THIS INDEX",thisIndex)
-      this.taskTypeIndex = thisIndex
+        let thisIndex = this.taskType.findIndex(element => {
+          if (element.taskName === this.taskTypeChosen) {
+            return true;
+          }
+        });
+        // console.log("THIS INDEX",thisIndex)
+        this.taskTypeIndex = thisIndex;
         this.fixes = [];
         this.fixValue = [];
         this.fixChosen = "";
@@ -953,18 +1030,19 @@ export default {
         this.taskTypeParam = parameter;
         axios({
           method: "get",
-          url: `${url}/tasks/${this.unitParam}/${this.taskTypeParam}`,
+          url: `${url}/tasks/${this.unitParam}/${this.taskTypeParam}`
         }).then(
-          (response) => {
+          response => {
             console.log(response.data);
             if (response.data.remaining.length) {
               console.log(response.data);
               this.tasks = response.data.remaining;
+              this.supplierChosen = this.tasks[0].supplierName;
               let today = dayjs().format("YYYY-MM-DD HH:mm:ss");
               this.today = today;
 
               // console.log(today)
-              this.tasks.forEach((el) => {
+              this.tasks.forEach(el => {
                 // if (index === 2) {
                 //   el.comments = "Rain Delays"
                 // } else {
@@ -997,30 +1075,44 @@ export default {
                 if (diffEndDate > diffStartDate && diffStartDate == 0) {
                   el.baselineCategory = 1;
                   el.color = "#F44336";
+                  el.timeColor = "red";
+                  el.timeColorAhead = "red";
+                  // el.color = "red";
                 } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
                   el.baselineCategory = 2;
+                  // el.color = "pink";
                   el.color = "#F57C00";
+                  el.timeColor = "red";
+                  el.timeColorAhead = "orange";
                 } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
                   el.baselineEndDate = 3;
                   el.color = "#40C4FF";
+                  el.timeColor = "red";
+                  el.timeColorAhead = "green";
                 } else {
                   el.baselineCategory = 4;
                   el.color = "#4CAF50";
+                  el.timeColor = "red";
+                  el.timeColorAhead = "green";
                 }
-                if (today > el.endDate) {
-                  el.currentTime = 100;
-                  el.originalTime = el.currentTime;
-                } else if (today <= el.endDate && today >= el.startDate) {
-                  let diff = dayjs(el.endDate).diff(dayjs(today));
-                  let durationDiff = dayjs(el.endDate).diff(
-                    dayjs(el.startDate)
-                  );
-                  el.currentTime = ((durationDiff - diff) / durationDiff) * 100;
-                  el.originalTime = el.currentTime;
-                } else if (today < el.startDate) {
-                  el.currentTime = 0;
-                  el.originalTime = el.currentTime;
-                }
+
+                // if (today > el.endDate) {
+                //   // el.currentTime = 100;
+                //   el.currentTime = el.progress;
+                //   el.originalTime = el.currentTime;
+                // } else if (today <= el.endDate && today >= el.startDate) {
+                //   // let diff = dayjs(el.endDate).diff(dayjs(today));
+                //   // let durationDiff = dayjs(el.endDate).diff(
+                //   //   dayjs(el.startDate)
+                //   // );
+                //   el.currentTime = el.progress;
+                //   // el.currentTime = ((durationDiff - diff) / durationDiff) * 100;
+                //   el.originalTime = el.currentTime;
+                // } else if (today < el.startDate) {
+                //   el.currentTime = el.progress;
+                //   // el.currentTime = 0;
+                //   el.originalTime = el.currentTime;
+                // }
               });
 
               let totalValue = this.tasks.reduce((acc, pv) => {
@@ -1045,12 +1137,12 @@ export default {
                     totalRetention: totalValue,
                     retentionToDate: 0,
                     progressID: null,
-                    supplier: this.tasks[0].supplier,
+                    supplier: this.tasks[0].supplier
                   };
                   this.tasks.push(item);
                 } else {
                   let item = response.data.retention;
-                  item.forEach((el) => {
+                  item.forEach(el => {
                     el.fix = "Ret";
                     el.totalValue = totalValue;
                     el.totalValueStr = this.convertToString(totalValue);
@@ -1061,15 +1153,15 @@ export default {
                 }
               }
 
-              this.items = this.tasks.filter((el) => {
+              this.items = this.tasks.filter(el => {
                 return el.lastCertificateIssuedAt !== 100;
               });
-              this.items.forEach((el) => {
+              this.items.forEach(el => {
                 el.editDate = new Date().toISOString().substr(0, 10);
               });
 
               let fixes = [];
-              this.items.forEach((el) => {
+              this.items.forEach(el => {
                 fixes.push(el.fix);
               });
               fixes = Array.from(new Set(fixes)).sort();
@@ -1077,7 +1169,7 @@ export default {
               fixes.forEach((el, index) => {
                 let insert = {
                   id: index,
-                  fix: el,
+                  fix: el
                 };
                 this.fixes.push(insert);
               });
@@ -1126,19 +1218,19 @@ export default {
               this.getSubsections();
             }
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         );
       }
     },
     viewComment(event) {
-       console.log(event.currentTarget.id);
-       let filteredData = this.itemsDuplicated.filter((el) => {
-         return el.id === parseInt(event.currentTarget.id)
-       })
-       this.addDaysComment = filteredData[0].comments
-       this.commentsDialog = true
+      console.log(event.currentTarget.id);
+      let filteredData = this.itemsDuplicated.filter(el => {
+        return el.id === parseInt(event.currentTarget.id);
+      });
+      this.addDaysComment = filteredData[0].comments;
+      this.commentsDialog = true;
     },
     addTime(event) {
       console.log(event.currentTarget.id);
@@ -1163,7 +1255,12 @@ export default {
               this.itemsDuplicated[i].duration = dayjs(
                 this.itemsDuplicated[i].endDate
               ).businessDiff(dayjs(this.itemsDuplicated[i].startDate), "d");
-              this.itemsDuplicated[i].comments = this.addDaysComment + ' - ' + this.$store.state.userName + ' - ' + new Date().toISOString().substr(0,10)
+              this.itemsDuplicated[i].comments =
+                this.addDaysComment +
+                " - " +
+                this.$store.state.userName +
+                " - " +
+                new Date().toISOString().substr(0, 10);
             } else {
               this.itemsDuplicated[i].endDate = dayjs(
                 this.itemsDuplicated[i].endDate
@@ -1178,7 +1275,7 @@ export default {
               this.itemsDuplicated[i].duration = dayjs(
                 this.itemsDuplicated[i].endDate
               ).businessDiff(dayjs(this.itemsDuplicated[i].startDate), "d");
-              this.itemsDuplicated[i].comments = ""
+              this.itemsDuplicated[i].comments = "";
             }
           }
         }
@@ -1188,21 +1285,21 @@ export default {
       await axios({
         method: "post",
         url: `${url}/upDateTasksFromProgress`,
-        data: data,
+        data: data
       })
-        .then((response) => {
+        .then(response => {
           console.log(response.data);
-          this.addDaysComment = ""
+          this.addDaysComment = "";
         })
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
 
       this.dialog3 = false;
       this.addDays = 0;
       this.getTasks();
-    },
-  },
+    }
+  }
 };
 </script>
 

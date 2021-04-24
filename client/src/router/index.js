@@ -183,6 +183,20 @@ const routes = [
       )
   },
   {
+    path: "/taskList",
+    name: "TaskList",
+    component: () =>
+      import(/* webpackChunkName: "TaskList" */ "../views/Tasklists.vue")
+  },
+  {
+    path: "/projectStructure",
+    name: "ProjectStructure",
+    component: () =>
+      import(
+        /* webpackChunkName: "ProjectStructure" */ "../views/ProjectStructure.vue"
+      )
+  },
+  {
     path: "/*",
     name: "filenotfound",
     component: () =>

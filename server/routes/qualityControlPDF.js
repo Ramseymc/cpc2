@@ -36,6 +36,7 @@ var fs = require("fs");
 const { fontSize } = require("pdfkit");
 
 const runReport = (data) => {
+  console.log("DATA",data[0].info)
   let sc;
   let sf;
   let cm;
@@ -78,6 +79,7 @@ const runReport = (data) => {
   let subDataInput = [];
 
   data[0].info.forEach((el) => {
+    let sci;
     let insert0 = {
       border: [true, true, true, true],
       text: el.category,
@@ -90,42 +92,77 @@ const runReport = (data) => {
       fontSize: 8,
       alignment: "left",
     };
-    if (el.subcontractor === true || el.subcontractor === 1) {
-      el.subcontractor = '√'
+    if (el.signedSubcontractor === 1 || el.signedSubcontractor === true) {
+      let image = el.signedSubcontractorImage
+      console.log(image)
+      image = image.substring(1, image.length - 1)
+      el.image =  `public/${image}.png`
+      console.log(el.image)
     } else {
-      el.subcontractor = ""
+      el.image = "sc"
     }
     let insert2 = {
-      border: [true, true, true, true],
-      text: el.subcontractor,
-      alignment: "center",
-      fontSize: 8,
-      color: "green"
-    };
-    if (el.siteforeman === true || el.siteforeman === 1) {
-      el.siteforeman = '√'
+        image: el.image,
+        border: [true, true, true, true],
+        width: 40,
+        alignment: "center" 
+    }
+    if (el.signedSiteforeman === 1 || el.signedSiteforeman === true) {
+      let image = el.signedSiteforemanImage
+      console.log(image)
+      image = image.substring(1, image.length - 1)
+      el.image =  `public/${image}.png`
+      console.log(el.image)
     } else {
-      el.siteforeman = ""
+      el.image = "sc"
     }
     let insert3 = {
-      border: [true, true, true, true],
-      text: el.siteforeman,
-      fontSize: 8,
-      alignment: "center",
-      color: "green"
-    };
-    if (el.constructionManager === true || el.constructionManager === 1) {
-      el.constructionManager = '√'
+        image: el.image,
+        border: [true, true, true, true],
+        width: 40,
+        alignment: "center" 
+    }
+
+    if (el.signedConstructionManager === 1 || el.signedConstructionManager === true) {
+      let image = el.signedConstructionManagerImage
+      console.log(image)
+      image = image.substring(1, image.length - 1)
+      el.image =  `public/${image}.png`
+      console.log(el.image)
     } else {
-      el.constructionManager = ""
+      el.image = "sc"
     }
     let insert4 = {
-      border: [true, true, true, true],
-      text: `${(el.constructionManager)}`,
-      fontSize: 8,
-      alignment: "center",
-      color: "green"
-    };
+        image: el.image,
+        border: [true, true, true, true],
+        width: 40,
+        alignment: "center" 
+    }
+  
+    // if (el.siteforeman === true || el.siteforeman === 1) {
+    //   el.siteforeman = '√'
+    // } else {
+    //   el.siteforeman = ""
+    // }
+    // let insert3 = {
+    //   border: [true, true, true, true],
+    //   text: el.siteforeman,
+    //   fontSize: 8,
+    //   alignment: "center",
+    //   color: "green"
+    // };
+    // if (el.constructionManager === true || el.constructionManager === 1) {
+    //   el.constructionManager = '√'
+    // } else {
+    //   el.constructionManager = ""
+    // }
+    // let insert4 = {
+    //   border: [true, true, true, true],
+    //   text: `${(el.constructionManager)}`,
+    //   fontSize: 8,
+    //   alignment: "center",
+    //   color: "green"
+    // };
 
     let insert5 = {
       border: [true, true, true, true],
@@ -216,41 +253,41 @@ const runReport = (data) => {
       },
       { text: "\n" },
       { text: "\n" },
-      {
-        table: {
-          body: [
-            [
-              { text: "Signature Subcontractor", border: [false, false, false, false],fontSize: 8 },
-              {
-                image: "sc",
-                border: [false, false, false, false],
-                width: 90
-              },
-              {
-                border: [false, false, false, false],
-                text: ""
-              },
-              { text: "Signature Site Foreman", border: [false, false, false, false], fontSize: 8 },
-              {
-                image: "sf",
-                border: [false, false, false, false],
-                width: 90
-              },
-              {
-                border: [false, false, false, false],
-                text: ""
-              },
-              { text: "Signature Construction Manager", border: [false, false, false, false], fontSize: 8 },
-              {
-                image: "cm",
-                border: [false, false, false, false],
-                width: 90
-              }
-            ]
-          ],
-          widths: [100, 100, 40, 100, 100, 40, 100, 100]
-        }
-      }
+      // {
+      //   table: {
+      //     body: [
+      //       [
+      //         { text: "Signature Subcontractor", border: [false, false, false, false],fontSize: 8 },
+      //         {
+      //           image: "sc",
+      //           border: [false, false, false, false],
+      //           width: 90
+      //         },
+      //         {
+      //           border: [false, false, false, false],
+      //           text: ""
+      //         },
+      //         { text: "Signature Site Foreman", border: [false, false, false, false], fontSize: 8 },
+      //         {
+      //           image: "sf",
+      //           border: [false, false, false, false],
+      //           width: 90
+      //         },
+      //         {
+      //           border: [false, false, false, false],
+      //           text: ""
+      //         },
+      //         { text: "Signature Construction Manager", border: [false, false, false, false], fontSize: 8 },
+      //         {
+      //           image: "cm",
+      //           border: [false, false, false, false],
+      //           width: 90
+      //         }
+      //       ]
+      //     ],
+      //     widths: [100, 100, 40, 100, 100, 40, 100, 100]
+      //   }
+      // }
     ],
     styles: {
       header: {

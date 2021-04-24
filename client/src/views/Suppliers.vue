@@ -95,7 +95,8 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <div>
-                      <v-btn :id="index" text @click="editSupplier($event)"
+                      <!-- <v-btn :id="index" text @click="editSupplier($event)" -->
+                      <v-btn :id="index" text @click="getSupplierToAdd"
                         ><v-icon color="black"
                           >mdi-file-document-edit</v-icon
                         ></v-btn
@@ -262,6 +263,16 @@
                     <v-checkbox
                       v-model="supplierToEdit.vatVendor"
                       label="Vat Vendor"
+                    ></v-checkbox>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="6">
+                    <v-checkbox
+                      v-model="supplierToEdit.isSubcontractor"
+                      :label="
+                        supplierToEdit.isSubcontractor
+                          ? 'Is Subcontractor'
+                          : 'Is Supplier'
+                      "
                     ></v-checkbox>
                   </v-col>
                   <v-col cols="12" sm="6" md="6">
@@ -463,8 +474,8 @@ export default {
   async mounted() {
     this.checkToken();
     this.consentUrl = "";
-    // await this.getXeroCredentials();
-    await this.getSuppliers(); //Put above in and let this go when Xero sorted
+    await this.getXeroCredentials();
+    // await this.getSuppliers(); //Put above in and let this go when Xero sorted
   },
   computed: {
     suppliersFiltered() {
@@ -496,6 +507,14 @@ export default {
   },
   methods: {
     mobileStuff() {},
+    getSupplierToAdd(event) {
+      console.log(event.currentTarget.id);
+      this.supplierToAdd = this.items.filter((el, index) => {
+        return index === parseInt(event.currentTarget.id);
+      })[0];
+      console.log(this.supplierToAdd);
+      this.dialog = true;
+    },
     changeTerms() {
       this.supplierToEdit.terms = this.terms.filter(el => {
         return el.terms === this.termsChosen;
@@ -510,6 +529,11 @@ export default {
         this.supplierToEdit.vatVendor = true;
       } else {
         this.supplierToEdit.vatVendor = false;
+      }
+      if (this.supplierToEdit.isSubcontractor == 1) {
+        this.supplierToEdit.isSubcontractor = true;
+      } else {
+        this.supplierToEdit.isSubcontractor = false;
       }
       if (this.supplierToEdit["terms"] === undefined) {
         this.supplierToEdit.terms = 1;
@@ -527,17 +551,17 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/editSupplier`,
+        url: `${url}/editSupplierInApp`,
         data: data
       })
         .then(
           response => {
             console.log(response.data);
-            // if (response.data.err) {
-            //   // this.getConnected();
-            // } else {
-            //   this.getSuppliers();
-            // }
+            if (response.data.err) {
+              // this.getConnected();
+            } else {
+              this.getSuppliers();
+            }
           },
           error => {
             console.log("the Error", error);
@@ -556,13 +580,14 @@ export default {
       })
         .then(
           response => {
-            if (!response.data.err) {
+            if (response.data.err) {
+              console.log(response.data.err);
               this.getConnected();
             } else {
               this.getSuppliers();
             }
-            console.log(response.data);
-            this.getSuppliers();
+            // console.log(response.data);
+            // this.getSuppliers();
           },
           error => {
             console.log("the Error", error);
@@ -588,12 +613,12 @@ export default {
             if (response.data.err) {
               this.getConnected();
             } else {
-              // let suppliers = response.data.suppliers;
-              // suppliers.forEach(el => {
-              //   if (el.isSupplier === false && el.isCustomer === false) {
-              //     el.color = "red";
-              //   }
-              // });
+              let suppliers = response.data.suppliers;
+              suppliers.forEach(el => {
+                if (el.isSupplier === false && el.isCustomer === false) {
+                  el.color = "red";
+                }
+              });
               this.suppliersInApp = response.data.mysqlResult;
               this.suppliersInApp.forEach(el => {
                 el.pmtTerms = this.terms.filter(el2 => {
@@ -604,12 +629,12 @@ export default {
                 } else {
                   el.vatVendor = false;
                 }
-                // let contactID = el.contactID;
-                // suppliers = suppliers.filter(el2 => {
-                //   return el2.contactID !== contactID;
-                // });
+                let contactID = el.contactID;
+                suppliers = suppliers.filter(el2 => {
+                  return el2.contactID !== contactID;
+                });
               });
-              // this.items = suppliers;
+              this.items = suppliers;
             }
           },
           error => {
@@ -696,6 +721,7 @@ export default {
       let data = {
         contactID: contactID
       };
+      console.log(data);
       axios.defaults.headers.common["Authorization"] = this.$store.state.token;
       await axios({
         method: "post",

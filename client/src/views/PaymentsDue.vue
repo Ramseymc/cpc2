@@ -991,6 +991,11 @@ export default {
                       el2.xero = xero;
                     }
                   });
+                  this.notYetDue.forEach(el3 => {
+                    if (el3.invoiceNumber === invoiceNumber) {
+                      el3.xero = xero;
+                    }
+                  });
                 });
                 // } else {
                 this.progressActive = false;

@@ -1272,11 +1272,62 @@ alter table tasks add column parentId varchar(160);
 alter table tasks add column baselineStartDate TIMESTAMP DEFAULT now();
 alter table tasks add column baselineEndDate TIMESTAMP DEFAULT now();
 
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
 alter table tasks add column comments varchar(160);
 alter table qcquestionnaireDone add column image varchar(160);
 alter table qcquestionnaireTemplate add column image varchar(160);
 alter table deliveries add column comments varchar(160);
 alter table purchaseOrders add column comments varchar(160);
+
+alter table progress add column currentTime float default 0;
+alter table suppliers add column isSubcontractor BOOLEAN default true;
+
+
+
+create table fixes (
+    id varchar(100) primary key,
+    development int,
+    taskType int,
+    taskName varchar(160),
+    unitNumber int,
+    unitName varchar(160),
+    subsectionName varchar(160),
+    fix varchar(100),
+    supplier int,
+    vatVendor BOOLEAN,
+    totalBudget float,
+    totalUsed float,
+    Remaining float,
+    startDate TIMESTAMP default now(),
+    endDate TIMESTAMP default now(),
+    baselineStartDate TIMESTAMP default now(),
+    baselineEndDate TIMESTAMP default now(),
+    dependantOn varchar(160),
+    parentId varchar(160),
+    FOREIGN KEY (supplier) REFERENCES suppliers(id),
+    FOREIGN KEY (taskType) REFERENCES taskTypes(id),
+    FOREIGN KEY (unitNumber) REFERENCES units(id),
+    FOREIGN KEY (development) REFERENCES developments(id)
+);
+
+alter table tasks add column sortIndex int;
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+ 
+
+create table taskList (
+    id int auto_increment primary key,
+    development int,
+    taskText text,
+    taskTitle varchar(160),
+    userName varchar(160),
+    icon varchar(160),
+    sortIndex int,
+    typeTask varchar(160)
+);
+
+alter table qcquestionnaireDone add signedSubcontractorImage  varchar(160) after signedSubcontractor;
+alter table qcquestionnaireDone add signedSiteforemanImage  varchar(160) after signedSiteforeman;
+alter table qcquestionnaireDone add signedConstructionManagerImage  varchar(160) after signedConstructionManager;
+alter table taskList add column estimate varchar(160);
 

@@ -102,7 +102,7 @@ export default {
   methods: {
     async resetTasks() {
       console.time("start This");
-      let startDate = dayjs("2021-03-25 08:00:00").format(
+      let startDate = dayjs("2021-04-15 08:00:00").format(
         "YYYY-MM-DD HH:mm:ss"
       );
       let durationDays = 1;

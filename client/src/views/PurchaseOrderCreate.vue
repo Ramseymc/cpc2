@@ -148,6 +148,7 @@
                               item-color="#111d5e"
                               @change="chooseStockItem"
                               @blur="chooseStockItem"
+                              clearable
                             ></v-combobox>
                           </v-col>
                           <v-col cols="12" sm="6" md="4">

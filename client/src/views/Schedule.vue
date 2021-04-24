@@ -483,19 +483,19 @@ export default {
               el.totalBudget = el.totalBudget / 1.15;
               el.totalUsed = el.totalUsed / 1.15;
             }
-            let filteredData = response.data[4].filter(el2 => {
-              return (
-                el.taskType === el2.taskType &&
-                el.fix === el2.fix &&
-                el.subsectionName === el2.subsectionName &&
-                el.supplier === el2.supplier &&
-                el.unitNumber === el2.unitNumber
-              );
-            });
-            // console.log(filteredData)
+            // let filteredData = response.data[4].filter(el2 => {
+            //   return (
+            //     el.taskType === el2.taskType &&
+            //     el.fix === el2.fix &&
+            //     el.subsectionName === el2.subsectionName &&
+            //     el.supplier === el2.supplier &&
+            //     el.unitNumber === el2.unitNumber
+            //   );
+            // });
+            // // console.log(filteredData)
 
-            el.startDate = filteredData[0].startDate;
-            el.endDate = filteredData[filteredData.length - 1].endDate;
+            // el.startDate = filteredData[0].startDate;
+            // el.endDate = filteredData[filteredData.length - 1].endDate;
             if (
               moment(now) > moment(el.endDate) &&
               el.totalBudget - (el.totalBudget * (el.progress, 0)) / 100 > 0

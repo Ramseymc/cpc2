@@ -1,5 +1,6 @@
 <template>
   <div>
+    <br /><br />
     <v-card class="mx-auto" width="100%" v-if="showFilter">
       <v-toolbar height="220" class="ml-4 mr-4">
         <v-row>
@@ -11,6 +12,8 @@
               dense
               filled
               label="Block"
+              @change="changeBlock"
+              :readonly="blockDisabled"
             ></v-autocomplete>
           </v-col>
           <v-col cols="4">
@@ -21,6 +24,8 @@
               dense
               filled
               label="Unit"
+              :readonly="unitDisabled"
+              @change="changeUnit"
             ></v-autocomplete>
           </v-col>
           <v-col cols="4">
@@ -31,6 +36,8 @@
               dense
               filled
               label="Task"
+              @change="changeTask"
+              :readonly="taskDisabled"
             ></v-autocomplete>
           </v-col>
           <v-col cols="12">
@@ -57,9 +64,8 @@
         ><v-icon :color="showGridColor">{{ showGridIcon }}</v-icon>
         {{ showGrid ? "Hide Grid" : "Show Grid" }}
       </v-btn>
-      <v-btn text  style="margin: 20px;" @click="legendDialog = true"
+      <v-btn text style="margin: 20px;" @click="legendDialog = true"
         ><v-icon color="red">mdi-map-legend</v-icon>
-        
       </v-btn>
     </div>
     <v-progress-circular
@@ -79,48 +85,65 @@
       </section>
     </div>
     <v-row justify="center">
-    <v-dialog
-      v-model="legendDialog"
-      persistent
-      max-width="500"
-    >
-      <v-card>
-        <v-card-title class="headline">
-          Legend
-        </v-card-title>
-        <v-card-text>
-           <strong><u>Top Line - Actual Progess</u></strong><br>
-          <div style="width: 100%;height: 25px; background-color: blue; color: white;"><strong>Progress to date</strong></div> 
-          <div style="width: 100%;height: 25px; background-color: black;opacity: 0.7; color: white;"><strong>Not yet done</strong></div><br> 
-          <strong><u>Bottom Line - baseline</u></strong><br>
-          <div style="width: 100%;height: 25px; background-color: lime; color: black;"><strong>Task within budgetted timeline</strong></div> 
-          <div style="width: 100%;height: 25px; background-color: red; color: white;"><strong>Task pushed out in time</strong></div> 
-          <div style="width: 100%;height: 25px; background-color: orange; color: black;"><strong>Task in timeline but previous pushed out</strong></div> 
-          <div style="width: 100%;height: 25px; background-color: blue; color: white;"><strong>Task timeline reduced</strong></div>
-         
+      <v-dialog v-model="legendDialog" persistent max-width="500">
+        <v-card>
+          <v-card-title class="headline">
+            Legend
+          </v-card-title>
+          <v-card-text>
+            <strong><u>Top Line - Actual Progess</u></strong
+            ><br />
+            <div
+              style="width: 100%;height: 25px; background-color: blue; color: white;"
+            >
+              <strong>Progress to date</strong>
+            </div>
+            <div
+              style="width: 100%;height: 25px; background-color: black;opacity: 0.7; color: white;"
+            >
+              <strong>Not yet done</strong>
+            </div>
+            <br />
+            <strong><u>Bottom Line - baseline</u></strong
+            ><br />
+            <div
+              style="width: 100%;height: 25px; background-color: lime; color: black;"
+            >
+              <strong>Task within budgetted timeline</strong>
+            </div>
+            <div
+              style="width: 100%;height: 25px; background-color: red; color: white;"
+            >
+              <strong>Task pushed out in time</strong>
+            </div>
+            <div
+              style="width: 100%;height: 25px; background-color: orange; color: black;"
+            >
+              <strong>Task in timeline but previous pushed out</strong>
+            </div>
+            <div
+              style="width: 100%;height: 25px; background-color: blue; color: white;"
+            >
+              <strong>Task timeline reduced</strong>
+            </div>
           </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <!-- <v-btn
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <!-- <v-btn
             color="black darken-1"
             text
             @click="dialog = false"
           >
             Disagree
           </v-btn> -->
-          <v-btn
-            color="black darken-1"
-            text
-            @click="legendDialog = false"
-          >
-            Close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-row>
+            <v-btn color="black darken-1" text @click="legendDialog = false">
+              Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
-  
 </template>
 
 <script>
@@ -177,10 +200,33 @@ export default {
       unitChosen: "",
       taskChosen: "",
       showProgress: true,
-      legendDialog: false
+      legendDialog: false,
+      unitDisabled: false,
+      blockDisabled: false,
+      taskDisabled: false
     };
   },
+  computed: {
+    itemsFiltered() {
+      if (this.unitChosen !== "") {
+        return this.items;
+      } else {
+        return this.items.filter(el => {
+          return (
+            el.unitName = this.unitChosen
+          );
+        });
+      }
+    }
+  },
   watch: {
+    // itemsFiltered: function() {
+    //   if (this.unitChosen !== "") {
+    //     this.itemsFiltered = this.items.filter((el) => {
+    //       return el.unitName === this.unitChosen
+    //     })
+    //   }
+    // },
     unitChosen: function() {
       if (this.unitChosen !== "") {
         this.data = this.data.filter((el) => {
@@ -217,6 +263,29 @@ export default {
     await this.createChart();
   },
   methods: {
+    changeBlock() {
+      console.log("changed")
+      this.blockDisabled = true
+      this.items = this.items.filter((el) => {
+        return el.block = this.blockChosen
+      })
+    },
+    changeUnit() {
+      console.log("changed")
+      this.unitDisabled = true
+      this.items = this.items.filter((el) => {
+        return el.unit = this.unitChosen
+      })
+      
+    },
+    changeTask() {
+      console.log("changed")
+      this.taskDisabled = true
+      this.items = this.items.filter((el) => {
+        return el.task = this.taskChosen
+      })
+
+    },
     createChart() {
       console.time("Create Chart");
       this.treeData = anychart.data.tree(this.data, "as-tree");
@@ -317,6 +386,19 @@ export default {
       this.blockChosen = "";
       this.taskChosen = "";
       this.data = this.data2;
+      this.items = []
+      this.data.forEach((el) => {
+            let insert = {
+              block: el.subsectionName,
+              unit: el.unitName,
+              task: el.taskName,
+            };
+            this.items.push(insert);
+          });
+      // this.items = this.itemsDuplicated
+      this.blockDisabled = false
+      this.unitDisabled = false
+      this.taskDisabled = false
       this.chart.dispose();
       this.chart = null;
       this.createChart();
@@ -394,198 +476,218 @@ export default {
       let data = {
         id: this.$store.state.development.id,
       };
+          console.time("Time Get Data");
+
       await axios({
         method: "post",
         url: `${url}/getAllTasksforGant`,
         data: data,
       })
         .then((response) => {
+          
           console.time("TimeThis");
+
           console.log(response.data)
-          let finalFixArray = [];
-          let fixArray = [];
-          response.data.forEach((el) => {
-            fixArray.push(el.parentId);
-            let dependsOn = [];
-            if (el.dependantOn !== "null") {
-              dependsOn.push(parseInt(el.dependantOn));
-              el.dependentOn = dependsOn;
-            } else {
-              el.dependentOn = null;
-            }
-          });
-          fixArray = Array.from(new Set(fixArray));
-          fixArray.forEach((el, index) => {
-            let dataStartArray = response.data.filter((el2) => {
-              return el2.parentId === el;
-            });
-            let startDate = [];
-            let endDate = [];
-            let baseStartDate = [];
-            let baseEndDate = [];
-            let userArr = [];
-            let progress = [];
+          // console.timeEnd("Time Get Data")
+          // let finalFixArray = [];
+          // let fixArray = [];
+          // response.data[0].forEach((el) => {
+          //   fixArray.push(el.parentId);
+          //   let dependsOn = [];
+          //   if (el.dependantOn !== "null") {
+          //     dependsOn.push(parseInt(el.dependantOn));
+          //     el.dependentOn = dependsOn;
+          //   } else {
+          //     el.dependentOn = null;
+          //   }
+          // });
 
-            dataStartArray.forEach((el3) => {
-              startDate.push(el3.startDate);
-              endDate.push(el3.endDate);
-              userArr.push(el3.supplier);
-              progress.push(el3.progress);
-              baseStartDate.push(el3.baselineStartDate);
-              baseEndDate.push(el3.baselineEndDate);
-            });
-            let finalProgress =
-              progress.reduce((prev, el) => {
-                return prev + el;
-              }, 0) / progress.length;
-            startDate = Array.from(new Set(startDate));
-            startDate.sort();
-            endDate = Array.from(new Set(endDate));
-            endDate.sort();
-            baseStartDate = Array.from(new Set(baseStartDate));
-            baseStartDate.sort();
-            baseEndDate = Array.from(new Set(baseEndDate));
-            baseEndDate.sort();
+          // fixArray = Array.from(new Set(fixArray));
+          // console.time("Create Parent Data")
+          // fixArray.forEach((el, index) => {
+          //   let dataStartArray = response.data[0].filter((el2) => {
+          //     return el2.parentId === el;
+          //   });
+          //   let startDate = [];
+          //   let endDate = [];
+          //   let baseStartDate = [];
+          //   let baseEndDate = [];
+          //   let userArr = [];
+          //   let progress = [];
 
-            let start = dayjs(startDate[0]).format("YYYY-MM-DD HH:mm:ss");
-            let duration = dayjs(endDate[endDate.length - 1]).diff(
-              dayjs(startDate[0])
-            );
-            let end = dayjs(endDate[endDate.length - 1]).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            let baselineStart = dayjs(baseStartDate[0]).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            let baselineEnd = dayjs(baseEndDate[baseEndDate.length - 1]).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            userArr = Array.from(new Set(userArr));
-            let diffEndDate = dayjs(end).businessDiff(dayjs(baselineEnd), "d");
-            let diffStartDate = dayjs(start).businessDiff(
-              dayjs(baselineStart),
-              "d"
-            );
-            let color;
-            if (diffEndDate > diffStartDate && diffStartDate == 0) {
-              color = "#F44336";
-            } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
-              color = "#F57C00";
-            } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
-              color = "#40C4FF";
-            } else {
-              color = "lime";
-              // color = "#4CAF50";
-            }
-            let totalCost = dataStartArray.reduce((prev, el) => {
-              return el.price + prev;
-            }, 0);
-            let totalDone = dataStartArray.reduce((prev, el) => {
-              return (el.price * el.progress) / 100 + prev;
-            }, 0);
-            let finalPercentage = `${(totalDone / totalCost) * 100}%`;
-            let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
-            let insert = {
-              id: el,
-              name: `${dataStartArray[0].taskName}: Unit ${dataStartArray[0].unitName} - ${dataStartArray[0].fix} Fix`,
-              actualStart: start,
-              actualEnd: end,
-              baselineStart: baselineStart,
-              baselineEnd: baselineEnd,
-              baseline: baseline,
-              duration: duration,
-              fix: dataStartArray[0].fix,
-              block: dataStartArray[0].subsectionName,
-              unit: dataStartArray[0].unitName,
-              taskName: dataStartArray[0].taskName,
-              percent: finalProgress,
-              user: userArr[0],
-              progressValue: finalPercentage,
-              children: [],
-            };
-            finalFixArray.push(insert);
-          });
+          //   dataStartArray.forEach((el3) => {
+          //     startDate.push(el3.startDate);
+          //     endDate.push(el3.endDate);
+          //     userArr.push(el3.supplier);
+          //     progress.push(el3.progress);
+          //     baseStartDate.push(el3.baselineStartDate);
+          //     baseEndDate.push(el3.baselineEndDate);
+          //   });
+          //   let finalProgress =
+          //     progress.reduce((prev, el) => {
+          //       return prev + el;
+          //     }, 0) / progress.length;
+          //   startDate = Array.from(new Set(startDate));
+          //   startDate.sort();
+          //   endDate = Array.from(new Set(endDate));
+          //   endDate.sort();
+          //   baseStartDate = Array.from(new Set(baseStartDate));
+          //   baseStartDate.sort();
+          //   baseEndDate = Array.from(new Set(baseEndDate));
+          //   baseEndDate.sort();
 
-          finalFixArray.forEach((el, index, arr) => {
-            if (index !== 0) {
-              if (el.user == arr[index - 1].user) {
-                let depArr = [];
-                depArr.push(arr[index - 1].id);
-                el.dependentOn = depArr;
-              }
-            }
-          });
+          //   let start = dayjs(startDate[0]).format("YYYY-MM-DD HH:mm:ss");
+          //   let duration = dayjs(endDate[endDate.length - 1]).diff(
+          //     dayjs(startDate[0])
+          //   );
+          //   let end = dayjs(endDate[endDate.length - 1]).format(
+          //     "YYYY-MM-DD HH:mm:ss"
+          //   );
+          //   let baselineStart = dayjs(baseStartDate[0]).format(
+          //     "YYYY-MM-DD HH:mm:ss"
+          //   );
+          //   let baselineEnd = dayjs(baseEndDate[baseEndDate.length - 1]).format(
+          //     "YYYY-MM-DD HH:mm:ss"
+          //   );
+          //   userArr = Array.from(new Set(userArr));
+          //   let diffEndDate = dayjs(end).businessDiff(dayjs(baselineEnd), "d");
+          //   let diffStartDate = dayjs(start).businessDiff(
+          //     dayjs(baselineStart),
+          //     "d"
+          //   );
+          //   let color;
+          //   if (diffEndDate > diffStartDate && diffStartDate == 0) {
+          //     color = "#F44336";
+          //   } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
+          //     color = "#F57C00";
+          //   } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
+          //     color = "#40C4FF";
+          //   } else {
+          //     color = "lime";
+          //     // color = "#4CAF50";
+          //   }
+          //   let totalCost = dataStartArray.reduce((prev, el) => {
+          //     return el.price + prev;
+          //   }, 0);
+          //   let totalDone = dataStartArray.reduce((prev, el) => {
+          //     return (el.price * el.progress) / 100 + prev;
+          //   }, 0);
+          //   let finalPercentage = `${(totalDone / totalCost) * 100}%`;
+          //   let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
+          //   // console.log(start)
+          //   // console.log(end)
+          //   let insert = {
+          //     id: el,
+          //     name: `${dataStartArray[0].taskName}: Unit ${dataStartArray[0].unitName} - ${dataStartArray[0].fix} Fix`,
+          //     actualStart: start,
+          //     actualEnd: end,
+          //     baselineStart: baselineStart,
+          //     baselineEnd: baselineEnd,
+          //     baseline: baseline,
+          //     duration: duration,
+          //     fix: dataStartArray[0].fix,
+          //     block: dataStartArray[0].subsectionName,
+          //     unit: dataStartArray[0].unitName,
+          //     taskName: dataStartArray[0].taskName,
+          //     percent: finalProgress,
+          //     user: userArr[0],
+          //     progressValue: finalPercentage,
+          //     children: [],
+          //   };
+          //   finalFixArray.push(insert);
+          // });
+          // console.timeEnd("Create Parent Data")
 
-          finalFixArray.forEach((el, index, arr) => {
-            if (index < arr.length - 1) {
-              if (el.user == arr[index + 1].user) {
-                el.connectTo = arr[index + 1].id;
-                el.connectorType = "finish-start";
-              }
-            }
-          });
-          finalFixArray.forEach((el) => {
-            let filtered = response.data.filter((el2) => {
-              return (
-                el.block === el2.subsectionName &&
-                el.unit === el2.unitName &&
-                el.taskName === el2.taskName &&
-                el.fix === el2.fix
-              );
-            });
-            filtered.forEach((el3) => {
-              let diffEndDate = dayjs(el3.endDate).businessDiff(
-                dayjs(el3.baselineEndDate),
-                "d"
-              );
-              let diffStartDate = dayjs(el3.startDate).businessDiff(
-                dayjs(el3.baselineStartDate),
-                "d"
-              );
-              let color;
-              if (diffEndDate > diffStartDate && diffStartDate == 0) {
-                color = "#F44336";
-              } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
-                color = "#F57C00";
-              } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
-                color = "#40C4FF";
-              } else {
-                // color = "#4CAF50";
-                color = "lime";
-              }
-              let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
-              let insert = {
-                id: el3.id,
-                name: el3.taskDescription,
-                actualStart: el3.startDate,
-                actualEnd: el3.endDate,
-                baselineStart: el3.baselineStartDate,
-                baselineEnd: el3.baselineEndDate,
-                baseline: baseline,
-                progressValue: `${el3.progress}%`,
-              };
-              el.children.push(insert);
-            });
-          });
-          finalFixArray.forEach((el) => {
-            el.children.forEach((el2, index, arr) => {
-              if (index < arr.length - 1) {
-                el2.connectTo = arr[index + 1].id;
-                el2.connectorType = "finish-start";
-              } 
-              // else {
-              //   console.log("Err", index, arr.length);
-              // }
-            });
+          
+          // console.time("Parent Dependencies")
+          // finalFixArray.forEach((el, index, arr) => {
+          //   if (index !== 0) {
+          //     if (el.user == arr[index - 1].user) {
+          //       let depArr = [];
+          //       depArr.push(arr[index - 1].id);
+          //       el.dependentOn = depArr;
+          //     }
+          //   }
+          // });
 
-          });
+          // finalFixArray.forEach((el, index, arr) => {
+          //   if (index < arr.length - 1) {
+          //     if (el.user == arr[index + 1].user) {
+          //       el.connectTo = arr[index + 1].id;
+          //       el.connectorType = "finish-start";
+          //     }
+          //   }
+          // });
+          // console.timeEnd("Parent Dependencies")
+          // console.time("Create Children")
+          // finalFixArray.forEach((el) => {
+          //   let filtered = response.data[0].filter((el2) => {
+          //     return (
+          //       el.block === el2.subsectionName &&
+          //       el.unit === el2.unitName &&
+          //       el.taskName === el2.taskName &&
+          //       el.fix === el2.fix
+          //     );
+          //   });
+          //   filtered.forEach((el3) => {
+          //     let diffEndDate = dayjs(el3.endDate).businessDiff(
+          //       dayjs(el3.baselineEndDate),
+          //       "d"
+          //     );
+          //     let diffStartDate = dayjs(el3.startDate).businessDiff(
+          //       dayjs(el3.baselineStartDate),
+          //       "d"
+          //     );
+          //     let color;
+          //     if (diffEndDate > diffStartDate && diffStartDate == 0) {
+          //       color = "#F44336";
+          //     } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
+          //       color = "#F57C00";
+          //     } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
+          //       color = "#40C4FF";
+          //     } else {
+          //       color = "lime";
+          //     }
+          //     let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
+          //     let insert = {
+          //       id: el3.id,
+          //       name: el3.taskDescription,
+          //       actualStart: el3.startDate,
+          //       actualEnd: el3.endDate,
+          //       baselineStart: el3.baselineStartDate,
+          //       baselineEnd: el3.baselineEndDate,
+          //       baseline: baseline,
+          //       progressValue: `${el3.progress}%`,
+          //     };
+          //     el.children.push(insert);
+          //   });
+          // });
+          // finalFixArray.forEach((el) => {
+          //   el.children.forEach((el2, index, arr) => {
+          //     if (index < arr.length - 1) {
+          //       el2.connectTo = arr[index + 1].id;
+          //       el2.connectorType = "finish-start";
+          //     } 
+          //   });
+
+          // });
+          // console.timeEnd("Create Children")
+          // console.time("Create Filter Data")
 
           // console.log(finalFixArray);
+          this.data2 = []
+          this.tasks = response.data;
+          this.data = response.data;
+          this.data.forEach((el) => {
+            this.data2.push(el)
+          })
 
-          this.tasks = finalFixArray;
-          this.data = finalFixArray;
+          // this.tasks = finalFixArray;
+          // this.data = finalFixArray;
           console.log(this.data)
-          this.data2 = finalFixArray;
+          // this.data2 = response.data;
+          // this.data2 = finalFixArray;
+
           this.items = [];
           response.data.forEach((el) => {
             let insert = {
@@ -595,12 +697,242 @@ export default {
             };
             this.items.push(insert);
           });
+          // console.timeEnd("Create Filter Data")
+          this.itemsDuplicated = []
+          this.items.forEach((el) => {
+            this.itemsDuplicated.push(el)
+          })
           console.timeEnd("TimeThis");
         })
         .catch((e) => {
           console.log(e);
         });
     },
+    // async getTasks() {
+    //   let data = {
+    //     id: this.$store.state.development.id,
+    //   };
+    //       console.time("Time Get Data");
+
+    //   await axios({
+    //     method: "post",
+    //     url: `${url}/getAllTasksforGant`,
+    //     data: data,
+    //   })
+    //     .then((response) => {
+          
+    //       console.time("TimeThis");
+
+    //       console.log(response.data)
+    //       console.timeEnd("Time Get Data")
+    //       let finalFixArray = [];
+    //       let fixArray = [];
+    //       response.data.forEach((el) => {
+    //         fixArray.push(el.parentId);
+    //         let dependsOn = [];
+    //         if (el.dependantOn !== "null") {
+    //           dependsOn.push(parseInt(el.dependantOn));
+    //           el.dependentOn = dependsOn;
+    //         } else {
+    //           el.dependentOn = null;
+    //         }
+    //       });
+
+    //       fixArray = Array.from(new Set(fixArray));
+    //       console.time("Create Parent Data")
+    //       fixArray.forEach((el, index) => {
+    //         let dataStartArray = response.data.filter((el2) => {
+    //           return el2.parentId === el;
+    //         });
+    //         let startDate = [];
+    //         let endDate = [];
+    //         let baseStartDate = [];
+    //         let baseEndDate = [];
+    //         let userArr = [];
+    //         let progress = [];
+
+    //         dataStartArray.forEach((el3) => {
+    //           startDate.push(el3.startDate);
+    //           endDate.push(el3.endDate);
+    //           userArr.push(el3.supplier);
+    //           progress.push(el3.progress);
+    //           baseStartDate.push(el3.baselineStartDate);
+    //           baseEndDate.push(el3.baselineEndDate);
+    //         });
+    //         let finalProgress =
+    //           progress.reduce((prev, el) => {
+    //             return prev + el;
+    //           }, 0) / progress.length;
+    //         startDate = Array.from(new Set(startDate));
+    //         startDate.sort();
+    //         endDate = Array.from(new Set(endDate));
+    //         endDate.sort();
+    //         baseStartDate = Array.from(new Set(baseStartDate));
+    //         baseStartDate.sort();
+    //         baseEndDate = Array.from(new Set(baseEndDate));
+    //         baseEndDate.sort();
+
+    //         let start = dayjs(startDate[0]).format("YYYY-MM-DD HH:mm:ss");
+    //         let duration = dayjs(endDate[endDate.length - 1]).diff(
+    //           dayjs(startDate[0])
+    //         );
+    //         let end = dayjs(endDate[endDate.length - 1]).format(
+    //           "YYYY-MM-DD HH:mm:ss"
+    //         );
+    //         let baselineStart = dayjs(baseStartDate[0]).format(
+    //           "YYYY-MM-DD HH:mm:ss"
+    //         );
+    //         let baselineEnd = dayjs(baseEndDate[baseEndDate.length - 1]).format(
+    //           "YYYY-MM-DD HH:mm:ss"
+    //         );
+    //         userArr = Array.from(new Set(userArr));
+    //         let diffEndDate = dayjs(end).businessDiff(dayjs(baselineEnd), "d");
+    //         let diffStartDate = dayjs(start).businessDiff(
+    //           dayjs(baselineStart),
+    //           "d"
+    //         );
+    //         let color;
+    //         if (diffEndDate > diffStartDate && diffStartDate == 0) {
+    //           color = "#F44336";
+    //         } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
+    //           color = "#F57C00";
+    //         } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
+    //           color = "#40C4FF";
+    //         } else {
+    //           color = "lime";
+    //           // color = "#4CAF50";
+    //         }
+    //         let totalCost = dataStartArray.reduce((prev, el) => {
+    //           return el.price + prev;
+    //         }, 0);
+    //         let totalDone = dataStartArray.reduce((prev, el) => {
+    //           return (el.price * el.progress) / 100 + prev;
+    //         }, 0);
+    //         let finalPercentage = `${(totalDone / totalCost) * 100}%`;
+    //         let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
+    //         // console.log(start)
+    //         // console.log(end)
+    //         let insert = {
+    //           id: el,
+    //           name: `${dataStartArray[0].taskName}: Unit ${dataStartArray[0].unitName} - ${dataStartArray[0].fix} Fix`,
+    //           actualStart: start,
+    //           actualEnd: end,
+    //           baselineStart: baselineStart,
+    //           baselineEnd: baselineEnd,
+    //           baseline: baseline,
+    //           duration: duration,
+    //           fix: dataStartArray[0].fix,
+    //           block: dataStartArray[0].subsectionName,
+    //           unit: dataStartArray[0].unitName,
+    //           taskName: dataStartArray[0].taskName,
+    //           percent: finalProgress,
+    //           user: userArr[0],
+    //           progressValue: finalPercentage,
+    //           children: [],
+    //         };
+    //         finalFixArray.push(insert);
+    //       });
+    //       console.timeEnd("Create Parent Data")
+
+          
+    //       console.time("Parent Dependencies")
+    //       finalFixArray.forEach((el, index, arr) => {
+    //         if (index !== 0) {
+    //           if (el.user == arr[index - 1].user) {
+    //             let depArr = [];
+    //             depArr.push(arr[index - 1].id);
+    //             el.dependentOn = depArr;
+    //           }
+    //         }
+    //       });
+
+    //       finalFixArray.forEach((el, index, arr) => {
+    //         if (index < arr.length - 1) {
+    //           if (el.user == arr[index + 1].user) {
+    //             el.connectTo = arr[index + 1].id;
+    //             el.connectorType = "finish-start";
+    //           }
+    //         }
+    //       });
+    //       console.timeEnd("Parent Dependencies")
+    //       console.time("Create Children")
+    //       finalFixArray.forEach((el) => {
+    //         let filtered = response.data.filter((el2) => {
+    //           return (
+    //             el.block === el2.subsectionName &&
+    //             el.unit === el2.unitName &&
+    //             el.taskName === el2.taskName &&
+    //             el.fix === el2.fix
+    //           );
+    //         });
+    //         filtered.forEach((el3) => {
+    //           let diffEndDate = dayjs(el3.endDate).businessDiff(
+    //             dayjs(el3.baselineEndDate),
+    //             "d"
+    //           );
+    //           let diffStartDate = dayjs(el3.startDate).businessDiff(
+    //             dayjs(el3.baselineStartDate),
+    //             "d"
+    //           );
+    //           let color;
+    //           if (diffEndDate > diffStartDate && diffStartDate == 0) {
+    //             color = "#F44336";
+    //           } else if (diffEndDate === diffStartDate && diffEndDate > 0) {
+    //             color = "#F57C00";
+    //           } else if (diffEndDate < diffStartDate && diffStartDate > 0) {
+    //             color = "#40C4FF";
+    //           } else {
+    //             color = "lime";
+    //           }
+    //           let baseline = { fill: `${color} 0.8`, stroke: `0.9 ${color}` };
+    //           let insert = {
+    //             id: el3.id,
+    //             name: el3.taskDescription,
+    //             actualStart: el3.startDate,
+    //             actualEnd: el3.endDate,
+    //             baselineStart: el3.baselineStartDate,
+    //             baselineEnd: el3.baselineEndDate,
+    //             baseline: baseline,
+    //             progressValue: `${el3.progress}%`,
+    //           };
+    //           el.children.push(insert);
+    //         });
+    //       });
+    //       finalFixArray.forEach((el) => {
+    //         el.children.forEach((el2, index, arr) => {
+    //           if (index < arr.length - 1) {
+    //             el2.connectTo = arr[index + 1].id;
+    //             el2.connectorType = "finish-start";
+    //           } 
+    //         });
+
+    //       });
+    //       console.timeEnd("Create Children")
+    //       console.time("Create Filter Data")
+
+    //       // console.log(finalFixArray);
+
+    //       this.tasks = finalFixArray;
+    //       this.data = finalFixArray;
+    //       console.log(this.data)
+    //       this.data2 = finalFixArray;
+    //       this.items = [];
+    //       response.data.forEach((el) => {
+    //         let insert = {
+    //           block: el.subsectionName,
+    //           unit: el.unitName,
+    //           task: el.taskName,
+    //         };
+    //         this.items.push(insert);
+    //       });
+    //       console.timeEnd("Create Filter Data")
+    //       // this.itemsDuplicated = this.items
+    //       console.timeEnd("TimeThis");
+    //     })
+    //     .catch((e) => {
+    //       console.log(e);
+    //     });
+    // },
   },
 };
 </script>
