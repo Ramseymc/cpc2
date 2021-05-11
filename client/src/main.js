@@ -27,6 +27,10 @@ import VueSocialSharing from "vue-social-sharing";
 
 Vue.use(VueSocialSharing);
 
+import svgJs from "./plugins/vueSvgPlugin";
+
+Vue.use(svgJs);
+
 // import VueDraggable from 'vue-draggable'
 
 // Vue.use(VueDraggable)

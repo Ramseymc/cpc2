@@ -868,32 +868,23 @@ export default {
     async saveProgressAll() {
       let progress = [];
       // let taskIds = [];
-      
+
       this.items.forEach(el => {
-       
         if (el.fix !== "Ret") {
-           let insert = {
-             id: el.id,
-             unitNumber: el.unitNumber,
-             progress: el.progress,
-             changed: this.date,
-             progressID: el.progressID
-        }
-        progress.push(insert)
-          // taskIds = [];
-          // taskIds.push(el.id);
-          // taskIds.push(el.unitNumber);
-          // taskIds.push(el.progress);
-          // taskIds.push(this.date);
-          // taskIds.push(el.progress);
-          // taskIds.push(el.progressID);
-          // progress.push(taskIds);
+          let insert = {
+            id: el.id,
+            unitNumber: el.unitNumber,
+            progress: el.progress,
+            changed: this.date,
+            progressID: el.progressID
+          };
+          progress.push(insert);
         }
       });
       let data = {
         allTasks: progress
       };
-      console.log(data)
+      console.log(data);
 
       await axios({
         method: "post",

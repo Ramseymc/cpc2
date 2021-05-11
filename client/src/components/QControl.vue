@@ -254,13 +254,13 @@ export default {
     close: Boolean,
     QualityType: String,
     section: String,
-    unit: String,
+    unit: String
   },
   components: {
     // Signature: () => import("../components/Signature"),
     Signature: () => import("./Signature"),
     CldImage,
-    CldTransformation,
+    CldTransformation
   },
   data: () => ({
     viewDialog: false,
@@ -284,26 +284,26 @@ export default {
         value: "name",
         groupable: false,
         sortable: false,
-        width: 300,
+        width: 300
       },
       { text: "Category", value: "category", align: "right", width: 200 },
       {
         text: "Subcontractor",
         value: "subcontactor",
         align: "left",
-        width: 50,
+        width: 50
       },
       { text: "Site Foreman", value: "siteForeman", align: "left", width: 50 },
       {
         text: "Construction Manager",
         value: "constructionManager",
         align: "left",
-        width: 50,
+        width: 50
       },
       { text: "", value: "uploadImage", align: "left", width: 50 },
       { text: "", value: "viewImage", align: "left", width: 50 },
       { text: "", value: "deleteImage", align: "left", width: 50 },
-      { text: "Comments", value: "comments", align: "left", width: 250 },
+      { text: "Comments", value: "comments", align: "left", width: 250 }
     ],
     desserts: [],
     subsection: [],
@@ -321,7 +321,7 @@ export default {
     scSignature: "",
     sfSignature: "",
     pdfExists: false,
-    href: "",
+    href: ""
   }),
   beforeMount() {
     this.closeAll();
@@ -359,13 +359,13 @@ export default {
       await axios({
         method: "post",
         url: `${url}/uploadImage`,
-        data: formData,
+        data: formData
       }).then(
-        (response) => {
+        response => {
           console.log(response.data);
           this.uploadDialog = false;
           this.imageFile = null;
-          this.desserts.forEach((el) => {
+          this.desserts.forEach(el => {
             if (el.id === parseInt(response.data.id)) {
               el.image = response.data.public_id;
               console.log(this.desserts);
@@ -374,32 +374,32 @@ export default {
             }
           });
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
     },
     async deleteImage(event) {
       console.log(event.currentTarget.id);
-      let filteredData = this.desserts.filter((el) => {
+      let filteredData = this.desserts.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       let data = {
         id: parseInt(event.currentTarget.id),
-        url_id: filteredData[0].image,
+        url_id: filteredData[0].image
       };
 
       await axios({
         method: "post",
         url: `${url}/removeQCImage`,
-        data: data,
+        data: data
       }).then(
-        (response) => {
+        response => {
           console.log(response.data);
           // this.uploadDialog = false;
           this.imageFile = null;
           console.log(parseInt(response.data.id));
-          this.desserts.forEach((el) => {
+          this.desserts.forEach(el => {
             if (el.id === parseInt(response.data.id)) {
               el.image = null;
               // console.log(this.desserts)
@@ -408,7 +408,7 @@ export default {
             }
           });
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
@@ -420,7 +420,7 @@ export default {
     },
     viewImage(event) {
       console.log(event.currentTarget.id);
-      let filteredData = this.desserts.filter((el) => {
+      let filteredData = this.desserts.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       this.publicId = filteredData[0].image;
@@ -430,6 +430,7 @@ export default {
       console.log("OK");
     },
     async saveData() {
+      let now = dayjs(new Date()).format("YYYY-MM-DD HH:mm");
       // this.desserts.forEach((el) => {
       //   if (el.subcontractor && this.scSignature === "" && !el.signedSubcontractor && el.signedSubcontractorImage === null) {
       //     el.subcontractor = false
@@ -446,6 +447,7 @@ export default {
         // })
         console.log("First Save");
         let data = {
+          saveDate: now,
           development: this.$store.state.development.id,
           unit: this.unit,
           section: this.section,
@@ -458,18 +460,21 @@ export default {
           cmSignature: this.cmSignature,
           scSignature: this.scSignature,
           sfSignature: this.sfSignature,
-          public_id: this.public_id,
+          public_id: this.public_id
         };
         console.log("First Save", data);
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = this.$store.state.token;
         await axios({
           method: "post",
           url: `${url}/postQC`,
-          data: data,
+          data: data
         }).then(
-          (response) => {
+          response => {
             console.log(response.data);
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         );
@@ -481,6 +486,7 @@ export default {
         this.signedSiteforeman
       ) {
         let data = {
+          saveDate: now,
           development: this.$store.state.development.id,
           unit: this.unit,
           section: this.section,
@@ -493,19 +499,22 @@ export default {
           cmSignature: this.cmSignature,
           scSignature: this.scSignature,
           sfSignature: this.sfSignature,
-          signaturesOnly: false,
+          signaturesOnly: false
         };
         console.log("Update Data");
         console.log("Data update", data);
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = this.$store.state.token;
         await axios({
           method: "post",
           url: `${url}/editQC`,
-          data: data,
+          data: data
         }).then(
-          (response) => {
+          response => {
             console.log(response.data);
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         );
@@ -557,35 +566,35 @@ export default {
         shortName: this.QualityType,
         unit: this.unit,
         section: this.section,
-        development: this.$store.state.development.id,
+        development: this.$store.state.development.id
       };
       this.duplicate = "";
       await axios({
         method: "post",
         url: `${url}/getqctemplate`,
-        data: data,
+        data: data
       }).then(
-        (response) => {
+        response => {
           console.log(response.data);
           if (response.data[1].length) {
             this.desserts = response.data[1];
-            this.desserts.forEach((el) => {
+            this.desserts.forEach(el => {
               if (el.signedConstructionManager === 1) {
-                el.cmDisabled = true
+                el.cmDisabled = true;
               } else {
-                el.cmDisabled = false
+                el.cmDisabled = false;
               }
               if (el.signedSiteforeman === 1) {
-                el.sfDisabled = true
+                el.sfDisabled = true;
               } else {
-                el.sfDisabled = false
+                el.sfDisabled = false;
               }
               if (el.signedSubcontractor === 1) {
-                el.scDisabled = true
+                el.scDisabled = true;
               } else {
-                el.scDisabled = false
+                el.scDisabled = false;
               }
-            })
+            });
             // this.desserts.forEach((el) => {
             //   el.image = "test"
             // })
@@ -593,7 +602,7 @@ export default {
           } else {
             // this.duplicate = "";
             this.desserts = response.data[0];
-            this.desserts.forEach((el) => {
+            this.desserts.forEach(el => {
               el.signedConstructionManager = false;
               el.signedConstructionManagerImage = null;
               el.signedSubcontractor = false;
@@ -602,7 +611,7 @@ export default {
               el.signedSiteforemanImage = null;
             });
           }
-          this.desserts.forEach((el) => {
+          this.desserts.forEach(el => {
             if (el.comments === null) {
               el.comments = "";
             }
@@ -614,7 +623,7 @@ export default {
           });
           if (!response.data[1].length) {
             let array = [];
-            this.desserts.forEach((el) => {
+            this.desserts.forEach(el => {
               if (el.comments === null) {
                 el.comments = "";
               }
@@ -625,7 +634,7 @@ export default {
             array = Array.from(new Set(array));
             console.log(array);
             array.forEach((el, index) => {
-              this.desserts.forEach((el2) => {
+              this.desserts.forEach(el2 => {
                 if (el === el2.category) {
                   el2.category = `${index + 1}: ${el}`;
                 }
@@ -649,21 +658,21 @@ export default {
                 this.closeAll();
                 this.duplicate = JSON.stringify(this.desserts);
                 data = {
-                  cert: this.desserts[0].controlTimestamp,
+                  cert: this.desserts[0].controlTimestamp
                 };
                 axios({
                   method: "post",
                   url: `${url}/getqcPDF`,
-                  data: data,
+                  data: data
                 }).then(
-                  (response) => {
+                  response => {
                     console.log(response.data);
                     if (response.data.exists) {
                       this.pdfExists = response.data.exists;
                       this.href = `${process.env.VUE_APP_BASEURL}/${this.desserts[0].controlTimestamp}QCReport.pdf`;
                     }
                   },
-                  (error) => {
+                  error => {
                     console.log(error);
                   }
                 );
@@ -671,7 +680,7 @@ export default {
             });
           }
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
@@ -694,7 +703,7 @@ export default {
       this.$emit("closed", this.dialog);
     },
     closeAll() {
-      Object.keys(this.$refs).forEach((k) => {
+      Object.keys(this.$refs).forEach(k => {
         // console.log(this.$refs[k])
         if (this.$refs[k] && this.$refs[k].$attrs["data-open"]) {
           this.$refs[k].$el.click();
@@ -702,7 +711,7 @@ export default {
       });
     },
     openAll() {
-      Object.keys(this.$refs).forEach((k) => {
+      Object.keys(this.$refs).forEach(k => {
         if (this.$refs[k] && !this.$refs[k].$attrs["data-open"]) {
           this.$refs[k].$el.click();
         }
@@ -742,8 +751,8 @@ export default {
         this.dialog1 = false;
       }
       console.log(event);
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -119,37 +119,45 @@
                               :items="subsection"
                               item-text="subsectionName"
                               label="Choose Block*"
-                              prepend-icon="mdi-tag-heart"
+                              prepend-icon="mdi-office-building"
                               color="#0F0F0F"
                               item-color="#0F0F0F"
                               @change="getUnits"
+                              multiple
                             ></v-autocomplete>
                           </v-col>
                           <v-col class="d-flex" cols="12" sm="6">
                             <!-- v-model="unitChosen" -->
+                            <!-- v-model="editedItem.unitChosen" -->
                             <v-autocomplete
                               v-model="editedItem.unitChosen"
                               :items="units"
                               item-text="unitName"
                               label="Choose Unit"
                               clearable
-                              prepend-icon="mdi-tag-heart"
+                              prepend-icon="mdi-home-analytics"
                               color="#0F0F0F"
                               item-color="#0F0F0F"
+                              multiple
                             ></v-autocomplete>
                           </v-col>
+                          <v-col class="d-flex" cols="1" sm="1">
+                            <v-btn icon @click="dialogAdd = true">
+                              <v-icon color="orange">mdi-wall</v-icon>
+                            </v-btn>
+                          </v-col>
                           <v-col class="d-flex" cols="12" sm="6">
-                            <v-combobox
+                            <v-autocomplete
                               v-model="stockItemChosen"
                               :items="stockItems"
-                              label="Choose or enter new stock item*"
+                              label="Choose stock item*"
                               item-text="itemDescription"
                               dense
                               item-color="#111d5e"
                               @change="chooseStockItem"
                               @blur="chooseStockItem"
                               clearable
-                            ></v-combobox>
+                            ></v-autocomplete>
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
                             <v-combobox
@@ -302,6 +310,131 @@
         </v-card-actions>
       </v-card>
     </v-row>
+    <v-row justify="center">
+      <v-dialog v-model="dialogAdd" persistent max-width="600px">
+        <!-- <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          color="primary"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
+          Open Dialog
+        </v-btn>
+      </template> -->
+        <v-card>
+          <v-card-title>
+            <span class="headline">Add StockItem</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    label="Supplier*"
+                    v-model="stockItemToAdd.supplier"
+                    :items="suppliers"
+                    item-text="supplierName"
+                    required
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="6" md="6">
+                  <v-text-field
+                    label="Stock Code*"
+                    v-model="stockItemToAdd.itemCode"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="8" md="8">
+                  <v-text-field
+                    label="Description"
+                    v-model="stockItemToAdd.itemDescription"
+                    hint="example of helper text only on focus"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    label="Quantity*"
+                    v-model="stockItemToAdd.quantity"
+                    hint="example of persistent helper text"
+                    type="number"
+                    required
+                    @blur="calculateCost"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-autocomplete
+                    v-model="stockItemToAdd.unitDescription"
+                    :items="items"
+                    label="unit Measure"
+                    @blur="calculateCost"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.unitCost"
+                    type="number"
+                    label="unitCost"
+                    required
+                    @blur="calculateCost"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.totalCost"
+                    type="number"
+                    label="total Cost"
+                    required
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.vat"
+                    type="number"
+                    label="VAT"
+                    required
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.nettCost"
+                    type="number"
+                    label="nett Cost"
+                    required
+                    readonly
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+            <small>*indicates required field</small>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="dialogAdd = false">
+              Close
+            </v-btn>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="addStockItem"
+              v-if="
+                stockItemToAdd.supplier !== '' &&
+                  stockItemToAdd.itemCode !== '' &&
+                  stockItemToAdd.itemDescription !== '' &&
+                  stockItemToAdd.unitCost !== 0 &&
+                  stockItemToAdd.quantity !== 0 &&
+                  stockItemToAdd.unitDescription !== ''
+              "
+            >
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
     <!-- <v-btn :id="item.id" icon @click="getPDF($event)"
       ><v-icon color="red">mdi-file-pdf-box</v-icon></v-btn
     > -->
@@ -323,7 +456,7 @@ export default {
   name: "purchaseordercreate",
   components: {
     // PDFViewer,
-    PDFViewer: () => import("../components/PDFViewer")
+    PDFViewer: () => import("../components/PDFViewer"),
   },
   data() {
     return {
@@ -339,10 +472,20 @@ export default {
       date: new Date().toISOString().substr(0, 10),
       minDate: "",
       menu: false,
-      items: ["Each", "Roll", "l/m", "sqm"],
+      items: ["Each", "Roll", "l/m", "sqm", "hour"],
       stockItemsToUpdate: [],
       stockItemsToAdd: [],
-
+      stockItemToAdd: {
+        supplier: "",
+        itemCode: "",
+        itemDescription: "",
+        quantity: 1,
+        unitDescription: "",
+        unitCost: 0,
+        totalCost: 0,
+        vat: 0,
+        nettCost: 0,
+      },
       // unitTypeChosen: null,
       stockItemChosen: null,
       totalGross: 0,
@@ -359,27 +502,28 @@ export default {
       // ###################
       dialog: false,
       dialogDelete: false,
+      dialogAdd: false,
       headers: [
         {
           text: "Block",
           align: "start",
           sortable: false,
           value: "block",
-          width: 90
+          width: 90,
         },
         {
           text: "Unit Chosen",
           align: "start",
           sortable: false,
           value: "unitChosen",
-          width: 90
+          width: 90,
         },
         {
           text: "Description",
           align: "start",
           sortable: false,
           value: "description",
-          width: 300
+          width: 300,
         },
         { text: "Quantity", value: "quantity", width: 90, align: "end" },
         { text: "Unit", value: "unit", width: 90, align: "end" },
@@ -388,7 +532,7 @@ export default {
         { text: "Tax", value: "vat", width: 90, align: "end" },
         { text: "Nett", value: "nett", width: 90, align: "end" },
 
-        { text: "Actions", value: "actions", sortable: false }
+        { text: "Actions", value: "actions", sortable: false },
       ],
       desserts: [],
       editedIndex: -1,
@@ -401,7 +545,7 @@ export default {
         price: 0,
         gross: 0,
         vat: 0,
-        nett: 0
+        nett: 0,
       },
       defaultItem: {
         block: "",
@@ -412,14 +556,14 @@ export default {
         price: 0,
         gross: 0,
         vat: 0,
-        nett: 0
-      }
+        nett: 0,
+      },
     };
   },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
+    },
   },
 
   watch: {
@@ -428,7 +572,7 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    }
+    },
   },
   mounted() {
     this.initialLoad();
@@ -439,16 +583,57 @@ export default {
   },
 
   methods: {
+    async addStockItem() {
+      let supplier = this.suppliers.filter((el) => {
+        return el.supplierName === this.stockItemToAdd.supplier;
+      });
+      console.log(supplier);
+      console.log(this.stockItemToAdd);
+      this.stockItemToAdd.supplier = supplier[0].id;
+      let data = this.stockItemToAdd;
+      await axios({
+        method: "post",
+        url: `${url}/addStockItem`,
+        data: data,
+      })
+        .then((response) => {
+          console.log(response.data);
+          this.getStock();
+        })
+        .catch(() => {});
+    },
+    async getStock() {
+      await axios({
+        method: "post",
+        url: `${url}/getStock`,
+      })
+        .then((response) => {
+          console.log(response.data);
+          this.stockItems = response.data;
+          this.dialogAdd = false;
+        })
+        .catch(() => {});
+    },
+    calculateCost() {
+      this.stockItemToAdd.totalCost =
+        this.stockItemToAdd.quantity * this.stockItemToAdd.unitCost;
+      this.stockItemToAdd.vat = this.stockItemToAdd.totalCost * 0.15;
+      this.stockItemToAdd.nettCost =
+        this.stockItemToAdd.totalCost + this.stockItemToAdd.vat;
+      this.stockItemToAdd.totalCost = this.stockItemToAdd.totalCost.toFixed(2);
+      this.stockItemToAdd.vat = this.stockItemToAdd.vat.toFixed(2);
+      this.stockItemToAdd.nettCost = this.stockItemToAdd.nettCost.toFixed(2);
+    },
     async initialLoad() {
       let data = {
-        id: this.$store.state.development.id
+        id: this.$store.state.development.id,
       };
       await axios({
         method: "post",
         url: `${url}/POInformation`,
-        data: data
+        data: data,
       })
-        .then(response => {
+        .then((response) => {
           console.log(response.data[2]);
           this.suppliers = response.data[0];
           this.stockItems = response.data[1];
@@ -486,11 +671,11 @@ export default {
       this.getComponent = false;
     },
     async savePO() {
-      let supplier = this.suppliers.filter(el => {
+      let supplier = this.suppliers.filter((el) => {
         return el.supplierName === this.supplier;
       });
       let POData = [];
-      this.desserts.forEach(el => {
+      this.desserts.forEach((el) => {
         el.PONumber = this.PONumber;
         el.deliveryDate = this.date;
         el.supplierName = supplier[0].supplierName;
@@ -498,7 +683,7 @@ export default {
         el.supplierPostal = supplier[0].postal_address;
         el.supplierStreet = supplier[0].street_address;
         el.supplierVATNumber = supplier[0].vat_number;
-        let block = this.subsection.filter(el2 => {
+        let block = this.subsection.filter((el2) => {
           return el2.subsectionName == el.block;
         });
         let insert = [];
@@ -532,14 +717,14 @@ export default {
         purchaseOrderPDFData: this.desserts,
         purchaseOrderToProcess: POData,
         stockItemsToAdd: this.stockItemsToAdd,
-        stockItemsToUpdate: this.stockItemsToUpdate
+        stockItemsToUpdate: this.stockItemsToUpdate,
       };
       await axios({
         method: "post",
         url: `${url}/POPosting`,
-        data: data
+        data: data,
       }).then(
-        response => {
+        (response) => {
           console.log(response.data);
           this.hrefCert = response.data.hrefCert;
           setTimeout(() => {
@@ -551,7 +736,7 @@ export default {
             this.date = new Date().toISOString().substring(0, 10);
           }, 500);
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -562,47 +747,68 @@ export default {
       this.developmentParam = parameter;
       await axios({
         method: "get",
-        url: `${url}/subsection/${parameter}`
+        url: `${url}/subsection/${parameter}`,
       }).then(
-        response => {
+        (response) => {
           if (response.data.success === false) {
             return this.$router.push({ name: "Login" });
           }
           this.subsection = response.data;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
     },
     getUnits() {
-      let parameter = "";
+      console.log(this.editedItem.block);
+      // let parameter = "";
+      console.log(this.subsection);
+      let data = [];
       if (this.subsection.length) {
-        let unit = this.subsection.filter(el => {
-          return el.subsectionName === this.editedItem.block;
+        this.editedItem.block.forEach((el) => {
+          let unit = this.subsection.filter((el2) => {
+            return el2.subsectionName === el;
+          });
+          data.push(unit[0].id);
         });
-        parameter = unit[0].id;
-        console.log(parameter);
-        this.subsectionParam = parameter;
+        console.log(data);
+
+        let getInfo = {
+          id: this.$store.state.development.id,
+          info: data,
+        };
+
+        // let unit = this.subsection.filter((el) => {
+        //   return el.subsectionName === this.editedItem.block;
+        // });
+        // parameter = unit[0].id;
+        // console.log(parameter);
+        // this.subsectionParam = parameter;
 
         axios({
-          method: "get",
-          url: `${url}/getUnits/${this.developmentParam}/${this.subsectionParam}`
+          method: "post",
+          url: `${url}/getPOUnits`,
+          data: getInfo,
         }).then(
-          response => {
+          (response) => {
             this.units = response.data;
 
-            this.units.forEach(el => {
-              if (el.unitName.substring(1, 2) == ".") {
-                // this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
-                this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
-              }
+            this.units.sort((a, b) => {
+              return a.unitName - b.unitName;
             });
-            this.units.forEach(el => {
+
+            // this.units.forEach((el) => {
+            //   if (el.unitName.substring(1, 2) == ".") {
+            //     // this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
+            //     this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
+            //   }
+            // });
+            this.units.forEach((el) => {
               el.unitName = `${el.unitName}-${el.id}`;
             });
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         );
@@ -669,10 +875,55 @@ export default {
     },
 
     save() {
+      console.log(this.editedItem.unitChosen);
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
-        this.desserts.push(this.editedItem);
+        if (this.editedItem.unitChosen.length > 1) {
+          let unitsChosen = this.editedItem.unitChosen;
+          unitsChosen.forEach((el) => {
+            let unit = this.units.filter((el2) => {
+              return el === el2.unitName;
+            });
+
+            let block = this.subsection.filter((el3) => {
+              return el3.id === unit[0].subsection;
+            });
+
+            let insert = {
+              block: block[0].subsectionName,
+              unitChosen: el,
+              description: this.editedItem.description,
+              quantity: this.editedItem.quantity,
+              unit: this.editedItem.unit,
+              price: this.editedItem.price,
+              gross: this.editedItem.gross,
+              vat: this.editedItem.vat,
+              nett: this.editedItem.nett,
+            };
+
+            this.desserts.push(insert);
+          });
+        } else {
+          let unit = this.units.filter((el5) => {
+            return this.editedItem.unitChosen[0] === el5.unitName;
+          });
+          let block = this.subsection.filter((el4) => {
+            return el4.id === unit[0].subsection;
+          });
+          let insert = {
+            block: block[0].subsectionName,
+            unitChosen: this.editedItem.unitChosen[0],
+            description: this.editedItem.description,
+            quantity: this.editedItem.quantity,
+            unit: this.editedItem.unit,
+            price: this.editedItem.price,
+            gross: this.editedItem.gross,
+            vat: this.editedItem.vat,
+            nett: this.editedItem.nett,
+          };
+          this.desserts.push(insert);
+        }
       }
       if (
         typeof this.stockItemChosen === "object" &&
@@ -700,7 +951,7 @@ export default {
       this.totalVAT = this.convertToString(this.totalVAT);
       this.totalNett = this.convertToString(this.totalNett);
       this.close();
-    }
-  }
+    },
+  },
 };
 </script>

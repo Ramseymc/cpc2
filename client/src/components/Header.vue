@@ -369,7 +369,7 @@ export default {
             color: "lime accent-3"
           },
           {
-            title: "Change Suppliers",
+            title: "Change Subcontractors",
             name: "SupplierChange",
             icon: "mdi-notebook-edit",
             role: 3,
@@ -428,12 +428,12 @@ export default {
         id: "signup"
       },
       {
-        title: "Gantt V3A",
-        name: "ganttv3A",
+        title: "Gantt Chart",
+        name: "gantt4",
         icon: "mdi-chart-gantt",
         role: 3,
         menu: 1,
-        id: "ganttv3A",
+        id: "gantt4",
         color: "light-green accent-2"
       },
 

@@ -865,31 +865,18 @@ create table qcquestionnaireTemplate (
 
 insert into qcquestionnaireTemplate (shortName, category, name) values
 ("balustrades","Handrails and balustrades","Latest drawing revision used? Revision used?"),
-
 ("balustrades","Handrails and balustrades","Approved materials? Correct sizes and fasteners?"),
-
 ("balustrades","Handrails and balustrades","Approved materials? Graded correctly?"),
-
 ("balustrades","Fixing","Is the fastening / fixing line correct? As per Architect / Engineer?"),
-
 ("balustrades","Fixing","Is the fastening / fixing level correct? As per Architect / Engineer?"),
-
 ("balustrades","Fixing","Is all material affixed correctly? True and plumb?"),
-
 ("balustrades","Joints","Slip joint placed properly? Neatened?"),
-
 ("balustrades","Joints","Welded connections cleaned and painted with anti-corrosive paint?"),
-
 ("balustrades","Joints","Are all joints that need polishing done properly?"),
-
 ("balustrades","Joints","Is the installation clean?"),
-
 ("balustrades","Joints","Where fasteners were placed is the plaster and paint still proper?"),
-
 ("balustrades","Surface finish","Is the surface finish correct?"),
-
 ("balustrades","Surface finish","Has the surface finish preparation been done correctly?"),
-
 ("electrical","Power on distribution board","DB correctly installed (position per drawing) true and square? Cover installed properly? All screws fitted?"),
 ("electrical","Power on distribution board","All circuit breakers installed properly? No copper from conductors visible behind circuit breaker?"),
 ("electrical","Power on distribution board","Earth leakage installed? Tested?"),
@@ -1311,7 +1298,7 @@ create table fixes (
 
 alter table tasks add column sortIndex int;
 
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
 
  
 
@@ -1330,4 +1317,105 @@ alter table qcquestionnaireDone add signedSubcontractorImage  varchar(160) after
 alter table qcquestionnaireDone add signedSiteforemanImage  varchar(160) after signedSiteforeman;
 alter table qcquestionnaireDone add signedConstructionManagerImage  varchar(160) after signedConstructionManager;
 alter table taskList add column estimate varchar(160);
+
+alter table qcquestionnaireDone add signedSubcontractorDate  varchar(160) after signedSubcontractorImage;
+alter table qcquestionnaireDone add signedSiteforemanDate  varchar(160) after signedSiteforemanImage;
+alter table qcquestionnaireDone add signedConstructionManagerDate  varchar(160) after signedConstructionManagerImage;
+
+insert into qcquestionnaireTemplate (shortName, category, name) values
+ ("Pre-Occupation Certificate Inspection","Items To Check","Engineer Form 4?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Slab System Conformance Certificate? Endorsed by Structural Engineer?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Architect Form 4? Including routes and facilities for the handicapped?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Architect Energy (SANS 10400 XA)?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Fire (Form 4)? From Mechanical Engineer?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Ventilation (Form 4)? From Mechanical Engineer?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Self closers added / fitted to fire doors?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Panic door openers added to escape route doors?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Safety signage as per plan? Fitted plumb and square? Secured as directed?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Do you have the glazing certificate?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Are all safety glass panels etched to indicate that it is safety glass?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Roofing Certificate A19?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Do you have an Electrical CoC?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Waterheating Certificate?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Plumbing Certificate?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Are all balustrades 1000mm, or more, above adjoining floor level?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Are all balustrades securely fitted? Does it pass the 100mm aperture test?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Are all handrails at the correct height and have a Ø of 40mm?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Do you have a certificate of conformance for the shower panels?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Are all weepholes clear and clean?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Are all window to cill joints sealed on the exterior?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Has the waterheating been confirmed?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Have all the locks got the right keys in them?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Do all lights switch on an off?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Does the stove switch on an off?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Have all the electrical outlets been tested?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Is there paint on all the timber door surfaces?"),
+("Pre-Occupation Certificate Inspection","Items To Check","Have all gutters and downpipes been fitted?");
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+alter table stockItems add itemCode  varchar(160) after id;
+alter table stockItems add pushedToXero  BOOLEAN default false;
+
+create table stockPurchased (
+    id int auto_increment primary key,
+    stockItem varchar(160) not null,
+    quantityPurchased float not null,
+    costPerItem decimal(18,2),
+    totalCost decimal(18,2),
+    vatAmount   decimal(18,2),
+    nettCost decimal(18,2),
+    supplier int,
+    PONumber varchar(160),
+    invoiceNumber   varchar(160), 
+    datePurchased TIMESTAMP default now(),
+    development int,
+    section int,
+    unitNumber int,
+    FOREIGN KEY (supplier) REFERENCES suppliers(id),
+    FOREIGN KEY (unitNumber) REFERENCES units(id),
+    FOREIGN KEY (development) REFERENCES developments(id)
+);
+
+
+create table stockBudget (
+    id int auto_increment primary key,
+    stockItem int not null,
+    quantityBudgetted float not null,
+    costPerItem decimal(18,2),
+    totalCost decimal(18,2),
+    vatAmount   decimal(18,2),
+    nettCost decimal(18,2),
+    supplier int,
+    datePurchased TIMESTAMP default now(),
+    development int,
+    section int,
+    unitNumber int,
+    FOREIGN KEY (supplier) REFERENCES suppliers(id),
+    FOREIGN KEY (unitNumber) REFERENCES units(id),
+    FOREIGN KEY (stockItem) REFERENCES stockItems(id),
+    FOREIGN KEY (development) REFERENCES developments(id)
+);
+
+insert into stockBudget (stockItem, quantityBudgetted, costPerItem, totalCost, vatAmount, nettCost, supplier, datePurchased, development, section, unitNumber) values
+(329,	14,	70,	980,	147,	1127,	18,	'2021-05-14',	1,	6,	143),
+(330,	4,	35,	140,	21,	161,	18,	'2021-05-14',	1,	6,	143),
+(331,	27,	66.8,	1803.6,	270.54,	2074.14,	18,	'2021-05-14',	1,	6,	143),
+(332,	15000,	2,	30000,	4500,	34500,	18,	'2021-05-14',	1,	6,	143),
+(333,	1010,	1,	1010,	151.5,	1161.5,	18,	'2021-05-14',	1,	6,	143),
+(334,	21,	46,	966,	144.9,	1110.9,	18,	'2021-05-14',	1,	6,	143),
+(335,	2,	82.69,	165.38,	24.807,	190.187,	18,	'2021-05-14',	1,	6,	143),
+(336,	15,	15,	225,	33.75,	258.75,	18,	'2021-05-14',	1,	6,	143),
+(337,	97,	9,	873,	130.95,	1003.95,	18,	'2021-05-14',	1,	6,	143),
+(338,	479,	2.4,	1149.6,	172.44,	1322.04,	18,	'2021-05-14',	1,	6,	143);
+
+
+
+
+
+
+
+
+
+
 

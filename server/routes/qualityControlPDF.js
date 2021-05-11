@@ -98,8 +98,10 @@ const runReport = (data) => {
       image = image.substring(1, image.length - 1)
       el.image =  `public/${image}.png`
       console.log(el.image)
+      el.saveDate = data[0].saveDate
     } else {
       el.image = "sc"
+      el.saveDate = ""
     }
     let insert2 = {
         image: el.image,
@@ -107,20 +109,36 @@ const runReport = (data) => {
         width: 40,
         alignment: "center" 
     }
+    let insert2A = {
+        text: el.saveDate,
+        border: [true, true, true, true],
+        width: 20,
+        alignment: "center",
+        fontSize: 6, 
+    }
     if (el.signedSiteforeman === 1 || el.signedSiteforeman === true) {
       let image = el.signedSiteforemanImage
       console.log(image)
       image = image.substring(1, image.length - 1)
       el.image =  `public/${image}.png`
       console.log(el.image)
+      el.saveDate = data[0].saveDate
     } else {
       el.image = "sc"
+      el.saveDate = ""
     }
     let insert3 = {
         image: el.image,
         border: [true, true, true, true],
         width: 40,
         alignment: "center" 
+    }
+    let insert3A = {
+        text: el.saveDate,
+        border: [true, true, true, true],
+        width: 20,
+        alignment: "center",
+        fontSize: 6,
     }
 
     if (el.signedConstructionManager === 1 || el.signedConstructionManager === true) {
@@ -129,14 +147,23 @@ const runReport = (data) => {
       image = image.substring(1, image.length - 1)
       el.image =  `public/${image}.png`
       console.log(el.image)
+      el.saveDate = data[0].saveDate
     } else {
       el.image = "sc"
+      el.saveDate = ""
     }
     let insert4 = {
         image: el.image,
         border: [true, true, true, true],
         width: 40,
         alignment: "center" 
+    }
+    let insert4A = {
+        text: el.saveDate,
+        border: [true, true, true, true],
+        width: 20,
+        alignment: "center",
+        fontSize: 6,
     }
   
     // if (el.siteforeman === true || el.siteforeman === 1) {
@@ -173,8 +200,11 @@ const runReport = (data) => {
     subDataInput.push(insert0);
     subDataInput.push(insert1);
     subDataInput.push(insert2);
+    subDataInput.push(insert2A);
     subDataInput.push(insert3);
+    subDataInput.push(insert3A);
     subDataInput.push(insert4);
+    subDataInput.push(insert4A);
     subDataInput.push(insert5);
 
     dataInput.push(subDataInput);
@@ -184,17 +214,24 @@ const runReport = (data) => {
   let header = [
     { text: "Category", style: "tableHeader", fontSize: 8 },
     { text: "Description", style: "tableHeader", fontSize: 8 },
-    { text: "Subcontractor", style: "tableHeader", fontSize: 8 },
-    { text: "Site Foreman", style: "tableHeader", fontSize: 8 },
+    { text: "Sub Contractor", style: "tableHeader", fontSize: 7 },
+    { text: "Date", style: "tableHeader", fontSize: 7 },
+    { text: "Site Foreman", style: "tableHeader", fontSize: 7 },
+    { text: "Date", style: "tableHeader", fontSize: 7 },
     {
       text: "Construction Manager",
       style: "tableHeader",
-      fontSize: 8,
+      fontSize: 7,
+    },
+    {
+      text: "Date",
+      style: "tableHeader",
+      fontSize: 7,
     },
     {
       text: "Comments",
       style: "tableHeader",
-      fontSize: 8,
+      fontSize: 7,
     },
   ];
 
@@ -247,7 +284,7 @@ const runReport = (data) => {
         table: {
           headerRows: 1,
           body: dataInput,
-          widths: [120, 230, 65, 65, 65, 180],
+          widths: [120, 230, 45,40, 45,40, 45,40, 100],
           border: [true, true, true, true],
         },
       },

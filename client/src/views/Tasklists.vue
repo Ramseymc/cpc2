@@ -3,7 +3,7 @@
     <br /><br /><br />
     <!-- <v-container fluid> -->
     <h2>Needs / Additions / Suggestions</h2>
-    <v-btn text @click="dialog = true">ADD TO LIST</v-btn>
+    <v-btn text @click="createTask">ADD TO LIST</v-btn>
     <v-row>
       <!-- <v-layout align-start justify-center> -->
       <v-col cols="8" offset="2">
@@ -100,7 +100,6 @@
                       "
                       :id="item.id"
                       @click="editTask"
-                    
                     >
                       <v-icon color="blue">mdi-file-edit</v-icon>
                     </v-btn>
@@ -124,7 +123,6 @@
             :group="group3"
             style="min-height: 10px"
             @change="items2Changed"
-            
           >
             <template v-for="item in items2">
               <v-list-item :key="item.id" ripple>
@@ -132,7 +130,9 @@
                   <v-icon large color="blue">{{ item.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-html="item.title"></v-list-item-title>
+                  <v-list-item-title
+                    v-html="item.taskTitle"
+                  ></v-list-item-title>
                   <v-list-item-subtitle
                     v-html="`${item.typeTask} - ${item.estimate}`"
                   ></v-list-item-subtitle>
@@ -214,15 +214,19 @@
                     v-model="text"
                     placeholder="Place description / explanation here"
                     :readonly="viewOnly"
+                    auto-grow
+                    outlined
+                    rows="1"
+                    row-height="15"
                   ></v-textarea>
                 </v-col>
-                 <v-col cols="12">
+                <v-col cols="12">
                   <v-text-field
                     label="Time Estimate"
                     required
                     v-model="estimate"
                     placeholder="Estimate of Time"
-                    v-if="userName = 'Wayne Bruton' || viewOnly"
+                    v-if="(userName = 'Wayne Bruton' || viewOnly)"
                     :readonly="viewOnly"
                   ></v-text-field>
                 </v-col>
@@ -247,7 +251,6 @@
         </v-card>
       </v-dialog>
     </v-row>
-
 
     <v-row justify="center">
       <v-dialog v-model="dialog1" persistent max-width="600px">
@@ -285,15 +288,19 @@
                     v-model="text"
                     placeholder="Place description / explanation here"
                     :readonly="viewOnly"
+                    auto-grow
+                    outlined
+                    rows="1"
+                    row-height="15"
                   ></v-textarea>
                 </v-col>
-                 <v-col cols="12">
+                <v-col cols="12">
                   <v-text-field
                     label="Time Estimate"
                     required
                     v-model="estimate"
                     placeholder="Estimate of Time"
-                    v-if="userName = 'Wayne Bruton' || viewOnly"
+                    v-if="(userName = 'Wayne Bruton' || viewOnly)"
                     :readonly="viewOnly"
                   ></v-text-field>
                 </v-col>
@@ -309,7 +316,7 @@
             <v-btn
               color="blue darken-1"
               text
-            @click="saveEditTask"
+              @click="saveEditTask"
               v-if="!viewOnly"
             >
               Save
@@ -351,7 +358,7 @@ export default {
       userName: this.$store.state.userName,
       editId: 0,
       title: "",
-      estimate: "1 Day",
+      estimate: "TBA",
       text: "",
       viewOnly: false,
       group1: "group",
@@ -428,8 +435,12 @@ export default {
   },
   mounted() {
     this.getTasks();
-    if (this.$store.state.userName === "Wayne Bruton" || this.$store.state.userName === "Wayne Bruton" || this.$store.state.userName === "Wayne Bruton") {
-      this.disabled = false
+    if (
+      this.$store.state.userName === "Wayne Bruton" ||
+      this.$store.state.userName === "Wynand Haywood" ||
+      this.$store.state.userName === "Dirk Coetzee"
+    ) {
+      this.disabled = false;
     }
     if (this.$store.state.userName === "Wayne Bruton") {
       this.group1 = "group";
@@ -519,6 +530,11 @@ export default {
           console.log(e);
         });
     },
+    createTask() {
+      this.text = "";
+      (this.title = ""), (this.estimate = "TBA");
+      this.dialog = true;
+    },
     async saveTask() {
       let insert = {
         development: this.$store.state.development.id,
@@ -526,7 +542,7 @@ export default {
         taskTitle: this.title,
         userName: this.userName,
         icon: "mdi-thought-bubble",
-        typeTask: "Suggested", 
+        typeTask: "Suggested",
         sortIndex: this.items1.length,
         estimate: this.estimate
       };
@@ -617,7 +633,7 @@ export default {
       this.viewOnly = true;
       this.title = filteredData[0].taskTitle;
       this.text = filteredData[0].taskText;
-      this.estimate = filteredData[0].estimate
+      this.estimate = filteredData[0].estimate;
       this.dialog = true;
     },
     editTask(event) {
@@ -628,21 +644,20 @@ export default {
       console.log(filteredData);
       this.title = filteredData[0].taskTitle;
       this.text = filteredData[0].taskText;
-      this.estimate = filteredData[0].estimate
-      this.editId = parseInt(event.currentTarget.id)
+      this.estimate = filteredData[0].estimate;
+      this.editId = parseInt(event.currentTarget.id);
       this.dialog1 = true;
     },
     saveEditTask() {
-      this.items1.forEach((el) => {
+      this.items1.forEach(el => {
         if (el.id === this.editId) {
-          console.log(el)
-          el.taskText = this.text
-          el.estimate = this.estimate
-          el.taskTitle = this.title
+          console.log(el);
+          el.taskText = this.text;
+          el.estimate = this.estimate;
+          el.taskTitle = this.title;
         }
-      })
-      this.dialog1 = false
-
+      });
+      this.dialog1 = false;
     },
     closeView() {
       this.dialog = false;

@@ -51,7 +51,7 @@ const runReport = (data) => {
       alignment: "left",
       // vLineWidth: 2,
     };
-    let insert2 = {
+    let insert3 = {
       border: [true, true, true, true],
       // fillColor: "#eeeeff",
       text: el.quantity,
@@ -60,10 +60,10 @@ const runReport = (data) => {
       // vLineWidth: 2,
     };
 
-    let insert3 = {
+    let insert2 = {
       border: [true, true, true, true],
       // fillColor: "#eeeeff",
-      text: el.unit,
+      text: `Block ${el.unitChosen.split('-')[0]}`,
       fontSize: 8,
       alignment: "center",
       // vLineWidth: 2,
@@ -151,8 +151,8 @@ const runReport = (data) => {
     //   // fillColor: "#0d989c",
     // },
     { text: "Description", style: "tableHeader", fontSize: 8 },
-    { text: "Qty", style: "tableHeader", fontSize: 8 },
     { text: "Unit", style: "tableHeader", fontSize: 8 },
+    { text: "Qty", style: "tableHeader", fontSize: 8 },
     {
       text: "Price",
       style: "tableHeader",
@@ -362,7 +362,7 @@ const runReport = (data) => {
         table: {
           headerRows: 1,
           body: dataInput,
-          widths: [120, 30, 60, 60, 60, 60, 60],
+          widths: [120, 60, 30, 60, 60, 60, 60],
           border: [true, true, true, true],
         },
 

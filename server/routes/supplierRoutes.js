@@ -356,10 +356,14 @@ router.post("/getInvoices", async (req, res) => {
     res.json(finalResponse);
    
   } catch (err) {
-  
+    try {
     console.log("ERR", err.response.body);
 
     res.json(err.response.body);
+    } catch (err) {
+      console.log(err)
+      res.json(err)
+    }
   }
 
 });

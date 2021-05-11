@@ -36,26 +36,26 @@ router.post("/sendEmailImage", (req, res) => {
   let subject = req.body.subject;
   let recipient = req.body.recipients;
   let output = req.body.message + `<br>`;
-  console.log(output)
+  console.log(output);
   let filename = `${req.body.development}${req.body.unit}.jpg`;
-  console.log(filename)
+  console.log(filename);
   let personToCC = req.body.sentBy;
   let complete = false;
 
   setTimeout(() => {
-    sendImageMail(subject, recipient, output, filename, personToCC).then(
-      console.log("SENT EMAIL")
-    ).catch((e) => {
-      console.log("ERROR", e)
-    })
+    sendImageMail(subject, recipient, output, filename, personToCC)
+      .then(console.log("SENT EMAIL"))
+      .catch((e) => {
+        console.log("ERROR", e);
+      });
     complete = true;
     res.json({ awesome: "It Works!!!" });
     setTimeout(() => {
-    fs.unlink(`public/${req.body.development}${req.body.unit}.jpg`, (err) => {
-      if (err) throw err;
-      console.log("FILES DELETED");
-    });
-  },3000)
+      fs.unlink(`public/${req.body.development}${req.body.unit}.jpg`, (err) => {
+        if (err) throw err;
+        console.log("FILES DELETED");
+      });
+    }, 3000);
   }, 750);
 });
 
@@ -168,9 +168,9 @@ router.post("/sendpurchaseorder", (req, res) => {
         let output = `Dear ${result[0].first_name} ${result[0].last_name},
         Please find attached abovementioned Purchase Order.<br><br><br>
         
-        <strong>Please would you supplier the items therein contained.</strong><br><br>
+        <strong>Please would you supply the items therein contained.</strong><br><br>
         
-
+        Please achknowledge receipt of this email
         Kind regards<br><br>
 
         <strong>Herbert du Plessis</strong><br>
@@ -190,7 +190,7 @@ router.post("/sendpurchaseorder", (req, res) => {
                 res.json({
                   success: true,
                   hello: "Goodbye",
-                  fileName: "fileName",
+                  fileName: recipient,
                 });
               }
             });
@@ -373,12 +373,12 @@ async function sendImageMail(subject, recipient, output, filename, personToCC) {
       // },
     ],
   };
-  console.log("MailOptions:",mailOptions)
+  console.log("MailOptions:", mailOptions);
   await transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log("Error with connection", error);
     } else {
-      console.log(info)
+      console.log(info);
     }
     // else {
 
@@ -482,6 +482,83 @@ async function sendBulkMail(subject, recipient, output, attachments) {
     // else {
 
     // }
+  });
+}
+
+let deliveryNotice;
+
+router.post("/deliveryVariance", (req, res) => {
+  console.log(req.body);
+  deliveryNotice = "";
+  // res.json({ Awesome: "It Works!!!" });
+  let filename = req.body.data[0].PONumber;
+  let text = "";
+  let length = req.body.data.length - 1;
+  req.body.data.forEach((el) => {
+    text = `${text} <li>${el.itemDescription} - delivered: ${el.delivered} expected: ${el.quantity} variance: ${el.difference}</li>`;
+    // if (index < length) {
+
+    // }
+  });
+
+  let subject = `Delivery Variance - ${filename}`;
+  let recipient = `${req.body.supplierToEmail[0].emailAddress}`;
+  let output = `Dear ${req.body.supplierToEmail[0].supplierName},<b></b>
+        There were variances on the following deliveries:<br>
+        
+        <ol>
+        ${text}
+        </ol>
+        
+        Please follow up and inform myself when we can expect the completed delivery.<br><br>
+        
+
+        Kind regards<br><br>
+
+        <strong>Herbert du Plessis</strong><br>
+        CPC<br><br>
+        `;
+  console.log(output);
+  // sendDeliveryVariance(subject, recipient, output, attachments)
+  sendDeliveryVariance(subject, recipient, output)
+    .then(() => {
+      setTimeout(() => {
+        console.log("deliveryNotice", deliveryNotice);
+        if (deliveryNotice === "error") {
+          res.json({ success: false });
+        } else {
+          res.json({ success: true });
+        }
+      }, 500);
+    })
+    .catch((e) => {
+      res.json({ success: false });
+    });
+});
+
+// async function sendDeliveryVariance(subject, recipient, output, attachments) {
+async function sendDeliveryVariance(subject, recipient, output) {
+  let mailOptions = {
+    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    to: `${recipient}`,
+    cc: [
+      "herbert@capeprojects.co.za",
+      // 'wynand@capeprojects.co.za',
+    ],
+    subject: `${subject}`,
+    text: "Hello world?",
+    html: output,
+    // attachments: attachments,
+  };
+
+  await transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      // console.log("Error with connection", error);
+      deliveryNotice = "error";
+    } else {
+      console.log(info);
+      deliveryNotice = "success";
+    }
   });
 }
 

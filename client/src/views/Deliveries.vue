@@ -184,7 +184,19 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="process"
+                @click="receiptAll"
+                v-if="
+                  this.desserts.length && this.supplier && this.purchaseOrder
+                "
+              >
+                Receipt All
+              </v-btn>
+              <v-spacer></v-spacer>
+
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="checkIfEmailNecessary"
                 v-if="
                   this.desserts.length && this.supplier && this.purchaseOrder
                 "
@@ -196,6 +208,27 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-dialog v-model="dialogEmail" max-width="500px">
+      <v-card>
+        <v-card-title class="headline"
+          >There are variances, do you wish to email the supplier?</v-card-title
+        >
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="closeEmailDialog">No</v-btn>
+          <v-btn color="blue darken-1" text @click="emailBeforeProcessDialog"
+            >OK</v-btn
+          >
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-snackbar v-model="snackbar" shaped top color="primary">
+      {{ snackbarMessage }}
+      <v-btn color="pink" text timeout="10000" @click="snackbar = false"
+        >Close</v-btn
+      >
+    </v-snackbar>
     <PDFViewer
       :fileName="showFileName"
       :dialog="showPDF"
@@ -241,11 +274,13 @@ export default {
       purchaseOrder: "",
       purchaseOrders: [],
       difference: 0,
+      snackbar: false,
+      snackbarMessage: "",
 
       // KKKKKKKKKKKKK
 
       dialog: false,
-      dialogDelete: false,
+      dialogEmail: false,
       headers: [
         {
           text: "Block",
@@ -257,7 +292,7 @@ export default {
           text: "Unit",
           align: "start",
           sortable: false,
-          value: "unitNumber"
+          value: "unit"
         },
         {
           text: "Delivery Date",
@@ -332,23 +367,73 @@ export default {
   },
 
   methods: {
-    async process() {
-      // console.log(this.desserts)
-      //     create table deliveries (
-      // id int auto_increment primary key,
-      // PONumber    varchar(15) not null,
-      // purchaseNumber Int not null,
-      // development int not null,
-      // supplier int not null,
-      // expectedDeliveryDate TIMESTAMP DEFAult now(),
-      // quantityExpected decimal(18,2) default 0.00,
-      // quantityDelivered decimal(18,2) default 0.00,
-      //  actualDeliveryDate TIMESTAMP DEFAult now(),
-      //  enteredBy varchar(160),
-      //  FOREIGN KEY (supplier) REFERENCES suppliers(id),
-      //  FOREIGN KEY (purchaseNumber) REFERENCES purchaseOrders(id),
-      // FOREIGN KEY (development) REFERENCES developments(id)
+    receiptAll() {
+      console.log(this.desserts);
+      this.desserts.forEach(el => {
+        el.delivered = el.quantity;
+        el.quantityDelivered = el.quantity;
+        el.quantityExpected = el.quantity;
+        el.difference = 0;
+      });
+    },
+    checkIfEmailNecessary() {
+      let variance = this.desserts.reduce((prev, el) => {
+        return prev + el.difference;
+      }, 0);
+      console.log("Variance", variance);
+      if (variance > 0) {
+        this.dialogEmail = true;
+      } else {
+        this.process();
+      }
+    },
+    async emailBeforeProcessDialog() {
+      console.log(this.supplier);
+      console.log(this.suppliers);
+      console.log(this.desserts);
+      let supplierToEmail = this.suppliers.filter(el => {
+        return el.supplierName === this.supplier;
+      });
+      let deliveryData = this.desserts.filter(el => {
+        return el.difference !== 0;
+      });
+      console.log(supplierToEmail);
+      let toPost = {
+        supplierToEmail,
+        data: deliveryData
+      };
+      await axios({
+        method: "post",
+        url: `${url}/deliveryVariance`,
+        data: toPost
+      }).then(
+        response => {
+          console.log("DATA", response.data);
+          if (response.data.success) {
+            this.snackbarMessage = "Email successfully sent!";
+          } else {
+            this.snackbarMessage =
+              "There was a connection problem, please try again later!";
+          }
+          this.snackbar = true;
+          this.process();
+          this.dialogEmail = false;
 
+          // this.desserts = [];
+          // this.purchaseOrder = "";
+
+          // this.purchaseOrders = response.data;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    closeEmailDialog() {
+      this.dialogEmail = false;
+      this.process();
+    },
+    async process() {
       let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.supplier;
       })[0].id;

@@ -1,15 +1,17 @@
 <template>
   <div>
-    <v-dialog v-model="mainDialog" persistent max-width="80%">
-      <v-card>
+    <v-dialog v-model="mainDialog" persistent width="80%">
+      <v-card width="100%">
         <v-card-title class="headline">
           EDIT PURCHASE ORDER
         </v-card-title>
         <v-data-table
+          style="height:100%"
           :headers="headers"
           :items="desserts"
           sort-by="calories"
           class="elevation-1"
+          scrollable
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -52,7 +54,7 @@
                 ><strong>{{ comments }}</strong></span
               >
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="700px">
+              <v-dialog v-model="dialog" max-width="900px">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     color="primary"
@@ -84,11 +86,13 @@
                             item-color="#0F0F0F"
                             @change="getUnits"
                           ></v-autocomplete> -->
-                          <v-text-field
-                            v-model="editedItem.supplier"
+                          <v-autocomplete
+                            v-model="supplierChosen"
                             label="supplier*"
-                            disabled
-                          ></v-text-field>
+                            :items="suppliers"
+                            item-text="supplierName"
+                            @change="changeSupplier"
+                          ></v-autocomplete>
                         </v-col>
                         <v-col class="d-flex" cols="12" sm="6">
                           <!-- v-model="subsectionChosen" -->
@@ -262,7 +266,7 @@
             Cancel
           </v-btn>
           <v-btn color="green darken-1" text @click="savePO">
-            UpdateXX
+            Update
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -401,10 +405,15 @@ export default {
   },
 
   methods: {
+    changeSupplier() {
+      this.editedItem.supplier = this.supplierChosen;
+    },
     async savePO() {
       let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.supplierChosen;
       });
+      console.log(supplier);
+      console.log(this.editedItem.supplier);
       this.desserts.forEach(el => {
         el.PONumber = this.PONumber;
         el.deliveryDate = this.date;
@@ -415,7 +424,7 @@ export default {
         el.supplierStreet = supplier[0].street_address;
         el.supplierVATNumber = supplier[0].vat_number;
       });
-      console.log(this.desserts)
+      console.log(this.desserts);
       let PODataInsert = this.desserts.filter(el => {
         return el.id === null || el.id === undefined;
       });
@@ -444,7 +453,7 @@ export default {
         stockItemsToAdd: this.stockItemsToAdd,
         stockItemsToUpdate: this.stockItemsToUpdate
       };
-      console.log(data)
+      console.log(data);
 
       await axios({
         method: "post",
@@ -526,12 +535,25 @@ export default {
       //    this.$emit("child-checkbox", this.checkbox);
     },
 
-    editItem(item) {
+    async editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.stockItemChosen = this.editedItem.description;
       this.supplier = this.editedItem.supplier;
       this.dialog = true;
+      console.log(this.desserts);
+      let data = {
+        id: this.$store.state.development.id
+      };
+      await axios({
+        method: "post",
+        url: `${url}/POInformation`,
+        data: data
+      })
+        .then(response => {
+          this.suppliers = response.data[0];
+        })
+        .catch(() => {});
     },
 
     deleteItem(item) {
@@ -566,7 +588,7 @@ export default {
     },
 
     save() {
-console.log(this.editedItem)
+      console.log(this.editedItem);
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
@@ -593,10 +615,10 @@ console.log(this.editedItem)
       let totalNett = this.desserts.reduce((acc, el) => {
         return acc + parseFloat(el.nett);
       }, 0);
-      console.log(this.editedIndex)
-      console.log(this.editedItem)
-      console.log(this.desserts)
-      
+      console.log(this.editedIndex);
+      console.log(this.editedItem);
+      console.log(this.desserts);
+
       this.totalNett = totalNett.toFixed(2);
       this.totalGross = this.convertToString(this.totalGross);
       this.totalVAT = this.convertToString(this.totalVAT);
@@ -691,3 +713,11 @@ console.log(this.editedItem)
   }
 };
 </script>
+
+<style scoped>
+>>> .v-table__overflow {
+  height: 99.9%;
+  max-height: 99.9%;
+  overflow-y: auto !important;
+}
+</style>

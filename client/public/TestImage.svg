@@ -1,0 +1,36 @@
+<svg width="297mm" height="210mm" version="1.1" viewBox="0 0 297 210" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g stroke="#050000">
+    <g stroke-width=".741">
+      <rect x="18.143" y="15.119" width="257.78" height="4.5357"/>
+      <rect x="18.143" y="19.655" width="4.5357" height="23.435"/>
+      <rect x="272.9" y="23.812" width="4.5357" height="23.435"/>
+      <rect x="272.9" y="19.655" width="3.0238" height="4.1577"/>
+      <rect x="18.899" y="67.28" width="6.0476" height="23.435"/>
+      <rect x="18.899" y="84.667" width="111.12" height="6.0476"/>
+      <rect x="147.41" y="83.911" width="127" height="5.2917"/>
+      <rect x="269.88" y="67.28" width="4.5357" height="45.357"/>
+      <rect x="59.72" y="63.5" width="5.2917" height="20.411"/>
+      <rect x="57.452" y="18.899" width="6.0476" height="13.607"/>
+      <rect x="130.78" y="19.655" width="5.2917" height="13.607"/>
+    </g>
+    <rect x="40.863" y="92.268" width="4.4521" height="94.41" stroke-width=".82457"/>
+    <g stroke-width=".741">
+      <rect x="272.9" y="154.21" width="3.7798" height="28.726"/>
+      <rect x="45.315" y="182.94" width="227.58" height="3.738"/>
+      <rect x="272.9" y="182.94" width="3.7798" height="3.738"/>
+      <rect x="110.37" y="142.12" width="3.7798" height="40.821"/>
+      <rect x="192.77" y="122.46" width="4.5357" height="60.476"/>
+      <rect x="114.15" y="139.85" width="21.923" height="2.2679"/>
+      <rect x="136.07" y="139.85" width=".37798" height="9.0714"/>
+    </g>
+  </g>
+</svg>

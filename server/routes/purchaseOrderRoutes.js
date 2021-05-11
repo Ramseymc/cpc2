@@ -36,8 +36,18 @@ router.post("/POEdit", (req, res) => {
   let mysqla = "";
   if (req.body.purchaseOrderToUpdate.length) {
     req.body.purchaseOrderToUpdate.forEach((el) => {
-      mysqla = `${mysqla} update purchaseOrders set subsection = ${el.subsection}, unitNumber = ${el.unitNumber}, supplier = ${el.supplierId}, reference = '${el.reference}', deliveryDate = '${el.deliveryDate}',
-        itemDescription = '${el.itemDescription}', quantity = ${el.quantity}, unitDescription = '${el.unitDescription}', unitCost = ${el.price}, totalCost = ${parseFloat(el.gross)}, vat = ${el.vat}, nettCost = ${el.nett} where id = ${el.id};`;
+      mysqla = `${mysqla} update purchaseOrders set subsection = ${
+        el.subsection
+      }, unitNumber = ${el.unitNumber}, supplier = ${
+        el.supplierId
+      }, reference = '${el.reference}', deliveryDate = '${el.deliveryDate}',
+        itemDescription = '${el.itemDescription}', quantity = ${
+        el.quantity
+      }, unitDescription = '${el.unitDescription}', unitCost = ${
+        el.price
+      }, totalCost = ${parseFloat(el.gross)}, vat = ${el.vat}, nettCost = ${
+        el.nett
+      } where id = ${el.id};`;
     });
   }
   let mysql1 = "";
@@ -200,10 +210,17 @@ router.post("/POInformationForEdit", (req, res) => {
 });
 
 router.post("/purchaseOrders", (req, res) => {
-  let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.comments, p.fulfilled,p.sentToSupplier, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost from purchaseOrders p, suppliers s
-    where p.supplier = s.id and p.development = ${req.body.id}
-    group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.comments, p.fulfilled, p.sentToSupplier
-    order by p.deliveryDate`;
+  let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.comments, p.fulfilled,p.sentToSupplier,coalesce(sum(d.quantityDelivered),0) as quantityDelivered,coalesce(sum(d.quantityExpected),0) as quantityExpected, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost
+  from  suppliers s, purchaseOrders p
+  left join deliveries d
+  on p.id = d.purchaseNumber
+     where p.supplier = s.id and p.development = ${req.body.id}
+     group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.comments, p.fulfilled, p.sentToSupplier
+     order by p.deliveryDate`;
+  // let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.comments, p.fulfilled,p.sentToSupplier, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost from purchaseOrders p, suppliers s
+  //   where p.supplier = s.id and p.development = ${req.body.id}
+  //   group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.comments, p.fulfilled, p.sentToSupplier
+  //   order by p.deliveryDate`;
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -222,7 +239,7 @@ router.post("/purchaseOrders", (req, res) => {
 });
 
 router.post("/POreceived", (req, res) => {
-  let mysql = `select  distinct s.supplierName, s.id from purchaseOrders p, suppliers s
+  let mysql = `select  distinct s.supplierName,s.emailAddress, s.id from purchaseOrders p, suppliers s
     where p.supplier = s.id and p.development = ${req.body.id} and p.fulfilled = false
     group by p.PONumber, s.supplierName, p.reference, p.deliveryDate, p.fulfilled
     order by s.supplierName`;
@@ -266,8 +283,15 @@ router.post("/PONumbers", (req, res) => {
 });
 
 router.post("/getPO", (req, res) => {
-  let mysql = `select  p.id,p.delivered, s.subsectionName as subsection,   p.PONumber,p.deliveryDate, p.itemDescription, p.reference, p.quantity, p.unitDescription, p.comments from purchaseOrders p, subsection s
-    where p.PONumber = '${req.body.poNumber}' and p.development = ${req.body.id} and p.fulfilled = false and p.subsection = s.id`;
+  // let mysql = `select  p.id,p.delivered, s.subsectionName as subsection,u.unitName as unitNumber,   p.PONumber,p.deliveryDate, p.itemDescription, p.reference, p.quantity, p.unitDescription, p.comments from purchaseOrders p, subsection s, units u
+  //   where p.PONumber = '${req.body.poNumber}' and p.development = ${req.body.id} and p.fulfilled = false and p.subsection = s.id  and p.unitNumber = u.id`;
+
+  let mysql = `select  p.id,p.delivered, s.subsectionName as subsection, u.unitName as unit,  p.PONumber,p.deliveryDate, p.itemDescription, p.reference, p.quantity, p.unitDescription, p.comments, d.id as deliveryId, d.quantityDelivered, d.quantityExpected from  subsection s, units u, purchaseOrders p
+    left join deliveries d
+    on p.id = d.purchaseNumber
+        where p.PONumber = '${req.body.poNumber}' and p.development = ${req.body.id} and p.fulfilled = false and p.subsection = s.id and p.unitNumber = u.id`;
+
+  console.log(mysql);
 
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -288,7 +312,7 @@ router.post("/getPO", (req, res) => {
 });
 
 router.post("/postdeliveries", (req, res) => {
-  console.log(req.body);
+  console.log("&*&*", req.body);
 
   let sql1 = "";
   let sql2 = "";
@@ -296,10 +320,14 @@ router.post("/postdeliveries", (req, res) => {
     sql1 =
       sql1 +
       `Update purchaseOrders set delivered = ${el.delivered}, fulfilled = ${el.fulfilled}, comments = '${el.comments}' where id = ${el.id};`;
-    sql2 =
-      sql2 +
-      `insert into deliveries (PONumber, purchaseNumber, development, supplier, expectedDeliveryDate, quantityExpected, quantityDelivered, enteredBy, comments) values 
+    if (el.deliveredPreviously === 0) {
+      sql2 =
+        sql2 +
+        `insert into deliveries (PONumber, purchaseNumber, development, supplier, expectedDeliveryDate, quantityExpected, quantityDelivered, enteredBy, comments) values 
                     ('${el.PONumber}', ${el.id}, ${el.development}, ${el.supplier}, '${el.deliveryDate}', ${el.quantity}, ${el.delivered}, '${el.enteredBy}', '${el.comments}');`;
+    } else {
+      sql2 = `${sql2} update deliveries set quantityDelivered = ${el.delivered}, quantityExpected = ${el.quantity} where purchaseNumber = ${el.id};`
+    }
   });
 
   let mysql = `${sql1}${sql2}`;
@@ -323,6 +351,28 @@ router.post("/postdeliveries", (req, res) => {
 router.post("/processInvoiceNumber", (req, res) => {
   console.log("HELLO", req.body);
   let mysql = `update purchaseOrders set invoiceNumber = '${req.body.invoiceNumber}', invoiceDate = '${req.body.invoiceDate}' where development = ${req.body.id} and PONumber = '${req.body.PONumber}' and fulfilled = true`;
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/pofulfilled", (req, res) => {
+  // console.log("HELLO", req.body);
+  // res.json({awesome: "It Works!!"})
+  let mysql = `update purchaseOrders set fulfilled = true where PONumber = '${req.body.info[0].PONumber}' and delivered > 0`;
+  console.log(mysql)
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -396,6 +446,99 @@ router.post("/getAllUnits", (req, res) => {
         console.log("THE ERROR", error);
       } else {
         console.log("RESULT", result);
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/getPOUnits", (req, res) => {
+  console.log(req.body.info);
+  console.log("#######################################");
+  let ids = "";
+  // let mysql = ''
+  if (req.body.info.length > 1) {
+    for (let i = 0; i < req.body.info.length; i++) {
+      if (i === 0) {
+        ids = `subsection = ${req.body.info[i]}`;
+      }
+      if (i < req.body.info.length && i > 0) {
+        ids = `${ids} or subsection = ${req.body.info[i]}`;
+      }
+      // if (i === req.body.info.length - 1) {
+      //   ids = `${ids} `
+      // }
+    }
+  } else {
+    ids = `subsection = ${req.body.info[0]}`;
+  }
+  let mysql = `select * from units where development = ${req.body.id} and ${ids}`;
+  console.log(mysql);
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        // console.log("RESULT", result);
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+
+router.post("/addStockItem", (req, res) => {
+  console.log(req.body);
+ 
+
+  // res.json({awesome: "It works!!!"})
+ let mysql = `insert into stockItems (itemCode, itemDescription, quantity, unitDescription, unitCost, totalCost, vat, nettCost) values (
+   '${req.body.itemCode}','${req.body.itemDescription}',${req.body.quantity},'${req.body.unitDescription}',${req.body.unitCost},${req.body.totalCost},${req.body.vat}, ${req.body.nettCost}
+ )`
+ console.log(mysql)
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        // console.log("RESULT", result);
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/getStock", (req, res) => {
+  console.log(req.body);
+ 
+
+  // res.json({awesome: "It works!!!"})
+ let mysql = `select * from stockItems order by itemDescription`;
+ console.log(mysql)
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        // console.log("RESULT", result);
         res.json(result);
       }
     });

@@ -512,6 +512,22 @@ export default {
       this.supplierToAdd = this.items.filter((el, index) => {
         return index === parseInt(event.currentTarget.id);
       })[0];
+      
+      let postalAddressArray = [];
+            let streetAddressArray = [];
+            let postalAddress = this.supplierToAdd.addresses[1];
+            let streetAddress = this.supplierToAdd.addresses[0];
+
+            for (var key of Object.keys(postalAddress)) {
+              postalAddressArray.push(key + " : " + postalAddress[key]);
+            }
+            this.supplierToAdd.postalAddress = postalAddressArray.join("\n");
+
+            for (var key1 of Object.keys(streetAddress)) {
+              streetAddressArray.push(key1 + " : " + streetAddress[key1]);
+            }
+            this.supplierToAdd.streetAddress = streetAddressArray.join("\n");
+
       console.log(this.supplierToAdd);
       this.dialog = true;
     },
@@ -745,6 +761,7 @@ export default {
               streetAddressArray.push(key1 + " : " + streetAddress[key1]);
             }
             this.supplierToAdd.streetAddress = streetAddressArray.join("\n");
+
 
             this.dialog = true;
           },

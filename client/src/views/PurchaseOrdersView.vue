@@ -69,7 +69,7 @@
               mdi-file-pdf-box
             </v-icon>
           </template>
-          <template v-slot:item.email="{ item }">
+          <!-- <template v-slot:item.email="{ item }">
             <v-icon
               v-if="item.sentToSupplier"
               :id="item.PONumber"
@@ -88,7 +88,7 @@
             >
               mdi-email
             </v-icon>
-          </template>
+          </template> -->
         </v-data-table>
       </v-col>
       <v-col class="mb-4" cols="10" offset="1">
@@ -125,6 +125,16 @@
               mdi-pencil
             </v-icon>
           </template>
+          <template v-slot:item.fulfilled="{ item }">
+            <v-icon
+              :id="item.PONumber"
+              class="mr-2"
+              color="red"
+              v-if="item.remainingTime < 1"
+            >
+              mdi-truck-delivery
+            </v-icon>
+          </template>
           <!-- <template v-slot:item.fulfilled="{ item }">
             <v-simple-checkbox
             color="black"
@@ -140,6 +150,17 @@
               color="red"
             >
               mdi-file-pdf-box
+            </v-icon>
+          </template>
+          <template v-slot:item.accept="{ item }">
+            <v-icon
+              v-if="item.quantityDelivered > 0"
+              :id="item.PONumber"
+              class="mr-2"
+              @click="fulfilledDialog = true"
+              color="blue"
+            >
+              mdi-archive-arrow-up
             </v-icon>
           </template>
           <template v-slot:item.trash="{ item }">
@@ -223,6 +244,25 @@
         >Close</v-btn
       >
     </v-snackbar>
+    <v-dialog v-model="fulfilledDialog" max-width="800px">
+      <v-card>
+        <v-card-title class="headline"
+          >Mark Entire Purchase order as fulfilled? Are you sure?</v-card-title
+        >
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="fulfilledDialog = false"
+            >No</v-btn
+          >
+          <v-spacer></v-spacer>
+
+          <v-btn color="blue darken-1" text @click="changeToFulfilled"
+            >Yes</v-btn
+          >
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <PurchaseOrderEdit
       v-if="showEdit"
       :mainDialog="showEdit"
@@ -253,7 +293,7 @@ export default {
     MaskedInput
   },
   metaInfo: {
-    title: "Retentions",
+    title: "Purchase Orders",
     titleTemplate: "CPC - %s",
     meta: [
       {
@@ -284,6 +324,7 @@ export default {
 
       consentUrl: "",
       dialog: false,
+      fulfilledDialog: false,
       invoiceNumber: "",
       poNumber: "",
       search: "",
@@ -294,15 +335,23 @@ export default {
           sortable: false,
           value: "PONumber"
         },
+        {
+          text: "late/Due",
+          align: "start",
+          sortable: false,
+          value: "fulfilled"
+        },
         { text: "Delivery", value: "deliveryDate" },
         { text: "Supplier", value: "supplierName" },
         { text: "Gross", value: "totalCost", align: "end" },
         { text: "VAT", value: "vat", align: "end" },
         { text: "Nett", value: "nettCost", align: "end" },
         { text: "Expected When", value: "timeLeft", align: "center" },
+        { text: "Delivered", value: "quantityDelivered", align: "center" },
         { text: "Pay Date", value: "expectedPayDate", align: "center" },
         // { text: "Fullfilled", value: "fulfilled", align: "center" },
         { text: "edit", value: "edit", sortable: false },
+        { text: "Accept", value: "accept", sortable: false },
         { text: "View", value: "actions", sortable: false },
         { text: "Email", value: "email", sortable: false },
         { text: "Delete", value: "trash", sortable: false }
@@ -327,12 +376,14 @@ export default {
         { text: "Gross", value: "totalCost", align: "end", width: 120 },
         { text: "VAT", value: "vat", align: "end", width: 120 },
         { text: "Nett", value: "nettCost", align: "end", width: 120 },
-        {
-          text: "Expected When",
-          value: "timeLeft",
-          align: "center",
-          width: 100
-        },
+        // {
+        //   text: "Expected When",
+        //   value: "timeLeft",
+        //   align: "center",
+        //   width: 100
+        // },
+        { text: "Delivered", value: "quantityDelivered", align: "center" },
+        { text: "Expected", value: "quantityExpected", align: "center" },
         {
           text: "Pay Date",
           value: "expectedPayDate",
@@ -354,8 +405,8 @@ export default {
         },
 
         { text: "invoice", value: "invoice", sortable: false },
-        { text: "View", value: "actions", sortable: false },
-        { text: "Email", value: "email", sortable: false }
+        { text: "View", value: "actions", sortable: false }
+        // { text: "Email", value: "email", sortable: false }
       ]
     };
   },
@@ -369,6 +420,39 @@ export default {
     await this.getInvoices();
   },
   methods: {
+    async changeToFulfilled() {
+      // console.log(this.items)
+      let itemsDelivered = this.items.filter(el => {
+        return (
+          el.quantityDelivered !== 0 &&
+          el.quantityDelivered < el.quantityExpected
+        );
+      });
+      // console.log(itemsDelivered)
+      let data = {
+        info: itemsDelivered
+      };
+      await axios({
+        method: "post",
+        url: `${url}/pofulfilled`,
+        data: data
+      })
+        .then(
+          response => {
+            console.log(response.data);
+            this.fulfilledDialog = false;
+
+            this.getPurchaseOrders();
+            // this.getInvoices();
+          },
+          error => {
+            console.log("the Error", error);
+          }
+        )
+        .catch(e => {
+          console.log(e);
+        });
+    },
     async deletePO(event) {
       console.log(event.currentTarget.id);
       let data = {
@@ -422,7 +506,7 @@ export default {
           response => {
             console.log(response.data);
             if (response.data.success) {
-              this.snackbarMessage = "Mail sent successfully";
+              this.snackbarMessage = `Mail sent successfully to ${response.data.fileName}`;
               this.snackbar = true;
               this.getPurchaseOrders();
             } else {
@@ -595,6 +679,9 @@ export default {
             this.items.forEach(el => {
               el.hrefCert = `${process.env.VUE_APP_BASEURL}/purchaseorders/${el.PONumber}.pdf`;
               el.deliveryDate = el.deliveryDate.substr(0, 10);
+              el.remainingTime = parseInt(
+                dayjs(el.deliveryDate).diff(dayjs(now), "day")
+              );
               el.timeLeft = `${dayjs(el.deliveryDate).diff(
                 dayjs(now),
                 "day"

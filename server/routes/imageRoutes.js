@@ -18,7 +18,7 @@ const fileFilter = function (req, file, cb) {
   cb(null, true);
 };
 
-let MAX_SIZE = 2000000;
+let MAX_SIZE = 10000000;
 const upload = multer({
   dest: "./public/uploads/",
   // dest: `${process.env.DRAFT_INITIAL_UPLOADS}`,

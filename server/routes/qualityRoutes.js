@@ -156,7 +156,7 @@ router.post("/uploadImage", upload.single("image"), (req, res) => {
 });
 
 router.post("/postQC", (req, res) => {
-  // console.log(req.body);
+  console.log(req.body);
   console.log(req.body.unit);
   console.log("file", req.file);
   // console.log(req.body.info)
@@ -192,7 +192,7 @@ router.post("/postQC", (req, res) => {
     });
   }
 
-  let mysql = `Insert into qcquestionnaireDone (development, section, unit, controlDate, controlTimestamp, shortName, name, category, comments, constructionManager, subcontractor, siteforeman, signedConstructionManager, signedSubcontractor, signedSiteforeman,signedConstructionManagerimage, signedSubcontractorimage, signedSiteforemanimage, image) values `;
+  let mysql = `Insert into qcquestionnaireDone (development, section, unit, controlDate, controlTimestamp, shortName, name, category, comments, constructionManager, subcontractor, siteforeman, signedConstructionManager, signedSubcontractor, signedSiteforeman,signedConstructionManagerimage, signedSubcontractorimage, signedSiteforemanimage,signedConstructionManagerDate, signedSubcontractorDate, signedSiteforemanDate, image) values `;
   let mysqlAdd = "";
   console.log(req.body.info);
   req.body.info.forEach((el, index) => {
@@ -210,6 +210,7 @@ router.post("/postQC", (req, res) => {
     ) {
       el.signedSubcontractorImage = `'${uniqueID}SC'`;
       el.signedSubcontractor = true;
+      el.signedSubcontractorDate = req.body.saveDate
     } else {
       // el.signedSubcontractorImage = null;
       el.signedSubcontractorImage = `'${el.signedSubcontractorImage}'`;
@@ -228,6 +229,7 @@ router.post("/postQC", (req, res) => {
     ) {
       el.signedConstructionManagerImage = `'${uniqueID}CM'`;
       el.signedConstructionManager = true;
+      el.signedConstructionManagerDate = req.body.saveDate
     } else {
       el.signedConstructionManagerImage = `'${el.signedConstructionManagerImage}'`;
       // el.signedConstructionManagerImage = null;
@@ -246,6 +248,7 @@ router.post("/postQC", (req, res) => {
     ) {
       el.signedSiteforemanImage = `'${uniqueID}SF'`;
       el.signedSiteforeman = true;
+      el.signedSiteforemanDate = req.body.saveDate
     } else {
       el.signedSiteforemanImage = `'${el.signedSiteforemanImage}'`;
       // el.signedSiteforemanImage = null;
@@ -253,10 +256,10 @@ router.post("/postQC", (req, res) => {
 
     if (index < length) {
       mysqlAdd = `${mysqlAdd} (${req.body.development}, "${req.body.section}", "${req.body.unit}", "${req.body.controlDate}", "${req.body.controlTimestamp}",
-                           "${el.shortName}", "${el.name}", "${el.category}", "${el.comments}", ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${el.signedConstructionManager}, ${el.signedSubcontractor}, ${el.signedSiteforeman}, ${el.signedConstructionManagerImage}, ${el.signedSubcontractorImage}, ${el.signedSiteforemanImage}, '${el.image}'),`;
+                           "${el.shortName}", "${el.name}", "${el.category}", "${el.comments}", ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${el.signedConstructionManager}, ${el.signedSubcontractor}, ${el.signedSiteforeman}, ${el.signedConstructionManagerImage}, ${el.signedSubcontractorImage}, ${el.signedSiteforemanImage}, '${el.signedConstructionManagerDate}', '${el.signedSubcontractorDate}', '${el.signedSiteforemanDate}','${el.image}'),`;
     } else {
       mysqlAdd = `${mysqlAdd} (${req.body.development}, "${req.body.section}", "${req.body.unit}", "${req.body.controlDate}", ${req.body.controlTimestamp},
-                           "${el.shortName}", "${el.name}", "${el.category}", "${el.comments}", ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${el.signedConstructionManager}, ${el.signedSubcontractor}, ${el.signedSiteforeman}, ${el.signedConstructionManagerImage}, ${el.signedSubcontractorImage}, ${el.signedSiteforemanImage},'${el.image}');`;
+                           "${el.shortName}", "${el.name}", "${el.category}", "${el.comments}", ${el.constructionManager}, ${el.subcontractor}, ${el.siteforeman}, ${el.signedConstructionManager}, ${el.signedSubcontractor}, ${el.signedSiteforeman}, ${el.signedConstructionManagerImage}, ${el.signedSubcontractorImage}, ${el.signedSiteforemanImage},'${el.signedConstructionManagerDate}', '${el.signedSubcontractorDate}', '${el.signedSiteforemanDate}','${el.image}');`;
     }
   });
   mysql = `${mysql}${mysqlAdd}`;
@@ -282,7 +285,7 @@ router.post("/postQC", (req, res) => {
 });
 
 router.post("/editQC", (req, res) => {
-  console.log(req.body.info);
+  console.log(req.body);
   let uniqueID = uniqid();
   if (req.body.scSignature !== "") {
     var image = req.body.scSignature;
@@ -329,6 +332,7 @@ router.post("/editQC", (req, res) => {
     ) {
       el.signedSubcontractorImage = `'${uniqueID}SC'`;
       el.signedSubcontractor = true;
+      el.signedSubcontractorDate = req.body.saveDate
     } else {
       el.signedSubcontractorImage = `'${el.signedSubcontractorImage}'`;
       // el.signedSubcontractorImage = null;
@@ -347,6 +351,7 @@ router.post("/editQC", (req, res) => {
     ) {
       el.signedConstructionManagerImage = `'${uniqueID}CM'`;
       el.signedConstructionManager = true;
+      el.signedConstructionManagerDate = req.body.saveDate
     } else {
       el.signedConstructionManagerImage = `'${el.signedConstructionManagerImage}'`;
       // el.signedConstructionManagerImage = null;
@@ -365,14 +370,15 @@ router.post("/editQC", (req, res) => {
     ) {
       el.signedSiteforemanImage = `'${uniqueID}SF'`;
       el.signedSiteforeman = true;
+      el.signedSiteforemanDate = req.body.saveDate
     } else {
       el.signedSiteforemanImage = `'${el.signedSiteforemanImage}'`;
       // el.signedSiteforemanImage = null;
     }
 
     mysql = `${mysql} update qcquestionnaireDone set development = ${req.body.development}, section = "${req.body.section}", unit =  "${req.body.unit}", controlDate =  "${req.body.controlDate}", controlTimestamp =  "${req.body.controlTimestamp}",
-            shortName =  "${el.shortName}", name = "${el.name}", category = "${el.category}", comments = "${el.comments}",constructionManager  =  ${el.constructionManager}, subcontractor = ${el.subcontractor}, siteforeman = ${el.siteforeman}, signedConstructionManager =  ${el.signedConstructionManager},  signedSubcontractor = ${el.signedSubcontractor}, signedSiteforeman = ${el.signedSiteforeman},signedSubcontractorimage = ${el.signedSubcontractorImage},signedSiteforemanimage = ${el.signedSiteforemanImage},signedConstructionManagerimage = ${el.signedConstructionManagerImage}, image = "${el.image}" 
-            where id = ${el.id};`;
+            shortName =  "${el.shortName}", name = "${el.name}", category = "${el.category}", comments = "${el.comments}",constructionManager  =  ${el.constructionManager}, subcontractor = ${el.subcontractor}, siteforeman = ${el.siteforeman}, signedConstructionManager =  ${el.signedConstructionManager},  signedSubcontractor = ${el.signedSubcontractor}, signedSiteforeman = ${el.signedSiteforeman},signedSubcontractorimage = ${el.signedSubcontractorImage},signedSiteforemanimage = ${el.signedSiteforemanImage},signedConstructionManagerimage = ${el.signedConstructionManagerImage},
+            signedConstructionManagerDate = '${el.signedConstructionManagerDate}',signedSubcontractorDate = '${el.signedSubcontractorDate}', signedSiteforemanDate = '${el.signedSiteforemanDate}', image = "${el.image}" where id = ${el.id};`;
   });
 
   // console.log(req.body.info)
