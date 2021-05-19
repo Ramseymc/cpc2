@@ -43,6 +43,14 @@ const runReport = (data) => {
   let subDataInput = [];
 
   data.forEach((el) => {
+    let insert1A = {
+      border: [true, true, true, true],
+      // fillColor: "#eeeeff",
+      text: el.itemCode,
+      fontSize: 6,
+      alignment: "left",
+      // vLineWidth: 2,
+    };
     let insert1 = {
       border: [true, true, true, true],
       // fillColor: "#eeeeff",
@@ -125,6 +133,7 @@ const runReport = (data) => {
     // };
     // subDataInput.push(insert7);
     // subDataInput.push(insert9);
+    subDataInput.push(insert1A);
     subDataInput.push(insert1);
     subDataInput.push(insert2);
     subDataInput.push(insert3);
@@ -150,6 +159,7 @@ const runReport = (data) => {
     //   fontSize: 8,
     //   // fillColor: "#0d989c",
     // },
+    { text: "Code", style: "tableHeader", fontSize: 8 },
     { text: "Description", style: "tableHeader", fontSize: 8 },
     { text: "Unit", style: "tableHeader", fontSize: 8 },
     { text: "Qty", style: "tableHeader", fontSize: 8 },
@@ -362,7 +372,7 @@ const runReport = (data) => {
         table: {
           headerRows: 1,
           body: dataInput,
-          widths: [120, 60, 30, 60, 60, 60, 60],
+          widths: [30, 100, 60, 30, 40, 60, 60, 60],
           border: [true, true, true, true],
         },
 

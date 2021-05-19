@@ -56,7 +56,7 @@
                         gravity="north"
                         y="20"
                       />
-                      <cld-transformation angle="3" />
+                      <!-- <cld-transformation angle="3" /> -->
                     </cld-image>
                   </div>
                   <v-spacer></v-spacer>

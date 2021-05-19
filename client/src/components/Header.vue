@@ -26,7 +26,7 @@
       Hello {{ this.$store.state.userName }}
     </h2>
     <v-spacer></v-spacer>
-    <v-btn color="red" :to="{ name: 'TaskList' }">Tasks</v-btn>
+    <!-- <v-btn color="red" :to="{ name: 'TaskList' }">Tasks</v-btn> -->
 
     <v-btn text v-if="this.$store.state.isLoggedIn" @click="logout">
       <span class="mr-2">Logout</span>
@@ -236,7 +236,7 @@ export default {
         color: "orange",
         items: [
           {
-            title: "Create Purchase Order",
+            title: "Create Requisition",
             name: "purchaseordercreate",
             icon: "mdi-shopping",
             role: 3,
@@ -438,7 +438,7 @@ export default {
       },
 
       {
-        title: "Create Purchase Order",
+        title: "Create Requisition",
         name: "purchaseordercreate",
         icon: "mdi-shopping",
         role: 3,
@@ -527,7 +527,7 @@ export default {
         color: "orange",
         items: [
           {
-            title: "Create Purchase Order",
+            title: "Create Requisition",
             name: "purchaseordercreate",
             icon: "mdi-shopping",
             role: 3,

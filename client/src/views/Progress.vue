@@ -1025,6 +1025,7 @@ export default {
         }).then(
           response => {
             console.log(response.data);
+
             if (response.data.remaining.length) {
               console.log(response.data);
               this.tasks = response.data.remaining;
@@ -1184,6 +1185,11 @@ export default {
               }
 
               this.itemsDuplicated = this.items;
+              if (this.tasks[0].progressID === null) {
+                console.log("CHECK", this.tasks);
+
+                this.saveProgressAll();
+              }
             } else {
               this.snackBarMessage = `There are no ${this.taskTypeChosen} tasks for this unit`;
               this.snackbar = true;

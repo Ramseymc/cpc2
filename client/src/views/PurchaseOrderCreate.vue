@@ -4,7 +4,7 @@
     <v-row justify="center">
       <v-card width="75%">
         <v-card-title>
-          <span class="headline">Create Purchase Order</span>
+          <span class="headline">Create Requisition</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -81,6 +81,7 @@
             :items="desserts"
             sort-by="calories"
             class="elevation-1"
+            :item-class="itemRowColor"
           >
             <template v-slot:top>
               <v-toolbar flat>
@@ -139,35 +140,55 @@
                               color="#0F0F0F"
                               item-color="#0F0F0F"
                               multiple
+                              @blur="filterStock"
                             ></v-autocomplete>
                           </v-col>
                           <v-col class="d-flex" cols="1" sm="1">
-                            <v-btn icon @click="dialogAdd = true">
+                            <v-btn
+                              icon
+                              @click="dialogAdd = true"
+                              style="margin-top: 12px;"
+                            >
                               <v-icon color="orange">mdi-wall</v-icon>
+                              <small>+</small>
                             </v-btn>
                           </v-col>
-                          <v-col class="d-flex" cols="12" sm="6">
+                          <v-col class="d-flex" cols="1" sm="1">
+                            <v-checkbox
+                              style="margin-top: 15px;"
+                              v-model="showReleventStock"
+                              label=""
+                              color="indigo"
+                            ></v-checkbox>
+                          </v-col>
+                          <v-col class="d-flex" cols="12" sm="5">
                             <v-autocomplete
                               v-model="stockItemChosen"
-                              :items="stockItems"
+                              :items="stockItemsFiltered"
                               label="Choose stock item*"
-                              item-text="itemDescription"
-                              dense
+                              item-text="siItemDescription"
                               item-color="#111d5e"
                               @change="chooseStockItem"
                               @blur="chooseStockItem"
                               clearable
                             ></v-autocomplete>
                           </v-col>
-                          <v-col cols="12" sm="6" md="4">
+                          <v-col cols="12" sm="3" md="3">
+                            <label style="color: red;"
+                              ><strong
+                                >Avail: {{ stockAvailable }}</strong
+                              ></label
+                            >
+                          </v-col>
+                          <v-col cols="12" sm="3" md="3">
                             <v-combobox
                               v-model="editedItem.unit"
                               :items="items"
                               label="Choose Unit Measure*"
-                              dense
                               item-color="#111d5e"
                             ></v-combobox>
                           </v-col>
+
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
                               v-model="editedItem.quantity"
@@ -179,7 +200,7 @@
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
                               v-model="editedItem.price"
-                              label="price*"
+                              label="rate*"
                               @change="chooseQuantity"
                               @blur="chooseStockItem"
                             ></v-text-field>
@@ -296,7 +317,7 @@
         </v-col>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="dialog = false">
+          <v-btn color="blue darken-1" text @click="clearData">
             Clear
           </v-btn>
           <v-btn
@@ -312,16 +333,6 @@
     </v-row>
     <v-row justify="center">
       <v-dialog v-model="dialogAdd" persistent max-width="600px">
-        <!-- <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Open Dialog
-        </v-btn>
-      </template> -->
         <v-card>
           <v-card-title>
             <span class="headline">Add StockItem</span>
@@ -465,14 +476,27 @@ export default {
       showSrc: "http://localhost:3000/Elec-Elec-001.pdf",
       showFileName: "Elec-Elec-001",
       hrefCert: "",
-
+      showReleventStock: false,
       supplier: null,
       suppliers: [],
       stockItems: [],
+      stockItemsDuplicated: [],
       date: new Date().toISOString().substr(0, 10),
       minDate: "",
       menu: false,
-      items: ["Each", "Roll", "l/m", "sqm", "hour"],
+      // items: ["Each", "Roll", "l/m", "sqm", "hour"],
+      items: [
+        "m",
+        "m²",
+        "m³",
+        "t",
+        "litre",
+        "Each",
+        "Item",
+        "No.",
+        "hour",
+        "day",
+      ],
       stockItemsToUpdate: [],
       stockItemsToAdd: [],
       stockItemToAdd: {
@@ -519,6 +543,13 @@ export default {
           width: 90,
         },
         {
+          text: "Stock Code",
+          align: "start",
+          sortable: false,
+          value: "itemCode",
+          width: 300,
+        },
+        {
           text: "Description",
           align: "start",
           sortable: false,
@@ -526,8 +557,9 @@ export default {
           width: 300,
         },
         { text: "Quantity", value: "quantity", width: 90, align: "end" },
+        { text: "Available", value: "available", width: 90, align: "end" },
         { text: "Unit", value: "unit", width: 90, align: "end" },
-        { text: "Price", value: "price", width: 90, align: "end" },
+        { text: "Rate", value: "price", width: 90, align: "end" },
         { text: "Gross", value: "gross", width: 90, align: "end" },
         { text: "Tax", value: "vat", width: 90, align: "end" },
         { text: "Nett", value: "nett", width: 90, align: "end" },
@@ -539,6 +571,8 @@ export default {
       editedItem: {
         block: "",
         unitChosen: "",
+        stockId: 0,
+        itemCode: "",
         description: "",
         quantity: 0,
         unit: "",
@@ -550,6 +584,8 @@ export default {
       defaultItem: {
         block: "",
         unitChosen: "",
+        stockId: 0,
+        itemCode: "",
         description: "",
         quantity: 0,
         unit: "",
@@ -558,11 +594,35 @@ export default {
         vat: 0,
         nett: 0,
       },
+      stockAvailable: 0,
     };
   },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
+    },
+    stockItemsFiltered() {
+      if (this.showReleventStock === false) {
+        return this.stockItems;
+      } else {
+        let stockFilter = this.editedItem.unitChosen;
+        let unitNumbers = [];
+        stockFilter.forEach((el) => {
+          unitNumbers.push(parseInt(el.split("-")[1]));
+        });
+        console.log(unitNumbers);
+        // const array = [
+        //   { id50: 1, bar: "test" },
+        //   { id50: 2, bar: "test2" },
+        //   { id50: 3, bar: "test3" },
+        // ];
+        // const ids = [1, 2];
+        // const result = array.filter(({ id50 }) => !ids.includes(id50));
+        return this.stockItems.filter(({ sbUnitNumber }) =>
+          unitNumbers.includes(sbUnitNumber)
+        );
+        // console.log(result);
+      }
     },
   },
 
@@ -583,6 +643,25 @@ export default {
   },
 
   methods: {
+    filterStock() {
+      this.showReleventStock = true;
+      console.log(this.stockItemsFiltered);
+      // let stockFilter = this.editedItem.unitChosen;
+      // let unitNumbers = [];
+      // stockFilter.forEach((el) => {
+      //   unitNumbers.push(parseInt(el.split("-")[1]));
+      // });
+      // console.log(unitNumbers);
+
+      // const result = this.stockItems.filter(({ sbUnitNumber }) =>
+      //   unitNumbers.includes(sbUnitNumber)
+      // );
+      // console.log(result);
+    },
+    clearData() {
+      this.dialog = false;
+      this.desserts = [];
+    },
     async addStockItem() {
       let supplier = this.suppliers.filter((el) => {
         return el.supplierName === this.stockItemToAdd.supplier;
@@ -634,9 +713,12 @@ export default {
         data: data,
       })
         .then((response) => {
-          console.log(response.data[2]);
+          console.log(response.data);
           this.suppliers = response.data[0];
-          this.stockItems = response.data[1];
+          // this.stockItems = response.data[1];
+          this.stockItems = response.data[3];
+          this.stockItemsDuplicated = response.data[3];
+          // console.log(this.stockItems);
           if (!response.data[2].length) {
             let PONumber = `PO-${this.$store.state.development.developmentName.substring(
               0,
@@ -675,6 +757,17 @@ export default {
         return el.supplierName === this.supplier;
       });
       let POData = [];
+      let stockData = [];
+      let overBudget = false;
+      for (const value of this.desserts) {
+        console.log(value.available); //value
+        if (parseInt(value.available) < parseInt(value.quantity)) {
+          overBudget = true;
+          break;
+        }
+      }
+      // console.log(overBudget)
+
       this.desserts.forEach((el) => {
         el.PONumber = this.PONumber;
         el.deliveryDate = this.date;
@@ -702,6 +795,8 @@ export default {
         insert.push(supplier[0].id);
         insert.push(this.reference);
         insert.push(this.date);
+        insert.push(el.stockId);
+        insert.push(el.itemCode);
         insert.push(el.description);
         insert.push(parseFloat(el.quantity));
         insert.push(el.unit);
@@ -709,16 +804,59 @@ export default {
         insert.push(parseFloat(el.gross));
         insert.push(parseFloat(el.vat));
         insert.push(parseFloat(el.nett));
+        insert.push(overBudget);
+        insert.push(parseFloat(el.available));
         POData.push(insert);
+
+        let stockInsert = [];
+
+        stockInsert.push(el.stockId);
+        stockInsert.push(parseFloat(el.quantity));
+        stockInsert.push(parseFloat(el.price));
+        stockInsert.push(parseFloat(el.gross));
+        stockInsert.push(parseFloat(el.vat));
+        stockInsert.push(parseFloat(el.nett));
+        stockInsert.push(supplier[0].id);
+        stockInsert.push(this.PONumber);
+        stockInsert.push(new Date().toISOString().substr(0, 10));
+        stockInsert.push(this.$store.state.development.id);
+        stockInsert.push(block[0].id);
+        // stockInsert.push(block[0].id)
+        if (el.unitChosen !== "" && el.unitChosen !== null) {
+          let unitChosenArray = el.unitChosen.split("-");
+          stockInsert.push(
+            parseInt(unitChosenArray[unitChosenArray.length - 1])
+          );
+        } else {
+          stockInsert.push(null);
+        }
+        stockData.push(stockInsert);
       });
-      console.log(this.stockItemsToAdd); //NEW STOCK ITEMS
+
+      //  stockItem int not null,
+      // quantityPurchased float not null,
+      // costPerItem decimal(18,2),
+      // totalCost decimal(18,2),
+      // vatAmount   decimal(18,2),
+      // nettCost decimal(18,2),
+      // supplier int,
+      // PONumber varchar(160),
+      // invoiceNumber   varchar(160), //NOT THIS AS YET
+      // datePurchased TIMESTAMP default now(),
+      // development int,
+      // section int,
+      // unitNumber int,
+      // console.log(this.stockItemsToAdd); //NEW STOCK ITEMS
       console.log(this.stockItemsToUpdate); //AMEND STOCK ITEMS
       let data = {
         purchaseOrderPDFData: this.desserts,
         purchaseOrderToProcess: POData,
-        stockItemsToAdd: this.stockItemsToAdd,
+        stockPurchases: stockData,
+        // stockItemsToAdd: this.stockItemsToAdd,
         stockItemsToUpdate: this.stockItemsToUpdate,
       };
+      console.log(this.desserts);
+
       await axios({
         method: "post",
         url: `${url}/POPosting`,
@@ -726,6 +864,7 @@ export default {
       }).then(
         (response) => {
           console.log(response.data);
+
           this.hrefCert = response.data.hrefCert;
           setTimeout(() => {
             this.getPDF();
@@ -828,18 +967,37 @@ export default {
         ).toFixed(2);
       }
     },
-    chooseStockItem() {
-      if (
-        typeof this.stockItemChosen === "object" &&
-        this.stockItemChosen !== null
-      ) {
-        this.editedItem.description = this.stockItemChosen.itemDescription;
+    async chooseStockItem() {
+      console.log(this.stockItemChosen);
 
-        // this.editedItem.unit = this.stockItemChosen.unit;
-        this.editedItem.price = this.stockItemChosen.unitCost.toFixed(2);
-      } else {
-        this.editedItem.description = this.stockItemChosen;
-      }
+      let stockFilter = this.editedItem.unitChosen;
+      let unitNumbers = [];
+      stockFilter.forEach((el) => {
+        unitNumbers.push(parseInt(el.split("-")[1]));
+      });
+      console.log(unitNumbers);
+
+      const result = this.stockItems
+        .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
+        .filter((el) => {
+          return el.siItemDescription === this.stockItemChosen;
+        })
+        .reduce((prev, current) => {
+          return prev + current.available;
+        }, 0);
+      console.log("RESULT:", result);
+      this.stockAvailable = result;
+      const result2 = this.stockItems
+        .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
+        .filter((el) => {
+          return el.siItemDescription === this.stockItemChosen;
+        });
+      console.log("result 2",result2);
+      this.editedItem.price = result2[0].sbCostPerItem;
+      this.editedItem.itemCode = result2[0].siItemCode
+      this.editedItem.description = result2[0].siItemDescription
+      this.editedItem.stockId = result2[0].siId
+      console.log("Edited Item",this.editedItem)
     },
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
@@ -874,8 +1032,9 @@ export default {
       });
     },
 
-    save() {
+    async save() {
       console.log(this.editedItem.unitChosen);
+      this.stockAvailable = 0;
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
@@ -893,6 +1052,8 @@ export default {
             let insert = {
               block: block[0].subsectionName,
               unitChosen: el,
+              stockId: this.editedItem.stockId,
+              itemCode: this.editedItem.itemCode,
               description: this.editedItem.description,
               quantity: this.editedItem.quantity,
               unit: this.editedItem.unit,
@@ -914,6 +1075,8 @@ export default {
           let insert = {
             block: block[0].subsectionName,
             unitChosen: this.editedItem.unitChosen[0],
+            stockId: this.editedItem.stockId,
+            itemCode: this.editedItem.itemCode,
             description: this.editedItem.description,
             quantity: this.editedItem.quantity,
             unit: this.editedItem.unit,
@@ -925,6 +1088,34 @@ export default {
           this.desserts.push(insert);
         }
       }
+      this.desserts.forEach((el) => {
+        let unit = [];
+        let unitChosen = el.unitChosen;
+        unit.push(unitChosen);
+        let data = {
+          id: this.editedItem.stockId,
+          unit: unit,
+        };
+        axios({
+          method: "post",
+          url: `${url}/getBudget`,
+          data: data,
+        }).then(
+          (response) => {
+            console.log(response.data);
+            console.log(response.data[0][0]);
+            console.log(response.data[1][0]);
+            el.available =
+              response.data[0][0].quantity - response.data[1][0].quantity;
+            el.quantity = parseInt(el.quantity);
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+      });
+      console.log("CheckOut", this.desserts);
+
       if (
         typeof this.stockItemChosen === "object" &&
         this.stockItemChosen !== null
@@ -951,6 +1142,12 @@ export default {
       this.totalVAT = this.convertToString(this.totalVAT);
       this.totalNett = this.convertToString(this.totalNett);
       this.close();
+    },
+    itemRowColor(item) {
+      //CHANGES ROW COLOR WHEN TASK BEHIND SCGEDULE
+      if (item.available < item.quantity) {
+        return "yellow accent-2";
+      }
     },
   },
 };

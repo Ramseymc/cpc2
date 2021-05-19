@@ -3,7 +3,7 @@ const chalk = require("chalk");
 
 
 function jwtSignUser(user) {
-  const ONE_WEEK = 60 * 60 * 24 * 7;
+  const ONE_WEEK = 60 * 60 * 24 * 1;
   return jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: ONE_WEEK,
   });

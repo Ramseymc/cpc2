@@ -1,17 +1,17 @@
 <template>
   <div>
     <v-dialog v-model="mainDialog" persistent width="80%">
-      <v-card width="100%">
+      <v-card>
         <v-card-title class="headline">
-          EDIT PURCHASE ORDER
+          EDIT REQUISITION
         </v-card-title>
+
         <v-data-table
-          style="height:100%"
           :headers="headers"
           :items="desserts"
           sort-by="calories"
           class="elevation-1"
-          scrollable
+          :item-class="itemRowColor"
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -23,9 +23,6 @@
                   v-model="menu"
                   :close-on-content-click="false"
                   :return-value.sync="date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
@@ -75,23 +72,13 @@
                     <v-container>
                       <v-row>
                         <v-col class="d-flex" cols="12" sm="6">
-                          <!-- v-model="subsectionChosen" -->
-                          <!-- <v-autocomplete
-                            v-model="editedItem.supplier"
-                            :items="suppliers"
-                            item-text="supplierName"
-                            label="Choose Supplier*"
-                            prepend-icon="mdi-tag-heart"
-                            color="#0F0F0F"
-                            item-color="#0F0F0F"
-                            @change="getUnits"
-                          ></v-autocomplete> -->
                           <v-autocomplete
                             v-model="supplierChosen"
                             label="supplier*"
                             :items="suppliers"
                             item-text="supplierName"
                             @change="changeSupplier"
+                            prepend-icon="mdi-truck-delivery"
                           ></v-autocomplete>
                         </v-col>
                         <v-col class="d-flex" cols="12" sm="6">
@@ -101,7 +88,7 @@
                             :items="subsection"
                             item-text="subsectionName"
                             label="Choose Block*"
-                            prepend-icon="mdi-tag-heart"
+                            prepend-icon="mdi-office-building"
                             color="#0F0F0F"
                             item-color="#0F0F0F"
                             @change="getUnits"
@@ -115,16 +102,22 @@
                             item-text="unitName"
                             label="Choose Unit"
                             clearable
-                            prepend-icon="mdi-tag-heart"
+                            prepend-icon="mdi-home-analytics"
                             color="#0F0F0F"
                             item-color="#0F0F0F"
                           ></v-autocomplete>
                         </v-col>
-                        <v-col class="d-flex" cols="12" sm="6">
+                        <v-col class="d-flex" cols="1" sm="1">
+                          <v-btn icon @click="dialogAdd = true">
+                            <v-icon color="orange">mdi-wall</v-icon>
+                            <small>Add</small>
+                          </v-btn>
+                        </v-col>
+                        <v-col class="d-flex" cols="12" sm="5">
                           <v-combobox
                             v-model="stockItemChosen"
                             :items="stockItems"
-                            label="Choose or enter new stock item*"
+                            label="Choose  stock item*"
                             item-text="itemDescription"
                             dense
                             item-color="#111d5e"
@@ -152,7 +145,7 @@
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
                             v-model="editedItem.price"
-                            label="price*"
+                            label="rate*"
                             @change="chooseQuantity"
                             @blur="chooseStockItem"
                           ></v-text-field>
@@ -231,12 +224,8 @@
               mdi-delete
             </v-icon>
           </template>
-          <!-- <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">
-              Reset
-            </v-btn>
-          </template> -->
         </v-data-table>
+
         <v-col cols="12" sm="12" md="12">
           <div style="display:flex;">
             <v-text-field
@@ -271,6 +260,121 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-row justify="center">
+      <v-dialog v-model="dialogAdd" persistent max-width="600px">
+        <v-card>
+          <v-card-title>
+            <span class="headline">Add StockItem</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-autocomplete
+                    label="Supplier*"
+                    v-model="stockItemToAdd.supplier"
+                    :items="suppliers"
+                    item-text="supplierName"
+                    required
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="6" md="6">
+                  <v-text-field
+                    label="Stock Code*"
+                    v-model="stockItemToAdd.itemCode"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="8" md="8">
+                  <v-text-field
+                    label="Description"
+                    v-model="stockItemToAdd.itemDescription"
+                    hint="example of helper text only on focus"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    label="Quantity*"
+                    v-model="stockItemToAdd.quantity"
+                    hint="example of persistent helper text"
+                    type="number"
+                    required
+                    @blur="calculateCost"
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-autocomplete
+                    v-model="stockItemToAdd.unitDescription"
+                    :items="items"
+                    label="unit Measure"
+                    @blur="calculateCost"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.unitCost"
+                    type="number"
+                    label="unitCost"
+                    required
+                    @blur="calculateCost"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.totalCost"
+                    type="number"
+                    label="total Cost"
+                    required
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.vat"
+                    type="number"
+                    label="VAT"
+                    required
+                    readonly
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field
+                    v-model="stockItemToAdd.nettCost"
+                    type="number"
+                    label="nett Cost"
+                    required
+                    readonly
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+            <small>*indicates required field</small>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="dialogAdd = false">
+              Close
+            </v-btn>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="addStockItem"
+              v-if="
+                stockItemToAdd.supplier !== '' &&
+                  stockItemToAdd.itemCode !== '' &&
+                  stockItemToAdd.itemDescription !== '' &&
+                  stockItemToAdd.unitCost !== 0 &&
+                  stockItemToAdd.quantity !== 0 &&
+                  stockItemToAdd.unitDescription !== ''
+              "
+            >
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
 </template>
 
@@ -293,9 +397,31 @@ export default {
     unitChosen: "",
     stockItems: [],
     stockItemChosen: null,
-    items: ["Each", "Roll", "l/m", "sqm"],
+    items: [
+      "m",
+      "m²",
+      "m³",
+      "t",
+      "litre",
+      "Each",
+      "Item",
+      "No.",
+      "hour",
+      "day"
+    ],
     stockItemsToUpdate: [],
     stockItemsToAdd: [],
+    stockItemToAdd: {
+      supplier: "",
+      itemCode: "",
+      itemDescription: "",
+      quantity: 1,
+      unitDescription: "",
+      unitCost: 0,
+      totalCost: 0,
+      vat: 0,
+      nettCost: 0
+    },
     totalGross: 0,
     totalVAT: 0,
     comments: "",
@@ -306,7 +432,9 @@ export default {
 
     dialog: false,
     dialogDelete: false,
+    dialogAdd: false,
     headers: [
+      { text: "Actions", value: "actions", sortable: false },
       {
         text: "Supplier",
         align: "start",
@@ -329,19 +457,26 @@ export default {
         width: 90
       },
       {
+        text: "Stock Code",
+        align: "start",
+        sortable: false,
+        value: "itemCode",
+        width: 100
+      },
+      {
         text: "Description",
         align: "start",
         sortable: false,
         value: "description",
-        width: 300
+        width: 120
       },
-      { text: "Quantity", value: "quantity", width: 90, align: "end" },
+      { text: "Quantity", value: "quantity", width: 50, align: "end" },
+      { text: "Available", value: "available", width: 90, align: "end" },
       { text: "Unit", value: "unit", width: 90, align: "end" },
-      { text: "Price", value: "price", width: 90, align: "end" },
+      { text: "Rate", value: "price", width: 90, align: "end" },
       { text: "Gross", value: "gross", width: 90, align: "end" },
       { text: "Tax", value: "vat", width: 90, align: "end" },
-      { text: "Nett", value: "nett", width: 90, align: "end" },
-      { text: "Actions", value: "actions", sortable: false }
+      { text: "Nett", value: "nett", width: 90, align: "end" }
     ],
     desserts: [],
     editedIndex: -1,
@@ -349,6 +484,7 @@ export default {
       supplier: "",
       block: "",
       unitChosen: "",
+      itemCode: "",
       description: "",
       quantity: 0,
       unit: "",
@@ -361,6 +497,7 @@ export default {
       supplier: "",
       block: "",
       unitChosen: "",
+      itemCode: "",
       description: "",
       quantity: 0,
       unit: "",
@@ -405,10 +542,59 @@ export default {
   },
 
   methods: {
+    async addStockItem() {
+      let supplier = this.suppliers.filter(el => {
+        return el.supplierName === this.stockItemToAdd.supplier;
+      });
+      console.log(supplier);
+      console.log(this.stockItemToAdd);
+      this.stockItemToAdd.supplier = supplier[0].id;
+      let data = this.stockItemToAdd;
+      await axios({
+        method: "post",
+        url: `${url}/addStockItem`,
+        data: data
+      })
+        .then(response => {
+          console.log(response.data);
+          this.getUpdatedStock();
+        })
+        .catch(() => {});
+    },
+    async getUpdatedStock() {
+      await axios({
+        method: "post",
+        url: `${url}/getStock`
+      })
+        .then(response => {
+          console.log(response.data);
+          this.stockItems = response.data;
+          this.dialogAdd = false;
+        })
+        .catch(() => {});
+    },
+    calculateCost() {
+      this.stockItemToAdd.totalCost =
+        this.stockItemToAdd.quantity * this.stockItemToAdd.unitCost;
+      this.stockItemToAdd.vat = this.stockItemToAdd.totalCost * 0.15;
+      this.stockItemToAdd.nettCost =
+        this.stockItemToAdd.totalCost + this.stockItemToAdd.vat;
+      this.stockItemToAdd.totalCost = this.stockItemToAdd.totalCost.toFixed(2);
+      this.stockItemToAdd.vat = this.stockItemToAdd.vat.toFixed(2);
+      this.stockItemToAdd.nettCost = this.stockItemToAdd.nettCost.toFixed(2);
+    },
     changeSupplier() {
       this.editedItem.supplier = this.supplierChosen;
     },
     async savePO() {
+      let overBudget = false;
+      for (const value of this.desserts) {
+        console.log(value.available); //value
+        if (parseInt(value.available) < parseInt(value.quantity)) {
+          overBudget = true;
+          break;
+        }
+      }
       let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.supplierChosen;
       });
@@ -423,6 +609,7 @@ export default {
         el.supplierPostal = supplier[0].postal_address;
         el.supplierStreet = supplier[0].street_address;
         el.supplierVATNumber = supplier[0].vat_number;
+        el.overBudget = overBudget;
       });
       console.log(this.desserts);
       let PODataInsert = this.desserts.filter(el => {
@@ -482,7 +669,18 @@ export default {
         .then(response => {
           console.log(response.data);
           this.desserts = response.data;
+
           this.desserts.forEach(el => {
+            // let unit = [];
+            // let unitChosen = `${el.unitChosen}-${el.unitNumber}`;
+            // unit.push(unitChosen);
+            // let data = {
+            //   id: el.stockId,
+            //   unit: unit,
+            //   poId: el.id,
+            // };
+
+            // this.getBudgetted(data);
             el.supplier = this.suppliers.filter(el4 => {
               return el4.id === el.supplier;
             })[0].supplierName;
@@ -504,6 +702,7 @@ export default {
             el.gross = el.totalCost;
             el.nett = el.nettCost;
           });
+          console.log(this.desserts);
           this.comments = this.desserts[0].comments;
           this.deliveryDate = this.desserts[0].deliveryDate.substr(0, 10);
           this.date = this.deliveryDate;
@@ -527,7 +726,37 @@ export default {
           this.totalNett = this.convertToString(this.totalNett);
         })
         .catch(() => {});
+      // this.desserts.forEach((el) => {
+
+      // });
+
       //   this.getSubsections();
+      // setTimeout(() => {
+      //   this.$nextTick(() => {
+      //     this.getBudgetted();
+      //   });
+      // }, 1000);
+    },
+    async getBudgetted(data) {
+      await axios({
+        method: "post",
+        url: `${url}/getBudget`,
+        data: data
+      }).then(
+        response => {
+          this.desserts.forEach(el => {
+            if (el.id === data.poId) {
+              el.available =
+                response.data[0][0].quantity - response.data[1][0].quantity;
+              el.quantity = parseInt(el.quantity);
+            }
+          });
+        },
+        error => {
+          console.log(error);
+        }
+      );
+      // });
     },
     closeEdit() {
       //   this.mainDialog = false
@@ -700,14 +929,28 @@ export default {
       }
     },
     chooseStockItem() {
+      console.log(this.stockItemChosen);
       if (
         typeof this.stockItemChosen === "object" &&
         this.stockItemChosen !== null
       ) {
         this.editedItem.description = this.stockItemChosen.itemDescription;
         this.editedItem.price = this.stockItemChosen.unitCost.toFixed(2);
+        this.editedItem.itemCode = this.stockItemChosen.itemCode;
       } else {
+        let stockFilter = this.stockItems.filter(el => {
+          return this.stockItemChosen === el.itemDescription;
+        });
+        console.log("stockFilter", stockFilter);
+        this.editedItem.price = stockFilter[0].unitCost;
+        this.editedItem.itemCode = stockFilter[0].itemCode;
         this.editedItem.description = this.stockItemChosen;
+      }
+    },
+    itemRowColor(item) {
+      //CHANGES ROW COLOR WHEN TASK BEHIND SCGEDULE
+      if (item.available < item.quantity) {
+        return "yellow accent-2";
       }
     }
   }

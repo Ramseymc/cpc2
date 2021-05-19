@@ -46,8 +46,8 @@ create table units (
 );
 
 insert into units (development, subsection, unitName) values 
-(1,	1,	'A101'),
-(1,	1,	'A102'),
+(1,	1,	'C101'),
+(1,	1,	'C102'),
 (1,	1,	'A103'),
 (1,	1,	'A104'),
 (1,	1,	'A105'),
@@ -1356,6 +1356,9 @@ insert into qcquestionnaireTemplate (shortName, category, name) values
 
 alter table stockItems add itemCode  varchar(160) after id;
 alter table stockItems add pushedToXero  BOOLEAN default false;
+alter table purchaseOrders add itemCode  varchar(160) after deliveryDate;
+
+
 
 create table stockPurchased (
     id int auto_increment primary key,
@@ -1397,17 +1400,48 @@ create table stockBudget (
     FOREIGN KEY (development) REFERENCES developments(id)
 );
 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
 insert into stockBudget (stockItem, quantityBudgetted, costPerItem, totalCost, vatAmount, nettCost, supplier, datePurchased, development, section, unitNumber) values
-(329,	14,	70,	980,	147,	1127,	18,	'2021-05-14',	1,	6,	143),
-(330,	4,	35,	140,	21,	161,	18,	'2021-05-14',	1,	6,	143),
-(331,	27,	66.8,	1803.6,	270.54,	2074.14,	18,	'2021-05-14',	1,	6,	143),
-(332,	15000,	2,	30000,	4500,	34500,	18,	'2021-05-14',	1,	6,	143),
-(333,	1010,	1,	1010,	151.5,	1161.5,	18,	'2021-05-14',	1,	6,	143),
-(334,	21,	46,	966,	144.9,	1110.9,	18,	'2021-05-14',	1,	6,	143),
-(335,	2,	82.69,	165.38,	24.807,	190.187,	18,	'2021-05-14',	1,	6,	143),
-(336,	15,	15,	225,	33.75,	258.75,	18,	'2021-05-14',	1,	6,	143),
-(337,	97,	9,	873,	130.95,	1003.95,	18,	'2021-05-14',	1,	6,	143),
-(338,	479,	2.4,	1149.6,	172.44,	1322.04,	18,	'2021-05-14',	1,	6,	143);
+(329,	14,	70,	980,	147,	1127,	18,	'2021-05-14',	1,	6,	55),
+(330,	4,	35,	140,	21,	161,	18,	'2021-05-14',	1,	6,	55),
+(331,	27,	66.8,	1803.6,	270.54,	2074.14,	18,	'2021-05-14',	1,	6,	55),
+(332,	15000,	2,	30000,	4500,	34500,	18,	'2021-05-14',	1,	6,	55),
+(333,	1010,	1,	1010,	151.5,	1161.5,	18,	'2021-05-14',	1,	6,	55),
+(334,	21,	46,	966,	144.9,	1110.9,	18,	'2021-05-14',	1,	6,	55),
+(335,	2,	82.69,	165.38,	24.807,	190.187,	18,	'2021-05-14',	1,	6,	55),
+(336,	15,	15,	225,	33.75,	258.75,	18,	'2021-05-14',	1,	6,	55),
+(337,	97,	9,	873,	130.95,	1003.95,	18,	'2021-05-14',	1,	6,	55),
+(338,	479,	2.4,	1149.6,	172.44,	1322.04,	18,	'2021-05-14',	1,	6,	55);
+
+alter table purchaseOrders add stockId  int after deliveryDate;
+
+drop table stockPurchased;
+
+create table stockPurchased (
+    id int auto_increment primary key,
+    stockItem int not null,
+    quantityPurchased float not null,
+    costPerItem decimal(18,2),
+    totalCost decimal(18,2),
+    vatAmount   decimal(18,2),
+    nettCost decimal(18,2),
+    supplier int,
+    PONumber varchar(160),
+    invoiceNumber   varchar(160), 
+    datePurchased TIMESTAMP default now(),
+    development int,
+    section int,
+    unitNumber int,
+    FOREIGN KEY (supplier) REFERENCES suppliers(id),
+    FOREIGN KEY (unitNumber) REFERENCES units(id),
+    FOREIGN KEY (development) REFERENCES developments(id)
+);
+
+##########################################################
+
+alter table purchaseOrders add overBudget  BOOLEAN default false;
+alter table purchaseOrders add available  float default 0;
 
 
 

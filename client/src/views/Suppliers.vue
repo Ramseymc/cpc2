@@ -6,7 +6,7 @@
           <h3 v-if="suppliersInApp.length">Suppliers in App</h3>
         </v-col>
         <br />
-        <v-col cols="8" offset="2">
+        <v-col cols="10" offset="1">
           <v-card color="#0F0F0F" v-if="suppliersInApp.length">
             <v-toolbar color="#0F0F0F" height="85" dark>
               <v-spacer></v-spacer>
@@ -29,11 +29,21 @@
                     <div style="display: flex;">
                       <v-list-item-title
                         class="text-left"
+                        v-text="item.id"
+                      ></v-list-item-title>
+                      <v-list-item-title
+                        class="text-left"
                         v-text="item.supplierName"
                       ></v-list-item-title>
                       <v-list-item-subtitle
                         class="text-left"
                         v-text="'Vat Vendor: ' + item.vatVendor"
+                      ></v-list-item-subtitle>
+                      <v-list-item-subtitle
+                        class="text-left"
+                        v-text="
+                          item.isSubcontractor ? 'Subcontractor' : 'Supplier'
+                        "
                       ></v-list-item-subtitle>
                       <v-list-item-subtitle
                         class="text-left"
@@ -512,21 +522,21 @@ export default {
       this.supplierToAdd = this.items.filter((el, index) => {
         return index === parseInt(event.currentTarget.id);
       })[0];
-      
+
       let postalAddressArray = [];
-            let streetAddressArray = [];
-            let postalAddress = this.supplierToAdd.addresses[1];
-            let streetAddress = this.supplierToAdd.addresses[0];
+      let streetAddressArray = [];
+      let postalAddress = this.supplierToAdd.addresses[1];
+      let streetAddress = this.supplierToAdd.addresses[0];
 
-            for (var key of Object.keys(postalAddress)) {
-              postalAddressArray.push(key + " : " + postalAddress[key]);
-            }
-            this.supplierToAdd.postalAddress = postalAddressArray.join("\n");
+      for (var key of Object.keys(postalAddress)) {
+        postalAddressArray.push(key + " : " + postalAddress[key]);
+      }
+      this.supplierToAdd.postalAddress = postalAddressArray.join("\n");
 
-            for (var key1 of Object.keys(streetAddress)) {
-              streetAddressArray.push(key1 + " : " + streetAddress[key1]);
-            }
-            this.supplierToAdd.streetAddress = streetAddressArray.join("\n");
+      for (var key1 of Object.keys(streetAddress)) {
+        streetAddressArray.push(key1 + " : " + streetAddress[key1]);
+      }
+      this.supplierToAdd.streetAddress = streetAddressArray.join("\n");
 
       console.log(this.supplierToAdd);
       this.dialog = true;
@@ -761,7 +771,6 @@ export default {
               streetAddressArray.push(key1 + " : " + streetAddress[key1]);
             }
             this.supplierToAdd.streetAddress = streetAddressArray.join("\n");
-
 
             this.dialog = true;
           },

@@ -22,7 +22,7 @@
             <v-toolbar flat>
               <!-- <v-toolbar-title>PURCHASE ORDERS - Unfulfilled</v-toolbar-title> -->
               <v-toolbar-title style="color: red;"
-                >PURCHASE ORDERS - Fulfilled</v-toolbar-title
+                >PURCHASE ORDERS</v-toolbar-title
               >
 
               <v-divider class="mx-4" inset vertical></v-divider>
@@ -98,10 +98,11 @@
           sort-by="calories"
           class="elevation-1"
           :search="search"
+          :item-class="itemRowColor"
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>PURCHASE ORDERS - Unfulfilled</v-toolbar-title>
+              <v-toolbar-title>REQUISTIONS</v-toolbar-title>
 
               <v-divider class="mx-4" inset vertical></v-divider>
 
@@ -117,6 +118,7 @@
           </template>
           <template v-slot:item.edit="{ item }">
             <v-icon
+              v-if="!item.sentToSupplier"
               :id="item.PONumber"
               class="mr-2"
               color="orange"
@@ -133,6 +135,16 @@
               v-if="item.remainingTime < 1"
             >
               mdi-truck-delivery
+            </v-icon>
+          </template>
+          <template v-slot:item.overBudget="{ item }">
+            <v-icon
+              :id="item.PONumber"
+              class="mr-2"
+              color="pink lighten-1"
+              v-if="item.overBudget === 1"
+            >
+              mdi-alert
             </v-icon>
           </template>
           <!-- <template v-slot:item.fulfilled="{ item }">
@@ -354,7 +366,8 @@ export default {
         { text: "Accept", value: "accept", sortable: false },
         { text: "View", value: "actions", sortable: false },
         { text: "Email", value: "email", sortable: false },
-        { text: "Delete", value: "trash", sortable: false }
+        { text: "Delete", value: "trash", sortable: false },
+        { text: "Over", value: "overBudget", sortable: false }
       ],
       headers2: [
         {
@@ -784,6 +797,12 @@ export default {
         .catch(e => {
           console.log(e);
         });
+    },
+    itemRowColor(item) {
+      //CHANGES ROW COLOR WHEN TASK BEHIND SCGEDULE
+      if (item.overBudget === 1) {
+        return "yellow accent-2";
+      }
     }
   }
 };

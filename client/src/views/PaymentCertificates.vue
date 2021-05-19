@@ -1054,16 +1054,17 @@ export default {
             });
 
             groupingByUnitFix = Array.from(new Set(groupingByUnitFix));
-
+            console.log("groupingByUnitFix", groupingByUnitFix);
             this.progress = [];
             groupingByUnitFix.forEach(el => {
               let filter = el;
+              console.log(el);
               let insert = {
                 title: filter,
                 items: []
               };
               filter = filter.split("-");
-
+              console.log("Filter", filter);
               if (filter[filter.length - 1] !== "Retention") {
                 let items = response.data[1].filter(el => {
                   return (
@@ -1072,7 +1073,13 @@ export default {
                     el.fix === filter[2]
                   );
                 });
+                // update taskTypes set taskName = 'Floors ~ Paving' where taskName = 'Floors - Paving';
+                // update taskTypes set taskName = 'Floors ~ Laminate' where taskName = 'Floors - Laminate';
+                // update taskTypes set taskName = 'Superstructure ~ Labour' where taskName = 'Superstructure - Labour';
+                // update taskTypes set taskName = 'Substructure ~ Materials' where taskName = 'Substructure - Materials';
+                // update taskTypes set taskName = 'Superstructure ~ Materials' where taskName = 'Superstructure - Materials';
 
+                console.log("Items", items);
                 items.forEach(el => {
                   el.afterRetention = (
                     el.toDate -
@@ -1081,8 +1088,13 @@ export default {
                 });
 
                 insert.items = items;
+                console.log("Insert.items", insert.items);
                 insert.lastCertificateIssuedAt =
                   insert.items[0].lastCertificateIssuedAt;
+                console.log(
+                  "lastCertificate Issued",
+                  insert.items[0].lastCertificateIssuedAt
+                );
                 insert.unitName = insert.items[0].unitName;
                 insert.taskName = insert.items[0].taskName;
                 insert.fix = insert.items[0].fix;
