@@ -1438,10 +1438,23 @@ create table stockPurchased (
     FOREIGN KEY (development) REFERENCES developments(id)
 );
 
-##########################################################
 
 alter table purchaseOrders add overBudget  BOOLEAN default false;
 alter table purchaseOrders add available  float default 0;
+
+##########################################################
+
+alter table purchaseOrders add DNImage varchar(160) after delivered;
+alter table suppliers add creditLimit decimal(15,2) default 0;
+
+create table notifications (
+    id int auto_increment primary key,
+    title varchar(160) not null,
+    msg varchar(160) not null,
+    user int not null,
+    created TIMESTAMP default now(),
+    FOREIGN KEY (user) REFERENCES users(id)
+);
 
 
 

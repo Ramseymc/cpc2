@@ -122,8 +122,9 @@ router.post("/POPosting", (req, res) => {
 
   let mysql1 = `insert into purchaseOrders (PONumber,development,subsection, unitNumber, supplier, reference, deliveryDate,stockId, itemCode, itemDescription, quantity, unitDescription, unitCost, totalCost, vat, nettCost, overBudget, available ) values ?`;
   let mysql3 = `insert into stockPurchased (stockItem,quantityPurchased,costPerItem, totalCost, vatAmount, nettCost, supplier,PONumber, datePurchased, development,section, unitNumber  ) values ?`;
+  let mysql4 = `select id, userName from users`
   // let mysql = `${mysql1};${mysql2}${mysql3}`;
-  let mysql = `${mysql1};${mysql2}`;
+  let mysql = `${mysql1};${mysql2}${mysql4}`;
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -137,8 +138,18 @@ router.post("/POPosting", (req, res) => {
         res.json("1st Query", error);
       } else {
         // res.json({ hrefCert: PONumber });
+        console.log(result[result.length - 1][0])
+        let mysql5 = ""
+        result[result.length - 1].forEach((el) => {
+          mysql5 = `${mysql5} insert into notifications (title, msg, user) values (
+            'New Requisition', 'A new requisition has been placed with ${req.body.purchaseOrderPDFData[0].supplierName} on ${new Date().toISOString().substr(0,10)} for delivery on ${req.body.purchaseOrderPDFData[0].deliveryDate}', ${el.id}
+          );`
+        })
+        console.log(mysql5)
+        let mysqlFinal = `${mysql3};${mysql5}`
 
-        connection.query(mysql3, purchaseData, function (error, result) {
+
+        connection.query(mysqlFinal, purchaseData, function (error, result) {
           if (error) {
             console.log("THE ERROR", error);
             res.json("2nd Qry", error);
@@ -235,12 +246,12 @@ router.post("/POInformationForEdit", (req, res) => {
 });
 
 router.post("/purchaseOrders", (req, res) => {
-  let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.comments, p.fulfilled,p.sentToSupplier, p.overBudget,coalesce(sum(d.quantityDelivered),0) as quantityDelivered,coalesce(sum(d.quantityExpected),0) as quantityExpected, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost
+  let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.DNImage, p.comments, p.fulfilled,p.sentToSupplier, p.overBudget,coalesce(sum(d.quantityDelivered),0) as quantityDelivered,coalesce(sum(d.quantityExpected),0) as quantityExpected, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost
   from  suppliers s, purchaseOrders p
   left join deliveries d
   on p.id = d.purchaseNumber
      where p.supplier = s.id and p.development = ${req.body.id}
-     group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.comments, p.fulfilled, p.sentToSupplier, p.overBudget
+     group by p.PONumber, s.supplierName, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate,p.DNImage, p.comments, p.fulfilled, p.sentToSupplier, p.overBudget
      order by p.deliveryDate`;
   // let mysql = `select p.PONumber, s.supplierName,s.contactID, p.reference,p.invoiceNumber,p.invoiceAmount, p.xeroStatus, p.deliveryDate, p.comments, p.fulfilled,p.sentToSupplier, sum(p.totalCost) as totalCost, sum(p.vat) as vat, sum(p.nettCost) as nettCost from purchaseOrders p, suppliers s
   //   where p.supplier = s.id and p.development = ${req.body.id}
@@ -344,7 +355,7 @@ router.post("/postdeliveries", (req, res) => {
   req.body.forEach((el) => {
     sql1 =
       sql1 +
-      `Update purchaseOrders set delivered = ${el.delivered}, fulfilled = ${el.fulfilled}, comments = '${el.comments}' where id = ${el.id};`;
+      `Update purchaseOrders set delivered = ${el.delivered}, fulfilled = ${el.fulfilled}, comments = '${el.comments}', DNImage = '${el.image}' where id = ${el.id};`;
     if (el.deliveredPreviously === 0) {
       sql2 =
         sql2 +
@@ -561,6 +572,51 @@ router.post("/getStock", (req, res) => {
         console.log("THE ERROR", error);
       } else {
         // console.log("RESULT", result);
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+
+router.post("/getNotifications", (req, res) => {
+  console.log(req.body);
+  let mysql = `select * from notifications where user = ${req.body.id}`;
+  console.log(mysql);
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        console.log("RESULT", result);
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/deletetNotification", (req, res) => {
+  console.log(req.body);
+  let mysql = `delete from notifications where id = ${req.body.id}`;
+  console.log(mysql);
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        console.log("RESULT", result);
         res.json(result);
       }
     });

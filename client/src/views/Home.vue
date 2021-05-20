@@ -33,6 +33,9 @@ export default {
   components: {
     HomePage,
     Development: () => import("../components/Development")
+  },
+  mounted() {
+    this.processNotifications();
   }
 };
 </script>

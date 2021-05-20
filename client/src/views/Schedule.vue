@@ -432,6 +432,7 @@ export default {
   },
   mounted() {
     this.checkToken();
+    this.processNotifications();
     this.windowSize = window.innerWidth;
     this.getData();
   },

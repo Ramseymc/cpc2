@@ -42,6 +42,7 @@
     "vue-social-sharing": "^3.0.5",
     "vue-xlsx": "^0.2.1",
     "vuedraggable": "^2.24.3",
+    "vuejs-notify": "^1.0.27",
     "vuetify": "^2.2.11",
     "vuex": "^3.4.0",
     "vuex-persistedstate": "^4.0.0-beta.1"

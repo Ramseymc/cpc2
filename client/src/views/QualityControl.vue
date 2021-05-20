@@ -127,6 +127,7 @@ export default {
   },
   mounted() {
     this.getSubsections();
+    this.processNotifications();
   },
   methods: {
     choose(event) {

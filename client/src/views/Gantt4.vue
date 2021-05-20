@@ -261,6 +261,7 @@ export default {
   async mounted() {
     await this.getTasks();
     await this.createChart();
+    this.processNotifications()
   },
   methods: {
     changeBlock() {

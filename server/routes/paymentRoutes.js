@@ -27,6 +27,36 @@ router.get("/suppliers", (req, res) => {
   });
 });
 
+router.get("/getValuations", (req, res) => {
+  let mysql1 = `select p.id, p.task, p.unitNumber,  
+  p.lastUpdate,  t.supplier,t.taskDescription, tt.taskName,
+u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued,
+ p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice
+from  tasks t,taskTypes tt, units u, progress p
+left join paymentCertificatesDetails pcd
+on p.id = pcd.progressId
+where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`;
+let mysql2 = `select distinct p.unitNumber, t.supplier, tt.taskName,u.unitName
+from  tasks t,taskTypes tt, units u, progress p
+where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`
+let mysql = `${mysql1};${mysql2}`
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
 router.post("/supplierHistory", (req, res) => {
   let mysql = `select taskName, unitName, certificateNumber,createdAt, progress, coalesce(invoiceNumber, 'null') as invoiceNumber, isRetention,  sum(price) as price, sum(toDate) as valuation, sum(retained) as retention, sum(afterRetention) as nett, coalesce(sum(amountPaid),0) as paid   
   from paymentCertificatesDetails

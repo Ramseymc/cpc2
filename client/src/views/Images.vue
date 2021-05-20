@@ -492,6 +492,7 @@ export default {
   mounted() {
     this.getImagesFromDataBase();
     console.log(this.$store.state.userRole);
+    this.processNotifications();
   },
   methods: {
     async sendEmail(event) {

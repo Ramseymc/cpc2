@@ -242,6 +242,28 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.processNotifications();
+    //   this.$notify.info({
+    //     position: "top center",
+    //     id: 10,
+    //     user: 3,
+    //     title: "Good job!",
+    //     msg: "Very nicely done",
+    //     timeout: 0,
+    //     buttons: [
+    //   {
+    //     // Use for icons or what ever
+    //     color: "red",
+    //     text: 'Read',
+    //     click(notify){ notify.close(true)
+    //     console.log("AWESOME")
+    //      console.log(this.id) }, // close(true) forces close function to finish even when prevented on event
+    //     // Array, object or string
+    //   }
+    // ],
+    //   });
+  },
   methods: {
     diagonalD(event) {
       console.log(event.currentTarget.id);

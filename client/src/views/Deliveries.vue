@@ -116,16 +116,6 @@
                                         @change="calculateDifference"
                                         @blur="ifDifferent"
                                       ></v-text-field>
-                                      <!-- <label>Delivered *</label>
-                                      <vue-numeric-input
-                                        style="background-color: white;"
-                                        v-model="editedItem.delivered"
-                                        label="Testing"
-                                        :min="0"
-                                        :max="100"
-                                        :step="1"
-                                        @change="calculateDifference"
-                                      ></vue-numeric-input> -->
                                     </v-col>
                                     <v-col cols="12" sm="6" md="6">
                                       <v-text-field
@@ -178,9 +168,17 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <!-- <v-btn color="blue darken-1" text @click="dialog = false">
-                Close
-              </v-btn> -->
+
+              <v-btn
+                icon
+                @click="uploadDialog = true"
+                v-if="
+                  this.desserts.length && this.supplier && this.purchaseOrder
+                "
+                ><v-icon color="blue">mdi-image-plus</v-icon></v-btn
+              >
+              <v-spacer></v-spacer>
+
               <v-btn
                 color="blue darken-1"
                 text
@@ -220,6 +218,34 @@
             >OK</v-btn
           >
           <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="uploadDialog" persistent max-width="500">
+      <v-card>
+        <v-card-title class="headline">
+          Upload Image
+        </v-card-title>
+        <v-card-text>
+          <v-file-input
+            v-model="imageFile"
+            accept="image/*"
+            label="File input"
+          ></v-file-input>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="black darken-1"
+            text
+            @click="uploadedImageFile"
+            v-if="this.imageFile"
+          >
+            Save
+          </v-btn>
+          <v-btn color="black darken-1" text @click="uploadDialog = false">
+            Close
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -265,7 +291,12 @@ export default {
   },
   data() {
     return {
+      uploadDialog: false,
       getComponent: false,
+
+      imageFile: null,
+      currentIdForUploadImage: null,
+
       showSrc: "http://localhost:3000/Elec-Elec-001.pdf",
       showFileName: "Elec-Elec-001",
       showPDF: true,
@@ -350,6 +381,7 @@ export default {
         console.log(error);
       }
     );
+    this.processNotifications();
   },
   computed: {
     formTitle() {
@@ -367,6 +399,31 @@ export default {
   },
 
   methods: {
+    async uploadedImageFile() {
+      console.log(this.imageFile);
+      let formData = new FormData();
+      formData.append("image", this.imageFile);
+      formData.append("id", this.currentIdForUploadImage);
+      console.log(formData);
+      await axios({
+        method: "post",
+        url: `${url}/uploadImage`,
+        data: formData
+      }).then(
+        response => {
+          console.log(response.data);
+          this.uploadDialog = false;
+          this.imageFile = null;
+          this.desserts.forEach(el => {
+            el.image = response.data.public_id;
+          });
+          console.log(this.desserts);
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     receiptAll() {
       console.log(this.desserts);
       this.desserts.forEach(el => {

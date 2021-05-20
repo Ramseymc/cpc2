@@ -3,7 +3,6 @@
     <br /><br />
     <v-row class="text-center">
       <v-col cols="10" offset="1">
-        <!-- <h3>PURCHASE ORDERS</h3> -->
         <v-btn v-if="consentUrl"
           ><a class="xeroBtn" @click="redirect" :href="consentUrl"
             >Xero Login</a
@@ -20,14 +19,12 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <!-- <v-toolbar-title>PURCHASE ORDERS - Unfulfilled</v-toolbar-title> -->
               <v-toolbar-title style="color: red;"
                 >PURCHASE ORDERS</v-toolbar-title
               >
 
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <!-- <v-spacer></v-spacer>  -->
               <v-text-field
                 v-model="search"
                 append-icon="mdi-magnify"
@@ -37,13 +34,6 @@
               ></v-text-field>
             </v-toolbar>
           </template>
-          <!-- <template v-slot:item.fulfilled="{ item }">
-            <v-simple-checkbox
-            color="black"
-              v-model="item.fulfilled"
-              readonly
-            ></v-simple-checkbox>
-          </template> -->
           <template v-slot:item.invoice="{ item }">
             <v-icon
               :id="item.PONumber"
@@ -69,26 +59,17 @@
               mdi-file-pdf-box
             </v-icon>
           </template>
-          <!-- <template v-slot:item.email="{ item }">
+          <template v-slot:item.DNImageFile="{ item }">
             <v-icon
-              v-if="item.sentToSupplier"
+              v-if="item.DNImage !== null"
               :id="item.PONumber"
               class="mr-2"
-              @click="sendStatement($event)"
-              color="green"
+              @click="getImage2"
+              color="blue"
             >
-              mdi-email
+              mdi-image-plus
             </v-icon>
-            <v-icon
-              v-else
-              :id="item.PONumber"
-              class="mr-2"
-              @click="sendStatement($event)"
-              color="brown"
-            >
-              mdi-email
-            </v-icon>
-          </template> -->
+          </template>
         </v-data-table>
       </v-col>
       <v-col class="mb-4" cols="10" offset="1">
@@ -147,13 +128,6 @@
               mdi-alert
             </v-icon>
           </template>
-          <!-- <template v-slot:item.fulfilled="{ item }">
-            <v-simple-checkbox
-            color="black"
-              v-model="item.fulfilled"
-              readonly
-            ></v-simple-checkbox>
-          </template> -->
           <template v-slot:item.actions="{ item }">
             <v-icon
               :id="item.PONumber"
@@ -209,6 +183,17 @@
             <v-chip :color="getColor(item.xeroStatus)" dark>
               {{ item.xeroStatus }}
             </v-chip>
+          </template>
+          <template v-slot:item.DNImageFile="{ item }">
+            <v-icon
+              v-if="item.DNImage !== null"
+              :id="item.PONumber"
+              class="mr-2"
+              @click="getImage"
+              color="blue"
+            >
+              mdi-image-plus
+            </v-icon>
           </template>
         </v-data-table>
       </v-col>
@@ -275,6 +260,32 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="viewDialog" :max-width="maxWidth" max-heigh="90vh">
+      <v-card>
+        <v-spacer></v-spacer>
+        <v-card-title class="headline">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="black"
+            text
+            @click="viewDialog = false"
+            style="font-size: 150%; font-weight: bold;"
+            ><v-icon color="red">mdi-arrow-collapse-all</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <cld-image
+          :cloudName="cloudName"
+          :publicId="publicId"
+          class="white--text align-end"
+          width="95%"
+          height="95%"
+          loading="lazy"
+        >
+          <cld-transformation radius="20" quality="auto" />
+        </cld-image>
+      </v-card>
+    </v-dialog>
     <PurchaseOrderEdit
       v-if="showEdit"
       :mainDialog="showEdit"
@@ -296,13 +307,16 @@ import * as dayjs from "dayjs";
 import axios from "axios";
 import MaskedInput from "vue-masked-input";
 let url = process.env.VUE_APP_BASEURL;
+import { CldImage, CldTransformation } from "cloudinary-vue";
 export default {
   name: "POView",
   components: {
     // PDFViewer,
     PDFViewer: () => import("../components/PDFViewer"),
     PurchaseOrderEdit: () => import("../components/PurchaseOrderEdit"),
-    MaskedInput
+    MaskedInput,
+    CldImage,
+    CldTransformation
   },
   metaInfo: {
     title: "Purchase Orders",
@@ -320,6 +334,11 @@ export default {
   },
   data() {
     return {
+      public_id: [],
+      publicId: null,
+      cloudName: `${process.env.VUE_APP_CLOUDNAME}`,
+      viewDialog: false,
+      maxWidth: "60%",
       invoiceDate: new Date().toISOString().substr(0, 10),
       snackbar: false,
       snackbarMessage: "",
@@ -365,6 +384,7 @@ export default {
         { text: "edit", value: "edit", sortable: false },
         { text: "Accept", value: "accept", sortable: false },
         { text: "View", value: "actions", sortable: false },
+        { text: "Img", value: "DNImageFile", sortable: false },
         { text: "Email", value: "email", sortable: false },
         { text: "Delete", value: "trash", sortable: false },
         { text: "Over", value: "overBudget", sortable: false }
@@ -418,7 +438,8 @@ export default {
         },
 
         { text: "invoice", value: "invoice", sortable: false },
-        { text: "View", value: "actions", sortable: false }
+        { text: "View", value: "actions", sortable: false },
+        { text: "Img", value: "DNImageFile", sortable: false }
         // { text: "Email", value: "email", sortable: false }
       ]
     };
@@ -426,6 +447,7 @@ export default {
 
   async mounted() {
     this.checkToken();
+    this.processNotifications();
     this.consentUrl = "";
     // this.getConnected()
     this.getXeroCredentials();
@@ -433,6 +455,33 @@ export default {
     await this.getInvoices();
   },
   methods: {
+    // getImage(event) {
+    //   console.log(event.currentTarget.id)
+    //   console.log(this.desserts)
+    // },
+    // getImage2(event) {
+    //   console.log("2::",event.currentTarget.id)
+    // },
+    getImage(event) {
+      console.log(event.currentTarget.id);
+      let filteredData = this.items.filter(el => {
+        return el.PONumber === event.currentTarget.id;
+      });
+      console.log("Filtered", filteredData);
+      this.publicId = filteredData[0].DNImage;
+      this.viewDialog = true;
+    },
+    getImage2(event) {
+      console.log(event.currentTarget.id);
+      console.log(this.items2);
+      let filteredData = this.items2.filter(el => {
+        return el.PONumber === event.currentTarget.id;
+      });
+      console.log("Filtered", filteredData);
+
+      this.publicId = filteredData[0].DNImage;
+      this.viewDialog = true;
+    },
     async changeToFulfilled() {
       // console.log(this.items)
       let itemsDelivered = this.items.filter(el => {

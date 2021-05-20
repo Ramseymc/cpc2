@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    <br /><br /><br /><br />
+    <!-- <br /><br /> -->
     <v-col class="mb-4">
       <h2>Payment Certificates</h2>
     </v-col>
@@ -9,6 +9,103 @@
         >Xero Login</a
       ></v-btn
     >
+    <!-- <v-row> -->
+    <v-col cols="8" offset="2">
+      <div style="display: flex;">
+        <v-checkbox
+          v-model="showUnIssued"
+          label="show Unissued"
+          color="red darken-3"
+          hide-details
+        ></v-checkbox>
+        <v-spacer></v-spacer>
+        <v-checkbox
+          v-model="showIssued"
+          label="show Issued"
+          color="black"
+          hide-details
+        ></v-checkbox>
+      </div>
+    </v-col>
+
+    <!-- &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& -->
+    <v-col class="mb-4" cols="10" offset="1" v-if="showUnIssued">
+      <v-data-table
+        :headers="headers"
+        :items="valuationsToDateNotIssued"
+        sort-by="calories"
+        class="elevation-1"
+        :search="search"
+      >
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-toolbar-title style="color: red;"
+              >VALUATIONS TO CERTIFY</v-toolbar-title
+            >
+
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-spacer></v-spacer>
+            <!-- <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field> -->
+            <label>Total: {{ totalUnissued }}</label>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon
+            :id="item.id"
+            class="mr-2"
+            color="red"
+            @click="viewCertsUnissued"
+          >
+            mdi-certificate
+          </v-icon>
+        </template>
+      </v-data-table>
+    </v-col>
+    <v-col class="mb-4" cols="10" offset="1" v-if="showIssued">
+      <v-data-table
+        :headers="headers2"
+        :items="valuationsToDateIssued"
+        sort-by="calories"
+        class="elevation-1"
+        :search="search"
+      >
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-toolbar-title>CERIFICATES PROCESSED</v-toolbar-title>
+
+            <v-divider class="mx-4" inset vertical></v-divider>
+
+            <v-spacer></v-spacer>
+            <!-- <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field> -->
+            <label>Total: {{ totalIssued }}</label>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon
+            :id="item.id"
+            class="mr-2"
+            color="red"
+            @click="viewCertsIssued"
+          >
+            mdi-certificate
+          </v-icon>
+        </template>
+      </v-data-table>
+    </v-col>
+    <!-- &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& -->
+
     <v-col cols="10" offset="1">
       <v-card class="mx-auto" max-width="1050" tile>
         <v-col cols="12" offset="0">
@@ -462,6 +559,10 @@ export default {
   },
   data() {
     return {
+      showIssued: false,
+      showUnIssued: true,
+      totalIssued: "",
+      totalUnissued: "",
       showPDF: true,
       getComponent: false,
       showSrc: "http://localhost:3000/Elec-Elec-001.pdf",
@@ -504,7 +605,45 @@ export default {
       hideFullyIssued: true,
       consentUrl: "",
       src: "",
-      depositDetails: []
+      depositDetails: [],
+      valuationsToDateNotIssued: [],
+      valuationsToDateIssued: [],
+      headers: [
+        {
+          text: "Supplier",
+          align: "start",
+          sortable: false,
+          value: "supplierName",
+          width: 250
+        },
+        {
+          text: "Task",
+          align: "start",
+          sortable: false,
+          value: "taskName",
+          width: 250
+        },
+        { text: "Value", value: "unIssuedStr", width: 120 },
+        { text: "View", value: "actions", sortable: false }
+      ],
+      headers2: [
+        {
+          text: "Supplier",
+          align: "start",
+          sortable: false,
+          value: "supplierName",
+          width: 250
+        },
+        {
+          text: "Task",
+          align: "start",
+          sortable: false,
+          value: "taskName",
+          width: 250
+        },
+        { text: "Value", value: "issuedStr", width: 120 },
+        { text: "View", value: "actions", sortable: false }
+      ]
     };
   },
   computed: {
@@ -574,6 +713,8 @@ export default {
     this.checkToken();
     this.consentUrl = "";
     await this.getSuppliers();
+    await this.getValuationsToDate();
+    this.processNotifications();
   },
   methods: {
     getPDF(event) {
@@ -983,6 +1124,7 @@ export default {
         .then(
           response => {
             this.items = response.data;
+            console.log(response.data);
           },
           error => {
             console.log(error);
@@ -991,6 +1133,90 @@ export default {
         .catch(e => {
           console.log(e);
         });
+    },
+    async getValuationsToDate() {
+      axios.defaults.headers.common["Authorization"] = this.$store.state.token;
+      await axios({
+        method: "get",
+        url: `${url}/getValuations`
+      })
+        .then(
+          response => {
+            console.log(response.data);
+            response.data[1].forEach(el => {
+              let filteredData = response.data[0].filter(el2 => {
+                return (
+                  el.unitNumber === el2.unitNumber &&
+                  el.supplier === el2.supplier &&
+                  el.taskName === el2.taskName
+                );
+              });
+              el.unIssued = filteredData.reduce((prev, curr) => {
+                return prev + parseFloat(curr.unIssuedPrice);
+              }, 0);
+              el.issued = filteredData.reduce((prev, curr) => {
+                return prev + parseFloat(curr.issuedPrice);
+              }, 0);
+              el.issuedStr = this.convertToString(el.issued);
+              el.unIssuedStr = this.convertToString(el.unIssued);
+
+              let supplier = this.items.filter(el2 => {
+                return el2.id === el.supplier;
+              });
+              el.supplierName = supplier[0].supplierName;
+            });
+            this.valuationsToDateNotIssued = response.data[1].filter(el => {
+              return el.unIssued > 0;
+            });
+            this.valuationsToDateIssued = response.data[1].filter(el => {
+              return el.issued > 0;
+            });
+            this.valuationsToDateNotIssued.forEach((el, index) => {
+              el.id = index;
+            });
+            this.valuationsToDateIssued.forEach((el, index) => {
+              el.id = index;
+            });
+            this.totalIssued = this.convertToString(
+              this.valuationsToDateIssued.reduce((prev, curr) => {
+                return prev + curr.issued;
+              }, 0)
+            );
+            this.totalUnissued = this.convertToString(
+              this.valuationsToDateNotIssued.reduce((prev, curr) => {
+                return prev + curr.unIssued;
+              }, 0)
+            );
+            console.log(this.totalIssued);
+            console.log(this.totalUnissued);
+          },
+          error => {
+            console.log(error);
+          }
+        )
+        .catch(e => {
+          console.log(e);
+        });
+    },
+    viewCertsUnissued(event) {
+      console.log(event.currentTarget.id);
+      let filter = this.valuationsToDateNotIssued.filter(el => {
+        return el.id === parseInt(event.currentTarget.id);
+      });
+      this.value = filter[0].supplierName;
+      this.getPaymentCerticicates();
+      this.showIssued = false;
+      this.showUnIssued = false;
+    },
+    viewCertsIssued(event) {
+      console.log(event.currentTarget.id);
+      let filter = this.valuationsToDateIssued.filter(el => {
+        return el.id === parseInt(event.currentTarget.id);
+      });
+      this.value = filter[0].supplierName;
+      this.getPaymentCerticicates();
+      this.showIssued = false;
+      this.showUnIssued = false;
     },
     async getPaymentCerticicates() {
       let certCheck = this.items.filter(el => {

@@ -201,6 +201,7 @@ router.post("/editSupplierInApp", async (req, res) => {
     retention = ${req.body.data.retention},
     vatVendor = ${req.body.data.vatVendor},
     isSubcontractor = ${req.body.data.isSubcontractor},
+    creditLimit = ${req.body.data.creditLimit},
     terms = ${req.body.data.terms} where id = ${req.body.data.id}`
 
     console.log(chalk.red(mysql))

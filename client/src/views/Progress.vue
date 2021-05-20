@@ -661,6 +661,7 @@ export default {
   },
   async mounted() {
     this.checkToken();
+    this.processNotifications();
     console.log(dayjs("2020-12-25").isBusinessDay());
     // console.log("Christmas Day is holiday?:", dayjs('2020-12-25').options())
     // console.log("Christmas Day is holiday?:", dayjs('2020-12-25').businessDaysInMonth())

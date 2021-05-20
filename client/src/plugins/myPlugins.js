@@ -6,9 +6,76 @@ const MyPlugin = {
   install(Vue) {
     Vue.mixin({
       data() {
-        return {};
+        return {
+          idToDelete: 0
+        };
       },
       methods: {
+        async processNotifications() {
+          let data = {
+            id: this.$store.state.userId
+          };
+          await axios({
+            method: "post",
+            url: `${url}/getNotifications`,
+            data: data
+          })
+            .then(
+              response => {
+                console.log(response.data);
+                if (response.data.length) {
+                  response.data.forEach(el => {
+                    this.$notify.warning({
+                      position: "top center",
+                      id: el.id,
+                      user: el.user,
+                      title: el.title,
+                      msg: el.msg,
+                      timeout: 0,
+                      buttons: [
+                        {
+                          text: "Read",
+                          click(notify) {
+                            notify.close(true);
+                            this.idToDelete = this.id;
+                            this.removeNotification();
+                          } // close(true) forces close function to finish even when prevented on event
+                        }
+                      ]
+                    });
+                  });
+                }
+              },
+              error => {
+                console.log(error);
+              }
+            )
+            .catch(e => {
+              console.log(e);
+            });
+        },
+        async removeNotification() {
+          console.log(this.idToDelete);
+          let data = {
+            id: this.idToDelete
+          };
+          await axios({
+            method: "post",
+            url: `${url}/deletetNotification`,
+            data: data
+          })
+            .then(
+              response => {
+                console.log(response.data);
+              },
+              error => {
+                console.log(error);
+              }
+            )
+            .catch(e => {
+              console.log(e);
+            });
+        },
         async checkToken() {
           axios.defaults.headers.common[
             "Authorization"

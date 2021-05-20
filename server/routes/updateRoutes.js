@@ -400,7 +400,8 @@ router.post("/resetData", (req, res) => {
   update tasks set baselineStartDate = startDate;
   update tasks set baselineEndDate = endDate;
   update tasks set comments = null;
-  delete from stockPurchased;`
+  delete from stockPurchased;
+  delete from notifications;`
   // console.log(mysql)
   pool.getConnection(function (err, connection) {
     if (err) {

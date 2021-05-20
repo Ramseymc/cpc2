@@ -467,7 +467,7 @@ export default {
   name: "purchaseordercreate",
   components: {
     // PDFViewer,
-    PDFViewer: () => import("../components/PDFViewer"),
+    PDFViewer: () => import("../components/PDFViewer")
   },
   data() {
     return {
@@ -495,7 +495,7 @@ export default {
         "Item",
         "No.",
         "hour",
-        "day",
+        "day"
       ],
       stockItemsToUpdate: [],
       stockItemsToAdd: [],
@@ -508,7 +508,7 @@ export default {
         unitCost: 0,
         totalCost: 0,
         vat: 0,
-        nettCost: 0,
+        nettCost: 0
       },
       // unitTypeChosen: null,
       stockItemChosen: null,
@@ -533,28 +533,28 @@ export default {
           align: "start",
           sortable: false,
           value: "block",
-          width: 90,
+          width: 90
         },
         {
           text: "Unit Chosen",
           align: "start",
           sortable: false,
           value: "unitChosen",
-          width: 90,
+          width: 90
         },
         {
           text: "Stock Code",
           align: "start",
           sortable: false,
           value: "itemCode",
-          width: 300,
+          width: 90
         },
         {
           text: "Description",
           align: "start",
           sortable: false,
           value: "description",
-          width: 300,
+          width: 200
         },
         { text: "Quantity", value: "quantity", width: 90, align: "end" },
         { text: "Available", value: "available", width: 90, align: "end" },
@@ -564,7 +564,7 @@ export default {
         { text: "Tax", value: "vat", width: 90, align: "end" },
         { text: "Nett", value: "nett", width: 90, align: "end" },
 
-        { text: "Actions", value: "actions", sortable: false },
+        { text: "Actions", value: "actions", sortable: false }
       ],
       desserts: [],
       editedIndex: -1,
@@ -579,7 +579,7 @@ export default {
         price: 0,
         gross: 0,
         vat: 0,
-        nett: 0,
+        nett: 0
       },
       defaultItem: {
         block: "",
@@ -592,9 +592,9 @@ export default {
         price: 0,
         gross: 0,
         vat: 0,
-        nett: 0,
+        nett: 0
       },
-      stockAvailable: 0,
+      stockAvailable: 0
     };
   },
   computed: {
@@ -607,23 +607,15 @@ export default {
       } else {
         let stockFilter = this.editedItem.unitChosen;
         let unitNumbers = [];
-        stockFilter.forEach((el) => {
+        stockFilter.forEach(el => {
           unitNumbers.push(parseInt(el.split("-")[1]));
         });
         console.log(unitNumbers);
-        // const array = [
-        //   { id50: 1, bar: "test" },
-        //   { id50: 2, bar: "test2" },
-        //   { id50: 3, bar: "test3" },
-        // ];
-        // const ids = [1, 2];
-        // const result = array.filter(({ id50 }) => !ids.includes(id50));
         return this.stockItems.filter(({ sbUnitNumber }) =>
           unitNumbers.includes(sbUnitNumber)
         );
-        // console.log(result);
       }
-    },
+    }
   },
 
   watch: {
@@ -632,10 +624,11 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    },
+    }
   },
   mounted() {
     this.initialLoad();
+    this.processNotifications();
     let minDate = dayjs()
       .toISOString()
       .substr(0, 10);
@@ -663,7 +656,7 @@ export default {
       this.desserts = [];
     },
     async addStockItem() {
-      let supplier = this.suppliers.filter((el) => {
+      let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.stockItemToAdd.supplier;
       });
       console.log(supplier);
@@ -673,9 +666,9 @@ export default {
       await axios({
         method: "post",
         url: `${url}/addStockItem`,
-        data: data,
+        data: data
       })
-        .then((response) => {
+        .then(response => {
           console.log(response.data);
           this.getStock();
         })
@@ -684,9 +677,9 @@ export default {
     async getStock() {
       await axios({
         method: "post",
-        url: `${url}/getStock`,
+        url: `${url}/getStock`
       })
-        .then((response) => {
+        .then(response => {
           console.log(response.data);
           this.stockItems = response.data;
           this.dialogAdd = false;
@@ -705,14 +698,14 @@ export default {
     },
     async initialLoad() {
       let data = {
-        id: this.$store.state.development.id,
+        id: this.$store.state.development.id
       };
       await axios({
         method: "post",
         url: `${url}/POInformation`,
-        data: data,
+        data: data
       })
-        .then((response) => {
+        .then(response => {
           console.log(response.data);
           this.suppliers = response.data[0];
           // this.stockItems = response.data[1];
@@ -753,7 +746,7 @@ export default {
       this.getComponent = false;
     },
     async savePO() {
-      let supplier = this.suppliers.filter((el) => {
+      let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.supplier;
       });
       let POData = [];
@@ -768,7 +761,7 @@ export default {
       }
       // console.log(overBudget)
 
-      this.desserts.forEach((el) => {
+      this.desserts.forEach(el => {
         el.PONumber = this.PONumber;
         el.deliveryDate = this.date;
         el.supplierName = supplier[0].supplierName;
@@ -776,7 +769,7 @@ export default {
         el.supplierPostal = supplier[0].postal_address;
         el.supplierStreet = supplier[0].street_address;
         el.supplierVATNumber = supplier[0].vat_number;
-        let block = this.subsection.filter((el2) => {
+        let block = this.subsection.filter(el2 => {
           return el2.subsectionName == el.block;
         });
         let insert = [];
@@ -853,16 +846,16 @@ export default {
         purchaseOrderToProcess: POData,
         stockPurchases: stockData,
         // stockItemsToAdd: this.stockItemsToAdd,
-        stockItemsToUpdate: this.stockItemsToUpdate,
+        stockItemsToUpdate: this.stockItemsToUpdate
       };
       console.log(this.desserts);
 
       await axios({
         method: "post",
         url: `${url}/POPosting`,
-        data: data,
+        data: data
       }).then(
-        (response) => {
+        response => {
           console.log(response.data);
 
           this.hrefCert = response.data.hrefCert;
@@ -875,7 +868,7 @@ export default {
             this.date = new Date().toISOString().substring(0, 10);
           }, 500);
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
@@ -886,15 +879,15 @@ export default {
       this.developmentParam = parameter;
       await axios({
         method: "get",
-        url: `${url}/subsection/${parameter}`,
+        url: `${url}/subsection/${parameter}`
       }).then(
-        (response) => {
+        response => {
           if (response.data.success === false) {
             return this.$router.push({ name: "Login" });
           }
           this.subsection = response.data;
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
@@ -905,8 +898,8 @@ export default {
       console.log(this.subsection);
       let data = [];
       if (this.subsection.length) {
-        this.editedItem.block.forEach((el) => {
-          let unit = this.subsection.filter((el2) => {
+        this.editedItem.block.forEach(el => {
+          let unit = this.subsection.filter(el2 => {
             return el2.subsectionName === el;
           });
           data.push(unit[0].id);
@@ -915,7 +908,7 @@ export default {
 
         let getInfo = {
           id: this.$store.state.development.id,
-          info: data,
+          info: data
         };
 
         // let unit = this.subsection.filter((el) => {
@@ -928,9 +921,9 @@ export default {
         axios({
           method: "post",
           url: `${url}/getPOUnits`,
-          data: getInfo,
+          data: getInfo
         }).then(
-          (response) => {
+          response => {
             this.units = response.data;
 
             this.units.sort((a, b) => {
@@ -943,11 +936,11 @@ export default {
             //     this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
             //   }
             // });
-            this.units.forEach((el) => {
+            this.units.forEach(el => {
               el.unitName = `${el.unitName}-${el.id}`;
             });
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         );
@@ -972,14 +965,14 @@ export default {
 
       let stockFilter = this.editedItem.unitChosen;
       let unitNumbers = [];
-      stockFilter.forEach((el) => {
+      stockFilter.forEach(el => {
         unitNumbers.push(parseInt(el.split("-")[1]));
       });
       console.log(unitNumbers);
 
       const result = this.stockItems
         .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
-        .filter((el) => {
+        .filter(el => {
           return el.siItemDescription === this.stockItemChosen;
         })
         .reduce((prev, current) => {
@@ -989,15 +982,15 @@ export default {
       this.stockAvailable = result;
       const result2 = this.stockItems
         .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
-        .filter((el) => {
+        .filter(el => {
           return el.siItemDescription === this.stockItemChosen;
         });
-      console.log("result 2",result2);
+      console.log("result 2", result2);
       this.editedItem.price = result2[0].sbCostPerItem;
-      this.editedItem.itemCode = result2[0].siItemCode
-      this.editedItem.description = result2[0].siItemDescription
-      this.editedItem.stockId = result2[0].siId
-      console.log("Edited Item",this.editedItem)
+      this.editedItem.itemCode = result2[0].siItemCode;
+      this.editedItem.description = result2[0].siItemDescription;
+      this.editedItem.stockId = result2[0].siId;
+      console.log("Edited Item", this.editedItem);
     },
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
@@ -1034,18 +1027,19 @@ export default {
 
     async save() {
       console.log(this.editedItem.unitChosen);
+      this.showReleventStock = false;
       this.stockAvailable = 0;
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
         if (this.editedItem.unitChosen.length > 1) {
           let unitsChosen = this.editedItem.unitChosen;
-          unitsChosen.forEach((el) => {
-            let unit = this.units.filter((el2) => {
+          unitsChosen.forEach(el => {
+            let unit = this.units.filter(el2 => {
               return el === el2.unitName;
             });
 
-            let block = this.subsection.filter((el3) => {
+            let block = this.subsection.filter(el3 => {
               return el3.id === unit[0].subsection;
             });
 
@@ -1060,16 +1054,16 @@ export default {
               price: this.editedItem.price,
               gross: this.editedItem.gross,
               vat: this.editedItem.vat,
-              nett: this.editedItem.nett,
+              nett: this.editedItem.nett
             };
 
             this.desserts.push(insert);
           });
         } else {
-          let unit = this.units.filter((el5) => {
+          let unit = this.units.filter(el5 => {
             return this.editedItem.unitChosen[0] === el5.unitName;
           });
-          let block = this.subsection.filter((el4) => {
+          let block = this.subsection.filter(el4 => {
             return el4.id === unit[0].subsection;
           });
           let insert = {
@@ -1083,37 +1077,49 @@ export default {
             price: this.editedItem.price,
             gross: this.editedItem.gross,
             vat: this.editedItem.vat,
-            nett: this.editedItem.nett,
+            nett: this.editedItem.nett
           };
           this.desserts.push(insert);
         }
       }
-      this.desserts.forEach((el) => {
-        let unit = [];
-        let unitChosen = el.unitChosen;
-        unit.push(unitChosen);
-        let data = {
-          id: this.editedItem.stockId,
-          unit: unit,
-        };
-        axios({
-          method: "post",
-          url: `${url}/getBudget`,
-          data: data,
-        }).then(
-          (response) => {
-            console.log(response.data);
-            console.log(response.data[0][0]);
-            console.log(response.data[1][0]);
-            el.available =
-              response.data[0][0].quantity - response.data[1][0].quantity;
-            el.quantity = parseInt(el.quantity);
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
+      // this.desserts.forEach((el) => {
+      // let unit = [];
+      // let unitChosen = el.unitChosen;
+      // unit.push(unitChosen);
+      // let data = {
+      //   id: this.editedItem.stockId,
+      //   unit: unit,
+      // };
+      console.log(this.desserts);
+      this.desserts.forEach(el => {
+        let unit = parseInt(el.unitChosen.split("-")[1]);
+        let description = el.description;
+        let availabilty = this.stockItems.filter(el2 => {
+          return (
+            description === el2.siItemDescription && unit === el2.sbUnitNumber
+          );
+        });
+        console.log(availabilty);
+        el.available = availabilty[0].available;
       });
+      // axios({
+      //   method: "post",
+      //   url: `${url}/getBudget`,
+      //   data: data,
+      // }).then(
+      //   (response) => {
+      //     console.log(response.data);
+      //     console.log(response.data[0][0]);
+      //     console.log(response.data[1][0]);
+      //     el.available =
+      //       response.data[0][0].quantity - response.data[1][0].quantity;
+      //     el.quantity = parseInt(el.quantity);
+      //   },
+      //   (error) => {
+      //     console.log(error);
+      //   }
+      // );
+      // });
       console.log("CheckOut", this.desserts);
 
       if (
@@ -1148,7 +1154,7 @@ export default {
       if (item.available < item.quantity) {
         return "yellow accent-2";
       }
-    },
-  },
+    }
+  }
 };
 </script>
