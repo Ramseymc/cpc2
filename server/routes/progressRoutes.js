@@ -19,7 +19,7 @@ router.get("/start", checktoken, (req, res) => {
   res.json({ Awesome: "It Works!!!!" });
 });
 
-router.get("/development2", checktoken, (req, res) => {
+router.get("/development2", (req, res) => {
   let mysql = `select * from developments`;
 
   pool.getConnection(function (err, connection) {
@@ -279,6 +279,8 @@ router.post("/progressPostAll", (req, res) => {
   });
 });
 
+
+
 router.post("/progressPostRetained", (req, res) => {
   let sqlType;
   let allTasks = req.body.allTasks;
@@ -402,6 +404,44 @@ left join progress p
           el.endDate = moment(el.endDate).format("YYYY-MM-DD");
         }, 100);
         res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/processValuationNotification", (req, res) => {
+  console.log(req.body)
+  let mysql = `select id, userName from users`
+
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log(error);
+      } else {
+        
+        let items = ["default","warning","error","success","info"]
+        var item = items[Math.floor(Math.random() * items.length)];
+        let mysql2 = ""
+        result.forEach((el) => {
+          mysql2 = `${mysql2} insert into notifications (title, msg, user, type) values (
+            'Valuation Done', 'A valuation has been done on ${new Date().toISOString().substr(0,10)} by ${req.body.name}' , ${el.id}, '${item}'
+          );`
+        })
+        
+        connection.query(mysql2, function (error, result) {
+          if (error) {
+            console.log(error);
+          } else {
+            
+            
+            res.json({result: "done!!"});
+          }
+        });
       }
     });
     connection.release();

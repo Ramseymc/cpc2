@@ -24,6 +24,7 @@
     "svg.js": "^2.7.1",
     "uuidv4": "^6.2.6",
     "vue": "^2.6.11",
+    "vue-crosstab": "^0.8.0",
     "vue-currency-input": "^1.22.6",
     "vue-directive-tooltip": "^1.6.3",
     "vue-draggable": "^2.0.6",

@@ -31,11 +31,20 @@ router.get("/getValuations", (req, res) => {
   let mysql1 = `select p.id, p.task, p.unitNumber,  
   p.lastUpdate,  t.supplier,t.taskDescription, tt.taskName,
 u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued,
- p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice
+ p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice,
+round(pcd.retained* (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedRetained, round(pcd.retained * p.lastCertificateIssuedAt/100,2) as issuedRetained, coalesce(round(pcd.amountPaid,2),0) as paid
 from  tasks t,taskTypes tt, units u, progress p
 left join paymentCertificatesDetails pcd
 on p.id = pcd.progressId
 where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`;
+//   let mysql1 = `select p.id, p.task, p.unitNumber,  
+//   p.lastUpdate,  t.supplier,t.taskDescription, tt.taskName,
+// u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued,
+//  p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice
+// from  tasks t,taskTypes tt, units u, progress p
+// left join paymentCertificatesDetails pcd
+// on p.id = pcd.progressId
+// where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`;
 let mysql2 = `select distinct p.unitNumber, t.supplier, tt.taskName,u.unitName
 from  tasks t,taskTypes tt, units u, progress p
 where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`
@@ -247,7 +256,22 @@ router.post("/processCertificate", (req, res) => {
   let sumofAfterRetention = certificateDetailsToPost.reduce((acc, pv) => {
     return acc + parseFloat(pv.afterRetention);
   }, 0);
-  let unitName = certificateDetailsToPost[0].unitName;
+
+  let unitArray = []
+  certificateDetailsToPost.forEach((el) => {
+    unitArray.push(el.unitName)
+  })
+  unitArray = Array.from(new Set(unitArray))
+  
+  // let unitName = certificateDetailsToPost[0].unitName;
+  // let unitName = certificateDetailsToPost[0].unitName;
+  let unitName = ''
+  if (unitArray.length > 1) {
+    unitName = "Various"
+  } else {
+    unitName = unitArray[0]
+  }
+
 
   let certificateNumber = req.body.certificateNumber;
 

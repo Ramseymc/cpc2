@@ -1,6 +1,6 @@
 <template>
   <!-- <div> -->
-  <v-app-bar app color="#0F0F0F" dark class="mobile">
+  <v-app-bar app color="#393e46" dark class="mobile">
     <!-- <div class="d-flex align-center" v-if="windowSize > 767">
       <v-img
         :to="{ name: 'Home' }"
@@ -290,6 +290,15 @@ export default {
             menu: 1,
             id: "paymentsdue",
             color: "teal accent-2"
+          },
+          {
+            title: "Cross Tab",
+            name: "Crosstab",
+            icon: "mdi-grid",
+            role: 3,
+            menu: 1,
+            id: "Crosstab",
+            color: "red accent-2"
           }
         ]
       },
@@ -376,16 +385,16 @@ export default {
             menu: 1,
             id: "SupplierChange",
             color: "teal"
-          },
-          {
-            title: "Reset Dates",
-            name: "DateReset",
-            icon: "mdi-notebook-edit",
-            role: 3,
-            menu: 1,
-            id: "DateReset",
-            color: "yellow"
           }
+          // {
+          //   title: "Reset Dates",
+          //   name: "DateReset",
+          //   icon: "mdi-notebook-edit",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "DateReset",
+          //   color: "yellow"
+          // }
         ]
       },
       {

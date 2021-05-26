@@ -140,9 +140,11 @@ router.post("/POPosting", (req, res) => {
         // res.json({ hrefCert: PONumber });
         console.log(result[result.length - 1][0])
         let mysql5 = ""
+        let items = ["default","warning","error","success","info"]
+        var item = items[Math.floor(Math.random() * items.length)];
         result[result.length - 1].forEach((el) => {
-          mysql5 = `${mysql5} insert into notifications (title, msg, user) values (
-            'New Requisition', 'A new requisition has been placed with ${req.body.purchaseOrderPDFData[0].supplierName} on ${new Date().toISOString().substr(0,10)} for delivery on ${req.body.purchaseOrderPDFData[0].deliveryDate}', ${el.id}
+          mysql5 = `${mysql5} insert into notifications (title, msg, user, type) values (
+            'New Requisition', 'A new requisition has been placed with ${req.body.purchaseOrderPDFData[0].supplierName} on ${new Date().toISOString().substr(0,10)} for delivery on ${req.body.purchaseOrderPDFData[0].deliveryDate} done by ${req.body.userName}' , ${el.id}, '${item}'
           );`
         })
         console.log(mysql5)
@@ -405,7 +407,7 @@ router.post("/processInvoiceNumber", (req, res) => {
 });
 
 router.post("/pofulfilled", (req, res) => {
-  // console.log("HELLO", req.body);
+  console.log("HELLO", req.body);
   // res.json({awesome: "It Works!!"})
   let mysql = `update purchaseOrders set fulfilled = true where PONumber = '${req.body.info[0].PONumber}' and delivered > 0`;
   console.log(mysql);
@@ -582,8 +584,17 @@ router.post("/getStock", (req, res) => {
 
 router.post("/getNotifications", (req, res) => {
   console.log(req.body);
-  let mysql = `select * from notifications where user = ${req.body.id}`;
-  console.log(mysql);
+  // let mysql2 = `select * from notifications where user = ${req.body.id}`;
+  let mysql2 = `select * from notifications where user = ${req.body.id}`;
+  let mysql1 = `DELETE t1 FROM notifications t1
+  INNER JOIN notifications t2 
+  WHERE 
+      t1.id < t2.id AND 
+      t1.title = t2.title AND
+      t1.msg = t2.msg AND
+      t1.user = t2.user`;
+  let mysql = `${mysql1};${mysql2}`
+  // console.log(mysql);
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);

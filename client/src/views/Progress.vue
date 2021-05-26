@@ -866,7 +866,29 @@ export default {
         });
       this.dialog = false;
     },
+    async processNotification() {
+      let data = {
+        id: this.$store.state.userId,
+        name: this.$store.state.userName
+      };
+      await axios({
+        method: "post",
+        url: `${url}/processValuationNotification`,
+        data: data
+      })
+        // .then((result) => {
+        //   this.dialog = false;
+
+        // })
+        .catch(() => {
+          this.snackBarMessage = "There was an error, please try again later!";
+          this.snackbar = true;
+        });
+    },
     async saveProgressAll() {
+      if (this.tasks[0].progressID !== null) {
+        this.processNotification();
+      }
       let progress = [];
       // let taskIds = [];
 

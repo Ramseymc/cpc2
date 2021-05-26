@@ -485,11 +485,12 @@
               >
                 <div style="display: flex;">
                   <v-row align="center">
-                    <v-checkbox
-                      v-if="
+                    <!-- v-if="
                         unitChosenForCertificate === '' ||
                           item.unitName === unitChosenForCertificate
-                      "
+                      " -->
+
+                    <v-checkbox
                       v-model="item.produceCertificate"
                       hide-details
                       class="shrink mr-2 mt-0"
@@ -623,7 +624,9 @@ export default {
           value: "taskName",
           width: 250
         },
+        { text: "Unit", value: "unitName", width: 120 },
         { text: "Value", value: "unIssuedStr", width: 120 },
+        // { text: "Value", value: "unIssuedStr", width: 120 },
         { text: "View", value: "actions", sortable: false }
       ],
       headers2: [
@@ -632,16 +635,19 @@ export default {
           align: "start",
           sortable: false,
           value: "supplierName",
-          width: 250
+          width: 200
         },
         {
           text: "Task",
           align: "start",
           sortable: false,
           value: "taskName",
-          width: 250
+          width: 150
         },
         { text: "Value", value: "issuedStr", width: 120 },
+        { text: "Retained", value: "issuedRetainedStr", width: 120 },
+        { text: "Nett", value: "netValueStr", width: 120 },
+        { text: "Paid", value: "issuedPaidStr", width: 120 },
         { text: "View", value: "actions", sortable: false }
       ]
     };
@@ -974,6 +980,7 @@ export default {
                 this.progress = [];
                 this.selectAll = false;
                 this.getPaymentCerticicates();
+                this.getValuationsToDate();
               });
             }
           },
@@ -1160,6 +1167,27 @@ export default {
               el.issuedStr = this.convertToString(el.issued);
               el.unIssuedStr = this.convertToString(el.unIssued);
 
+              // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+              el.unissuedRetained = filteredData.reduce((prev, curr) => {
+                return prev + parseFloat(curr.unIssuedRetained);
+              }, 0);
+
+              el.issuedRetained = filteredData.reduce((prev, curr) => {
+                return prev + parseFloat(curr.issuedRetained);
+              }, 0);
+
+              el.issuedPaid = filteredData.reduce((prev, curr) => {
+                return prev + parseFloat(curr.paid);
+              }, 0);
+
+              el.unissuedRetainedStr = this.convertToString(
+                el.unissuedRetained
+              );
+              el.issuedRetainedStr = this.convertToString(el.issuedRetained);
+              el.issuedPaidStr = this.convertToString(el.issuedPaid);
+
+              // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
               let supplier = this.items.filter(el2 => {
                 return el2.id === el.supplier;
               });
@@ -1168,9 +1196,11 @@ export default {
             this.valuationsToDateNotIssued = response.data[1].filter(el => {
               return el.unIssued > 0;
             });
+
             this.valuationsToDateIssued = response.data[1].filter(el => {
               return el.issued > 0;
             });
+
             this.valuationsToDateNotIssued.forEach((el, index) => {
               el.id = index;
             });
@@ -1187,8 +1217,49 @@ export default {
                 return prev + curr.unIssued;
               }, 0)
             );
+
             console.log(this.totalIssued);
             console.log(this.totalUnissued);
+            // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+            let filteredUnique = [];
+            this.valuationsToDateIssued.forEach(el => {
+              filteredUnique.push(el.supplierName);
+            });
+            filteredUnique = Array.from(new Set(filteredUnique));
+
+            console.log(filteredUnique);
+            let finalArray = [];
+            filteredUnique.forEach(el => {
+              let refilteredData = this.valuationsToDateIssued.filter(el2 => {
+                return el2.supplierName === el;
+              });
+              let insert = {
+                supplier: refilteredData[0].supplier,
+                supplierName: refilteredData[0].supplierName,
+                taskName: refilteredData[0].taskName,
+                issued: refilteredData.reduce((prev, curr) => {
+                  return prev + curr.issued;
+                }, 0),
+                issuedRetained: refilteredData.reduce((prev, curr) => {
+                  return prev + curr.issuedRetained;
+                }, 0),
+                issuedPaid: refilteredData.reduce((prev, curr) => {
+                  return prev + curr.issuedPaid;
+                }, 0)
+              };
+              finalArray.push(insert);
+            });
+            console.log(finalArray);
+            finalArray.forEach((el, index) => {
+              el.id = index;
+              el.issuedStr = this.convertToString(el.issued);
+              el.issuedRetainedStr = this.convertToString(el.issuedRetained);
+              el.issuedPaidStr = this.convertToString(el.issuedPaid);
+              el.netValue = el.issued - el.issuedRetained;
+              el.netValueStr = this.convertToString(el.netValue);
+            });
+            this.valuationsToDateIssued = finalArray;
+            // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
           },
           error => {
             console.log(error);

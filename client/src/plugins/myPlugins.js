@@ -23,26 +23,104 @@ const MyPlugin = {
             .then(
               response => {
                 console.log(response.data);
-                if (response.data.length) {
-                  response.data.forEach(el => {
-                    this.$notify.warning({
-                      position: "top center",
-                      id: el.id,
-                      user: el.user,
-                      title: el.title,
-                      msg: el.msg,
-                      timeout: 0,
-                      buttons: [
-                        {
-                          text: "Read",
-                          click(notify) {
-                            notify.close(true);
-                            this.idToDelete = this.id;
-                            this.removeNotification();
-                          } // close(true) forces close function to finish even when prevented on event
-                        }
-                      ]
-                    });
+                if (response.data[1].length) {
+                  response.data[1].forEach(el => {
+                    if (el.type === "warning") {
+                      this.$notify.warning({
+                        position: "top center",
+                        id: el.id,
+                        user: el.user,
+                        title: el.title,
+                        msg: el.msg,
+                        timeout: 2500,
+                        buttons: [
+                          {
+                            text: "Read",
+                            click(notify) {
+                              notify.close(true);
+                              this.idToDelete = this.id;
+                              this.removeNotification();
+                            }
+                          }
+                        ]
+                      });
+                    } else if (el.type === "info") {
+                      this.$notify.info({
+                        position: "top center",
+                        id: el.id,
+                        user: el.user,
+                        title: el.title,
+                        msg: el.msg,
+                        timeout: 2500,
+                        buttons: [
+                          {
+                            text: "Read",
+                            click(notify) {
+                              notify.close(true);
+                              this.idToDelete = this.id;
+                              this.removeNotification();
+                            }
+                          }
+                        ]
+                      });
+                    } else if (el.type === "error") {
+                      this.$notify.error({
+                        position: "top center",
+                        id: el.id,
+                        user: el.user,
+                        title: el.title,
+                        msg: el.msg,
+                        timeout: 2500,
+                        buttons: [
+                          {
+                            text: "Read",
+                            click(notify) {
+                              notify.close(true);
+                              this.idToDelete = this.id;
+                              this.removeNotification();
+                            }
+                          }
+                        ]
+                      });
+                    } else if (el.type === "success") {
+                      this.$notify.success({
+                        position: "top center",
+                        id: el.id,
+                        user: el.user,
+                        title: el.title,
+                        msg: el.msg,
+                        timeout: 2500,
+                        buttons: [
+                          {
+                            text: "Read",
+                            click(notify) {
+                              notify.close(true);
+                              this.idToDelete = this.id;
+                              this.removeNotification();
+                            }
+                          }
+                        ]
+                      });
+                    } else {
+                      this.$notify.default({
+                        position: "top center",
+                        id: el.id,
+                        user: el.user,
+                        title: el.title,
+                        msg: el.msg,
+                        timeout: 2500,
+                        buttons: [
+                          {
+                            text: "Read",
+                            click(notify) {
+                              notify.close(true);
+                              this.idToDelete = this.id;
+                              this.removeNotification();
+                            }
+                          }
+                        ]
+                      });
+                    }
                   });
                 }
               },

@@ -61,7 +61,7 @@
           </template>
           <template v-slot:item.DNImageFile="{ item }">
             <v-icon
-              v-if="item.DNImage !== null"
+              v-if="item.DNImage.length"
               :id="item.PONumber"
               class="mr-2"
               @click="getImage2"
@@ -299,6 +299,63 @@
       v-if="getComponent"
       @update-opened="updateOpened"
     />
+    <!-- <v-row justify="center"> -->
+    <v-dialog v-model="thumbNailDialog" persistent scrollable max-width="900">
+      <v-card>
+        <v-card-title class="headline">
+          Delivery Notes
+        </v-card-title>
+        <!-- <v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text> -->
+        <div style="display: flex; margin: 1px;">
+          <div
+            style="width: 150px; "
+            v-for="(item, index) in public_id"
+            :key="index"
+            :id="index"
+            @click="openImage"
+          >
+            <cld-image
+              :id="index"
+              :publicId="item"
+              :cloudName="cloudName"
+              secure="true"
+              class="clickDiv"
+              loading="lazy"
+            >
+              <cld-transformation
+                width="150"
+                height="150"
+                gravity="face"
+                crop="thumb"
+              />
+              <cld-transformation radius="20" />
+              <cld-transformation effect="sepia" />
+              <!-- <cld-transformation
+                :overlay="cloudinary_icon_blue"
+                gravity="south_east"
+                x="5"
+                y="5"
+                width="50"
+                opacity="60"
+                effect="brightness:200"
+              /> -->
+              <!-- <cld-transformation angle="10" /> -->
+            </cld-image>
+          </div>
+        </div>
+        <v-card-actions>
+          <!-- <v-btn color="green darken-1" text @click="thumbNailDialog = false">
+              Disagree
+            </v-btn> -->
+          <v-spacer></v-spacer>
+
+          <v-btn color="green darken-1" text @click="thumbNailDialog = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- </v-row> -->
   </div>
 </template>
 
@@ -335,6 +392,7 @@ export default {
   data() {
     return {
       public_id: [],
+
       publicId: null,
       cloudName: `${process.env.VUE_APP_CLOUDNAME}`,
       viewDialog: false,
@@ -355,6 +413,7 @@ export default {
 
       consentUrl: "",
       dialog: false,
+      thumbNailDialog: false,
       fulfilledDialog: false,
       invoiceNumber: "",
       poNumber: "",
@@ -463,23 +522,39 @@ export default {
     //   console.log("2::",event.currentTarget.id)
     // },
     getImage(event) {
-      console.log(event.currentTarget.id);
+      // console.log("GetImage", event.currentTarget.id);
       let filteredData = this.items.filter(el => {
         return el.PONumber === event.currentTarget.id;
       });
-      console.log("Filtered", filteredData);
-      this.publicId = filteredData[0].DNImage;
-      this.viewDialog = true;
+      // console.log("Filtered", filteredData);
+      if (filteredData[0].DNImage.length === 1) {
+        this.publicId = filteredData[0].DNImage[0];
+        this.viewDialog = true;
+      } else {
+        this.public_id = filteredData[0].DNImage;
+        this.thumbNailDialog = true;
+        // console.log(this.public_id)
+      }
     },
     getImage2(event) {
-      console.log(event.currentTarget.id);
-      console.log(this.items2);
+      // console.log("GetImage2", event.currentTarget.id);
+      // console.log(this.items2);
       let filteredData = this.items2.filter(el => {
         return el.PONumber === event.currentTarget.id;
       });
-      console.log("Filtered", filteredData);
-
-      this.publicId = filteredData[0].DNImage;
+      // console.log("Filtered", filteredData);
+      if (filteredData[0].DNImage.length === 1) {
+        this.publicId = filteredData[0].DNImage[0];
+        this.viewDialog = true;
+      } else {
+        this.public_id = filteredData[0].DNImage;
+        this.thumbNailDialog = true;
+        // console.log(this.public_id)
+      }
+    },
+    openImage(event) {
+      // console.log("Clicking",event.currentTarget.id)
+      this.publicId = this.public_id[event.currentTarget.id];
       this.viewDialog = true;
     },
     async changeToFulfilled() {
@@ -490,7 +565,7 @@ export default {
           el.quantityDelivered < el.quantityExpected
         );
       });
-      // console.log(itemsDelivered)
+      console.log(itemsDelivered);
       let data = {
         info: itemsDelivered
       };
@@ -761,7 +836,18 @@ export default {
                 .add(1, "month")
                 .endOf("month")
                 .format("YYYY-MM-DD")}`;
+              console.log(el.DNImage);
+              if (el.DNImage === null) {
+                el.DNImage = [];
+                console.log("NULL");
+              } else if (el.DNImage === "undefined") {
+                console.log("UNDEFINED");
+                el.DNImage = [];
+              } else {
+                el.DNImage = JSON.parse(el.DNImage);
+              }
             });
+
             // this.items[0].fulfilled = true;
             this.items2 = this.items.filter(el => {
               return el.fulfilled === true;
@@ -774,6 +860,8 @@ export default {
                 el.xeroStatus = "Awaiting Invoice";
               }
             });
+            console.log(this.items2);
+            console.log(this.items);
           },
           error => {
             console.log(error);
@@ -856,3 +944,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.clickDiv {
+  cursor: pointer;
+}
+</style>

@@ -1442,8 +1442,6 @@ create table stockPurchased (
 alter table purchaseOrders add overBudget  BOOLEAN default false;
 alter table purchaseOrders add available  float default 0;
 
-##########################################################
-
 alter table purchaseOrders add DNImage varchar(160) after delivered;
 alter table suppliers add creditLimit decimal(15,2) default 0;
 
@@ -1456,6 +1454,11 @@ create table notifications (
     FOREIGN KEY (user) REFERENCES users(id)
 );
 
+alter table notifications add type varchar(160);
+
+##########################################################
+
+alter table purchaseOrders modify DNImage text;
 
 
 

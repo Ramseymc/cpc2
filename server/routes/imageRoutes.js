@@ -91,6 +91,46 @@ router.post("/removeImage", (req, res) => {
 //     }
 //   });
 // });
+router.post("/uploadDeliveryImage", upload.array("files"), (req, res) => {
+  const directory = "public/uploads/";
+  let path;
+
+  fs.readdir(directory, (err, files) => {
+    if (err) throw err;
+    for (const file of files) {
+      fs.unlink(`${directory}${file}`, (err) => {
+        if (err) throw err;
+        console.log("FILES DELETED");
+      });
+    }
+  });
+  function callback() {
+    console.log("all done");
+    res.json(filesToReturn);
+  }
+  var itemsProcessed = 0;
+  let filesToReturn = [];
+
+  req.files.forEach(async (el) => {
+    let filename = el.filename;
+    let path = `public/uploads/${filename}`;
+    try {
+      await cloudinary.uploader.upload(
+        `${path}`,
+        async function (error, result) {
+          await console.log("RES", result.public_id), console.log("ERR", error);
+          await filesToReturn.push(result.public_id);
+          itemsProcessed++;
+          if (itemsProcessed === req.files.length) {
+            callback();
+          }
+        }
+      );
+    } catch (e) {
+      res.json({ Error: "There was an error" });
+    }
+  });
+});
 
 //UPLOAD COVER IMAGE OF ARTICLE
 router.post("/uploadCoverImage", upload.array("files"), (req, res) => {
@@ -109,11 +149,6 @@ router.post("/uploadCoverImage", upload.array("files"), (req, res) => {
     }
   });
 
-  // console.log("FILE", req.files.length);
-  // console.log(req.body);
-  // console.log(req.body.development);
-  // console.log(req.body.block);
-
   let length = req.files.length;
   let done = 0;
 
@@ -125,10 +160,6 @@ router.post("/uploadCoverImage", upload.array("files"), (req, res) => {
     try {
       cloudinary.uploader.upload(`${path}`, function (error, result) {
         console.log("RES", result), console.log("ERR", error);
-
-        // responseToApp = { url: result.secure_url, url_id: result.public_id };
-        // res.json(responseToApp);
-
         let mysql = `Insert into siteImages (development, blockName, unitName, comments, secure_url, publicId, uploadedBy) values 
   (${req.body.development},'${req.body.block}','${req.body.unit}','${req.body.comments}','${result.secure_url}','${result.public_id}','${req.body.uploadedBy}')`;
 

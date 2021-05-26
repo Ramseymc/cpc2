@@ -197,6 +197,12 @@ const routes = [
       )
   },
   {
+    path: "/crosstab",
+    name: "Crosstab",
+    component: () =>
+      import(/* webpackChunkName: "Crosstab" */ "../views/CrossTab.vue")
+  },
+  {
     path: "/*",
     name: "filenotfound",
     component: () =>

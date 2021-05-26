@@ -915,14 +915,25 @@ export default {
       );
     },
     chooseQuantity() {
+      console.log("XXXX", this.supplierChosen);
+      let filtered = this.suppliers.filter(el => {
+        return el.supplierName === this.supplierChosen;
+      });
+      console.log(filtered);
       if (this.editedItem.quantity !== 0 && this.editedItem.quantity !== "") {
         this.editedItem.gross = (
           parseFloat(this.editedItem.quantity) *
           parseFloat(this.editedItem.price)
         ).toFixed(2);
-        this.editedItem.vat = (
-          parseFloat(this.editedItem.gross) * 0.15
-        ).toFixed(2);
+        if (filtered[0].vatVendor === 1) {
+          this.editedItem.vat = (
+            parseFloat(this.editedItem.gross) * 0.15
+          ).toFixed(2);
+        } else {
+          this.editedItem.vat = (parseFloat(this.editedItem.gross) * 0).toFixed(
+            2
+          );
+        }
         this.editedItem.nett = (
           parseFloat(this.editedItem.gross) + parseFloat(this.editedItem.vat)
         ).toFixed(2);

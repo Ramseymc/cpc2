@@ -221,7 +221,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="uploadDialog" persistent max-width="500">
+    <!-- <v-dialog v-model="uploadDialog" persistent max-width="500">
       <v-card>
         <v-card-title class="headline">
           Upload Image
@@ -248,7 +248,80 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
+    <v-row justify="center">
+      <v-dialog v-model="uploadDialog" persistent max-width="800px">
+        <v-card>
+          <v-card-title>
+            <small style="color: red;"
+              >For Best Results: Use landscape (16:9). Limit image size (72px). </small
+            ><br />
+          </v-card-title>
+          <v-card-title>
+            <span class="headline">Upload</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-file-input
+                    ref="files"
+                    accept="image/png, image/jpeg, image/bmp, image/jpg,"
+                    prepend-icon="mdi-camera"
+                    label="Upload Image"
+                    v-model="files"
+                    multiple
+                  ></v-file-input>
+                </v-col>
+
+                <v-col cols="12" sm="12" md="12">
+                  <v-progress-circular
+                    v-if="progressActive"
+                    :size="120"
+                    :width="10"
+                    color="black"
+                    indeterminate
+                  ></v-progress-circular>
+                </v-col>
+                <v-col cols="12" sm="12" md="12">
+                  <v-list>
+                    <div
+                      v-for="(file, index) in files"
+                      :key="index"
+                      style="display:flex;"
+                    >
+                      <v-list-item>
+                        {{ file.name }}
+                      </v-list-item>
+                      <v-list-item-action>
+                        <v-icon @click="removeFromList" :id="index" color="red">
+                          mdi-trash-can
+                        </v-icon>
+                      </v-list-item-action>
+                    </div>
+                  </v-list>
+                </v-col>
+              </v-row>
+            </v-container>
+            <small>*indicates required field</small>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="uploadDialog = false">
+              Cancel
+            </v-btn>
+            <v-btn
+              color="black darken-1"
+              text
+              @click="uploadedImageFile"
+              v-if="this.files.length"
+            >
+              Upload
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
     <v-snackbar v-model="snackbar" shaped top color="primary">
       {{ snackbarMessage }}
       <v-btn color="pink" text timeout="10000" @click="snackbar = false"
@@ -293,7 +366,8 @@ export default {
     return {
       uploadDialog: false,
       getComponent: false,
-
+      files: [],
+      progressActive: false,
       imageFile: null,
       currentIdForUploadImage: null,
 
@@ -399,30 +473,51 @@ export default {
   },
 
   methods: {
+    removeFromList(event) {
+      console.log(event.currentTarget.id);
+      this.files.splice(parseInt(event.currentTarget.id), 1);
+      console.log(this.files);
+    },
     async uploadedImageFile() {
-      console.log(this.imageFile);
-      let formData = new FormData();
-      formData.append("image", this.imageFile);
-      formData.append("id", this.currentIdForUploadImage);
-      console.log(formData);
-      await axios({
-        method: "post",
-        url: `${url}/uploadImage`,
-        data: formData
-      }).then(
-        response => {
-          console.log(response.data);
-          this.uploadDialog = false;
-          this.imageFile = null;
-          this.desserts.forEach(el => {
-            el.image = response.data.public_id;
-          });
-          console.log(this.desserts);
-        },
-        error => {
-          console.log(error);
-        }
-      );
+      console.log("ImageFiles", this.files);
+
+      if (this.files.length) {
+        this.progressActive = true;
+        let formData = new FormData();
+        this.files.forEach(el => {
+          formData.append("files", el);
+        });
+
+        // formData.append("id", this.$store.state.development.id);
+        // formData.append("block", this.blockChosen);
+        // formData.append("unit", this.unitChosen);
+        // formData.append("comments", this.comment);
+        // formData.append("uploadedBy", this.$store.state.userName);
+
+        // console.log(this.imageFile);
+        // let formData = new FormData();
+        // formData.append("image", this.imageFile);
+        // formData.append("id", this.currentIdForUploadImage);
+        console.log(formData);
+        await axios({
+          method: "post",
+          url: `${url}/uploadDeliveryImage`,
+          data: formData
+        }).then(
+          response => {
+            console.log(response.data);
+            this.uploadDialog = false;
+
+            this.desserts.forEach(el => {
+              el.image = JSON.stringify(response.data);
+            });
+            console.log(this.desserts);
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
     },
     receiptAll() {
       console.log(this.desserts);

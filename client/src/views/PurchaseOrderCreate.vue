@@ -17,6 +17,7 @@
                   filled
                   item-text="supplierName"
                   label="Choose Supplier*"
+                  clearable
                 ></v-autocomplete>
               </v-col>
               <v-col cols="12" sm="6" md="6">
@@ -88,7 +89,11 @@
                 <v-toolbar-title>Add Items</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
-                <v-dialog v-model="dialog" max-width="900px">
+                <v-dialog
+                  v-model="dialog"
+                  max-width="900px"
+                  v-if="supplier !== null"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
                       color="primary"
@@ -846,9 +851,11 @@ export default {
         purchaseOrderToProcess: POData,
         stockPurchases: stockData,
         // stockItemsToAdd: this.stockItemsToAdd,
-        stockItemsToUpdate: this.stockItemsToUpdate
+        stockItemsToUpdate: this.stockItemsToUpdate,
+        userName: this.$store.state.userName
       };
       console.log(this.desserts);
+      console.log("NAME:", data.userName);
 
       await axios({
         method: "post",
@@ -947,14 +954,25 @@ export default {
       }
     },
     chooseQuantity() {
+      console.log(this.supplier);
+      let filteredItem = this.suppliers.filter(el => {
+        return el.supplierName === this.supplier;
+      });
+      console.log(filteredItem);
       if (this.editedItem.quantity !== 0 && this.editedItem.quantity !== "") {
         this.editedItem.gross = (
           parseFloat(this.editedItem.quantity) *
           parseFloat(this.editedItem.price)
         ).toFixed(2);
-        this.editedItem.vat = (
-          parseFloat(this.editedItem.gross) * 0.15
-        ).toFixed(2);
+        if (filteredItem[0].vatVendor === 1) {
+          this.editedItem.vat = (
+            parseFloat(this.editedItem.gross) * 0.15
+          ).toFixed(2);
+        } else {
+          this.editedItem.vat = (parseFloat(this.editedItem.gross) * 0).toFixed(
+            2
+          );
+        }
         this.editedItem.nett = (
           parseFloat(this.editedItem.gross) + parseFloat(this.editedItem.vat)
         ).toFixed(2);
