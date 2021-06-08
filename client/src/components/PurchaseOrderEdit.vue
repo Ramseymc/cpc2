@@ -79,6 +79,7 @@
                             item-text="supplierName"
                             @change="changeSupplier"
                             prepend-icon="mdi-truck-delivery"
+                            :disabled="false"
                           ></v-autocomplete>
                         </v-col>
                         <v-col class="d-flex" cols="12" sm="6">
@@ -91,24 +92,27 @@
                             prepend-icon="mdi-office-building"
                             color="#0F0F0F"
                             item-color="#0F0F0F"
-                            @change="getUnits"
+                            :disabled="formTitle === 'Edit Item'"
                           ></v-autocomplete>
+                          <!-- @change="getUnits" -->
                         </v-col>
                         <v-col class="d-flex" cols="12" sm="6">
                           <!-- v-model="unitChosen" -->
                           <v-autocomplete
                             v-model="editedItem.unitChosen"
-                            :items="units"
+                            :items="filteredUnits"
                             item-text="unitName"
                             label="Choose Unit"
                             clearable
                             prepend-icon="mdi-home-analytics"
                             color="#0F0F0F"
                             item-color="#0F0F0F"
+                            @change="unitChanged"
+                            :disabled="formTitle === 'Edit Item'"
                           ></v-autocomplete>
                         </v-col>
                         <v-col class="d-flex" cols="1" sm="1">
-                          <v-btn icon @click="dialogAdd = true">
+                          <v-btn icon @click="getDialog">
                             <v-icon color="orange">mdi-wall</v-icon>
                             <small>Add</small>
                           </v-btn>
@@ -116,13 +120,14 @@
                         <v-col class="d-flex" cols="12" sm="5">
                           <v-combobox
                             v-model="stockItemChosen"
-                            :items="stockItems"
+                            :items="stockItemsFiltered"
                             label="Choose  stock item*"
-                            item-text="itemDescription"
+                            item-text="siItemDescription"
                             dense
                             item-color="#111d5e"
                             @change="chooseStockItem"
                             @blur="chooseStockItem"
+                            :disabled="formTitle === 'Edit Item'"
                           ></v-combobox>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
@@ -260,7 +265,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-row justify="center">
+    <!-- <v-row justify="center">
       <v-dialog v-model="dialogAdd" persistent max-width="600px">
         <v-card>
           <v-card-title>
@@ -374,7 +379,13 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-row>
+    </v-row> -->
+    <addStockItem
+      v-if="dialogAdd"
+      :unitChosen="unitChosen"
+      :dialogAdd="dialogAdd"
+      @closed="closeDialog"
+    />
   </div>
 </template>
 
@@ -386,15 +397,19 @@ export default {
     mainDialog: Boolean,
     PONumber: String
   },
+  components: {
+    AddStockItem: () => import("../components/addStock/AddStockItem")
+  },
 
   data: () => ({
     //   mainDialog: true,
+    showReleventStock: false,
     itemToDelete: [],
     subsection: [],
     suppliers: [],
     supplierChosen: "",
     units: [],
-    unitChosen: "",
+    unitChosen: [],
     stockItems: [],
     stockItemChosen: null,
     items: [
@@ -505,12 +520,43 @@ export default {
       gross: 0,
       vat: 0,
       nett: 0
-    }
+    },
+    oldStockId: [],
+    stockItemsCurrentPO: [],
+    stockItemsCurrentPOPurchased: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
+    },
+    filteredUnits: function() {
+      if (this.editedItem.block) {
+        let subsectionFilter = this.subsection.filter(el => {
+          return el.subsectionName === this.editedItem.block;
+        });
+        return this.units.filter(el3 => {
+          return subsectionFilter[0].id === el3.subsection;
+        });
+      } else {
+        return this.units;
+      }
+    },
+    stockItemsFiltered() {
+      if (this.showReleventStock === false) {
+        return this.stockItems;
+      } else {
+        let units = this.units.filter(el => {
+          return el.unitName === this.editedItem.unitChosen;
+        });
+
+        let unitNumbers = [];
+        unitNumbers.push(units[0].id);
+
+        return this.stockItems.filter(({ sbUnitNumber }) =>
+          unitNumbers.includes(sbUnitNumber)
+        );
+      }
     }
   },
 
@@ -531,43 +577,53 @@ export default {
   async mounted() {
     await this.getSubsections()
       .then(await this.getUnits())
-      .then(await this.getStock())
-      .then(await this.getPODetails());
-    // await this.getUnits();
-    // await this.getStock();
-    // setTimeout(() => {
-    //   this.getPODetails();
-
-    // },500)
+      // .then(await this.getStock())
+      .then(await this.getPODetails())
+      .then(await this.getUpdatedStock());
   },
 
   methods: {
-    async addStockItem() {
-      let supplier = this.suppliers.filter(el => {
-        return el.supplierName === this.stockItemToAdd.supplier;
+    getDialog() {
+      this.unitChosen = [];
+
+      let filtered = this.units.filter(el => {
+        return el.unitName === this.editedItem.unitChosen;
       });
-      console.log(supplier);
-      console.log(this.stockItemToAdd);
-      this.stockItemToAdd.supplier = supplier[0].id;
-      let data = this.stockItemToAdd;
+
+      this.unitChosen.push(`${filtered[0].unitName}-${filtered[0].id}`);
+      this.dialogAdd = true;
+    },
+    async closeDialog(event) {
+      this.dialogAdd = event;
       await axios({
         method: "post",
-        url: `${url}/addStockItem`,
-        data: data
+        url: `${url}/getUpdatedStock`
       })
         .then(response => {
-          console.log(response.data);
-          this.getUpdatedStock();
+          this.stockItems = response.data;
+          this.filterStock();
         })
         .catch(() => {});
     },
+    unitChanged() {
+      let insert = {
+        stockId: this.editedItem.stockId,
+        unit: this.editedItem.unitNumber
+      };
+      this.oldStockId.push(insert);
+
+      this.showReleventStock = true;
+
+      this.stockItemChosen = null;
+    },
+
     async getUpdatedStock() {
       await axios({
         method: "post",
-        url: `${url}/getStock`
+        // url: `${url}/getStock`,
+        url: `${url}/getUpdatedStock`
       })
         .then(response => {
-          console.log(response.data);
           this.stockItems = response.data;
           this.dialogAdd = false;
         })
@@ -585,21 +641,83 @@ export default {
     },
     changeSupplier() {
       this.editedItem.supplier = this.supplierChosen;
+
+      this.desserts.forEach(el => {
+        el.supplier = this.supplierChosen;
+      });
     },
-    async savePO() {
-      let overBudget = false;
-      for (const value of this.desserts) {
-        console.log(value.available); //value
-        if (parseInt(value.available) < parseInt(value.quantity)) {
-          overBudget = true;
-          break;
+
+    async getAvailableStock() {
+      let availableCriteria = [];
+      this.desserts.forEach(el => {
+        let insert = {
+          unitNumber: el.unitNumber,
+          stockItem: el.stockId,
+          PONumber: el.PONumber
+        };
+        availableCriteria.push(insert);
+      });
+      await axios({
+        method: "post",
+        url: `${url}/getAvailableStockLevelels`,
+        data: availableCriteria
+      }).then(
+        response => {
+          this.stockItemsCurrentPO = response.data[0];
+          this.stockItemsCurrentPOPurchased = response.data[1];
+        },
+        error => {
+          console.log(error);
         }
-      }
+      );
+    },
+
+    async savePO() {
+      await this.getAvailableStock();
+      this.desserts.forEach(el => {
+        el.quantity = parseFloat(el.quantity);
+        let available =
+          this.stockItemsCurrentPO.reduce((prev, current) => {
+            if (
+              current.unitNumber === el.unitNumber &&
+              current.stockItem === el.stockId
+            ) {
+              prev = prev + parseFloat(current.quantityBudgetted);
+            } else {
+              prev;
+            }
+            return prev;
+          }, 0) -
+          this.stockItemsCurrentPOPurchased.reduce((prev, current) => {
+            if (
+              current.unitNumber === el.unitNumber &&
+              current.stockItem === el.stockId
+            ) {
+              prev = prev + parseFloat(current.quantityPurchased);
+            } else {
+              prev;
+            }
+            return prev;
+          }, 0);
+        el.available = available;
+        if (el.available < el.quantity) {
+          el.overBudget = parseFloat(el.quantity) - parseFloat(el.available);
+        } else {
+          el.overBudget = 0;
+        }
+      });
+
+      // let overBudget = false;
+      // for (const value of this.desserts) {
+      //   if (parseInt(value.available) < parseInt(value.quantity)) {
+      //     overBudget = true;
+      //     break;
+      //   }
+      // }
       let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.supplierChosen;
       });
-      console.log(supplier);
-      console.log(this.editedItem.supplier);
+
       this.desserts.forEach(el => {
         el.PONumber = this.PONumber;
         el.deliveryDate = this.date;
@@ -609,15 +727,17 @@ export default {
         el.supplierPostal = supplier[0].postal_address;
         el.supplierStreet = supplier[0].street_address;
         el.supplierVATNumber = supplier[0].vat_number;
-        el.overBudget = overBudget;
+        // el.overBudget = overBudget;
       });
-      console.log(this.desserts);
-      let PODataInsert = this.desserts.filter(el => {
-        return el.id === null || el.id === undefined;
-      });
-      let PODataEdit = this.desserts.filter(el => {
-        return el.id !== null && el.id !== undefined;
-      });
+
+      let PODataInsert = this.desserts;
+      // let PODataInsert = this.desserts.filter((el) => {
+      //   return el.id === null || el.id === undefined;
+      // });
+      // let PODataEdit = this.desserts.filter((el) => {
+      //   return el.id !== null && el.id !== undefined;
+      // });
+
       PODataInsert.forEach(el => {
         el.development = this.$store.state.development.id;
         el.supplierId = supplier[0].id;
@@ -629,27 +749,23 @@ export default {
         })[0].id;
         el.reference = this.desserts[0].reference;
       });
-      let itemToDelete = this.itemToDelete.filter(el => {
-        return el !== undefined;
-      });
+      // let itemToDelete = this.itemToDelete.filter((el) => {
+      //   return el !== undefined;
+      // });
+      let itemToDelete = this.desserts[0].PONumber;
       let data = {
         purchaseOrderPDFData: this.desserts,
         purchaseOrdersToDelete: itemToDelete,
-        purchaseOrderToUpdate: PODataEdit,
-        purchaseOrderToInsert: PODataInsert,
-        stockItemsToAdd: this.stockItemsToAdd,
-        stockItemsToUpdate: this.stockItemsToUpdate
+        purchaseOrderToInsert: PODataInsert
       };
-      console.log(data);
-
       await axios({
         method: "post",
         url: `${url}/POEdit`,
         data: data
       }).then(
-        response => {
-          console.log(response.data);
+        () => {
           this.closeEdit();
+          this.getPODetails();
         },
         error => {
           console.log(error);
@@ -667,20 +783,10 @@ export default {
         data: data
       })
         .then(response => {
-          console.log(response.data);
-          this.desserts = response.data;
+          this.desserts = response.data[0];
+          this.suppliers = response.data[1];
 
           this.desserts.forEach(el => {
-            // let unit = [];
-            // let unitChosen = `${el.unitChosen}-${el.unitNumber}`;
-            // unit.push(unitChosen);
-            // let data = {
-            //   id: el.stockId,
-            //   unit: unit,
-            //   poId: el.id,
-            // };
-
-            // this.getBudgetted(data);
             el.supplier = this.suppliers.filter(el4 => {
               return el4.id === el.supplier;
             })[0].supplierName;
@@ -702,7 +808,7 @@ export default {
             el.gross = el.totalCost;
             el.nett = el.nettCost;
           });
-          console.log(this.desserts);
+
           this.comments = this.desserts[0].comments;
           this.deliveryDate = this.desserts[0].deliveryDate.substr(0, 10);
           this.date = this.deliveryDate;
@@ -756,12 +862,9 @@ export default {
           console.log(error);
         }
       );
-      // });
     },
     closeEdit() {
-      //   this.mainDialog = false
       this.$emit("exitEdit", false);
-      //    this.$emit("child-checkbox", this.checkbox);
     },
 
     async editItem(item) {
@@ -770,7 +873,6 @@ export default {
       this.stockItemChosen = this.editedItem.description;
       this.supplier = this.editedItem.supplier;
       this.dialog = true;
-      console.log(this.desserts);
       let data = {
         id: this.$store.state.development.id
       };
@@ -817,8 +919,16 @@ export default {
     },
 
     save() {
-      console.log(this.editedItem);
       if (this.editedIndex > -1) {
+        this.editedItem.description = this.editedItem.itemDescription;
+        let filtered = this.stockItems.filter(el => {
+          return (
+            el.siItemDescription === this.editedItem.description &&
+            el.sbUnitNumber === this.editedItem.unitNumber
+          );
+        });
+
+        this.editedItem.itemCode = filtered[0].siItemCode;
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
         this.desserts.push(this.editedItem);
@@ -844,9 +954,17 @@ export default {
       let totalNett = this.desserts.reduce((acc, el) => {
         return acc + parseFloat(el.nett);
       }, 0);
-      console.log(this.editedIndex);
-      console.log(this.editedItem);
-      console.log(this.desserts);
+
+      this.desserts.forEach(el => {
+        let subs = this.subsection.filter(el2 => {
+          return el2.subsectionName === el.block;
+        });
+        let unit = this.units.filter(el3 => {
+          return el3.unitName === el.unitChosen;
+        });
+        el.unitNumber = unit[0].id;
+        el.subsection = subs[0].id;
+      });
 
       this.totalNett = totalNett.toFixed(2);
       this.totalGross = this.convertToString(this.totalGross);
@@ -864,9 +982,6 @@ export default {
         url: `${url}/subsection/${parameter}`
       }).then(
         response => {
-          //   if (response.data.success === false) {
-          //     return this.$router.push({ name: "Login" });
-          //   }
           this.subsection = response.data;
         },
         error => {
@@ -874,6 +989,7 @@ export default {
         }
       );
     },
+
     async getUnits() {
       let data = {
         id: this.$store.state.development.id
@@ -915,11 +1031,10 @@ export default {
       );
     },
     chooseQuantity() {
-      console.log("XXXX", this.supplierChosen);
       let filtered = this.suppliers.filter(el => {
         return el.supplierName === this.supplierChosen;
       });
-      console.log(filtered);
+
       if (this.editedItem.quantity !== 0 && this.editedItem.quantity !== "") {
         this.editedItem.gross = (
           parseFloat(this.editedItem.quantity) *
@@ -940,22 +1055,21 @@ export default {
       }
     },
     chooseStockItem() {
-      console.log(this.stockItemChosen);
       if (
         typeof this.stockItemChosen === "object" &&
         this.stockItemChosen !== null
       ) {
-        this.editedItem.description = this.stockItemChosen.itemDescription;
-        this.editedItem.price = this.stockItemChosen.unitCost.toFixed(2);
-        this.editedItem.itemCode = this.stockItemChosen.itemCode;
+        this.editedItem.description = this.stockItemChosen.siItemDescription;
+        this.editedItem.price = this.stockItemChosen.siUnitCost.toFixed(2);
+        this.editedItem.itemCode = this.stockItemChosen.siItemCode;
       } else {
         let stockFilter = this.stockItems.filter(el => {
-          return this.stockItemChosen === el.itemDescription;
+          return this.stockItemChosen === el.siItemDescription;
         });
-        console.log("stockFilter", stockFilter);
-        this.editedItem.price = stockFilter[0].unitCost;
+
+        this.editedItem.price = stockFilter[0].siUnitCost;
         this.editedItem.itemCode = stockFilter[0].itemCode;
-        this.editedItem.description = this.stockItemChosen;
+        this.editedItem.description = this.stockItemChosen.siItemDescription;
       }
     },
     itemRowColor(item) {

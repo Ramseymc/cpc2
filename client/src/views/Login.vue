@@ -234,8 +234,6 @@ export default {
           console.log(error);
         }
       );
-
-      console.log(data);
     },
     clearOTP() {
       let test = setInterval(() => {

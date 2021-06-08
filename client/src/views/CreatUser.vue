@@ -74,8 +74,6 @@
               item-color="#111d5e"
               @change="processRoles"
             ></v-autocomplete>
-
-            <!-- </v-col> -->
             <v-checkbox
               v-model="checkbox"
               color="#111d5e"
@@ -211,14 +209,11 @@ export default {
       let jobTypeID = this.jobTypes.filter(el => {
         return el.jobTitle === this.jobType;
       });
-      console.log(jobTypeID);
       this.jobId = jobTypeID[0].id;
     },
     //PROCESS MOBILE NUMBER FOR USE LATER
     mobileStuff(event) {
       this.mobileResults = event;
-      console.log(this.mobileResults);
-      console.log(this.mobile);
     },
     //CHECK NAME IS UNIQUE
     async checkNames() {
@@ -283,7 +278,6 @@ export default {
           isActive: true,
           isNew: true
         };
-        console.log(data);
 
         await axios({
           method: "post",
@@ -291,7 +285,6 @@ export default {
           data: data
         })
           .then(result => {
-            console.log(result.data.affectedRows);
             if (result.data.affectedRows === 1) {
               this.snackbarMessage = "User Successfully added!";
               this.snackbar = true;

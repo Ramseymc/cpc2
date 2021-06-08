@@ -44,6 +44,7 @@ const purchaseOrderRoutes = require("./routes/purchaseOrderRoutes")
 const imageRoutes = require("./routes/imageRoutes")
 const qualityRoutes = require("./routes/qualityRoutes")
 const cashflowRoutes = require("./routes/cashflowRoutes")
+const iTCRoutes = require("./routes/iTCRoutes")
 app.use(progressRoutes, 
   progressResultsRoutes, 
   userRoutes, 
@@ -54,7 +55,8 @@ app.use(progressRoutes,
   purchaseOrderRoutes,
   imageRoutes,
   qualityRoutes,
-  cashflowRoutes
+  cashflowRoutes,
+  iTCRoutes
   );
 
 app.listen(port, () => {

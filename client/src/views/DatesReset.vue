@@ -15,14 +15,8 @@
 </template>
 
 <script>
-// import PDFViewer from "../components/PDFViewer"
 import dayjs from "dayjs";
 import businessDays from "dayjs-business-days";
-
-// dayjs.extend(dayjsBusinessDays);
-// const goodFriday = "2021-04-02"
-// const easterMonday = "2021-04-05"
-
 const options = {
   holidays: [
     "2021-04-02",
@@ -61,43 +55,22 @@ export default {
   },
   data() {
     return {
-      // getComponent: false,
-      // showSrc: "http://localhost:3000/Elec-Elec-001.pdf",
-      // showFileName: "Elec-Elec-001",
-      // showPDF: true
       tasks: [],
       snackbar: false,
       snackbarMessage: ""
     };
   },
   async mounted() {
-    // let data = {
-    //     allTasks: progress
-    //   };
-    console.log(dayjs("2021-04-02").isHoliday());
-    console.log(dayjs("2021-04-05").isHoliday());
     await axios({
       method: "get",
       url: `${url}/getAllTasks`
-      // data: data
     })
       .then(response => {
-        console.log(response.data);
         this.tasks = response.data;
-        // this.dialog = false;
-
-        // if (result.status === 200) {
-        //   this.fixes = [];
-        //   this.getTasks();
-        //   this.dialog = false;
-        // }
       })
       .catch(e => {
         console.log(e);
-        // this.snackBarMessage = "There was an error, please try again later!";
-        // this.snackbar = true;
       });
-    // this.dialog = false;
   },
   methods: {
     async resetTasks() {
@@ -122,8 +95,6 @@ export default {
               update.push(parseInt(el));
             });
             el.dependantOn = `${arr[index - 1].id}`;
-          } else {
-            console.log("Different");
           }
         }
         if (index > 0 && index < arr.length) {
@@ -163,8 +134,6 @@ export default {
           );
         }
       });
-      console.log(this.tasks);
-      console.timeEnd("start This");
       let info = [];
       this.tasks.forEach(el => {
         let insert = {
@@ -178,11 +147,9 @@ export default {
         };
         info.push(insert);
       });
-      console.log(info.length);
+
       while (info.length) {
         let b = info.splice(0, 400);
-        console.log(b);
-        console.log(info.length);
         let data = {
           info: b
         };
@@ -190,10 +157,6 @@ export default {
           this.snackbarMessage = "Dates successfully reset";
           this.snackbar = true;
         }
-
-        //  var formData = new FormData();
-        //  formData.append("files", data);
-        // console.log(data.length)
         await axios({
           method: "post",
           url: `${url}/postTaskUpdates`,
@@ -213,7 +176,7 @@ export default {
         url: `${url}/resetData`
       })
         .then(response => {
-          console.log(response.data);
+          console.log(response);
           this.snackbarMessage = "Data successfully reset";
           this.snackbar = true;
         })

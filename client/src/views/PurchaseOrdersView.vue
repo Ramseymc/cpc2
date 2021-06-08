@@ -1,6 +1,19 @@
 <template>
   <div class="about">
     <br /><br />
+    <v-col class="mb-4" cols="10" offset="1">
+      <v-alert
+        v-for="(item, index) in alerts"
+        :key="index"
+        border="top"
+        :color="item.color"
+        dark
+        dense
+        dismissible
+      >
+        {{ item.message }}
+      </v-alert>
+    </v-col>
     <v-row class="text-center">
       <v-col cols="10" offset="1">
         <v-btn v-if="consentUrl"
@@ -9,6 +22,7 @@
           ></v-btn
         >
       </v-col>
+
       <v-col class="mb-4" cols="10" offset="1">
         <v-data-table
           :headers="headers2"
@@ -24,6 +38,7 @@
               >
 
               <v-divider class="mx-4" inset vertical></v-divider>
+              Total: {{ totalFulfilled }}
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -86,7 +101,7 @@
               <v-toolbar-title>REQUISTIONS</v-toolbar-title>
 
               <v-divider class="mx-4" inset vertical></v-divider>
-
+              Total: {{ totalUnfulfilled }}
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -286,7 +301,7 @@
         </cld-image>
       </v-card>
     </v-dialog>
-    <PurchaseOrderEdit
+    <purchaseOrderEdit
       v-if="showEdit"
       :mainDialog="showEdit"
       :PONumber="PONumbertoEdit"
@@ -305,7 +320,6 @@
         <v-card-title class="headline">
           Delivery Notes
         </v-card-title>
-        <!-- <v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text> -->
         <div style="display: flex; margin: 1px;">
           <div
             style="width: 150px; "
@@ -330,23 +344,10 @@
               />
               <cld-transformation radius="20" />
               <cld-transformation effect="sepia" />
-              <!-- <cld-transformation
-                :overlay="cloudinary_icon_blue"
-                gravity="south_east"
-                x="5"
-                y="5"
-                width="50"
-                opacity="60"
-                effect="brightness:200"
-              /> -->
-              <!-- <cld-transformation angle="10" /> -->
             </cld-image>
           </div>
         </div>
         <v-card-actions>
-          <!-- <v-btn color="green darken-1" text @click="thumbNailDialog = false">
-              Disagree
-            </v-btn> -->
           <v-spacer></v-spacer>
 
           <v-btn color="green darken-1" text @click="thumbNailDialog = false">
@@ -355,7 +356,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <!-- </v-row> -->
   </div>
 </template>
 
@@ -410,6 +410,8 @@ export default {
       items: [],
       items2: [],
       show: true,
+      totalFulfilled: "",
+      totalUnfulfilled: "",
 
       consentUrl: "",
       dialog: false,
@@ -418,6 +420,7 @@ export default {
       invoiceNumber: "",
       poNumber: "",
       search: "",
+      alerts: [],
       headers: [
         {
           text: "Number",
@@ -439,7 +442,6 @@ export default {
         { text: "Expected When", value: "timeLeft", align: "center" },
         { text: "Delivered", value: "quantityDelivered", align: "center" },
         { text: "Pay Date", value: "expectedPayDate", align: "center" },
-        // { text: "Fullfilled", value: "fulfilled", align: "center" },
         { text: "edit", value: "edit", sortable: false },
         { text: "Accept", value: "accept", sortable: false },
         { text: "View", value: "actions", sortable: false },
@@ -468,12 +470,6 @@ export default {
         { text: "Gross", value: "totalCost", align: "end", width: 120 },
         { text: "VAT", value: "vat", align: "end", width: 120 },
         { text: "Nett", value: "nettCost", align: "end", width: 120 },
-        // {
-        //   text: "Expected When",
-        //   value: "timeLeft",
-        //   align: "center",
-        //   width: 100
-        // },
         { text: "Delivered", value: "quantityDelivered", align: "center" },
         { text: "Expected", value: "quantityExpected", align: "center" },
         {
@@ -482,7 +478,7 @@ export default {
           align: "center",
           width: 120
         },
-        // { text: "Fullfilled", value: "fulfilled", align: "center", width: 100 },
+
         {
           text: "Invoice Number",
           value: "invoiceNumber",
@@ -508,64 +504,47 @@ export default {
     this.checkToken();
     this.processNotifications();
     this.consentUrl = "";
-    // this.getConnected()
     this.getXeroCredentials();
     await this.getPurchaseOrders();
     await this.getInvoices();
   },
   methods: {
-    // getImage(event) {
-    //   console.log(event.currentTarget.id)
-    //   console.log(this.desserts)
-    // },
-    // getImage2(event) {
-    //   console.log("2::",event.currentTarget.id)
-    // },
     getImage(event) {
-      // console.log("GetImage", event.currentTarget.id);
       let filteredData = this.items.filter(el => {
         return el.PONumber === event.currentTarget.id;
       });
-      // console.log("Filtered", filteredData);
       if (filteredData[0].DNImage.length === 1) {
         this.publicId = filteredData[0].DNImage[0];
         this.viewDialog = true;
       } else {
         this.public_id = filteredData[0].DNImage;
         this.thumbNailDialog = true;
-        // console.log(this.public_id)
       }
     },
     getImage2(event) {
-      // console.log("GetImage2", event.currentTarget.id);
-      // console.log(this.items2);
       let filteredData = this.items2.filter(el => {
         return el.PONumber === event.currentTarget.id;
       });
-      // console.log("Filtered", filteredData);
       if (filteredData[0].DNImage.length === 1) {
         this.publicId = filteredData[0].DNImage[0];
         this.viewDialog = true;
       } else {
         this.public_id = filteredData[0].DNImage;
         this.thumbNailDialog = true;
-        // console.log(this.public_id)
       }
     },
     openImage(event) {
-      // console.log("Clicking",event.currentTarget.id)
       this.publicId = this.public_id[event.currentTarget.id];
       this.viewDialog = true;
     },
     async changeToFulfilled() {
-      // console.log(this.items)
       let itemsDelivered = this.items.filter(el => {
         return (
           el.quantityDelivered !== 0 &&
           el.quantityDelivered < el.quantityExpected
         );
       });
-      console.log(itemsDelivered);
+
       let data = {
         info: itemsDelivered
       };
@@ -575,12 +554,9 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.fulfilledDialog = false;
-
             this.getPurchaseOrders();
-            // this.getInvoices();
           },
           error => {
             console.log("the Error", error);
@@ -591,7 +567,6 @@ export default {
         });
     },
     async deletePO(event) {
-      console.log(event.currentTarget.id);
       let data = {
         PO: event.currentTarget.id
       };
@@ -601,10 +576,8 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.getPurchaseOrders();
-            // this.getInvoices();
           },
           error => {
             console.log("the Error", error);
@@ -621,19 +594,15 @@ export default {
     },
     async sendStatement(event) {
       let targetId = event.currentTarget.id;
-      console.log(targetId);
-      // let fileInfo = this.items.concat(this.items2)
 
       let fileInfo = this.items.concat(this.items2).filter(el => {
         return el.PONumber === targetId;
       });
-      console.log(fileInfo);
 
       let data = {
         supplier: fileInfo[0].contactID,
         PONumber: fileInfo[0].PONumber
       };
-
       await axios({
         method: "post",
         url: `${url}/sendpurchaseorder`,
@@ -641,7 +610,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             if (response.data.success) {
               this.snackbarMessage = `Mail sent successfully to ${response.data.fileName}`;
               this.snackbar = true;
@@ -682,15 +650,14 @@ export default {
         invoiceNumber: this.invoiceNumber,
         invoiceDate: this.invoiceDate
       };
-      console.log(data);
+
       await axios({
         method: "post",
         url: `${url}/processInvoiceNumber`,
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.getInvoices();
           },
           error => {
@@ -714,9 +681,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log("the Error", error);
           }
@@ -810,8 +775,7 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
-            this.items = response.data;
+            this.items = response.data[0];
             let now = dayjs().format("YYYY-MM-DD");
             this.items.forEach(el => {
               el.hrefCert = `${process.env.VUE_APP_BASEURL}/purchaseorders/${el.PONumber}.pdf`;
@@ -836,18 +800,72 @@ export default {
                 .add(1, "month")
                 .endOf("month")
                 .format("YYYY-MM-DD")}`;
-              console.log(el.DNImage);
+
               if (el.DNImage === null) {
                 el.DNImage = [];
-                console.log("NULL");
               } else if (el.DNImage === "undefined") {
-                console.log("UNDEFINED");
                 el.DNImage = [];
               } else {
                 el.DNImage = JSON.parse(el.DNImage);
               }
             });
+            let alerts = response.data[1].filter(el => {
+              return el.availableLimitRemaining <= 50;
+            });
 
+            if (alerts.length) {
+              alerts.forEach(el => {
+                switch (Math.ceil(el.availableLimitRemaining / 10)) {
+                  case 0:
+                    el.message = `${el.supplierName} has no more credit available.`;
+                    el.color = "red";
+                    break;
+                  case 1:
+                    el.message = `${
+                      el.supplierName
+                    } has less than 10% credit available: ${this.convertToString(
+                      el.availableLimit
+                    )} remaining.`;
+                    el.color = "red";
+                    break;
+                  case 2:
+                    el.message = `${
+                      el.supplierName
+                    } has less than 20% credit available: ${this.convertToString(
+                      el.availableLimit
+                    )} remaining.`;
+                    el.color = "pink darken-1";
+                    break;
+                  case 3:
+                    el.message = `${
+                      el.supplierName
+                    } has less than 30% credit available: ${this.convertToString(
+                      el.availableLimit
+                    )} remaining.`;
+                    el.color = "orange";
+                    break;
+                  case 4:
+                    el.message = `${
+                      el.supplierName
+                    } has less than 40% credit available: ${this.convertToString(
+                      el.availableLimit
+                    )} remaining.`;
+                    el.color = "amber";
+                    break;
+                  default:
+                    el.message = `${
+                      el.supplierName
+                    } has less than 50% credit available: ${this.convertToString(
+                      el.availableLimit
+                    )} remaining.`;
+                    el.color = "indigo";
+                }
+              });
+
+              this.alerts = alerts;
+            } else {
+              this.alerts = [];
+            }
             // this.items[0].fulfilled = true;
             this.items2 = this.items.filter(el => {
               return el.fulfilled === true;
@@ -860,8 +878,33 @@ export default {
                 el.xeroStatus = "Awaiting Invoice";
               }
             });
-            console.log(this.items2);
-            console.log(this.items);
+
+            let totalFulfilled = this.items2.reduce((prev, curr) => {
+              return (
+                prev +
+                parseFloat(
+                  curr.nettCost
+                    .split("R")[1]
+                    .split(" ")
+                    .join("")
+                )
+              );
+            }, 0);
+            this.totalFulfilled = this.convertToString(totalFulfilled);
+
+            let totalUnfulfilled = this.items.reduce((prev, curr) => {
+              return (
+                prev +
+                parseFloat(
+                  curr.nettCost
+                    .split("R")[1]
+                    .split(" ")
+                    .join("")
+                )
+              );
+            }, 0);
+
+            this.totalUnfulfilled = this.convertToString(totalUnfulfilled);
           },
           error => {
             console.log(error);
@@ -882,9 +925,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log("the Error", error);
           }

@@ -222,6 +222,15 @@ export default {
             menu: 1,
             id: "images",
             color: "yellow"
+          },
+          {
+            title: "Instruction To Commence",
+            name: "ITC",
+            icon: "mdi-handshake",
+            role: 3,
+            menu: 1,
+            id: "ITC",
+            color: "white"
           }
         ]
       },
@@ -290,15 +299,6 @@ export default {
             menu: 1,
             id: "paymentsdue",
             color: "teal accent-2"
-          },
-          {
-            title: "Cross Tab",
-            name: "Crosstab",
-            icon: "mdi-grid",
-            role: 3,
-            menu: 1,
-            id: "Crosstab",
-            color: "red accent-2"
           }
         ]
       },
@@ -490,6 +490,15 @@ export default {
         menu: 1,
         id: "QualityControl",
         color: "orange"
+      },
+      {
+        title: "Instruction To Commence",
+        name: "ITC",
+        icon: "mdi-handshake",
+        role: 3,
+        menu: 1,
+        id: "ITC",
+        color: "white"
       }
       // {
       //   title: "Schedule",
@@ -582,13 +591,7 @@ export default {
     this.windowSize = window.innerWidth;
   },
   components: {},
-  watch: {
-    // items: function() {
-    //   if (this.$store.state.isLoggedIn) {
-    //     console.log("AWESOME!!!");
-    //   }
-    // }
-  },
+  watch: {},
   methods: {
     closeMenu() {
       this.closeOnClick = true;

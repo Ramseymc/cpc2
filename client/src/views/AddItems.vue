@@ -137,14 +137,10 @@ export default {
           console.log(e);
         });
     },
-    editTask(event) {
-      let targetId = event.currentTarget.id;
-      console.log(targetId);
+    editTask() {
       this.snackbar = true;
     },
-    deleteTask(event) {
-      let targetId = event.currentTarget.id;
-      console.log(targetId);
+    deleteTask() {
       this.snackbar = true;
     },
     async addTask() {
@@ -159,8 +155,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response);
+          () => {
             this.dialog = false;
             this.taskName = "";
 

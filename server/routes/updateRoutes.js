@@ -90,6 +90,29 @@ router.post("/getDataforTemplate", (req, res) => {
   });
 });
 
+router.post("/getDataforCFDownload", (req, res) => {
+  let mysql1 = `select id, developmentName from developments where id = ${req.body.developmentId}`;
+  let mysql2 = `select id, development, subsectionName from subsection where development = ${req.body.developmentId} order by subsectionName`;
+  let mysql3 = `select id, development, subsection, unitName from units where development = ${req.body.developmentId} order by unitName`;
+  let mysql4 = `select id, development,taskName from taskTypes where development = ${req.body.developmentId} order by taskName`;
+  let mysql5 = `select id, supplierName from suppliers order by supplierName`;
+  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5}`;
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log(error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
 router.post("/deleteTestData", checktoken, (req, res) => {
   let mysql1 = `delete from progress where task > 162`;
   let mysql2 = `delete from tasks where id > 162`;

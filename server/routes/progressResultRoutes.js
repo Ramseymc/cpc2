@@ -23,15 +23,6 @@ router.get("/progressResults/:id", checktoken, (req, res) => {
  where t.parentId = f.id and f.development = ${req.params.id}
  group by f.id, f.taskType, f.taskName, f.unitNumber, f.unitName, f.subsectionName, f.fix, f.supplier, f.vatVendor, f.startDate, f.endDate
   order by f.subsectionName, f.unitName, f.taskName, f.fix`;
-//   let mysql1 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.supplier,su.vatVendor,
-//   sum(round(t.price,2)) as totalBudget, round(sum(t.price * coalesce(p.progress,0)/100),2) as totalUsed,  round(sum(t.price) - sum((t.price * coalesce(p.progress,0) / 100)),2) as Remaining
-
-// from units u, taskTypes tt,subsection s,suppliers su,  tasks t
-//   left join progress p
-//   on p.task = t.id
-//   where u.id = t.unitNumber and tt.id = t.taskType and t.development = ${req.params.id} and s.id = u.subsection and t.supplier = su.id
-//   group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix  ,t.supplier, su.vatVendor
-//   order by s.subsectionName, u.unitName, tt.taskName, t.fix`;
   let mysql2 = `select p.task, tt.taskName, p.unitNumber,  u.unitName,t.fix,  pc.certificateNumber,
   round(coalesce(sum(pc.toDate),0),2) as PCToDate, round(coalesce(sum(pc.afterRetention),0),2) as PCIssued, round(coalesce(sum(pc.amountPaid),0),2) as PCPaid, round(coalesce(sum(pc.retained),0),2) as Retained
   from tasks t,taskTypes tt, units u, progress p
@@ -45,14 +36,6 @@ router.get("/progressResults/:id", checktoken, (req, res) => {
   let mysql4 = `select distinct p.development, p.supplier,s.supplierName, p.unitName,  p.depositRecoveredThisStatement as recovered from  suppliers s,paymentCertificates p
   where p.depositRecoveredThisStatement > 0 and p.supplier = s.id and p.development = ${req.params.id}
 `
-  // let mysql5 = `select  t.taskType, tt.taskName as taskName, t.unitNumber, u.unitName as unitName, s.subsectionName, t.fix, t.startDate,t.endDate, t.supplier
-  // from units u, taskTypes tt,subsection s,  tasks t
-  //   left join progress p
-  //   on p.task = t.id
-  //   where u.id = t.unitNumber and tt.id = t.taskType and t.development = ${req.params.id} and s.id = u.subsection
-  //   group by  s.subsectionName, t.taskType, tt.taskName, t.unitNumber, u.unitName,  t.fix ,t.startDate,t.endDate ,t.supplier
-  //   order by s.subsectionName, u.unitName, tt.taskName, t.fix`
-  // let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5}`;
   let mysql = `${mysql1};${mysql2};${mysql3};${mysql4}`;
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -64,6 +47,7 @@ router.get("/progressResults/:id", checktoken, (req, res) => {
       if (error) {
         console.log("THE ERROR", error);
       } else {
+        console.log("RRRRR",result[0])
         result[0].forEach((el2) => {
           let fix = el2.fix;
           let unitNumber = el2.unitNumber;
@@ -81,6 +65,154 @@ router.get("/progressResults/:id", checktoken, (req, res) => {
             }
           });
         });
+// ********************
+    let now = new Date();
+          result[0].forEach(el => {
+            if (!el.vatVendor) {
+              el.PCIssued = el.PCIssued / 1.15;
+              el.PCPaid = el.PCPaid / 1.15;
+              el.Remaining = parseFloat(el.Remaining) / 1.15;
+              el.Retained = el.Retained / 1.15;
+              el.budgetLessPaid = parseFloat(el.budgetLessPaid) / 1.15;
+              el.due = parseFloat(el.due) / 1.15;
+              el.totalBudget = el.totalBudget / 1.15;
+              el.totalUsed = el.totalUsed / 1.15;
+            }
+            if (
+              moment(now) > moment(el.endDate) &&
+              el.totalBudget - (el.totalBudget * (el.progress, 0)) / 100 > 0
+            ) {
+              el.schedule = "Behind";
+            } else {
+              el.schedule = "";
+            }
+            el.PCIssuedArray = result[1].filter(el2 => {
+              return (
+                el2.fix === el.fix &&
+                el2.unitName === el.unitName &&
+                el2.taskName === el.taskName
+              );
+            });
+
+            el.PCIssued = el.PCIssuedArray.reduce((acc, pv) => {
+              return acc + pv.PCIssued;
+            }, 0);
+            el.Retained = el.PCIssuedArray.reduce((acc, pv) => {
+              return acc + pv.Retained;
+            }, 0);
+            el.PCPaid = el.PCIssuedArray.reduce((acc, pv) => {
+              return acc + pv.PCPaid;
+            }, 0);
+            let startDate = new Date(el.startDate).toISOString();
+            el.startDate = moment(startDate).format("YY-MM-DD");
+            let endDate = new Date(el.endDate).toISOString();
+            el.endDate = moment(endDate).format("YY-MM-DD");
+            el.totalBudget = parseFloat(el.totalBudget.toFixed(2));
+            el.totalUsed = parseFloat(el.totalUsed.toFixed(2));
+            el.Remaining = el.Remaining.toFixed(2);
+            el.percentRemaining =
+              ((el.totalUsed / el.totalBudget) * 100).toFixed(0) + "%";
+            el.due = (el.totalUsed - el.PCIssued - el.Retained).toFixed(2);
+            el.budgetLessPaid = (el.totalBudget - el.PCPaid).toFixed(2);
+
+            el.RetainedStr = convertToString(el.Retained);
+            el.budgetLessPaidStr = convertToString(el.budgetLessPaid);
+            el.dueStr = convertToString(el.due);
+            el.PCIssuedStr = convertToString(el.PCIssued);
+            el.PCPaidStr = convertToString(el.PCPaid);
+            el.totalUsedStr = convertToString(el.totalUsed);
+            el.totalBudgetStr = convertToString(el.totalBudget);
+          });
+// ********************
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if (result[3].length) {
+  for (let i = 0; i < result[3].length; i++) {
+    if (result[3].length === 1) {
+      result[3][i].fixNumber = 1;
+    } else {
+      result[3][0].fixNumber = 1;
+      if (i > 0) {
+        if (
+          result[3][i - 1].unitName ===
+            result[3][i].unitName &&
+          result[3][i - 1].supplier ===
+            result[3][i].supplier
+        ) {
+          result[3][i].fixNumber =
+            result[3][i - 1].fixNumber + 1;
+        } else {
+          result[3][i].fixNumber = 1;
+        }
+      }
+    }
+    result[3][i].fix = result[3][
+      i
+    ].fixNumber.toString();
+    result[3][i].fix = convertNumber(
+      result[3][i].fix
+    );
+  }
+}
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+result[3].forEach((el) => {
+  result[0].forEach((el2) => {
+    if (
+      el.unitName === el2.unitName &&
+      el.supplier === el2.supplier &&
+      el.fix === el2.fix
+    ) {
+      // console.log("This works")
+      el2.PCPaid = el2.PCPaid + el.recovered;
+      el2.PCPaidStr = convertToString(el2.PCPaid);
+      el2.budgetLessPaid = el2.budgetLessPaid - el2.PCPaid;
+      el2.budgetLessPaidStr = convertToString(
+        el2.budgetLessPaid
+      );
+      el2.PCIssued = el2.PCIssued - el2.PCPaid;
+      el2.PCIssuedStr = convertToString(el2.PCIssued);
+    }
+  });
+});
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+result[0].forEach((el) => {
+  if (el.unitName.substring(1, 2) === ".") {
+    result[0].push(result[0].shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
+  }
+});
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if (result[2].length) {
+  result[2].forEach((el) => {
+    let unitName = el.unitName;
+    let filtered = result[0].filter((el2) => {
+      return el2.unitName === unitName;
+    });
+    let sumTotalBudget = filtered.reduce((acc, pv) => {
+      return acc + pv.totalBudget;
+    }, 0);
+    result[0].forEach((el2) => {
+      if (el2.unitName === unitName) {
+        el2.paidRetention =
+          (el.retentionPaid / sumTotalBudget) * el2.totalBudget;
+        el2.PCPaid = el2.PCPaid + el2.paidRetention;
+        el2.PCPaidStr = convertToString(el2.PCPaid);
+        el2.budgetLessPaid = el2.budgetLessPaid - el2.paidRetention;
+        el2.budgetLessPaidStr = convertToString(
+          el2.budgetLessPaid
+        );
+        el2.PCIssued = el2.PCIssued + el2.paidRetention;
+        el2.PCIssuedStr = convertToString(el2.PCIssued);
+        el2.Retained = el2.Retained - el2.paidRetention;
+        el2.RetainedStr = convertToString(el2.Retained);
+      }
+    });
+  });
+}
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+
         result.forEach((el) => {
           el.startDate = moment(el.startDate)
             .tz("Etc/UTC")
@@ -91,12 +223,51 @@ router.get("/progressResults/:id", checktoken, (req, res) => {
             .format("YYYY-MM-DD HH:mm:ss")
             .toString();
         });
-        res.json(result);
+        res.json(result[0]);
       }
     });
     connection.release();
   });
 });
+
+const convertNumber = function (number) {
+  let numStr = number;
+  switch (numStr.substring(numStr.length - 1, 1)) {
+    // switch (numStr) {
+    case "1":
+      numStr = `${numStr}st`;
+      break;
+    case "2":
+      numStr = `${numStr}nd`;
+      break;
+    case "3":
+      numStr = `${numStr}rd`;
+      break;
+    case "":
+      numStr = "error";
+      break;
+    default:
+      numStr = `${numStr}th`;
+  }
+  return numStr;
+};
+
+const convertToString = function (factor) {
+  //CONVERTS NUMBERS TO STRING WTH "R"
+  if (typeof factor === "string" || factor instanceof String) {
+    factor = parseFloat(factor);
+  }
+  let str = factor.toFixed(2).toString().split("").reverse();
+  if (str.length > 9) {
+    str.splice(9, 0, " ");
+  }
+  if (str.length > 6) {
+    str.splice(6, 0, " ");
+  }
+  str.reverse().unshift("R");
+  str = str.join("");
+  return str;
+};
 
 router.get("/progressGantt/:id", checktoken, (req, res) => {
   let mysql = `select   t.taskType as taskType, tt.taskName, u.id as unitId, u.unitName, s.subsectionName,  t.dependencies as dependencies, t.fix, t.startDate, t.endDate, 
@@ -261,6 +432,10 @@ router.post("/progressResultTasks", (req, res) => {
       if (error) {
         console.log("THE ERROR", error);
       } else {
+        result.forEach((el) => {
+          el.price = el.price.toFixed(2);
+          el.remaining = el.remaining.toFixed(2);
+        });
         res.json(result);
       }
     });
@@ -292,6 +467,12 @@ router.post("/paymentCertificateHistory", (req, res) => {
       if (error) {
         console.log("THE ERROR", error);
       } else {
+        result.forEach((el) => {
+          if (el.amountPaid === null) {
+            el.amountPaid = 0;
+          }
+          el.amountPaid = el.amountPaid.toFixed(2);
+        });
         res.json(result);
       }
     });

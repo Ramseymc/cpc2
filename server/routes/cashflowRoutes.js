@@ -11,15 +11,26 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 router.post("/getCashflowInfo", (req, res) => {
-  console.log(req.body);
+  console.log("BOSY",req.body);
   // res.json({awesome: "It Works!!!"})
   let mysql = `select p.id, p.development,'Payment Certificate' as documentType ,p.certificateNumber as documentNumber, p.supplier,s.terms, s.supplierName,p.certificateDate as documentDate,p.certificateDate as documentDate2, p.invDate as invoiceDate, coalesce(p.invoiceNumber, 'Not Received') as invoiceNumber , coalesce(p.amtPaid,0) as amountPaid, p.netCurrentCertificateValue as documentValue from paymentCertificates p, suppliers s
-    where s.id = p.supplier and p.development = ${req.body.id} and coalesce(p.amtPaid,0) < p.netCurrentCertificateValue and p.payStatus <> 'PAID'
-    union
-    select distinct po.id, po.development, 'Purchase Order' as documentType, po.PONumber as documentNumber, po.supplier,s.terms, s.supplierName,po.deliveryDate as documentDate,coalesce(d.actualDeliveryDate, po.deliveryDate) as documentDate2, po.invoiceDate as invoiceDate, coalesce(po.invoiceNumber, 'Not Received') as invoiceNumber, po.invoiceAmount as amountPaid, po.nettCost as documentValue  from suppliers s, purchaseOrders po
-    left join deliveries d
-    on d.purchaseNumber = po.id
-    where s.id = po.supplier and po.development = ${req.body.id} and po.invoiceAmount < po.nettCost and coalesce(po.xeroStatus,'AWAITING INVOICE') <> 'PAID'`;
+  where s.id = p.supplier and p.development = ${req.body.id} and coalesce(p.amtPaid,0) < p.netCurrentCertificateValue and p.payStatus <> 'PAID'
+  union
+  select distinct po.id, po.development, 'Purchase Order' as documentType, po.PONumber as documentNumber, po.supplier,s.terms, s.supplierName,po.deliveryDate as documentDate,coalesce(d.actualDeliveryDate, po.deliveryDate) as documentDate2, po.invoiceDate as invoiceDate, coalesce(po.invoiceNumber, 'Not Received') as invoiceNumber, po.invoiceAmount as amountPaid, po.nettCost as documentValue  from suppliers s, purchaseOrders po
+  left join deliveries d
+  on d.purchaseNumber = po.id
+  where s.id = po.supplier and po.development = ${req.body.id} and po.invoiceAmount < po.nettCost and coalesce(po.xeroStatus,'AWAITING INVOICE') <> 'PAID'
+  union
+  select i.id, i.development,'Instruction to Commence' as documentType, i.itcRefNumber as documentNumber, i.supplier, s.terms as terms, s.supplierName,i.startDate as documentDate, i.startDate as documentDate2, i.startDate as invoiceDate, 'Not Received' as invoiceNumber, 0 as amountPaid, i.netVal as documentValue
+  from instructionToCommence i, subsection ss, units u, suppliers s, taskTypes t
+  where ss.id = i.subsection and u.id = i.unit and s.id = i.supplier and i.development =  ${req.body.id} and t.id = i.taskType`;
+  // let mysql = `select p.id, p.development,'Payment Certificate' as documentType ,p.certificateNumber as documentNumber, p.supplier,s.terms, s.supplierName,p.certificateDate as documentDate,p.certificateDate as documentDate2, p.invDate as invoiceDate, coalesce(p.invoiceNumber, 'Not Received') as invoiceNumber , coalesce(p.amtPaid,0) as amountPaid, p.netCurrentCertificateValue as documentValue from paymentCertificates p, suppliers s
+  //   where s.id = p.supplier and p.development = ${req.body.id} and coalesce(p.amtPaid,0) < p.netCurrentCertificateValue and p.payStatus <> 'PAID'
+  //   union
+  //   select distinct po.id, po.development, 'Purchase Order' as documentType, po.PONumber as documentNumber, po.supplier,s.terms, s.supplierName,po.deliveryDate as documentDate,coalesce(d.actualDeliveryDate, po.deliveryDate) as documentDate2, po.invoiceDate as invoiceDate, coalesce(po.invoiceNumber, 'Not Received') as invoiceNumber, po.invoiceAmount as amountPaid, po.nettCost as documentValue  from suppliers s, purchaseOrders po
+  //   left join deliveries d
+  //   on d.purchaseNumber = po.id
+  //   where s.id = po.supplier and po.development = ${req.body.id} and po.invoiceAmount < po.nettCost and coalesce(po.xeroStatus,'AWAITING INVOICE') <> 'PAID'`;
 
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -115,7 +126,7 @@ router.post("/getCashflowInfo", (req, res) => {
             newResult.push(insert)
         })
         
-        console.log(result);
+        // console.log("Good Result",result);
         // console.log(newResult);
         res.json(newResult);
       }

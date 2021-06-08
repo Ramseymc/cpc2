@@ -78,7 +78,7 @@ export default {
       const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
 
       //   alert("Open DevTools see the save data.");
-      console.log(isEmpty);
+
       if (!isEmpty) {
         this.$emit("signatureFile", { title: this.title, data });
         this.$emit("done", true);

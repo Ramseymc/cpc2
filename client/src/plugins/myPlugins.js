@@ -7,7 +7,8 @@ const MyPlugin = {
     Vue.mixin({
       data() {
         return {
-          idToDelete: 0
+          idToDelete: 0,
+          notifications: []
         };
       },
       methods: {
@@ -22,9 +23,11 @@ const MyPlugin = {
           })
             .then(
               response => {
-                console.log(response.data);
+                this.notifications = [];
+                // this.notifications = response.data
                 if (response.data[1].length) {
                   response.data[1].forEach(el => {
+                    this.notifications.push(el.id);
                     if (el.type === "warning") {
                       this.$notify.warning({
                         position: "top center",
@@ -121,6 +124,9 @@ const MyPlugin = {
                         ]
                       });
                     }
+                    setTimeout(() => {
+                      this.removeNotification();
+                    }, 5000);
                   });
                 }
               },
@@ -133,9 +139,8 @@ const MyPlugin = {
             });
         },
         async removeNotification() {
-          console.log(this.idToDelete);
           let data = {
-            id: this.idToDelete
+            id: this.notifications
           };
           await axios({
             method: "post",
@@ -143,9 +148,7 @@ const MyPlugin = {
             data: data
           })
             .then(
-              response => {
-                console.log(response.data);
-              },
+              () => {},
               error => {
                 console.log(error);
               }
@@ -196,6 +199,48 @@ const MyPlugin = {
           str.reverse().unshift("R");
           str = str.join("");
           return str;
+        },
+        sumField() {
+          //TOTAL ROW CALC FOR TOP OF TABLE - THIS ROW STILL NEEDS TO BE OPTIMISED FOR MOBILE
+          let budget = 0,
+            actual = 0,
+            pcIssued = 0,
+            remaining = 0,
+            pcpaid = 0,
+            due = 0,
+            budgetLessPaid = 0,
+            Retained = 0;
+          this.filteredTable.forEach(el => {
+            budget = budget + parseFloat(el.totalBudget);
+            actual = actual + parseFloat(el.totalUsed);
+            pcIssued = pcIssued + parseFloat(el.PCIssued);
+            remaining = remaining + parseFloat(el.Remaining);
+            pcpaid = pcpaid + parseFloat(el.PCPaid);
+            due = due + parseFloat(el.due);
+            budgetLessPaid = budgetLessPaid + parseFloat(el.budgetLessPaid);
+            Retained = Retained + parseFloat(el.Retained);
+          });
+          this.totals.budget = budget.toFixed(2);
+          this.totals.actual = actual.toFixed(2);
+          this.totals.actual = actual.toFixed(2);
+          this.totals.pcIssued = pcIssued.toFixed(2);
+          this.totals.remaining = remaining.toFixed(2);
+          this.totals.pcpaid = pcpaid.toFixed(2);
+          this.totals.due = due.toFixed(2);
+          this.totals.budgetLessPaid = budgetLessPaid.toFixed(2);
+          this.totals.retained = Retained.toFixed(2);
+          this.totals.usedPercent = `${((actual / budget) * 100).toFixed()}%`;
+
+          this.totals.retained = this.convertToString(this.totals.retained);
+          this.totals.budgetLessPaid = this.convertToString(
+            this.totals.budgetLessPaid
+          );
+          this.totals.due = this.convertToString(this.totals.due);
+          this.totals.pcpaid = this.convertToString(this.totals.pcpaid);
+          this.totals.budget = this.convertToString(this.totals.budget);
+          this.totals.pcIssued = this.convertToString(this.totals.pcIssued);
+          this.totals.actual = this.convertToString(this.totals.actual);
+          this.totals.remaining = this.convertToString(this.totals.remaining);
         }
       }
     });

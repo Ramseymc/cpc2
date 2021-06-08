@@ -1,6 +1,31 @@
 <template>
   <div class="about">
-    <br /><br /><br /><br />
+    <br />
+    <v-col cols="10" offset="1" mb-4>
+      <downloadTemplate :startData="downloadData" v-if="downloadData.length" />
+      <br />
+      <label>Filter</label>
+      <div style="display: flex; justify-content: space-evenly;">
+        <v-radio-group
+          v-model="row"
+          row
+          style="background-color: lightgrey; border: 1px solid lightgrey; border-radius: 7px; padding: 15px 0px 0px 15px;"
+        >
+          <v-radio label="Show All" value="both" color="black"></v-radio>
+          <v-radio label="PO's Only" value="PO" color="red"></v-radio>
+          <v-radio label="PC's Only" value="PC" color="indigo"></v-radio>
+          <v-radio label="ITC Only" value="ITC" color="green"></v-radio>
+          <v-radio label="Excl ITC" value="NOITC" color="orange"></v-radio>
+          <v-radio label="Excl PC's" value="NOPC" color="blue"></v-radio>
+          <v-radio
+            label="Excl PC's $ ITC"
+            value="NOPCITC"
+            color="amber"
+          ></v-radio>
+        </v-radio-group>
+      </div>
+    </v-col>
+
     <v-progress-circular
       v-if="loading"
       :size="70"
@@ -16,12 +41,7 @@
               <div class="overline mb-4">
                 Cashflow Pivot
               </div>
-              <div class="overline mb-4">
-                <v-btn text color="#0F0F0F" @click="show = !show">{{
-                  show ? "Edit" : "Accept"
-                }}</v-btn>
-              </div>
-              <vue-pivottable-ui
+              <!-- <vue-pivottable-ui
                 class="pivotOverflow"
                 style="width: 1000px;"
                 v-if="!show"
@@ -34,12 +54,12 @@
                 :row-total="true"
                 :col-total="true"
               >
-              </vue-pivottable-ui>
+              </vue-pivottable-ui> -->
               <v-col class="pivotOverflow">
                 <vue-pivottable
                   style="width: 100%;"
                   v-if="show"
-                  :data="pivotData"
+                  :data="filteredPivot"
                   :aggregator-name="aggregatorName"
                   :renderer-name="rendererName"
                   :rows="rows"
@@ -59,10 +79,12 @@
 </template>
 
 <script>
-import { VuePivottable, VuePivottableUi } from "vue-pivottable";
+// import { VuePivottable, VuePivottableUi } from "vue-pivottable";
+import { VuePivottable } from "vue-pivottable";
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
 import "vue-pivottable/dist/vue-pivottable.css";
+import DownloadTemplate from "../components/DownloadCashflow";
 export default {
   name: "Cashflow",
   metaInfo: {
@@ -81,8 +103,10 @@ export default {
   },
   data() {
     return {
+      row: "both",
       model: null,
       pivotData: [],
+      mainData: [],
       aggregatorName: "Sum",
       rendererName: "Table",
       rows: ["documentType", "supplierName"], //Left
@@ -91,40 +115,50 @@ export default {
       disabledFromDragDrop: ["documentValue"],
       hiddenFromDragDrop: ["documentValue"],
       show: false,
-      loading: true
+      loading: true,
+      download: false,
+      downloadData: []
     };
   },
   components: {
     VuePivottable,
-    VuePivottableUi
-    // PivotUtilities
+    // VuePivottableUi,
+    DownloadTemplate
   },
 
+  computed: {
+    filteredPivot: function() {
+      if (this.row === "both") {
+        return this.pivotData;
+      } else {
+        return this.reFilter(this.row);
+      }
+    }
+  },
   mounted() {
     this.checkToken();
     setTimeout(() => {
       this.getData();
     });
-    // this.getData();
   },
   methods: {
-    //THIS GETS THE DATA FOR THE PIVOT
     async getData() {
-      console.clear();
       axios.defaults.headers.common["Authorization"] = this.$store.state.token;
       let data = {
         id: this.$store.state.development.id
       };
       await axios({
         method: "post",
-        // url: `${url}/cashflow`,
         url: `${url}/getCashflowInfo`,
         data: data
       })
         .then(
           response => {
+            this.downloadData = response.data;
+
             var myObject = response.data[0];
             var keyNames = Object.keys(myObject);
+            this.pivotData = [];
             this.pivotData.push(keyNames);
             response.data.forEach(el => {
               let insert = [];
@@ -137,11 +171,7 @@ export default {
               insert.push(el.month);
               this.pivotData.push(insert);
             });
-            let total = response.data.reduce((prev, curr) => {
-              return prev + curr.documentValue;
-            }, 0);
-            console.log(total);
-            // console.log(this.pivotData)
+            this.mainData = response.data;
             this.show = true;
             this.loading = false;
           },
@@ -152,6 +182,54 @@ export default {
         .catch(e => {
           console.log(e);
         });
+    },
+    reFilter(filter) {
+      let data = [];
+      let filtered = [];
+      if (filter === "PO") {
+        filtered = this.mainData.filter(el => {
+          return el.documentType === "Purchase Order";
+        });
+      } else if (filter === "PC") {
+        filtered = this.mainData.filter(el => {
+          return el.documentType === "Payment Certificate";
+        });
+      } else if (filter === "ITC") {
+        filtered = this.mainData.filter(el => {
+          return el.documentType === "Instruction to Commence";
+        });
+      } else if (filter === "NOITC") {
+        filtered = this.mainData.filter(el => {
+          return el.documentType !== "Instruction to Commence";
+        });
+      } else if (filter === "NOPC") {
+        filtered = this.mainData.filter(el => {
+          return el.documentType !== "Payment Certificate";
+        });
+      } else if (filter === "NOPCITC") {
+        filtered = this.mainData.filter(el => {
+          return (
+            el.documentType !== "Payment Certificate" &&
+            el.documentType !== "Instruction to Commence"
+          );
+        });
+      }
+
+      var myObject = filtered[0];
+      var keyNames = Object.keys(myObject);
+      data.push(keyNames);
+      filtered.forEach(el => {
+        let insert = [];
+        insert.push(el.dueDate.substr(0, 7));
+        insert.push(el.dayOfMonth);
+        insert.push(el.documentValue);
+        insert.push(el.documentType);
+        insert.push(el.supplierName);
+        insert.push(el.year);
+        insert.push(el.month);
+        data.push(insert);
+      });
+      return data;
     },
     toggle: function(todo) {
       todo.done = !todo.done;

@@ -3,7 +3,6 @@
     <br /><br />
     <v-row class="text-center">
       <v-col class="mb-4">
-        <!-- <h1>Delivery</h1> -->
         <v-row justify="center">
           <v-card>
             <v-card-title>
@@ -12,9 +11,6 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <!-- <v-col cols="12" sm="6" md="6">
-                    <v-text-field label="Supplier" required></v-text-field>
-                  </v-col> -->
                   <v-col cols="12" sm="6" md="6">
                     <v-autocomplete
                       v-model="supplier"
@@ -27,7 +23,6 @@
                     ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" sm="6" md="6">
-                    <!-- PurchaseOrder -->
                     <v-autocomplete
                       v-model="purchaseOrder"
                       :items="purchaseOrders"
@@ -55,32 +50,9 @@
                               <v-card-title>
                                 <span class="headline">{{ formTitle }}</span>
                               </v-card-title>
-
                               <v-card-text>
                                 <v-container>
                                   <v-row>
-                                    <!-- <v-col cols="12" sm="6" md="6">
-                                      <v-text-field
-                                        v-model="editedItem.subsection"
-                                        label="Block"
-                                        disabled
-                                      ></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="6">
-                                      <v-text-field
-                                        v-model="editedItem.unitNumber"
-                                        label="Unit"
-                                        disabled
-                                      ></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="6">
-                                      <v-text-field
-                                        v-model="editedItem.deliveryDate"
-                                        label="Delivery Date"
-                                        disabled
-                                      ></v-text-field>
-                                    </v-col> -->
-
                                     <v-col cols="12" sm="12" md="12">
                                       <v-text-field
                                         placeholder="insert reason here"
@@ -127,7 +99,6 @@
                                   </v-row>
                                 </v-container>
                               </v-card-text>
-
                               <v-card-actions>
                                 <v-btn
                                   color="blue darken-1"
@@ -137,7 +108,6 @@
                                   Cancel
                                 </v-btn>
                                 <v-spacer></v-spacer>
-
                                 <v-btn color="blue darken-1" text @click="save">
                                   Save
                                 </v-btn>
@@ -155,20 +125,15 @@
                         >
                           mdi-pencil
                         </v-icon>
-                        <!-- <v-icon small @click="deleteItem(item)">
-                          mdi-delete
-                        </v-icon> -->
                       </template>
                     </v-data-table>
                   </v-col>
-                  <!-- FFFFFFFFFFFFFFFFFFFFFF -->
                 </v-row>
               </v-container>
               <small>*indicates required field</small>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-
               <v-btn
                 icon
                 @click="uploadDialog = true"
@@ -178,7 +143,6 @@
                 ><v-icon color="blue">mdi-image-plus</v-icon></v-btn
               >
               <v-spacer></v-spacer>
-
               <v-btn
                 color="blue darken-1"
                 text
@@ -190,7 +154,6 @@
                 Receipt All
               </v-btn>
               <v-spacer></v-spacer>
-
               <v-btn
                 color="blue darken-1"
                 text
@@ -221,34 +184,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <!-- <v-dialog v-model="uploadDialog" persistent max-width="500">
-      <v-card>
-        <v-card-title class="headline">
-          Upload Image
-        </v-card-title>
-        <v-card-text>
-          <v-file-input
-            v-model="imageFile"
-            accept="image/*"
-            label="File input"
-          ></v-file-input>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="black darken-1"
-            text
-            @click="uploadedImageFile"
-            v-if="this.imageFile"
-          >
-            Save
-          </v-btn>
-          <v-btn color="black darken-1" text @click="uploadDialog = false">
-            Close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog> -->
     <v-row justify="center">
       <v-dialog v-model="uploadDialog" persistent max-width="800px">
         <v-card>
@@ -381,9 +316,6 @@ export default {
       difference: 0,
       snackbar: false,
       snackbarMessage: "",
-
-      // KKKKKKKKKKKKK
-
       dialog: false,
       dialogEmail: false,
       headers: [
@@ -406,7 +338,6 @@ export default {
           value: "deliveryDate"
         },
         { text: "Item", value: "itemDescription" },
-        // { text: "Reference", value: "reference" },
         { text: "Quantity Ordered", value: "quantity", align: "center" },
         { text: "Unit Measure", value: "unitDescription", align: "center" },
         { text: "Quantity Delivered", value: "delivered", align: "center" },
@@ -474,44 +405,26 @@ export default {
 
   methods: {
     removeFromList(event) {
-      console.log(event.currentTarget.id);
       this.files.splice(parseInt(event.currentTarget.id), 1);
-      console.log(this.files);
     },
     async uploadedImageFile() {
-      console.log("ImageFiles", this.files);
-
       if (this.files.length) {
         this.progressActive = true;
         let formData = new FormData();
         this.files.forEach(el => {
           formData.append("files", el);
         });
-
-        // formData.append("id", this.$store.state.development.id);
-        // formData.append("block", this.blockChosen);
-        // formData.append("unit", this.unitChosen);
-        // formData.append("comments", this.comment);
-        // formData.append("uploadedBy", this.$store.state.userName);
-
-        // console.log(this.imageFile);
-        // let formData = new FormData();
-        // formData.append("image", this.imageFile);
-        // formData.append("id", this.currentIdForUploadImage);
-        console.log(formData);
         await axios({
           method: "post",
           url: `${url}/uploadDeliveryImage`,
           data: formData
         }).then(
           response => {
-            console.log(response.data);
             this.uploadDialog = false;
 
             this.desserts.forEach(el => {
               el.image = JSON.stringify(response.data);
             });
-            console.log(this.desserts);
           },
           error => {
             console.log(error);
@@ -520,7 +433,6 @@ export default {
       }
     },
     receiptAll() {
-      console.log(this.desserts);
       this.desserts.forEach(el => {
         el.delivered = el.quantity;
         el.quantityDelivered = el.quantity;
@@ -532,7 +444,6 @@ export default {
       let variance = this.desserts.reduce((prev, el) => {
         return prev + el.difference;
       }, 0);
-      console.log("Variance", variance);
       if (variance > 0) {
         this.dialogEmail = true;
       } else {
@@ -540,16 +451,12 @@ export default {
       }
     },
     async emailBeforeProcessDialog() {
-      console.log(this.supplier);
-      console.log(this.suppliers);
-      console.log(this.desserts);
       let supplierToEmail = this.suppliers.filter(el => {
         return el.supplierName === this.supplier;
       });
       let deliveryData = this.desserts.filter(el => {
         return el.difference !== 0;
       });
-      console.log(supplierToEmail);
       let toPost = {
         supplierToEmail,
         data: deliveryData
@@ -560,7 +467,6 @@ export default {
         data: toPost
       }).then(
         response => {
-          console.log("DATA", response.data);
           if (response.data.success) {
             this.snackbarMessage = "Email successfully sent!";
           } else {
@@ -570,11 +476,6 @@ export default {
           this.snackbar = true;
           this.process();
           this.dialogEmail = false;
-
-          // this.desserts = [];
-          // this.purchaseOrder = "";
-
-          // this.purchaseOrders = response.data;
         },
         error => {
           console.log(error);
@@ -589,7 +490,6 @@ export default {
       let supplier = this.suppliers.filter(el => {
         return el.supplierName === this.supplier;
       })[0].id;
-      console.log(supplier);
       let toPost = this.desserts.filter(el => {
         return (
           el.delivered !== 0 &&
@@ -613,20 +513,15 @@ export default {
           url: `${url}/postdeliveries`,
           data: toPost
         }).then(
-          response => {
-            console.log("DATA", response.data);
+          () => {
             this.desserts = [];
             this.purchaseOrder = "";
-
-            // this.purchaseOrders = response.data;
           },
           error => {
             console.log(error);
           }
         );
       }
-
-      // console.log(toPost);
     },
     ifDifferent() {
       if (this.editedItem.difference !== 0) {
@@ -638,9 +533,7 @@ export default {
       this.editedItem.difference =
         this.editedItem.quantity - this.editedItem.delivered;
     },
-    getPDF(event) {
-      let targetId = event.currentTarget.id;
-      console.log(targetId);
+    getPDF() {
       this.getComponent = true;
     },
     updateOpened() {
@@ -660,7 +553,6 @@ export default {
         data: data
       }).then(
         response => {
-          // console.log("DATA",response.data);
           this.purchaseOrders = response.data;
         },
         error => {
@@ -669,7 +561,6 @@ export default {
       );
     },
     async getspecificPurchaseOrder() {
-      console.log(this.purchaseOrder);
       let data = {
         poNumber: this.purchaseOrder,
         id: this.$store.state.development.id
@@ -680,10 +571,8 @@ export default {
         data: data
       }).then(
         response => {
-          console.log("DATA", response.data);
           response.data.forEach(el => {
             el.deliveryDate = dayjs(el.deliveryDate).format("YYYY-MM-DD");
-            // el.delivered = 0;
             el.difference = parseInt(el.quantity) - parseInt(el.delivered);
             el.deliveredPreviously = el.delivered;
           });
@@ -698,7 +587,6 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
-
       this.dialog = true;
     },
 

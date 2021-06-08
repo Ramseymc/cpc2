@@ -525,7 +525,6 @@ export default {
   methods: {
     mobileStuff() {},
     getSupplierToAdd(event) {
-      console.log(event.currentTarget.id);
       this.supplierToAdd = this.items.filter((el, index) => {
         return index === parseInt(event.currentTarget.id);
       })[0];
@@ -545,7 +544,6 @@ export default {
       }
       this.supplierToAdd.streetAddress = streetAddressArray.join("\n");
 
-      console.log(this.supplierToAdd);
       this.dialog = true;
     },
     changeTerms() {
@@ -578,7 +576,6 @@ export default {
       this.dialog1 = true;
     },
     async editInApp() {
-      console.log(this.supplierToEdit);
       let data = {
         data: this.supplierToEdit
       };
@@ -589,7 +586,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             if (response.data.err) {
               // this.getConnected();
             } else {
@@ -614,13 +610,10 @@ export default {
         .then(
           response => {
             if (response.data.err) {
-              console.log(response.data.err);
               this.getConnected();
             } else {
               this.getSuppliers();
             }
-            // console.log(response.data);
-            // this.getSuppliers();
           },
           error => {
             console.log("the Error", error);
@@ -642,7 +635,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             if (response.data.err) {
               this.getConnected();
             } else {
@@ -754,7 +746,7 @@ export default {
       let data = {
         contactID: contactID
       };
-      console.log(data);
+
       axios.defaults.headers.common["Authorization"] = this.$store.state.token;
       await axios({
         method: "post",
@@ -789,9 +781,7 @@ export default {
           console.log(e);
         });
     },
-    deleteSupplier(event) {
-      console.log(event.currentTarget.id);
-    }
+    deleteSupplier() {}
   }
 };
 </script>

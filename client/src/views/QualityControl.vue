@@ -110,10 +110,6 @@ export default {
       taskTypeChosen: [],
       items: [],
       showChoices: true,
-
-      // showElectrical: false,
-      // showBalustrades: false,
-      // showTimberandIron: false,
       showComponent: false,
       qualityType: "",
       disciplineType: [
@@ -131,23 +127,16 @@ export default {
   },
   methods: {
     choose(event) {
-      console.log(event.currentTarget.id);
-      console.log(this.disciplineType[parseInt(event.currentTarget.id)]);
       this.qualityType = this.disciplineType[parseInt(event.currentTarget.id)];
       this.showComponent = true;
     },
     getQC() {
       this.qualityType = this.taskTypeChosen;
-      console.log(this.qualityType);
+
       this.showComponent = true;
       this.taskTypeChosen = [];
     },
-    // getBalustrades() {
-    //   this.showBalustrades = true
-    //   this.qualityType = "Handrails & Balustrades"
-    // },
     closed(event) {
-      console.log(event);
       this.showComponent = event;
     },
     getSubsections() {
@@ -167,7 +156,6 @@ export default {
             return this.$router.push({ name: "Login" });
           }
           this.subsection = response.data;
-          console.log(response.data);
         },
         error => {
           console.log(error);
@@ -205,44 +193,19 @@ export default {
       }
     },
     getTaskTypes() {
-      // this.taskType = this.disciplineType
-      // this.taskType = [];
       this.taskTypeChosen = [];
-      // this.items = [];
-      // let parameter = "";
-      // if (this.units.length) {
-      //   let unit = this.units.filter(el => {
-      //     return el.unitName === this.unitChosen;
-      //   });
-      //   parameter = unit[0].id;
-      //   this.unitParam = parameter;
-
       axios({
         method: "get",
         url: `${url}/qcshortname`
       }).then(
         response => {
           this.taskType = response.data;
-          console.log(response.data);
         },
         error => {
           console.log(error);
         }
       );
     }
-
-    // closedE(event) {
-    //   console.log("ELEC", event);
-    //   this.showElectrical = event;
-    // },
-    // closedB(event) {
-    //   console.log("BAL", event);
-    //   this.showBalustrades = event;
-    // },
-    // closedT(event) {
-    //   console.log("TIM", event);
-    //   this.showTimberandIron = event;
-    // }
   }
 };
 </script>

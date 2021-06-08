@@ -243,9 +243,7 @@ export default {
         url: `${url}/deleteTestData`
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }

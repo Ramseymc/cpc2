@@ -329,7 +329,6 @@ export default {
       let filteredData = this.blocks.filter(el => {
         return el.subsectionName === this.blockValue;
       });
-      console.log(filteredData);
       let data = {
         id: this.$store.state.development.id,
         subsection: filteredData[0].id
@@ -347,7 +346,7 @@ export default {
             this.items = filteredData;
           },
           error => {
-            console.log("the Error", error);
+            console.log(error);
           }
         )
         .catch(e => {
@@ -356,7 +355,7 @@ export default {
     },
     reserve() {
       this.loading = true;
-      console.log(this.chosenRoom);
+
       setTimeout(() => {
         this.loading = false;
         if (this.chosenRoom === "Kitchen") {
@@ -441,7 +440,6 @@ export default {
       this.img6Color = "#bc9654";
     },
     roomChosen(event) {
-      console.log(event.currentTarget.id);
       this.rooms.forEach(el => {
         if (el.id !== parseInt(event.currentTarget.id)) {
           el.color = "lightgrey";
@@ -451,7 +449,6 @@ export default {
           this.reserve();
         }
       });
-      console.log(this.chosenRoom);
     }
   }
 };

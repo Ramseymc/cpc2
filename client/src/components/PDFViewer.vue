@@ -149,7 +149,6 @@ export default {
   },
   methods: {
     onClick() {
-      console.log(this.documentName);
       axios({
         // url: "http://localhost:3000/Elec-Elec-001.pdf",
         url: this.documentName,

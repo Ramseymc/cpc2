@@ -369,68 +369,13 @@ export default {
       group: {
         group: "people"
       },
-      items: [
-        // {
-        //   id: 1,
-        //   icon: "mdi-progress-wrench",
-        //   title:
-        //     "Do drag and drop for tasks & amend Start Dates and Durations.",
-        //   subtitle: "WIP",
-        //   subtitle2: "Wayne Bruton",
-        //   typeTask: "WIP",
-        //   fixed: true
-        // }
-      ],
-      items1: [
-        // {
-        //   id: 77,
-        //   icon: "mdi-thought-bubble",
-        //   title: "Do some other stuff",
-        //   subtitle: "WIP4",
-        //   fixed: true,
-        //   typeTask: "Suggested"
-        // }
-      ],
-      items2: [
-        // {
-        //   id: 2,
-        //   icon: "mdi-checkbox-marked-circle",
-        //   title: "Recovery Statements",
-        //   subtitle: "Next",
-        //   fixed: false,
-        //   typeTask: "Completed"
-        // },
-        // {
-        //   id: 3,
-        //   icon: "mdi-checkbox-marked-circle",
-        //   title: "Add Individual Tasks",
-        //   subtitle: "Subtitle 3",
-        //   fixed: false,
-        //   typeTask: "Completed"
-        // }
-      ],
-      items3: [
-        // {
-        //   id: 4,
-        //   icon: "mdi-emoticon-happy",
-        //   title: "Quality control signatures",
-        //   subtitle: "Subtitle 4",
-        //   fixed: false,
-        //   typeTask: "Finalised"
-        // },
-        // {
-        //   id: 5,
-        //   icon: "mdi-emoticon-happy",
-        //   title: "Add some arbitrary task",
-        //   subtitle: "Subtitle 5",
-        //   fixed: false,
-        //   typeTask: "Finalised"
-        // }
-      ]
+      items: [],
+      items1: [],
+      items2: [],
+      items3: []
     };
   },
   beforeDestroy() {
-    console.log("OKAY!!!!");
     this.updateTasks();
   },
   mounted() {
@@ -470,7 +415,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             response.data.forEach(el => {
               if (el.typeTask === "WIP") {
                 this.items.push(el);
@@ -519,9 +463,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }
@@ -552,8 +494,7 @@ export default {
         data: insert
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.items1.push(insert);
             this.title = "";
             this.text = "";
@@ -569,10 +510,7 @@ export default {
         });
     },
     items1Changed(evt) {
-      console.log(evt);
       if (evt.added) {
-        console.log(evt.added.element.id);
-
         this.items1.forEach(el => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-thought-bubble";
@@ -584,15 +522,12 @@ export default {
         this.items1.forEach(el => {
           if (el.id === evt.moved.element.id) {
             el.sortIndex = evt.moved.newIndex;
-            console.log(evt.moved.element.id);
           }
         });
       }
     },
     itemsChanged(evt) {
       if (evt.added) {
-        console.log(evt.added.element.id);
-
         this.items.forEach(el => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-progress-wrench";
@@ -603,7 +538,6 @@ export default {
     },
     items2Changed(evt) {
       if (evt.added) {
-        console.log(evt.added.element.id);
         this.items2.forEach(el => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-checkbox-marked-circle";
@@ -614,8 +548,6 @@ export default {
     },
     items3Changed(evt) {
       if (evt.added) {
-        console.log(evt.added.element.id);
-
         this.items3.forEach(el => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-emoticon-happy";
@@ -625,11 +557,10 @@ export default {
       }
     },
     viewTask(event) {
-      console.log(event.currentTarget.id);
       let filteredData = this.items1.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
-      console.log(filteredData);
+
       this.viewOnly = true;
       this.title = filteredData[0].taskTitle;
       this.text = filteredData[0].taskText;
@@ -637,11 +568,10 @@ export default {
       this.dialog = true;
     },
     editTask(event) {
-      console.log(event.currentTarget.id);
       let filteredData = this.items1.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
-      console.log(filteredData);
+
       this.title = filteredData[0].taskTitle;
       this.text = filteredData[0].taskText;
       this.estimate = filteredData[0].estimate;
@@ -651,7 +581,6 @@ export default {
     saveEditTask() {
       this.items1.forEach(el => {
         if (el.id === this.editId) {
-          console.log(el);
           el.taskText = this.text;
           el.estimate = this.estimate;
           el.taskTitle = this.title;
@@ -664,7 +593,6 @@ export default {
       this.viewOnly = false;
     },
     async deleteTask(event) {
-      console.log(event.currentTarget.id);
       let data = {
         id: event.currentTarget.id
       };
@@ -674,8 +602,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.getTasks();
           },
           error => {

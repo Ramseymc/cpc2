@@ -57,7 +57,7 @@
     },
     watch: {
       options: function (options) {
-        console.log(options)
+     
         if (!this.chart && options) {
           this.init()
         } else {

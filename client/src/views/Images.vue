@@ -491,12 +491,11 @@ export default {
   },
   mounted() {
     this.getImagesFromDataBase();
-    console.log(this.$store.state.userRole);
+
     this.processNotifications();
   },
   methods: {
     async sendEmail(event) {
-      console.log(event.currentTarget.id);
       let id = parseInt(event.currentTarget.id);
       await axios({
         method: "get",
@@ -504,7 +503,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             this.suppliers = response.data;
           },
           error => {
@@ -518,15 +516,12 @@ export default {
       let whatsAppData = this.cards.filter(el => {
         return el.id === id;
       });
-      console.log(whatsAppData);
+
       this.url = whatsAppData[0].secure_url;
       this.unitChosen = whatsAppData[0].unitName;
-      // // this.email = `mailto:waynebruton@icloud.com?subject=Subject&body=${whatsAppData[0].secure_url}`;
-      // // window.location.href = this.email;
       this.emailDialog = true;
     },
     async sendWithAttachment() {
-      console.log(this.emailMessage);
       let data = {
         image: this.url,
         recipients: this.additionalEmailChosen,
@@ -536,15 +531,14 @@ export default {
         unit: this.unitChosen,
         development: this.$store.state.development.developmentName
       };
-      console.log(data);
+
       await axios({
         method: "post",
         url: `${url}/sendEmailImage`,
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.emailDialog = false;
             (this.url = ""), (this.additionalEmailChosen = "");
             this.suppliersChosen = [];
@@ -573,7 +567,6 @@ export default {
       this.emailSubject = "";
     },
     transferEmailAddress() {
-      console.log(this.suppliersChosen);
       let sampleEmails = [];
       if (this.emailAddress.length) {
         sampleEmails.push(this.emailAddress);
@@ -586,11 +579,10 @@ export default {
           }
         });
       });
-      console.log(sampleEmails);
+
       this.additionalEmailChosen = sampleEmails.join(";");
     },
     async deleteImage(event) {
-      console.log(event.currentTarget.id);
       let filteredData = this.cards.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
@@ -605,8 +597,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.getImagesFromDataBase();
           },
           error => {
@@ -617,47 +608,13 @@ export default {
           console.log(e);
         });
     },
-    // connectFaceBook(event) {
-    //   let whatsAppData = this.cards.filter((el) => {
-    //     return el.id === parseInt(event.currentTarget.id);
-    //   });
-    //   this.cards.forEach((el) => {
-    //     if (el.id === parseInt(event.currentTarget.id)) {
-    //       el.connectToFacebook = true;
-    //     } else {
-    //       el.connectToFacebook = false;
-    //     }
-    //   });
-    //   this.url = whatsAppData[0].secure_url;
-    //   this.title = this.$store.state.development.developmentName;
-    //   this.description = whatsAppData[0].comments;
-    //   // this.connectToFacebook = true;
-    //   this.hashtag = this.$store.state.development.developmentName;
-    // },
-    // changeFacebook(event) {
-    //   console.log(event.currentTarget.id);
-    //   let id = parseInt(event.currentTarget.id);
-    //   setTimeout(() => {
-    //     this.url = "";
-    //     this.title = "";
-    //     this.hashtag = "";
-    //     this.cards.forEach((el) => {
-    //       if (el.id === id) {
-    //         el.connectToFacebook = false;
-    //       }
-    //     });
-    //     // this.connectToFacebook = false;
-    //   }, 1000);
-    // },
-
     sendWhatsApp(event) {
-      console.log(event.currentTarget.id);
       let whatsAppData = this.cards.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       this.url = whatsAppData[0].secure_url;
       this.title = this.$store.state.development.developmentName;
-      console.log(whatsAppData);
+
       this.whatsAppDialog = true;
     },
     cancelUpload() {
@@ -668,17 +625,13 @@ export default {
       this.unitChosen = "";
     },
     removeFromList(event) {
-      console.log(event.currentTarget.id);
       this.files.splice(parseInt(event.currentTarget.id), 1);
-      console.log(this.files);
     },
     openUploadDialog() {
       this.getSubsections();
       this.dialog = true;
     },
     async checkImage() {
-      console.log("ImageFiles", this.files);
-
       if (this.files.length) {
         this.progressActive = true;
         var formData = new FormData();
@@ -697,7 +650,6 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
               if (response.data.done) {
                 this.progressActive = false;
                 this.getImagesFromDataBase();
@@ -726,7 +678,6 @@ export default {
       }
     },
     selectUnit() {
-      console.log(this.blockChosen);
       this.getUnits();
     },
     getSubsections() {
@@ -743,7 +694,6 @@ export default {
             return this.$router.push({ name: "Login" });
           }
           this.block = response.data;
-          console.log(this.block);
         },
         error => {
           console.log(error);
@@ -769,7 +719,6 @@ export default {
               this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
             }
           });
-          console.log(this.units);
         },
         error => {
           console.log(error);
@@ -789,8 +738,7 @@ export default {
           response => {
             this.cards = [];
             this.cards = response.data;
-            console.log(this.cards);
-            // let length = this.cards.length
+
             this.cards.forEach(el => {
               if (this.windowSize < 767) {
                 el.flex = 12;
@@ -805,7 +753,6 @@ export default {
                 el.uploadedBy = "Testing This";
               }
             });
-            // console.log("^^^^^^^^", this.cards);
           },
           error => {
             console.log(error);
@@ -816,7 +763,6 @@ export default {
         });
     },
     expandImage(event) {
-      console.log(event.currentTarget.id);
       this.card = this.cards.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });

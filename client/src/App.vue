@@ -31,7 +31,6 @@
 // import HomePage from "./components/HomePage";
 import Header from "./components/Header";
 // import Development from "./components/Development"
-
 export default {
   name: "App",
   components: {
@@ -61,11 +60,9 @@ export default {
   /* background-color: #3f3f44; */
   /* color: green; */
 }
-
 /* .colorBlack {
   background-color: black;
 } */
-
 body {
   /* font-family: "Raleway"; */
   background-color: black;

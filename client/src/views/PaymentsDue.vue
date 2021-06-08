@@ -388,7 +388,6 @@ export default {
         .then(
           response => {
             if (response.data.length) {
-              console.log(response.data);
               response.data.forEach(el => {
                 el.xero = 0;
                 el.variance = el.due - el.xero;
@@ -510,7 +509,6 @@ export default {
                 this.desserts = this.desserts.filter(el => {
                   return dayjs(el.paymentDue) <= dayjs(now);
                 });
-                console.log(this.notYetDue);
 
                 this.totalDue = this.convertToString(
                   this.desserts.reduce((acc, el) => {
@@ -552,18 +550,17 @@ export default {
       else if (calories > 200) return "orange";
       else return "blue";
     },
-    signatureFile(event) {
-      console.log(event);
-    },
+    // signatureFile(event) {
+    //   console.log(event);
+    // },
     closeSignatureFile(event) {
       if (event) {
         this.dialog1 = false;
       }
-      console.log(event);
     },
     getPDF(event) {
       let targetId = event.currentTarget.id;
-      console.log("HELLO", targetId);
+
       let itemToFetch = this.desserts.filter(el => {
         return el.docNo === parseInt(targetId) || el.docNo === targetId;
       });
@@ -573,7 +570,7 @@ export default {
     },
     getPDF2(event) {
       let targetId = event.currentTarget.id;
-      console.log("HELLO", targetId);
+
       let itemToFetch = this.notYetDue.filter(el => {
         return el.docNo === parseInt(targetId) || el.docNo === targetId;
       });
@@ -591,7 +588,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             if (
               (response.data[0].financeSignature ||
                 response.data[0].managementSignature) &&
@@ -672,9 +668,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log("Response", response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }
@@ -705,9 +699,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log("Response", response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }
@@ -981,8 +973,6 @@ export default {
               if (response.data.Status) {
                 this.getConnected();
               } else {
-                console.log("HELLO", response.data);
-                // if (response.data.length) {
                 response.data.forEach(el => {
                   let invoiceNumber = el.invoiceNumber;
                   let xero = el.amountDue;
@@ -997,9 +987,7 @@ export default {
                     }
                   });
                 });
-                // } else {
                 this.progressActive = false;
-                // }
               }
             }
           },
@@ -1029,9 +1017,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }
@@ -1061,9 +1047,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-            // this.financeApproveAllTable = false;
+          () => {
             this.financeApproveAllTable = false;
           },
           error => {
@@ -1095,9 +1079,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-            // this.financeApproveAllTable = false;
+          () => {
             this.managementApproveAllTable = false;
           },
           error => {
@@ -1164,9 +1146,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log("the Error", error);
           }

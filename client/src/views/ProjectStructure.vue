@@ -406,51 +406,34 @@ export default {
   methods: {
     onChange: function(/**Event*/ evt) {
       evt.newIndex; // most likely why this event is used is to get the dragging element's current index
-      // same properties as onEnd
-      // console.log(evt.newIndex);
+
       if ((evt.added || evt.moved) && this.items2.length > 1) {
-        console.log("ADDED");
         this.items2.forEach((el, index, arr) => {
           if (index < arr.length - 1) {
             el.dependantOn = null;
             el.dependantOn = arr[index + 1].id;
           } else {
             el.dependantOn = null;
-
-            // el.dependantOn = arr[index - 1].id;
           }
         });
-        console.log(this.items2);
       }
     },
     onChangeTask: function(/**Event*/ evt) {
       evt.newIndex; // most likely why this event is used is to get the dragging element's current index
       // same properties as onEnd
-      console.log(evt.moved.newIndex);
-      if (evt.moved && this.items3.length > 1) {
-        console.log("ADDED");
-        this.items3.forEach((el, index, arr) => {
-          console.log(index);
-          console.log(el);
-          // console.log(evt.moved.newIndex);
 
+      if (evt.moved && this.items3.length > 1) {
+        this.items3.forEach((el, index, arr) => {
           if (index < arr.length - 1) {
-            // el.dependantOn = null;
-            console.log("Alrighty");
             el.dependantOn = arr[index + 1].id.toString();
           } else {
             el.dependantOn = null;
-
-            // el.dependantOn = arr[index - 1].id.toString();
           }
           el.sortIndex = index;
         });
       }
     },
-    unChoose: function(evt) {
-      console.log("Old Index", evt.oldIndex);
-      console.log("Old Index", evt);
-    },
+
     async getFixes() {
       let data = {
         id: this.$store.state.development.id
@@ -462,7 +445,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             let dataToUpdate = [];
             if (response.data[0].length > response.data[1].length) {
               response.data[0].forEach(el => {
@@ -483,7 +465,7 @@ export default {
                 el.id = `${el.taskType}-${el.supplier}-${el.unitNumber}-${el.fix}`;
                 el.development = this.$store.state.development.id;
               });
-              // console.log(dataToUpdate)
+
               this.postFixes(dataToUpdate);
             } else if (response.data[0].length === response.data[1].length) {
               response.data[1].forEach(el => {
@@ -494,14 +476,7 @@ export default {
                   .format("YYYY-MM-DD HH:mm")}`;
               });
               this.items = response.data[1];
-              // this.itemsDuplicated = response.data[1];
-            } else {
-              console.log("Houston, we have a problem!!");
             }
-
-            // this.items = response.data[0]
-            // this.items2 = []
-            // this.suppliers = response.data;
           },
           error => {
             console.log(error);
@@ -518,8 +493,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             if (!this.items.length) {
               this.getFixes();
             }
@@ -539,13 +513,11 @@ export default {
       };
       this.postData(info);
       this.items3 = [];
-      // console.log(event.currentTarget.id);
-      // console.log("Awesome");
-      // console.log(this.items2);
+
       this.items2.forEach(el => {
         if (el.id === event.currentTarget.id) {
           el.selected = true;
-          console.log(el.startDate);
+
           this.datePickerFix = new Date(el.startDate)
             .toISOString()
             .substr(0, 10);
@@ -557,7 +529,7 @@ export default {
         return el.id === event.currentTarget.id;
       });
       let data = filteredData[0];
-      console.log(data);
+
       await axios({
         method: "post",
         url: `${url}/getRelatedTasks`,
@@ -565,7 +537,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             response.data.forEach(el => {
               el.title = el.taskDescription;
               el.subtitle = `${el.duration} days`;
@@ -589,20 +560,17 @@ export default {
     editFix(event) {
       let id = event.currentTarget.id;
       this.fixId = id;
-      console.log("EDIT ITEM", event.currentTarget.id);
 
       setTimeout(() => {
         this.timePickerFix = "08:00";
         let filtered = this.items2.filter(el => {
           return el.id === id;
         });
-        console.log(filtered);
+
         let startDate = filtered[0].startDate.substr(0, 10);
-        // console.log("XXX", startDate);
+
         if (startDate === new Date().toISOString().substr(0, 10)) {
           this.datePickerFix = this.items3[0].startDate.substr(0, 10);
-          // console.log("XXX", this.items3[0].startDate.substr(0, 10));
-          // console.log(this.items3);
         }
         this.dialog = true;
       }, 350);
@@ -610,12 +578,11 @@ export default {
     editTask(event) {
       let id = parseInt(event.currentTarget.id);
       this.taskId = id;
-      console.log("EDIT ITEM", event.currentTarget.id);
-      console.log("EDIT ITEM", this.taskId);
+
       let filteredData = this.items3.filter(el => {
         return el.id === this.taskId;
       });
-      console.log(filteredData);
+
       this.taskDuration = filteredData[0].duration;
 
       this.dialog2 = true;
@@ -635,11 +602,6 @@ export default {
       this.dialog2 = false;
     },
     saveFixChanges() {
-      console.log(this.timePickerFix);
-      console.log(this.fixId);
-      console.log(this.items2[0].startDate);
-      console.log(this.datePickerFix);
-
       let startDate = `${this.datePickerFix} ${this.timePickerFix}:00`;
 
       this.items3.forEach((el, index, arr) => {
@@ -654,9 +616,7 @@ export default {
             .format("YYYY-MM-DD HH:mm")} - ${dayjs
             .tz(el.endDate, "Africa/Johannesburg")
             .format("YYYY-MM-DD HH:mm")}`;
-          // console.log("Hello");
         } else {
-          console.log("Bye");
           el.startDate = dayjs(arr[index - 1].endDate)
             .businessDaysAdd(1)
             .subtract(9, "hour")
@@ -672,12 +632,10 @@ export default {
             .format("YYYY-MM-DD HH:mm")}`;
         }
       });
-      console.log(this.items2);
-      console.log(this.items3);
+
       let endDate = dayjs(this.items3[this.items3.length - 1].endDate).format(
         "YYYY-MM-DD HH:mm"
       );
-      console.log(endDate);
 
       this.items2.forEach(el => {
         if (el.id === this.fixId) {
@@ -686,7 +644,7 @@ export default {
           el.subtitle2 = `${el.startDate} - ${el.endDate}`;
         }
       });
-      console.log(this.items2);
+
       this.dialog = false;
     },
     finish() {
@@ -707,20 +665,13 @@ export default {
       this.dialog3 = false;
     },
     async postData(data) {
-      console.log("DATA@@@@", data);
-      // let data = {
-      //   fixes: this.items2,
-      //   tasks: this.items3,
-      // };
       await axios({
         method: "post",
         url: `${url}/saveProjectChanges`,
         data: data
       })
         .then(
-          response => {
-            console.log("The REso==", response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }

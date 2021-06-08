@@ -202,30 +202,19 @@ export default {
           console.log(e);
         });
     },
-    changeDetails(event) {
-      console.log(event.currentTarget.id);
-      console.log("AWESOME!!!!");
-      let info = event.currentTarget.id.split("-");
-      console.log(info);
-      let supplier = parseInt(info[0]);
-      let taskType = parseInt(info[1]);
-      let unitNumber = parseInt(info[2]);
-      console.log(supplier);
-      console.log(taskType);
-      console.log(unitNumber);
-      let supplierToEdit = this.suppliersInApp.filter(el => {
-        return el.supplier === supplier;
-      });
-      console.log(supplierToEdit);
-      //  supplierToEdit: [],
+    changeDetails() {
+      // let info = event.currentTarget.id.split("-");
+      // let supplier = parseInt(info[0]);
+      // let taskType = parseInt(info[1]);
+      // let unitNumber = parseInt(info[2]);
+      // let supplierToEdit = this.suppliersInApp.filter(el => {
+      //   return el.supplier === supplier;
+      // });
     },
     changeDetailsWhole(event) {
-      console.log(event.currentTarget.id);
-      console.log("AWESOME STUFF@@");
       this.supplierToEditMax = this.suppliersInApp.filter(el => {
         return el.supplier === parseInt(event.currentTarget.id);
       });
-      console.log(this.supplierToEditMax);
 
       // supplierToEditMax: []
     }

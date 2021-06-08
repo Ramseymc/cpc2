@@ -1456,9 +1456,35 @@ create table notifications (
 
 alter table notifications add type varchar(160);
 
+alter table purchaseOrders modify DNImage text;
+
+alter table stockBudget add createdBy varchar(160) default "System";
+
 ##########################################################
 
-alter table purchaseOrders modify DNImage text;
+create table instructionToCommence (
+    id int auto_increment primary key,
+    itcRefNumber varchar(160),
+    development int,
+    subsection int,
+    unit int,
+    floorLevel varchar(160), 
+    supplier int,
+    netVal decimal(18,2),
+    startDate TIMESTAMP default now(),
+    taskType varchar(160),
+    issuer varchar(160),
+    contact varchar(160),
+    notes text,
+    sentToSupplier BOOLEAN default false,
+    FOREIGN KEY (development) REFERENCES developments(id),
+    FOREIGN KEY (subsection) REFERENCES subsection(id),
+    FOREIGN KEY (unit) REFERENCES units(id),
+    FOREIGN KEY (supplier) REFERENCES suppliers(id)
+);
+
+alter table tasks add itcDone BOOLEAN default false;
+
 
 
 

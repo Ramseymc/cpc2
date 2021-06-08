@@ -173,7 +173,6 @@ export default {
       })
         .then(
           response => {
-            // console.log(response.data)
             this.items = response.data;
           },
           error => {
@@ -199,7 +198,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             this.deposits = response.data;
             this.deposits.forEach(el => {
               el.dateDepositProcessed = el.dateDepositProcessed.substring(
@@ -227,7 +225,6 @@ export default {
       let newData = this.items.filter(el => {
         return el.supplierName === this.value;
       });
-      // console.log(newData);
       this.supplierId = newData[0].id;
       this.supplierName = newData[0].supplierName;
       this.dialog = true;
@@ -239,7 +236,6 @@ export default {
           development: this.$store.state.development.id,
           deposit: this.valueInput
         };
-        console.log(data);
         await axios({
           method: "post",
           url: `${url}/addDeposit`,
@@ -247,7 +243,6 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessage = "Successfully posted!!";
                 this.snackbar = true;

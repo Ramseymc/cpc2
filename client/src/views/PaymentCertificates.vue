@@ -859,9 +859,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-
+          () => {
             this.dialog2 = false;
             this.invoiceNumber = "";
             this.certificateId = null;
@@ -886,9 +884,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log("the Error", error);
           }
@@ -1131,7 +1127,6 @@ export default {
         .then(
           response => {
             this.items = response.data;
-            console.log(response.data);
           },
           error => {
             console.log(error);
@@ -1149,7 +1144,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             response.data[1].forEach(el => {
               let filteredData = response.data[0].filter(el2 => {
                 return (
@@ -1218,16 +1212,12 @@ export default {
               }, 0)
             );
 
-            console.log(this.totalIssued);
-            console.log(this.totalUnissued);
-            // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
             let filteredUnique = [];
             this.valuationsToDateIssued.forEach(el => {
               filteredUnique.push(el.supplierName);
             });
             filteredUnique = Array.from(new Set(filteredUnique));
 
-            console.log(filteredUnique);
             let finalArray = [];
             filteredUnique.forEach(el => {
               let refilteredData = this.valuationsToDateIssued.filter(el2 => {
@@ -1249,7 +1239,7 @@ export default {
               };
               finalArray.push(insert);
             });
-            console.log(finalArray);
+
             finalArray.forEach((el, index) => {
               el.id = index;
               el.issuedStr = this.convertToString(el.issued);
@@ -1270,7 +1260,6 @@ export default {
         });
     },
     viewCertsUnissued(event) {
-      console.log(event.currentTarget.id);
       let filter = this.valuationsToDateNotIssued.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
@@ -1280,7 +1269,6 @@ export default {
       this.showUnIssued = false;
     },
     viewCertsIssued(event) {
-      console.log(event.currentTarget.id);
       let filter = this.valuationsToDateIssued.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
@@ -1307,7 +1295,6 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data);
             this.certificates = response.data[0];
             if (this.certificates.length) {
               this.hideFullyIssued = true;
@@ -1351,17 +1338,17 @@ export default {
             });
 
             groupingByUnitFix = Array.from(new Set(groupingByUnitFix));
-            console.log("groupingByUnitFix", groupingByUnitFix);
+
             this.progress = [];
             groupingByUnitFix.forEach(el => {
               let filter = el;
-              console.log(el);
+
               let insert = {
                 title: filter,
                 items: []
               };
               filter = filter.split("-");
-              console.log("Filter", filter);
+
               if (filter[filter.length - 1] !== "Retention") {
                 let items = response.data[1].filter(el => {
                   return (
@@ -1376,7 +1363,6 @@ export default {
                 // update taskTypes set taskName = 'Substructure ~ Materials' where taskName = 'Substructure - Materials';
                 // update taskTypes set taskName = 'Superstructure ~ Materials' where taskName = 'Superstructure - Materials';
 
-                console.log("Items", items);
                 items.forEach(el => {
                   el.afterRetention = (
                     el.toDate -
@@ -1385,13 +1371,10 @@ export default {
                 });
 
                 insert.items = items;
-                console.log("Insert.items", insert.items);
+
                 insert.lastCertificateIssuedAt =
                   insert.items[0].lastCertificateIssuedAt;
-                console.log(
-                  "lastCertificate Issued",
-                  insert.items[0].lastCertificateIssuedAt
-                );
+
                 insert.unitName = insert.items[0].unitName;
                 insert.taskName = insert.items[0].taskName;
                 insert.fix = insert.items[0].fix;
@@ -1540,7 +1523,7 @@ export default {
                     el.status = "CAPTURED";
                   }
                 });
-                console.log(response.data);
+
                 response.data.forEach(el => {
                   if (el.status !== "PAID") {
                     let invNumber = el.invoiceNumber;
@@ -1638,8 +1621,6 @@ export default {
             } else {
               if (response.data.statusCode) {
                 this.getConnected();
-              } else {
-                console.log(response.data);
               }
             }
           },

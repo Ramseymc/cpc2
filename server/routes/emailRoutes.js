@@ -206,6 +206,62 @@ router.post("/sendpurchaseorder", (req, res) => {
   });
 });
 
+router.post("/sendITC", (req, res) => {
+  let mysql = `select first_name, last_name, emailAddress from suppliers where id = ${req.body.supplier}`;
+  let filename = req.body.itcRefNumber;
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        let subject = `Instruction to commence - ${req.body.itcRefNumber}`;
+        let recipient = `${result[0].emailAddress}`;
+        let output = `Dear ${result[0].first_name} ${result[0].last_name},
+        Please find attached abovementioned Instruction to commence work.<br><br><br>
+        
+        <strong>Please would you supply the work therein contained.</strong><br><br>
+        
+        Please achknowledge receipt of this email
+        Kind regards<br><br>
+
+        <strong>Herbert du Plessis</strong><br>
+        Project Manager<br>
+        CPC<br><br>
+        `;
+        sendITCMail(subject, recipient, output, filename)
+          .then(() => {
+            // console.log(fileName)
+            let mysql2 = `update instructionToCommence set sentToSupplier = true where id = ${req.body.id}`;
+            console.log(chalk.blue(mysql2));
+            connection.query(mysql2, function (error, result) {
+              if (error) {
+                console.log("THE ERROR", error);
+              } else {
+                console.log(result);
+                res.json({
+                  success: true,
+                  hello: "Goodbye",
+                  fileName: recipient,
+                });
+              }
+            });
+          })
+          .catch((e) => {
+            res.json({ success: false });
+          });
+
+        // res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
 router.post("/sendpaymentcertificate", (req, res) => {
   let mysql = `select first_name, last_name, emailAddress from suppliers where id = ${req.body.supplier}`;
   let filename = req.body.certificateNumber;
@@ -387,6 +443,44 @@ async function sendImageMail(subject, recipient, output, filename, personToCC) {
 }
 
 async function sendPOMail(subject, recipient, output, filename) {
+  // let mailError;
+  let mailOptions = {
+    // from: "Perfect Staff Contact Form <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    to: `${recipient}`,
+    cc: [
+      "herbert@capeprojects.co.za",
+      // 'wynand@capeprojects.co.za',
+    ],
+    subject: `${subject}`,
+    text: "Hello world?",
+    html: output,
+    attachments: [
+      {
+        // file on disk as an attachment
+        filename: `${filename}.pdf`,
+        path: `public/purchaseorders/${filename}.pdf`, // stream this file
+        // path: `../public/${filename}.pdf`, // stream this file
+      },
+      // {
+      //   // file on disk as an attachment
+      //   filename: `${filename}Annex.pdf`,
+      //   path: `public/${filename}Annex.pdf`, // stream this file
+      // },
+    ],
+  };
+
+  await transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Error with connection", error);
+    }
+    // else {
+
+    // }
+  });
+}
+
+async function sendITCMail(subject, recipient, output, filename) {
   // let mailError;
   let mailOptions = {
     // from: "Perfect Staff Contact Form <wayne@eccentrictoad.com>",

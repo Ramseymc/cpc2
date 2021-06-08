@@ -150,6 +150,7 @@
                           </v-col>
                           <v-col class="d-flex" cols="1" sm="1">
                             <v-btn
+                              v-if="editedItem.unitChosen"
                               icon
                               @click="dialogAdd = true"
                               style="margin-top: 12px;"
@@ -158,16 +159,18 @@
                               <small>+</small>
                             </v-btn>
                           </v-col>
-                          <v-col class="d-flex" cols="1" sm="1">
+                          <!-- <v-col class="d-flex" cols="1" sm="1">
                             <v-checkbox
+                              v-if="editedItem.unitChosen"
                               style="margin-top: 15px;"
                               v-model="showReleventStock"
                               label=""
                               color="indigo"
                             ></v-checkbox>
-                          </v-col>
+                          </v-col> -->
                           <v-col class="d-flex" cols="12" sm="5">
                             <v-autocomplete
+                              v-if="editedItem.unitChosen"
                               v-model="stockItemChosen"
                               :items="stockItemsFiltered"
                               label="Choose stock item*"
@@ -187,6 +190,7 @@
                           </v-col>
                           <v-col cols="12" sm="3" md="3">
                             <v-combobox
+                              v-if="stockItemChosen"
                               v-model="editedItem.unit"
                               :items="items"
                               label="Choose Unit Measure*"
@@ -196,6 +200,7 @@
 
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
+                              v-if="stockItemChosen"
                               v-model="editedItem.quantity"
                               label="Quantity*"
                               @change="chooseQuantity"
@@ -204,6 +209,7 @@
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
+                              v-if="stockItemChosen"
                               v-model="editedItem.price"
                               label="rate*"
                               @change="chooseQuantity"
@@ -212,6 +218,7 @@
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
+                              v-if="stockItemChosen"
                               v-model="editedItem.gross"
                               label="Gross"
                               disabled
@@ -219,6 +226,7 @@
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
+                              v-if="stockItemChosen"
                               v-model="editedItem.vat"
                               label="vat"
                               disabled
@@ -226,6 +234,7 @@
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
                             <v-text-field
+                              v-if="stockItemChosen"
                               v-model="editedItem.nett"
                               label="nett"
                               disabled
@@ -336,7 +345,7 @@
         </v-card-actions>
       </v-card>
     </v-row>
-    <v-row justify="center">
+    <!-- <v-row justify="center">
       <v-dialog v-model="dialogAdd" persistent max-width="600px">
         <v-card>
           <v-card-title>
@@ -450,7 +459,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-row>
+    </v-row> -->
     <!-- <v-btn :id="item.id" icon @click="getPDF($event)"
       ><v-icon color="red">mdi-file-pdf-box</v-icon></v-btn
     > -->
@@ -460,6 +469,12 @@
       :documentName="showSrc"
       v-if="getComponent"
       @update-opened="updateOpened"
+    />
+    <addStockItem
+      v-if="dialogAdd"
+      :unitChosen="editedItem.unitChosen"
+      :dialogAdd="dialogAdd"
+      @closed="closeDialog"
     />
   </div>
 </template>
@@ -472,7 +487,8 @@ export default {
   name: "purchaseordercreate",
   components: {
     // PDFViewer,
-    PDFViewer: () => import("../components/PDFViewer")
+    PDFViewer: () => import("../components/PDFViewer"),
+    AddStockItem: () => import("../components/addStock/AddStockItem")
   },
   data() {
     return {
@@ -503,7 +519,7 @@ export default {
         "day"
       ],
       stockItemsToUpdate: [],
-      stockItemsToAdd: [],
+      // stockItemsToAdd: [],
       stockItemToAdd: {
         supplier: "",
         itemCode: "",
@@ -522,7 +538,7 @@ export default {
       totalNett: 0,
       subsectionChosen: "",
       subsection: [],
-      unitChosen: "",
+      unitChosen: [],
       units: [],
       subsectionParam: null,
       PONumber: "",
@@ -615,7 +631,7 @@ export default {
         stockFilter.forEach(el => {
           unitNumbers.push(parseInt(el.split("-")[1]));
         });
-        console.log(unitNumbers);
+
         return this.stockItems.filter(({ sbUnitNumber }) =>
           unitNumbers.includes(sbUnitNumber)
         );
@@ -641,66 +657,39 @@ export default {
   },
 
   methods: {
+    async closeDialog(event) {
+      this.dialogAdd = event;
+      await axios({
+        method: "post",
+        url: `${url}/getUpdatedStock`
+      })
+        .then(response => {
+          this.stockItems = response.data;
+          this.filterStock();
+        })
+        .catch(() => {});
+    },
     filterStock() {
       this.showReleventStock = true;
-      console.log(this.stockItemsFiltered);
-      // let stockFilter = this.editedItem.unitChosen;
-      // let unitNumbers = [];
-      // stockFilter.forEach((el) => {
-      //   unitNumbers.push(parseInt(el.split("-")[1]));
-      // });
-      // console.log(unitNumbers);
-
-      // const result = this.stockItems.filter(({ sbUnitNumber }) =>
-      //   unitNumbers.includes(sbUnitNumber)
-      // );
-      // console.log(result);
     },
     clearData() {
       this.dialog = false;
       this.desserts = [];
     },
-    async addStockItem() {
-      let supplier = this.suppliers.filter(el => {
-        return el.supplierName === this.stockItemToAdd.supplier;
-      });
-      console.log(supplier);
-      console.log(this.stockItemToAdd);
-      this.stockItemToAdd.supplier = supplier[0].id;
-      let data = this.stockItemToAdd;
-      await axios({
-        method: "post",
-        url: `${url}/addStockItem`,
-        data: data
-      })
-        .then(response => {
-          console.log(response.data);
-          this.getStock();
-        })
-        .catch(() => {});
-    },
+
     async getStock() {
+      this.stockItems = [];
       await axios({
         method: "post",
         url: `${url}/getStock`
       })
         .then(response => {
-          console.log(response.data);
           this.stockItems = response.data;
           this.dialogAdd = false;
         })
         .catch(() => {});
     },
-    calculateCost() {
-      this.stockItemToAdd.totalCost =
-        this.stockItemToAdd.quantity * this.stockItemToAdd.unitCost;
-      this.stockItemToAdd.vat = this.stockItemToAdd.totalCost * 0.15;
-      this.stockItemToAdd.nettCost =
-        this.stockItemToAdd.totalCost + this.stockItemToAdd.vat;
-      this.stockItemToAdd.totalCost = this.stockItemToAdd.totalCost.toFixed(2);
-      this.stockItemToAdd.vat = this.stockItemToAdd.vat.toFixed(2);
-      this.stockItemToAdd.nettCost = this.stockItemToAdd.nettCost.toFixed(2);
-    },
+
     async initialLoad() {
       let data = {
         id: this.$store.state.development.id
@@ -711,12 +700,11 @@ export default {
         data: data
       })
         .then(response => {
-          console.log(response.data);
           this.suppliers = response.data[0];
-          // this.stockItems = response.data[1];
+
           this.stockItems = response.data[3];
           this.stockItemsDuplicated = response.data[3];
-          // console.log(this.stockItems);
+
           if (!response.data[2].length) {
             let PONumber = `PO-${this.$store.state.development.developmentName.substring(
               0,
@@ -758,13 +746,11 @@ export default {
       let stockData = [];
       let overBudget = false;
       for (const value of this.desserts) {
-        console.log(value.available); //value
         if (parseInt(value.available) < parseInt(value.quantity)) {
           overBudget = true;
           break;
         }
       }
-      // console.log(overBudget)
 
       this.desserts.forEach(el => {
         el.PONumber = this.PONumber;
@@ -831,21 +817,6 @@ export default {
         stockData.push(stockInsert);
       });
 
-      //  stockItem int not null,
-      // quantityPurchased float not null,
-      // costPerItem decimal(18,2),
-      // totalCost decimal(18,2),
-      // vatAmount   decimal(18,2),
-      // nettCost decimal(18,2),
-      // supplier int,
-      // PONumber varchar(160),
-      // invoiceNumber   varchar(160), //NOT THIS AS YET
-      // datePurchased TIMESTAMP default now(),
-      // development int,
-      // section int,
-      // unitNumber int,
-      // console.log(this.stockItemsToAdd); //NEW STOCK ITEMS
-      console.log(this.stockItemsToUpdate); //AMEND STOCK ITEMS
       let data = {
         purchaseOrderPDFData: this.desserts,
         purchaseOrderToProcess: POData,
@@ -854,8 +825,6 @@ export default {
         stockItemsToUpdate: this.stockItemsToUpdate,
         userName: this.$store.state.userName
       };
-      console.log(this.desserts);
-      console.log("NAME:", data.userName);
 
       await axios({
         method: "post",
@@ -863,8 +832,6 @@ export default {
         data: data
       }).then(
         response => {
-          console.log(response.data);
-
           this.hrefCert = response.data.hrefCert;
           setTimeout(() => {
             this.getPDF();
@@ -900,9 +867,6 @@ export default {
       );
     },
     getUnits() {
-      console.log(this.editedItem.block);
-      // let parameter = "";
-      console.log(this.subsection);
       let data = [];
       if (this.subsection.length) {
         this.editedItem.block.forEach(el => {
@@ -911,19 +875,11 @@ export default {
           });
           data.push(unit[0].id);
         });
-        console.log(data);
 
         let getInfo = {
           id: this.$store.state.development.id,
           info: data
         };
-
-        // let unit = this.subsection.filter((el) => {
-        //   return el.subsectionName === this.editedItem.block;
-        // });
-        // parameter = unit[0].id;
-        // console.log(parameter);
-        // this.subsectionParam = parameter;
 
         axios({
           method: "post",
@@ -954,11 +910,10 @@ export default {
       }
     },
     chooseQuantity() {
-      console.log(this.supplier);
       let filteredItem = this.suppliers.filter(el => {
         return el.supplierName === this.supplier;
       });
-      console.log(filteredItem);
+
       if (this.editedItem.quantity !== 0 && this.editedItem.quantity !== "") {
         this.editedItem.gross = (
           parseFloat(this.editedItem.quantity) *
@@ -979,36 +934,34 @@ export default {
       }
     },
     async chooseStockItem() {
-      console.log(this.stockItemChosen);
-
-      let stockFilter = this.editedItem.unitChosen;
-      let unitNumbers = [];
-      stockFilter.forEach(el => {
-        unitNumbers.push(parseInt(el.split("-")[1]));
-      });
-      console.log(unitNumbers);
-
-      const result = this.stockItems
-        .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
-        .filter(el => {
-          return el.siItemDescription === this.stockItemChosen;
-        })
-        .reduce((prev, current) => {
-          return prev + current.available;
-        }, 0);
-      console.log("RESULT:", result);
-      this.stockAvailable = result;
-      const result2 = this.stockItems
-        .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
-        .filter(el => {
-          return el.siItemDescription === this.stockItemChosen;
+      if (this.stockItemChosen) {
+        let stockFilter = this.editedItem.unitChosen;
+        let unitNumbers = [];
+        stockFilter.forEach(el => {
+          unitNumbers.push(parseInt(el.split("-")[1]));
         });
-      console.log("result 2", result2);
-      this.editedItem.price = result2[0].sbCostPerItem;
-      this.editedItem.itemCode = result2[0].siItemCode;
-      this.editedItem.description = result2[0].siItemDescription;
-      this.editedItem.stockId = result2[0].siId;
-      console.log("Edited Item", this.editedItem);
+
+        const result = this.stockItems
+          .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
+          .filter(el => {
+            return el.siItemDescription === this.stockItemChosen;
+          })
+          .reduce((prev, current) => {
+            return prev + current.available;
+          }, 0);
+
+        this.stockAvailable = result;
+        const result2 = this.stockItems
+          .filter(({ sbUnitNumber }) => unitNumbers.includes(sbUnitNumber))
+          .filter(el => {
+            return el.siItemDescription === this.stockItemChosen;
+          });
+
+        this.editedItem.price = result2[0].sbCostPerItem;
+        this.editedItem.itemCode = result2[0].siItemCode;
+        this.editedItem.description = result2[0].siItemDescription;
+        this.editedItem.stockId = result2[0].siId;
+      }
     },
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
@@ -1029,10 +982,12 @@ export default {
 
     close() {
       this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
+      this.editedIndex = -1;
+      this.editedItem = this.defaultItem;
+      // this.$nextTick(() => {
+      //   this.editedItem = Object.assign({}, this.defaultItem);
+      //   this.editedIndex = -1;
+      // });
     },
 
     closeDelete() {
@@ -1044,7 +999,6 @@ export default {
     },
 
     async save() {
-      console.log(this.editedItem.unitChosen);
       this.showReleventStock = false;
       this.stockAvailable = 0;
       if (this.editedIndex > -1) {
@@ -1100,15 +1054,7 @@ export default {
           this.desserts.push(insert);
         }
       }
-      // this.desserts.forEach((el) => {
-      // let unit = [];
-      // let unitChosen = el.unitChosen;
-      // unit.push(unitChosen);
-      // let data = {
-      //   id: this.editedItem.stockId,
-      //   unit: unit,
-      // };
-      console.log(this.desserts);
+
       this.desserts.forEach(el => {
         let unit = parseInt(el.unitChosen.split("-")[1]);
         let description = el.description;
@@ -1117,28 +1063,9 @@ export default {
             description === el2.siItemDescription && unit === el2.sbUnitNumber
           );
         });
-        console.log(availabilty);
+
         el.available = availabilty[0].available;
       });
-      // axios({
-      //   method: "post",
-      //   url: `${url}/getBudget`,
-      //   data: data,
-      // }).then(
-      //   (response) => {
-      //     console.log(response.data);
-      //     console.log(response.data[0][0]);
-      //     console.log(response.data[1][0]);
-      //     el.available =
-      //       response.data[0][0].quantity - response.data[1][0].quantity;
-      //     el.quantity = parseInt(el.quantity);
-      //   },
-      //   (error) => {
-      //     console.log(error);
-      //   }
-      // );
-      // });
-      console.log("CheckOut", this.desserts);
 
       if (
         typeof this.stockItemChosen === "object" &&

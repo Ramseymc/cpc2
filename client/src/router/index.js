@@ -197,10 +197,9 @@ const routes = [
       )
   },
   {
-    path: "/crosstab",
-    name: "Crosstab",
-    component: () =>
-      import(/* webpackChunkName: "Crosstab" */ "../views/CrossTab.vue")
+    path: "/instructionToCommit",
+    name: "ITC",
+    component: () => import(/* webpackChunkName: "ITC" */ "../views/ITC.vue")
   },
   {
     path: "/*",

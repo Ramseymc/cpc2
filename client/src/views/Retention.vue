@@ -222,17 +222,14 @@ export default {
   methods: {
     getPDF(event) {
       let targetId = event.currentTarget.id;
-      // console.log(targetId)
-      // console.log(this.retentions)
+
       let itemToFetch = this.retentions.filter((el, index) => {
         return index === parseInt(targetId);
       });
-      // console.log(itemToFetch)
+
       this.showSrc = itemToFetch[0].hrefCert;
       this.showFileName = itemToFetch[0].certificateNumber;
 
-      // console.log(targetId);
-      // console.log(itemToFetch)
       this.getComponent = true;
     },
     updateOpened() {

@@ -100,10 +100,6 @@
                   ></v-checkbox>
                 </template>
                 <template v-slot:item.uploadImage="{ item }">
-                  <!-- <v-text-field
-                    style="margin-left: 25px;"
-                    v-model="item.comments"
-                  ></v-text-field> -->
                   <v-btn
                     :id="item.id"
                     icon
@@ -113,10 +109,6 @@
                   >
                 </template>
                 <template v-slot:item.viewImage="{ item }">
-                  <!-- <v-text-field
-                    style="margin-left: 25px;"
-                    v-model="item.image"
-                  ></v-text-field> -->
                   <v-btn
                     :id="item.id"
                     icon
@@ -126,10 +118,6 @@
                   >
                 </template>
                 <template v-slot:item.deleteImage="{ item }">
-                  <!-- <v-text-field
-                    style="margin-left: 25px;"
-                    v-model="item.image"
-                  ></v-text-field> -->
                   <v-btn
                     :id="item.id"
                     icon
@@ -164,9 +152,6 @@
             Manager</v-btn
           >
           <v-spacer></v-spacer>
-          <!-- <v-btn v-if="!pdfExists" color="blue darken-1" text @click="createPDF">
-            Create Doc
-          </v-btn> -->
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDialog">
             Close
@@ -257,7 +242,6 @@ export default {
     unit: String
   },
   components: {
-    // Signature: () => import("../components/Signature"),
     Signature: () => import("./Signature"),
     CldImage,
     CldTransformation
@@ -345,13 +329,12 @@ export default {
       this.title = this.QualityType;
     }
     this.timestamp = new Date().getTime().toString();
-    console.log(this.timestamp);
+
     this.today = dayjs().format("YYYY-MM-DD");
   },
 
   methods: {
     async uploadedImageFile() {
-      console.log(this.imageFile);
       let formData = new FormData();
       formData.append("image", this.imageFile);
       formData.append("id", this.currentIdForUploadImage);
@@ -362,15 +345,11 @@ export default {
         data: formData
       }).then(
         response => {
-          console.log(response.data);
           this.uploadDialog = false;
           this.imageFile = null;
           this.desserts.forEach(el => {
             if (el.id === parseInt(response.data.id)) {
               el.image = response.data.public_id;
-              console.log(this.desserts);
-            } else {
-              console.log("NO GO");
             }
           });
         },
@@ -380,7 +359,6 @@ export default {
       );
     },
     async deleteImage(event) {
-      console.log(event.currentTarget.id);
       let filteredData = this.desserts.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
@@ -395,16 +373,11 @@ export default {
         data: data
       }).then(
         response => {
-          console.log(response.data);
-          // this.uploadDialog = false;
           this.imageFile = null;
-          console.log(parseInt(response.data.id));
+
           this.desserts.forEach(el => {
             if (el.id === parseInt(response.data.id)) {
               el.image = null;
-              // console.log(this.desserts)
-            } else {
-              console.log("NO GO DELETION");
             }
           });
         },
@@ -414,38 +387,23 @@ export default {
       );
     },
     uploadImage(event) {
-      console.log(event.currentTarget.id);
       this.currentIdForUploadImage = event.currentTarget.id;
       this.uploadDialog = true;
     },
     viewImage(event) {
-      console.log(event.currentTarget.id);
       let filteredData = this.desserts.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       this.publicId = filteredData[0].image;
       this.viewDialog = true;
     },
-    createPDF() {
-      console.log("OK");
-    },
+
     async saveData() {
       let now = dayjs(new Date()).format("YYYY-MM-DD HH:mm");
-      // this.desserts.forEach((el) => {
-      //   if (el.subcontractor && this.scSignature === "" && !el.signedSubcontractor && el.signedSubcontractorImage === null) {
-      //     el.subcontractor = false
-      //   } else if (el.subcontractor && this.scSignature !== "" && !el.signedSubcontractor && el.signedSubcontractorImage === null) {
-
-      //   }
-      // })
       if (
         JSON.stringify(this.desserts) !== this.duplicate &&
         this.duplicate === ""
       ) {
-        // this.desserts.forEach((el) => {
-        //   el.controlTimestamp = this.timestamp
-        // })
-        console.log("First Save");
         let data = {
           saveDate: now,
           development: this.$store.state.development.id,
@@ -462,7 +420,7 @@ export default {
           sfSignature: this.sfSignature,
           public_id: this.public_id
         };
-        console.log("First Save", data);
+
         axios.defaults.headers.common[
           "Authorization"
         ] = this.$store.state.token;
@@ -471,9 +429,7 @@ export default {
           url: `${url}/postQC`,
           data: data
         }).then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }
@@ -501,8 +457,7 @@ export default {
           sfSignature: this.sfSignature,
           signaturesOnly: false
         };
-        console.log("Update Data");
-        console.log("Data update", data);
+
         axios.defaults.headers.common[
           "Authorization"
         ] = this.$store.state.token;
@@ -511,23 +466,17 @@ export default {
           url: `${url}/editQC`,
           data: data
         }).then(
-          response => {
-            console.log(response.data);
-          },
+          () => {},
           error => {
             console.log(error);
           }
         );
-      } else {
-        console.log("NOTHING CHANGED");
       }
+
       this.dialog = false;
       this.$emit("closed", this.dialog);
     },
     checkChanges(a, b) {
-      // console.log("desserts", a);
-      // console.log("Duplicate", b);
-
       function comparer(otherArray) {
         return function(current) {
           return (
@@ -548,18 +497,15 @@ export default {
 
       let result = onlyInA.concat(onlyInB);
 
-      console.log("THE RSLT", result);
-      console.log(result.length / 2);
       let newArray = [];
       let originalArray = [];
       for (let i = 0; i < result.length / 2; i++) {
         newArray.push(result[i]);
       }
-      console.log(newArray);
+
       for (let i = result.length / 2; i < result.length; i++) {
         originalArray.push(result[i]);
       }
-      console.log(originalArray);
     },
     async getData() {
       let data = {
@@ -575,7 +521,6 @@ export default {
         data: data
       }).then(
         response => {
-          console.log(response.data);
           if (response.data[1].length) {
             this.desserts = response.data[1];
             this.desserts.forEach(el => {
@@ -595,12 +540,7 @@ export default {
                 el.scDisabled = false;
               }
             });
-            // this.desserts.forEach((el) => {
-            //   el.image = "test"
-            // })
-            // this.duplicate = JSON.stringify(response.data[1]);
           } else {
-            // this.duplicate = "";
             this.desserts = response.data[0];
             this.desserts.forEach(el => {
               el.signedConstructionManager = false;
@@ -615,11 +555,6 @@ export default {
             if (el.comments === null) {
               el.comments = "";
             }
-            // if (index === 3) {
-            //   el.image = "test";
-            // } else {
-            //   el.image = "";
-            // }
           });
           if (!response.data[1].length) {
             let array = [];
@@ -627,12 +562,12 @@ export default {
               if (el.comments === null) {
                 el.comments = "";
               }
-              console.log(el);
+
               array.push(el.category);
             });
 
             array = Array.from(new Set(array));
-            console.log(array);
+
             array.forEach((el, index) => {
               this.desserts.forEach(el2 => {
                 if (el === el2.category) {
@@ -666,7 +601,6 @@ export default {
                   data: data
                 }).then(
                   response => {
-                    console.log(response.data);
                     if (response.data.exists) {
                       this.pdfExists = response.data.exists;
                       this.href = `${process.env.VUE_APP_BASEURL}/${this.desserts[0].controlTimestamp}QCReport.pdf`;
@@ -704,7 +638,6 @@ export default {
     },
     closeAll() {
       Object.keys(this.$refs).forEach(k => {
-        // console.log(this.$refs[k])
         if (this.$refs[k] && this.$refs[k].$attrs["data-open"]) {
           this.$refs[k].$el.click();
         }
@@ -719,20 +652,13 @@ export default {
     },
 
     signatureFile(event) {
-      console.log(event);
       if (event.title === "Subcontractor Signature") {
         this.signedSubcontractor = true;
         this.scSignature = event.data;
-        // this.desserts.forEach(el => {
-        //   el.signedSubcontractor = this.signedSubcontractor;
-        // });
       }
       if (event.title === "Site Foreman Signature") {
         this.signedSiteforeman = true;
         this.sfSignature = event.data;
-        // this.desserts.forEach(el => {
-        //   el.signedSiteforeman = this.signedSiteforeman;
-        // });
       }
       if (
         event.title ===
@@ -740,17 +666,12 @@ export default {
       ) {
         this.signedConstructionManager = true;
         this.cmSignature = event.data;
-        // this.desserts.forEach(el => {
-        //   el.signedConstructionManager = this.signedConstructionManager;
-        // });
-        console.log("AWESOME");
       }
     },
     closeSignatureFile(event) {
       if (event) {
         this.dialog1 = false;
       }
-      console.log(event);
     }
   }
 };
