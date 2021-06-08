@@ -120,10 +120,9 @@
                       'Ground floor',
                       'First Floor',
                       'Second floor',
-                      'Parapet',
+                      'Parapet'
                     ]"
                     label="Floor"
-                    @change="getValue"
                   ></v-autocomplete>
                 </v-col>
                 <!-- <v-col cols="12" sm="6" md="6">
@@ -146,15 +145,28 @@
                     <!-- v-if="floorChosen"
                     v-model="value" -->
                     <v-text-field
-                    style="width: 300px"
+                      style="width: 300px"
                       v-if="floorChosen"
                       :label="`${value.fix} ${value.unitName}`"
                       :value="value.total"
                       outlined
                       width="50%"
                     ></v-text-field>
-                    <masked-input v-if="floorChosen" v-model="value.date" mask="1111-11-11" placeholder="yyyy/mm/dd" style="height: 55px; border: 1px solid grey; border-radius: 5%; width: 125px; margin-left: 50px; margin-right: 50px;padding-left: 10px;"/>
-                    <v-checkbox v-if="floorChosen" v-model="value.processITC" color="red"></v-checkbox>
+                    <masked-input
+                      :id="value.mainId"
+                      v-if="floorChosen"
+                      v-model="value.date"
+                      mask="1111-11-11"
+                      placeholder="yyyy/mm/dd"
+                      style="height: 55px; border: 1px solid grey; border-radius: 5%; width: 125px; margin-left: 50px; margin-right: 50px;padding-left: 10px;"
+                    />
+                    <v-checkbox
+                      :id="value.mainId"
+                      v-if="floorChosen"
+                      v-model="value.processITC"
+                      color="red"
+                      @change="calculateTotal"
+                    ></v-checkbox>
                     <!-- <v-dialog
                       v-if="floorChosen"
                       :ref="value.ref"
@@ -204,6 +216,9 @@
                 </v-col>
 
                 <v-col cols="12">
+                  {{ value }}
+                </v-col>
+                <v-col cols="12">
                   <v-textarea
                     label="Notes"
                     rows="4"
@@ -224,7 +239,7 @@
               color="blue darken-1"
               text
               @click="saveITC"
-              v-if="floorChosen"
+              v-if="value !== 'R0.00' && value !== null && value !== 0"
             >
               Save
             </v-btn>
@@ -259,9 +274,8 @@ export default {
   name: "ITC",
   components: {
     PDFViewer: () => import("../components/PDFViewer"),
-   MaskedInput
+    MaskedInput
     // DatePicker
-    
   },
   metaInfo: {
     title: "Instruction",
@@ -269,13 +283,13 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `About CPC here.`,
-      },
+        content: `About CPC here.`
+      }
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true,
-    },
+      amp: true
+    }
   },
   data() {
     return {
@@ -300,7 +314,7 @@ export default {
       blocks: [],
       blockChosen: "",
       floorChosen: "",
-      value: 0,
+      value: "R0.00",
       valueStr: "",
       values: [],
       latestITCRefNumber: "",
@@ -313,14 +327,14 @@ export default {
           align: "start",
           sortable: false,
           value: "supplierName",
-          width: 120,
+          width: 120
         },
         {
           text: "Task",
           align: "start",
           sortable: false,
           value: "taskName",
-          width: 120,
+          width: 120
         },
         { text: "Block", value: "subsectionName", width: 120 },
         { text: "Unit", value: "unitName", width: 120 },
@@ -330,14 +344,14 @@ export default {
         { text: "Value", value: "netValStr", width: 120 },
         { text: "View", value: "actions", sortable: false },
         { text: "Email", value: "email", sortable: false },
-        { text: "Delete", value: "delete", sortable: false },
-      ],
+        { text: "Delete", value: "delete", sortable: false }
+      ]
     };
   },
   computed: {
     filteredUnits: function() {
       if (this.blockChosen !== "") {
-        return this.units.filter((el) => {
+        return this.units.filter(el => {
           return el.subsectionName === this.blockChosen;
         });
       } else {
@@ -346,11 +360,11 @@ export default {
     },
     finalUnits: function() {
       if (this.unitChosen !== "") {
-        return this.filteredUnits.filter((el) => {
-          return el.unitName === this.unitChosen
-        })
+        return this.filteredUnits.filter(el => {
+          return el.unitName === this.unitChosen;
+        });
       } else {
-        return this.filteredUnits
+        return this.filteredUnits;
       }
     }
   },
@@ -360,20 +374,33 @@ export default {
     this.issuer = this.$store.state.userName;
   },
   methods: {
-    closeDatePicker(event) {
-      console.log(event.currentTarget.id);
-      this.filteredUnits.forEach((el) => {
-        if (el.mainId === event.currentTarget.id) {
-          console.log("TEST GOOD", el.mainId);
-          console.log(el.modal);
-          el.modal = false;
-          console.log(el.modal);
-        }
-      });
+    calculateTotal() {
+      // console.log(event.currentTarget.id)
+      this.value = this.convertToString(
+        this.finalUnits.reduce((prev, curr) => {
+          if (curr.processITC) {
+            return (prev = prev + curr.total);
+          } else {
+            return (prev = prev + 0);
+          }
+        }, 0)
+      );
+      // console.log(this.value)
     },
+    // closeDatePicker(event) {
+    //   console.log(event.currentTarget.id);
+    //   this.filteredUnits.forEach((el) => {
+    //     if (el.mainId === event.currentTarget.id) {
+    //       console.log("TEST GOOD", el.mainId);
+    //       console.log(el.modal);
+    //       el.modal = false;
+    //       console.log(el.modal);
+    //     }
+    //   });
+    // },
     getPDF(event) {
       let targetId = event.currentTarget.id;
-      let itemToFetch = this.items.filter((el) => {
+      let itemToFetch = this.items.filter(el => {
         return el.id === parseInt(targetId);
       });
       this.showSrc = itemToFetch[0].hrefCert;
@@ -385,18 +412,18 @@ export default {
     },
     async initialLoad() {
       let data = {
-        id: this.$store.state.development.id,
+        id: this.$store.state.development.id
       };
       await axios({
         method: "post",
         url: `${url}/getAllItc`,
-        data: data,
+        data: data
       })
         .then(
-          (response) => {
+          response => {
             if (response.data.length) {
               this.items = response.data;
-              this.items.forEach((el) => {
+              this.items.forEach(el => {
                 el.netValStr = this.convertToString(el.netVal);
                 el.startDate = dayjs(el.startDate).format("YYYY-MM-DD");
                 el.hrefCert = `${process.env.VUE_APP_BASEURL}/purchaseorders/${el.itcRefNumber}.pdf`;
@@ -412,21 +439,21 @@ export default {
               this.latestITCRefNumber = `ITC-1`;
             }
           },
-          (error) => {
+          error => {
             console.log("the Error", error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     async createITC() {
       await axios({
         method: "post",
-        url: `${url}/getSubcontractors`,
+        url: `${url}/getSubcontractors`
       })
         .then(
-          (response) => {
+          response => {
             this.subcontractors = response.data;
             this.subcontractorChosen = "";
             this.taskTypeChosen = "";
@@ -437,16 +464,16 @@ export default {
             this.dialog = true;
             this.blockChosen = "";
           },
-          (error) => {
+          error => {
             console.log("the Error", error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     async getTasks() {
-      let filtered = this.subcontractors.filter((el) => {
+      let filtered = this.subcontractors.filter(el => {
         return el.supplierName === this.subcontractorChosen;
       });
       let vatVendor = filtered[0].vatVendor;
@@ -458,17 +485,17 @@ export default {
       }
       let data = {
         supplier: filtered[0].id,
-        development: this.$store.state.development.id,
+        development: this.$store.state.development.id
       };
 
       await axios({
         method: "post",
         url: `${url}/getTaskTotals`,
-        data: data,
+        data: data
       })
         .then(
-          (response) => {
-            response.data.forEach((el) => {
+          response => {
+            response.data.forEach(el => {
               if (this.vatVendor === false) {
                 el.total = el.total / 1.15;
               } else {
@@ -477,94 +504,108 @@ export default {
             });
 
             this.taskTypes = response.data;
-            console.log(this.taskTypes);
+
             this.taskTypes.forEach((el, index) => {
               el.date = new Date().toISOString().substr(0, 10);
               el.modal = false;
               el.mainId = index.toString();
-              el.processITC = false
+              el.processITC = false;
             });
           },
-          (error) => {
+          error => {
             console.log("the Error", error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     getUnits() {
-      this.units = this.taskTypes.filter((el) => {
+      this.units = this.taskTypes.filter(el => {
         return el.taskName === this.taskTypeChosen;
       });
     },
     getBlocks() {
-      this.blocks = this.taskTypes.filter((el) => {
+      this.blocks = this.taskTypes.filter(el => {
         return el.taskName === this.taskTypeChosen;
       });
       console.log(this.blocks);
     },
-    getValue() {
-      let filtered = this.taskTypes.filter((el) => {
-        return (
-          el.taskName === this.taskTypeChosen && el.unitName === this.unitChosen
-        );
-      });
-      console.log(filtered);
-      this.values = filtered;
-      this.value = filtered[0].total.toFixed(2);
-      this.valueStr = this.convertToString(this.value);
-    },
+    // getValue() {
+    //   let filtered = this.taskTypes.filter((el) => {
+    //     return (
+    //       el.taskName === this.taskTypeChosen && el.unitName === this.unitChosen
+    //     );
+    //   });
+    //   console.log(filtered);
+    //   this.values = filtered;
+    //   // this.value = filtered[0].total.toFixed(2);
+    //   // this.valueStr = this.convertToString(this.value);
+    // },
     async saveITC() {
+      let finalData = this.finalUnits.filter(el => {
+        return el.processITC === true;
+      });
+      let finalInfo = "";
+      console.log(finalData);
+      finalData.forEach(el => {
+        finalInfo = `${finalInfo} Fix: ${el.fix} \n Date to Start: ${
+          el.date
+        } \n Value of Work: ${this.convertToString(el.total)} \n`;
+      });
+      console.log(finalInfo);
+
       let pdfData = [
         {
           itcRefNumber: this.latestITCRefNumber,
-          subsection: this.taskTypes.filter((el) => {
+          subsection: this.taskTypes.filter(el => {
             return el.subsectionName === this.blockChosen;
           })[0].subsectionName,
-          unit: this.taskTypes.filter((el) => {
+          unit: this.taskTypes.filter(el => {
             return el.unitName === this.unitChosen;
           })[0].unitName,
           floorLevel: this.floorChosen,
-          supplier: this.taskTypes.filter((el) => {
+          supplier: this.taskTypes.filter(el => {
             return el.supplierName === this.subcontractorChosen;
           })[0].supplierName,
-          netVal: this.value,
-          startDate: this.date,
-          taskType: this.taskTypes.filter((el) => {
+          netVal: this.value, //this
+          startDate: this.date, //this
+          finalInfo: finalInfo,
+          taskType: this.taskTypes.filter(el => {
             return el.taskName === this.taskTypeChosen;
           })[0].taskName,
           issuer: this.issuer,
-          notes: this.notes,
-        },
+          notes: this.notes
+        }
       ];
       let data = {
         pdfData: pdfData,
+        mostData: finalData,
         itcRefNumber: this.latestITCRefNumber,
         development: this.$store.state.development.id,
-        subsection: this.taskTypes.filter((el) => {
+        subsection: this.taskTypes.filter(el => {
           return el.subsectionName === this.blockChosen;
         })[0].id,
-        unit: this.taskTypes.filter((el) => {
+        unit: this.taskTypes.filter(el => {
           return el.unitName === this.unitChosen;
         })[0].unitNumber,
         floorLevel: this.floorChosen,
-        supplier: this.taskTypes.filter((el) => {
+        supplier: this.taskTypes.filter(el => {
           return el.supplierName === this.subcontractorChosen;
         })[0].supplier,
         netVal: this.value,
         startDate: this.date,
-        taskType: this.taskTypes.filter((el) => {
+        taskType: this.taskTypes.filter(el => {
           return el.taskName === this.taskTypeChosen;
         })[0].taskType,
         issuer: this.issuer,
-        notes: this.notes,
+        notes: this.notes
       };
 
       await axios({
         method: "post",
         url: `${url}/saveITC`,
-        data: data,
+        data: data
       })
         .then(
           () => {
@@ -572,59 +613,59 @@ export default {
 
             this.dialog = false;
           },
-          (error) => {
+          error => {
             console.log("the Error", error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     async deleteITC(event) {
-      let filter = this.items.filter((el) => {
+      let filter = this.items.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       let data = {
         id: filter[0].id,
         supplier: filter[0].supplier,
         taskType: parseInt(filter[0].taskType),
-        unitNumber: filter[0].unit,
+        unitNumber: filter[0].unit
       };
       await axios({
         method: "post",
         url: `${url}/deleteITC`,
-        data: data,
+        data: data
       })
         .then(
           () => {
             this.initialLoad();
           },
-          (error) => {
+          error => {
             console.log("the Error", error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     async sendStatement(event) {
       let targetId = event.currentTarget.id;
-      let fileInfo = this.items.filter((el) => {
+      let fileInfo = this.items.filter(el => {
         return el.id === parseInt(targetId);
       });
 
       let data = {
         supplier: fileInfo[0].supplier,
         itcRefNumber: fileInfo[0].itcRefNumber,
-        id: fileInfo[0].id,
+        id: fileInfo[0].id
       };
       await axios({
         method: "post",
         url: `${url}/sendITC`,
-        data: data,
+        data: data
       })
         .then(
-          (response) => {
+          response => {
             if (response.data.success) {
               this.snackbarMessage = `Mail sent successfully to ${response.data.fileName}`;
               this.snackbar = true;
@@ -634,15 +675,15 @@ export default {
               this.snackbar = true;
             }
           },
-          (error) => {
+          error => {
             console.log("the Error", error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
-    },
-  },
+    }
+  }
 };
 </script>
 

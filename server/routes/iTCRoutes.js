@@ -57,10 +57,15 @@ router.post("/saveITC", (req, res) => {
 
     runReport(req.body.pdfData)
 
+  
     let mysql1 = `insert into instructionToCommence (itcRefNumber, development, subsection, unit, floorLevel, supplier, netVal, startDate, taskType, issuer, notes ) values (
-      '${req.body.itcRefNumber}', ${req.body.development}, ${req.body.subsection}, ${req.body.unit}, '${req.body.floorLevel}', ${req.body.supplier}, ${req.body.netVal}, '${req.body.startDate}', ${req.body.taskType}, '${req.body.issuer}', '${req.body.notes}'
+      '${req.body.itcRefNumber}', ${req.body.development}, ${req.body.subsection}, ${req.body.unit}, '${req.body.floorLevel}', ${req.body.supplier}, ${req.body.netVal.split("R").join("").split(" ").join("")}, '${req.body.startDate}', ${req.body.taskType}, '${req.body.issuer}', '${req.body.notes}'
     )`;
-    let mysql2 = `Update tasks set itcDone = true where supplier = ${req.body.supplier} and unitNumber = ${req.body.unit} and taskType = ${req.body.taskType}`
+    let mysql2 = ""
+    req.body.mostData.forEach((el) => {
+      mysql2 = `${mysql2} Update tasks set itcDone = true where supplier = ${req.body.supplier} and unitNumber = ${req.body.unit} and taskType = ${req.body.taskType} and fix = '${el.fix}';`
+    })
+    
     let mysql = `${mysql1};${mysql2}`
     pool.getConnection(function (err, connection) {
       if (err) {

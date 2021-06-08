@@ -56,7 +56,7 @@ Vue.use(moment);
 Vue.config.productionTip = false;
 
 import MyPlugin from "./plugins/myPlugins";
-import vuetify from './plugins/vuetify'
+import vuetify from "./plugins/vuetify";
 Vue.use(MyPlugin);
 
 new Vue({
