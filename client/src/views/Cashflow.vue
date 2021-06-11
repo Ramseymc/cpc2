@@ -2,7 +2,11 @@
   <div class="about">
     <br />
     <v-col cols="10" offset="1" mb-4>
-      <downloadTemplate :startData="downloadData" v-if="downloadData.length" />
+      <!-- <downloadTemplate :startData="downloadData" v-if="downloadData.length" /> -->
+
+      <a :href="src" download v-if="!loading && show">
+        <v-icon color="green">mdi-microsoft-excel</v-icon>Download</a
+      >
       <br />
       <label>Filter</label>
       <div style="display: flex; justify-content: space-evenly;">
@@ -84,7 +88,7 @@ import { VuePivottable } from "vue-pivottable";
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
 import "vue-pivottable/dist/vue-pivottable.css";
-import DownloadTemplate from "../components/DownloadCashflow";
+// import DownloadTemplate from "../components/DownloadCashflow";
 export default {
   name: "Cashflow",
   metaInfo: {
@@ -103,6 +107,7 @@ export default {
   },
   data() {
     return {
+      src: "",
       row: "both",
       model: null,
       pivotData: [],
@@ -121,9 +126,9 @@ export default {
     };
   },
   components: {
-    VuePivottable,
+    VuePivottable
     // VuePivottableUi,
-    DownloadTemplate
+    // DownloadTemplate
   },
 
   computed: {
@@ -139,6 +144,7 @@ export default {
     this.checkToken();
     setTimeout(() => {
       this.getData();
+      this.src = `${process.env.VUE_APP_BASEURL}/cashflow.xlsx`;
     });
   },
   methods: {
@@ -154,7 +160,8 @@ export default {
       })
         .then(
           response => {
-            this.downloadData = response.data;
+            // this.downloadData = response.data;
+            // console.log(response.data);
 
             var myObject = response.data[0];
             var keyNames = Object.keys(myObject);
@@ -172,7 +179,10 @@ export default {
               this.pivotData.push(insert);
             });
             this.mainData = response.data;
-            this.show = true;
+            setTimeout(() => {
+              this.show = true;
+            }, 1750);
+
             this.loading = false;
           },
           error => {
@@ -270,5 +280,10 @@ export default {
 }
 .inner-content:not(:first-of-type) {
   margin-left: 30px;
+}
+a {
+  text-decoration: none;
+  color: black;
+  margin-bottom: 10px;
 }
 </style>
