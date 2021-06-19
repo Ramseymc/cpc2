@@ -4,6 +4,7 @@ const pool = require("./connection");
 const chalk = require("chalk");
 const { checktoken, jwtSignUser } = require("./checkToken");
 const moment = require("moment");
+const dayjs = require('dayjs')
 var fs = require("fs");
 const { response } = require("express");
 const runReport = require("./reportsPDF");
@@ -27,27 +28,19 @@ router.get("/suppliers", (req, res) => {
   });
 });
 
-router.get("/getValuations", (req, res) => {
-  let mysql1 = `select p.id, p.task, p.unitNumber,  
+router.post("/getValuations", (req, res) => {
+  let mysql1 = `select p.id, p.task, p.unitNumber, p.progress, p.lastCertificateIssuedAt,  
   p.lastUpdate,  t.supplier,t.taskDescription, tt.taskName,
-u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued,
- p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice,
-round(pcd.retained* (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedRetained, round(pcd.retained * p.lastCertificateIssuedAt/100,2) as issuedRetained, coalesce(round(pcd.amountPaid,2),0) as paid
+u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued, p.progressDate, 
+ p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice
+,round(pcd.retained* (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedRetained, round(pcd.retained * p.lastCertificateIssuedAt/100,2) as issuedRetained, coalesce(round(pcd.amountPaid,2),0) as paid
 from  tasks t,taskTypes tt, units u, progress p
 left join paymentCertificatesDetails pcd
 on p.id = pcd.progressId
-where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`;
-//   let mysql1 = `select p.id, p.task, p.unitNumber,  
-//   p.lastUpdate,  t.supplier,t.taskDescription, tt.taskName,
-// u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued,
-//  p.lastCertificateIssuedAt as issued, round(t.price * (p.progress - p.lastCertificateIssuedAt)/100,2) as unIssuedPrice, round(t.price * p.lastCertificateIssuedAt/100,2) as issuedPrice
-// from  tasks t,taskTypes tt, units u, progress p
-// left join paymentCertificatesDetails pcd
-// on p.id = pcd.progressId
-// where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`;
-let mysql2 = `select distinct p.unitNumber, t.supplier, tt.taskName,u.unitName
-from  tasks t,taskTypes tt, units u, progress p
-where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber`
+ where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber and t.development = ${req.body.id}`;
+let mysql2 = `select distinct p.unitNumber, t.supplier, tt.taskName,u.unitName, s.terms
+from  tasks t,taskTypes tt, units u, progress p, suppliers s
+where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber and u.development = ${req.body.id} and s.id = t.supplier`
 let mysql = `${mysql1};${mysql2}`
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -59,6 +52,90 @@ let mysql = `${mysql1};${mysql2}`
       if (error) {
         console.log("THE ERROR", error);
       } else {
+        console.log(result[1])
+        // result[1].forEach((el) => {
+        //   let filteredData = result[0].filter((el2) => {
+        //     return (
+        //       el.unitNumber === el2.unitNumber &&
+        //       el.supplier === el2.supplier &&
+        //       el.taskName === el2.taskName
+        //     );
+        //   });
+        //   el.progressDate = dayjs(filteredData[0].progressDate).format(
+        //     "YYYY-MM-DD"
+        //   );
+        //   console.log(el.progressDate);
+        //   switch (el.terms) {
+        //     case 1:
+        //       el.payDate = dayjs(el.progressDate)
+        //         .endOf("month")
+        //         .add(1, "month")
+        //         .endOf("month")
+        //         .format("YYYY-MM-DD");
+        //       break;
+        //     case 2:
+        //       el.payDate = dayjs(el.progressDate)
+        //         .endOf("week")
+        //         .add(2, "week")
+        //         .endOf("week")
+        //         .subtract(1, "d")
+        //         .format("YYYY-MM-DD");
+        //       break;
+        //     case 3:
+        //       el.payDate = dayjs(el.progressDate)
+        //         .endOf("week")
+        //         .subtract(1, "d")
+        //         .format("YYYY-MM-DD");
+        //       break;
+        //     case 4:
+        //       el.payDate = dayjs(el.progressDate)
+        //         .endOf("week")
+        //         .add(1, "week")
+        //         .endOf("week")
+        //         .subtract(1, "d")
+        //         .format("YYYY-MM-DD");
+        //       break;
+        //   }
+        //   console.log(el.payDate);
+        //   let today = dayjs(new Date()).format("YYYY-MM-DD")
+        //   el.remainingDays = dayjs(el.payDate).diff(dayjs(today), 'day')
+
+        //   el.unIssued = filteredData.reduce((prev, curr) => {
+        //     return prev + parseFloat(curr.unIssuedPrice);
+        //   }, 0);
+        //   el.issued = filteredData.reduce((prev, curr) => {
+        //     return prev + parseFloat(curr.issuedPrice);
+        //   }, 0);
+        //   el.issuedStr = convertToString(el.issued);
+        //   el.unIssuedStr = convertToString(el.unIssued);
+
+        //   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //   el.unissuedRetained = filteredData.reduce((prev, curr) => {
+        //     return prev + parseFloat(curr.unIssuedRetained);
+        //   }, 0);
+
+        //   el.issuedRetained = filteredData.reduce((prev, curr) => {
+        //     return prev + parseFloat(curr.issuedRetained);
+        //   }, 0);
+
+        //   el.issuedPaid = filteredData.reduce((prev, curr) => {
+        //     return prev + parseFloat(curr.paid);
+        //   }, 0);
+
+        //   el.unissuedRetainedStr = convertToString(
+        //     el.unissuedRetained
+        //   );
+        //   el.issuedRetainedStr = convertToString(el.issuedRetained);
+        //   el.issuedPaidStr = convertToString(el.issuedPaid);
+
+        //   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //   // Do this in Client
+        //   // let supplier = this.items.filter((el3) => {
+        //   //   return el3.id === el.supplier;
+        //   // });
+        //   // el.supplierName = supplier[0].supplierName;
+        // });
+
         res.json(result);
       }
     });
@@ -531,34 +608,34 @@ router.post("/processCertificate", (req, res) => {
               el.netCurrentCertificateValue = convertToString(
                 el.netCurrentCertificateValue
               );
-              el.street_address = el.street_address.replace(/\n/g, "");
-              el.street_address = el.street_address.replace(
-                "addressType : POBOXaddressLine1 :",
-                ""
-              );
-              el.street_address = el.street_address.replace(
-                "addressLine2 : ",
-                " "
-              );
-              el.street_address = el.street_address.replace(
-                "addressLine3 : ",
-                " "
-              );
-              el.street_address = el.street_address.replace(
-                "addressLine4 : ",
-                " "
-              );
-              el.street_address = el.street_address.replace("city : ", " ");
-              el.street_address = el.street_address.replace("region : ", " ");
-              el.street_address = el.street_address.replace(
-                "postalCode : ",
-                " "
-              );
-              el.street_address = el.street_address.replace("country : ", " ");
-              el.street_address = el.street_address.replace(
-                "attentionTo : ",
-                " attentionTo :  "
-              );
+              // el.street_address = el.street_address.replace(/\n/g, "");
+              // el.street_address = el.street_address.replace(
+              //   "addressType : POBOXaddressLine1 :",
+              //   ""
+              // );
+              // el.street_address = el.street_address.replace(
+              //   "addressLine2 : ",
+              //   " "
+              // );
+              // el.street_address = el.street_address.replace(
+              //   "addressLine3 : ",
+              //   " "
+              // );
+              // el.street_address = el.street_address.replace(
+              //   "addressLine4 : ",
+              //   " "
+              // );
+              // el.street_address = el.street_address.replace("city : ", " ");
+              // el.street_address = el.street_address.replace("region : ", " ");
+              // el.street_address = el.street_address.replace(
+              //   "postalCode : ",
+              //   " "
+              // );
+              // el.street_address = el.street_address.replace("country : ", " ");
+              // el.street_address = el.street_address.replace(
+              //   "attentionTo : ",
+              //   " attentionTo :  "
+              // );
             });
 
             certificateDetailsToPost.forEach((el) => {

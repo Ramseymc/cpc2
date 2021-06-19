@@ -725,6 +725,7 @@ export default {
               3
             )}-${PONumberArray.join("")}`;
             this.PONumber = PONumber;
+            console.log(this.PONumber);
           }
         })
         .catch(() => {});
@@ -816,6 +817,7 @@ export default {
         }
         stockData.push(stockInsert);
       });
+      console.log(this.desserts);
 
       let data = {
         purchaseOrderPDFData: this.desserts,
@@ -1074,9 +1076,10 @@ export default {
         this.stockItemChosen.unitDescription = this.editedItem.unit;
         this.stockItemChosen.unitCost = this.editedItem.price;
         this.stockItemsToUpdate.push(this.stockItemChosen);
-      } else {
-        this.stockItemsToAdd.push(this.editedItem);
       }
+      // else {
+      //   this.stockItemsToAdd.push(this.editedItem);
+      // }
       let totalGross = this.desserts.reduce((acc, el) => {
         return acc + parseFloat(el.gross);
       }, 0);

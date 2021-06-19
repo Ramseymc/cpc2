@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
+import Progress from "../views/Progress.vue";
 
 Vue.use(VueRouter);
 
@@ -19,8 +20,9 @@ const routes = [
   {
     path: "/progress",
     name: "Progress",
-    component: () =>
-      import(/* webpackChunkName: "Progress" */ "../views/Progress.vue")
+    component: Progress
+    // component: () =>
+    //   import(/* webpackChunkName: "Progress" */ "../views/Progress.vue")
   },
   {
     path: "/schedule",
@@ -82,7 +84,7 @@ const routes = [
     path: "/Images",
     name: "Images",
     component: () =>
-      import(/* webpackChunkName: "SupplierChange" */ "../views/Images.vue")
+      import(/* webpackChunkName: "Images" */ "../views/Images.vue")
   },
   {
     path: "/paymentCertificates",
@@ -166,14 +168,14 @@ const routes = [
     path: "/gantt4",
     name: "gantt4",
     component: () =>
-      import(/* webpackChunkName: "ganttv3A" */ "../views/Gantt4.vue")
+      import(/* webpackChunkName: "gantt4" */ "../views/Gantt4.vue")
   },
-  {
-    path: "/DateReset",
-    name: "DateReset",
-    component: () =>
-      import(/* webpackChunkName: "DateReset" */ "../views/DatesReset.vue")
-  },
+  // {
+  //   path: "/DateReset",
+  //   name: "DateReset",
+  //   component: () =>
+  //     import(/* webpackChunkName: "DateReset" */ "../views/DatesReset.vue")
+  // },
   {
     path: "/qualitycontrol",
     name: "QualityControl",

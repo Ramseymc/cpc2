@@ -102,7 +102,7 @@ router.get("/getCredentials", (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.log(err);
-    res.json(err)
+    res.json(err);
   }
 });
 
@@ -165,11 +165,11 @@ router.get("/callback", async (req, res) => {
 });
 
 router.post("/getSuppliersUsed", async (req, res) => {
- let mysql = `select distinct t.supplier, s.supplierName, t.taskType,u.subsection, ss.subsectionName, t.unitNumber,u.unitName, tt.taskName
+  let mysql = `select distinct t.supplier, s.supplierName, t.taskType,u.subsection, ss.subsectionName, t.unitNumber,u.unitName, tt.taskName
  from tasks t, taskTypes tt, suppliers s, units u, subsection ss
  where tt.id = t.taskType and s.id = t.supplier and u.id = t.unitNumber and u.subsection = ss.id
- and t.development = ${req.body.id} = u.development = ss.development`
-    
+ and t.development = ${req.body.id} = u.development = ss.development`;
+
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -180,7 +180,63 @@ router.post("/getSuppliersUsed", async (req, res) => {
       if (error) {
         console.log("THE ERROR", error);
       } else {
-        res.json(result)
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+
+
+router.post("/editAllSuppliersInApp", (req, res) => {
+  console.log(req.body.data);
+  let mysql1 = ""
+  // supplierName = '${el.name}',
+  req.body.data.forEach((el) => {
+    let newStreetAddress;
+    if (el.streetAddress === "") {
+      newStreetAddress = null
+    } else {
+      newStreetAddress = `"${el.streetAddress}"`
+    }
+    let newPostalAddress;
+    if (el.postalAddress === "") {
+      newPostalAddress = null
+    } else {
+      newPostalAddress = `"${el.postalAddress}"`
+    }
+    mysql1 = `${mysql1} update suppliers set
+    vat_number = '${el.taxNumber}',
+    supplierName = "${el.name}",
+    first_name = '${el.firstName}',
+    last_name = '${el.lastName}',
+    emailAddress = '${el.emailAddress}',
+    default_number = '${el.default_number}',
+    mobile_number = '${el.mobile_number}',
+    street_address = ${newStreetAddress},
+    postal_address = ${newPostalAddress}
+    where contactID = '${el.contactID}';`;
+  }) 
+  let mysql2 = `Update suppliers set emailAddress = 'wayne@opportunity.co.za';`
+
+  let mysql = `${mysql1}${mysql2}`
+ 
+
+  // console.log(chalk.red(mysql));
+
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+        res.send("Error",mysql)
+      } else {
+        res.json(result);
       }
     });
     connection.release();
@@ -188,7 +244,7 @@ router.post("/getSuppliersUsed", async (req, res) => {
 });
 
 router.post("/editSupplierInApp", async (req, res) => {
-  console.log(req.body.data)
+  console.log(req.body.data);
   let mysql = `update suppliers set contactID = '${req.body.data.contactID}',
     vat_number = '${req.body.data.vat_number}',
     supplierName = '${req.body.data.supplierName}',
@@ -203,10 +259,10 @@ router.post("/editSupplierInApp", async (req, res) => {
     vatVendor = ${req.body.data.vatVendor},
     isSubcontractor = ${req.body.data.isSubcontractor},
     creditLimit = ${req.body.data.creditLimit},
-    terms = ${req.body.data.terms} where id = ${req.body.data.id}`
+    terms = ${req.body.data.terms} where id = ${req.body.data.id}`;
 
-    console.log(chalk.red(mysql))
-    
+  console.log(chalk.red(mysql));
+
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -217,7 +273,7 @@ router.post("/editSupplierInApp", async (req, res) => {
       if (error) {
         console.log("THE ERROR", error);
       } else {
-        res.json(result)
+        res.json(result);
       }
     });
     connection.release();
@@ -239,10 +295,9 @@ router.get("/contacts", async (req, res) => {
       } else {
         mysqlResult = result;
         let suppliers = {
-          message: "nothing to report"
-        }
-    // res.json({ suppliers, mysqlResult });
-
+          message: "nothing to report",
+        };
+        // res.json({ suppliers, mysqlResult });
       }
     });
     connection.release();
@@ -302,7 +357,7 @@ router.post("/editSupplier", async (req, res) => {
 });
 
 router.post("/getInvoices", async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
 
   await xero.setTokenSet(finalTokenSet);
 
@@ -312,7 +367,6 @@ router.post("/getInvoices", async (req, res) => {
     .subtract(3, "months")
     .format("YYYY-MM-DD")
     .toString();
-
 
   // const ifModifiedSince = new Date("2020-12-01");
   const ifModifiedSince = new Date(since);
@@ -323,8 +377,6 @@ router.post("/getInvoices", async (req, res) => {
   let invoiceNumbers = req.body.data;
   invoiceNumbers = Array.from(new Set(invoiceNumbers));
 
-
-
   try {
     const response = await xero.accountingApi.getInvoices(
       xeroTenantId,
@@ -332,47 +384,40 @@ router.post("/getInvoices", async (req, res) => {
       invoiceNumbers,
       contactIDs
     );
-   
+
     let newResponse = response.body.invoices.filter((el) => {
       return el.contact.contactID === contactIDs[0];
     });
-   
+
     let finalResponse = [];
     let result = [];
     invoiceNumbers.forEach((el) => {
       let invNumber = el;
       newResponse.forEach((el2) => {
-       
         if (el2.invoiceNumber === invNumber) {
-        result.push(el2);
+          result.push(el2);
         }
       });
     });
-   
 
     result.forEach((el3) => {
       finalResponse.push(el3);
     });
-  
 
     res.json(finalResponse);
-   
   } catch (err) {
     try {
-    console.log("ERR", err.response.body);
+      console.log("ERR", err.response.body);
 
-    res.json(err.response.body);
+      res.json(err.response.body);
     } catch (err) {
-      console.log(err)
-      res.json(err)
+      console.log(err);
+      res.json(err);
     }
   }
-
 });
 
 router.post("/getInvoicesforPmtApproval", async (req, res) => {
-
-
   await xero.setTokenSet(finalTokenSet);
 
   const xeroTenantId = activeTenant1;
@@ -382,20 +427,14 @@ router.post("/getInvoicesforPmtApproval", async (req, res) => {
     .format("YYYY-MM-DD")
     .toString();
 
-
   // const ifModifiedSince = new Date("2020-12-01");
   const ifModifiedSince = new Date(since);
   // const ifModifiedSince = since;
 
-
-
   let contactIDs = req.body.contactID;
-
 
   let invoiceNumbers = req.body.data;
   invoiceNumbers = Array.from(new Set(invoiceNumbers));
-
- 
 
   try {
     const response = await xero.accountingApi.getInvoices(
@@ -404,15 +443,10 @@ router.post("/getInvoicesforPmtApproval", async (req, res) => {
       invoiceNumbers,
       contactIDs
     );
-//SAVE THIS TO FILTER ON CONTENTS OF ANOTHER ARRAY
-    let newResponse = response.body.invoices.filter(
-      function(el) {
-        return this.indexOf(el.contact.contactID) > -1;
-      },
-      contactIDs
-  );
- 
-
+    //SAVE THIS TO FILTER ON CONTENTS OF ANOTHER ARRAY
+    let newResponse = response.body.invoices.filter(function (el) {
+      return this.indexOf(el.contact.contactID) > -1;
+    }, contactIDs);
 
     let finalResponse = [];
     let result = [];
@@ -420,26 +454,21 @@ router.post("/getInvoicesforPmtApproval", async (req, res) => {
       let invNumber = el;
       newResponse.forEach((el2) => {
         if (el2.invoiceNumber === invNumber) {
-        result.push(el2);
+          result.push(el2);
         }
       });
     });
 
-
     result.forEach((el3) => {
       finalResponse.push(el3);
     });
- 
 
     res.json(finalResponse);
-
   } catch (err) {
-
     console.log("ERR", err.response.body);
 
     res.json(err.response.body);
   }
-
 });
 
 router.post("/addSupplier", (req, res) => {

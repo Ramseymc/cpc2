@@ -261,7 +261,13 @@ router.post("/POEdit", (req, res) => {
 // });
 
 router.post("/POPosting", (req, res) => {
-  // console.log(req.body);
+  // console.log(req.body.purchaseOrderPDFData);
+  req.body.purchaseOrderPDFData.forEach((el) => {
+    if (el.supplierPostal === null || el.supplierPostal === "") {
+      el.supplierPostal = el.supplierStreet
+    }
+  })
+
   runReport(req.body.purchaseOrderPDFData);
   let postData = [];
   let purchaseData = [];
@@ -339,7 +345,7 @@ router.post("/POInformation", (req, res) => {
   // console.log(req.body);
   let mysql1 = `select * from suppliers where isSubcontractor = false order by supplierName`;
   let mysql2 = `select * from stockItems order by itemDescription`;
-  let mysql3 = `select * from purchaseOrders where development = ${req.body.id} order by id desc limit 1`;
+  let mysql3 = `select * from purchaseOrders where development = ${req.body.id} order by PONumber desc limit 1`;
   let mysql4 = `select distinct si.id as siId, si.itemCode as siItemCode, si.itemDescription as siItemDescription, si.unitCost as siUnitCost,sb.id as sbId,  sb.stockItem as sbStockItem, sb.quantityBudgetted as sbQuantityBudgetted, 
   sb.costPerItem as sbCostPerItem, sb.unitNumber as sbUnitNumber, sp.id as spId, sp.stockItem as spStockItem, coalesce(sp.quantityPurchased,0) as spQuantityPurchased, coalesce(sp.costPerItem,0) as spCostPerItem, sp.unitNumber as spUnitNumber, coalesce(sb.quantityBudgetted,0) - coalesce(sp.quantityPurchased,0) as available
    from stockBudget sb

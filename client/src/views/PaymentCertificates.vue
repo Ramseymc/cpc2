@@ -4,6 +4,11 @@
     <v-col class="mb-4">
       <h2>Payment Certificates</h2>
     </v-col>
+    <!-- v-if="!loading && show" -->
+    <a :href="src2" download v-if="src2 !== ''">
+      <v-icon color="green">mdi-microsoft-excel</v-icon>Download JBCC Data</a
+    >
+    <br />
     <v-btn v-if="consentUrl"
       ><a class="xeroBtn" @click="redirect" :href="consentUrl"
         >Xero Login</a
@@ -45,13 +50,6 @@
 
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-spacer></v-spacer>
-            <!-- <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-            ></v-text-field> -->
             <label>Total: {{ totalUnissued }}</label>
           </v-toolbar>
         </template>
@@ -231,23 +229,6 @@
                         <v-icon color="blue">mdi-clipboard-edit</v-icon>
                       </v-btn>
                       <v-spacer></v-spacer>
-
-                      <!-- <v-btn
-                        :id="item.id"
-                        text
-                        v-tooltip.top="{
-                          content: 'Certificate',
-                          class: 'tooltip-custom tooltip-other-custom',
-                        }"
-                      >
-                        <a
-                          style="text-decoration: none;"
-                          :href="item.hrefCert"
-                          download
-                          target="_blank"
-                          ><v-icon color="red">mdi-file-pdf-box</v-icon></a
-                        >
-                      </v-btn> -->
                       <v-btn :id="item.id" icon @click="getPDF($event)"
                         ><v-icon color="red">mdi-file-pdf-box</v-icon></v-btn
                       >
@@ -405,22 +386,6 @@
             class="shrink mr-2 mt-0"
             label="Hide fully Issued"
           ></v-checkbox>
-          <!-- <v-checkbox
-            v-if="produceCertificate && hideFullyIssued"
-            v-model="produceCertificate"
-            hide-details
-            class="shrink mr-2 mt-0"
-            :label="produceCertificateLabelTrue"
-            @change="selectAllProgress"
-          ></v-checkbox>
-          <v-checkbox
-            v-else-if="!produceCertificate && hideFullyIssued"
-            v-model="produceCertificate"
-            hide-details
-            class="shrink mr-2 mt-0"
-            :label="produceCertificateLabelFalse"
-            @change="selectAllProgress"
-          ></v-checkbox> -->
         </v-toolbar>
 
         <v-list style="margin-bottom: 50px;">
@@ -536,6 +501,7 @@
 <script>
 import axios from "axios";
 import MaskedInput from "vue-masked-input";
+import dayjs from "dayjs";
 let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "paymentCertificates",
@@ -560,6 +526,7 @@ export default {
   },
   data() {
     return {
+      src2: "",
       showIssued: false,
       showUnIssued: true,
       totalIssued: "",
@@ -615,19 +582,26 @@ export default {
           align: "start",
           sortable: false,
           value: "supplierName",
-          width: 250
+          width: 200
         },
         {
           text: "Task",
           align: "start",
           sortable: false,
           value: "taskName",
-          width: 250
+          width: 200
         },
         { text: "Unit", value: "unitName", width: 120 },
         { text: "Value", value: "unIssuedStr", width: 120 },
-        // { text: "Value", value: "unIssuedStr", width: 120 },
-        { text: "View", value: "actions", sortable: false }
+        { text: "View", value: "actions", sortable: false },
+        { text: "Valuation Date", value: "progressDate", sortable: false },
+        { text: "Pay Date", value: "payDate", sortable: false },
+        {
+          text: "Days Remaining",
+          value: "remainingDays",
+          align: "center",
+          sortable: false
+        }
       ],
       headers2: [
         {
@@ -721,8 +695,31 @@ export default {
     await this.getSuppliers();
     await this.getValuationsToDate();
     this.processNotifications();
+    this.getJBCC();
   },
   methods: {
+    async getJBCC() {
+      let data = {
+        id: this.$store.state.development.id
+      };
+      await axios({
+        method: "post",
+        url: `${url}/getJBCC`,
+        data: data
+      })
+        .then(
+          response => {
+            console.log(response.data);
+            this.src2 = `${process.env.VUE_APP_BASEURL}/JBCC.xlsx`;
+          },
+          error => {
+            console.log("the Error", error);
+          }
+        )
+        .catch(e => {
+          console.log(e);
+        });
+    },
     getPDF(event) {
       let targetId = event.currentTarget.id;
 
@@ -1138,12 +1135,17 @@ export default {
     },
     async getValuationsToDate() {
       axios.defaults.headers.common["Authorization"] = this.$store.state.token;
+      let data = {
+        id: this.$store.state.development.id
+      };
       await axios({
-        method: "get",
-        url: `${url}/getValuations`
+        method: "post",
+        url: `${url}/getValuations`,
+        data: data
       })
         .then(
           response => {
+            console.log(response.data);
             response.data[1].forEach(el => {
               let filteredData = response.data[0].filter(el2 => {
                 return (
@@ -1152,6 +1154,50 @@ export default {
                   el.taskName === el2.taskName
                 );
               });
+              console.log(filteredData);
+              if (!filteredData.length) {
+                el.progressDate = dayjs(new Date()).format("YYYY-MM-DD");
+              } else {
+                el.progressDate = dayjs(filteredData[0].progressDate).format(
+                  "YYYY-MM-DD"
+                );
+              }
+              console.log(el.progressDate);
+              switch (el.terms) {
+                case 1:
+                  el.payDate = dayjs(el.progressDate)
+                    .endOf("month")
+                    .add(1, "month")
+                    .endOf("month")
+                    .format("YYYY-MM-DD");
+                  break;
+                case 2:
+                  el.payDate = dayjs(el.progressDate)
+                    .endOf("week")
+                    .add(2, "week")
+                    .endOf("week")
+                    .subtract(1, "d")
+                    .format("YYYY-MM-DD");
+                  break;
+                case 3:
+                  el.payDate = dayjs(el.progressDate)
+                    .endOf("week")
+                    .subtract(1, "d")
+                    .format("YYYY-MM-DD");
+                  break;
+                case 4:
+                  el.payDate = dayjs(el.progressDate)
+                    .endOf("week")
+                    .add(1, "week")
+                    .endOf("week")
+                    .subtract(1, "d")
+                    .format("YYYY-MM-DD");
+                  break;
+              }
+              console.log(el.payDate);
+              let today = dayjs(new Date()).format("YYYY-MM-DD");
+              el.remainingDays = dayjs(el.payDate).diff(dayjs(today), "day");
+
               el.unIssued = filteredData.reduce((prev, curr) => {
                 return prev + parseFloat(curr.unIssuedPrice);
               }, 0);
@@ -1181,19 +1227,29 @@ export default {
               el.issuedPaidStr = this.convertToString(el.issuedPaid);
 
               // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-              let supplier = this.items.filter(el2 => {
-                return el2.id === el.supplier;
+              // Do this in Client
+              let supplier = this.items.filter(el3 => {
+                return el3.id === el.supplier;
               });
               el.supplierName = supplier[0].supplierName;
             });
+
+            // response.data.forEach(el => {
+            //   let supplier = this.items.filter(el2 => {
+            //     return el2.id === el.supplier;
+            //   });
+            //   el.supplierName = supplier[0].supplierName;
+            // });
+
             this.valuationsToDateNotIssued = response.data[1].filter(el => {
               return el.unIssued > 0;
             });
+            console.log("XXX", this.valuationsToDateNotIssued);
 
             this.valuationsToDateIssued = response.data[1].filter(el => {
               return el.issued > 0;
             });
+            console.log("YYY", this.valuationsToDateIssued);
 
             this.valuationsToDateNotIssued.forEach((el, index) => {
               el.id = index;
@@ -1249,7 +1305,6 @@ export default {
               el.netValueStr = this.convertToString(el.netValue);
             });
             this.valuationsToDateIssued = finalArray;
-            // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
           },
           error => {
             console.log(error);
@@ -1655,5 +1710,10 @@ export default {
 
 .vue-tooltip.tooltip-custom .tooltip-arrow {
   border-color: red;
+}
+a {
+  text-decoration: none;
+  color: black;
+  margin-bottom: 10px;
 }
 </style>

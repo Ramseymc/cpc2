@@ -5,6 +5,7 @@ const multer = require("multer");
 const fs = require("fs");
 var cloudinary = require("cloudinary").v2;
 const { checktoken } = require("./checkToken");
+// const imageConversion = require("image-conversion")
 
 //MULTER FILE FILTER
 const fileFilter = function (req, file, cb) {
@@ -137,6 +138,8 @@ router.post("/uploadCoverImage", upload.array("files"), (req, res) => {
   const directory = "public/uploads/";
   let path;
 
+  console.log("FILES",req.files)
+
   fs.readdir(directory, (err, files) => {
     if (err) throw err;
     console.log(files);
@@ -151,6 +154,34 @@ router.post("/uploadCoverImage", upload.array("files"), (req, res) => {
 
   let length = req.files.length;
   let done = 0;
+
+  // console.log(req.files[0])
+
+  // const fileA = req.files[0]
+
+  // function view(){
+  //   // const file = document.getElementById('demo').files[0];
+  //   console.log("The File",fileA);
+  //   imageConversion.compressAccurately(fileA,200).then(res=>{
+  //     //The res in the promise is a compressed Blob type (which can be treated as a File type) file;
+  //     console.log("The Compressed File",res);
+  //   })
+  // }
+
+  // view()
+
+  // imageConversion.compressAccurately(file,{
+  //   size: 100,    //The compressed image size is 100kb
+  //   accuracy: 0.9,//the accuracy of image compression size,range 0.8-0.99,default 0.95;
+  //                 //this means if the picture size is set to 1000Kb and the
+  //                 //accuracy is 0.9, the image with the compression result
+  //                 //of 900Kb-1100Kb is considered acceptable;
+  //   type: "image/jpeg",
+  //   width: 300,
+  //   height: 200,
+  //   orientation:2,
+  //   scale: 0.5,
+  // })
 
   req.files.forEach((el) => {
     let thisMimeType = el.mimetype.split("/")[1];

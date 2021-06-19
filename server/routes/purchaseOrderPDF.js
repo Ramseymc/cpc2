@@ -209,7 +209,7 @@ const runReport = (data) => {
   let subDataInput2 = [];
   let tinsert1 = {
     border: [true, true, true, true],
-    text: `\n Supplier: ${data[0].supplierName} \n Address: ${data[0].supplierStreet} \n `,
+    text: `\n Supplier: ${data[0].supplierName} \n Address: ${data[0].supplierPostal} \n `,
     fontSize: 8,
     alignment: "left",
   };

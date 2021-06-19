@@ -277,7 +277,6 @@
 
 <script>
 import axios from "axios";
-// import * as moment from "moment/moment";
 let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "Shedule",
@@ -300,7 +299,7 @@ export default {
       windowSize: 0,
       maxHeight: 50,
       showSorting: false,
-      darkMode: false,
+      // darkMode: false,
       today: new Date().toISOString().substr(0, 10),
       dialog: false,
       dialog2: false,

@@ -154,7 +154,7 @@
           @change="changeTotalProgress"
         >
           <template v-slot:default="{ value }">
-            <strong style="color: white;">{{ Math.ceil(value) }}%</strong>
+            <strong style="color: white;">{{ Math.round(value) }}%</strong>
           </template>
         </v-progress-linear>
         <span>Total Value: {{ totalAmount }}</span>
@@ -167,7 +167,7 @@
           height="12"
         >
           <template v-slot:default="{ value }">
-            <small style="color: white;">{{ Math.ceil(value) }}%</small>
+            <small style="color: white;">{{ Math.round(value) }}%</small>
           </template>
         </v-progress-linear>
 
@@ -179,7 +179,7 @@
           height="12"
         >
           <template v-slot:default="{ value }">
-            <small style="color: white;">{{ Math.ceil(value) }}%</small>
+            <small style="color: white;">{{ Math.round(value) }}%</small>
           </template>
         </v-progress-linear>
         <span>Now: {{ today }}</span>
@@ -222,7 +222,7 @@
                     >
                       <template v-slot:default="{ value }">
                         <strong style="color: white;"
-                          >{{ Math.ceil(value) }}%</strong
+                          >{{ Math.round(value) }}%</strong
                         >
                       </template>
                     </v-progress-linear>
@@ -265,7 +265,7 @@
                     >
                       <template v-slot:default="{ value }">
                         <small style="color: white; padding: 1px 1px;"
-                          >{{ Math.ceil(value) }}%</small
+                          >{{ Math.round(value) }}%</small
                         >
                       </template>
                     </v-progress-linear>
@@ -280,7 +280,7 @@
                     >
                       <template v-slot:default="{ value }">
                         <small style="color: white;"
-                          >{{ Math.ceil(value) }}%</small
+                          >{{ Math.round(value) }}%</small
                         >
                       </template>
                     </v-progress-linear>
@@ -512,15 +512,9 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-// dayjs.extend(utc)
-// dayjs.extend(utc)
 dayjs.extend(utc);
 dayjs.extend(timezone);
 import businessDays from "dayjs-business-days";
-
-// dayjs.extend(dayjsBusinessDays);
-// const goodFriday = "2021-04-02"
-// const easterMonday = "2021-04-05"
 
 const options = {
   holidays: [
@@ -537,13 +531,6 @@ const options = {
 };
 dayjs.extend(businessDays, options);
 
-// dayjs.extend(dayjsBusinessDays);
-
-// const options = {
-//   holidays: ['2020-12-25'],
-//   holidayFormat: 'YYYY-MM-DD',
-// };
-// dayjs.extend(businessDays, options);
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
 export default {
@@ -654,8 +641,6 @@ export default {
         average = average / this.items.length;
 
         this.averageTime = average;
-
-        // this.changeIndividualProgress();
       }
     }
   },
@@ -720,7 +705,7 @@ export default {
       this.getTasks();
     },
     changeTotalProgress() {
-      this.allTaskProgress = Math.round(this.allTaskProgress / 5) * 5;
+      this.allTaskProgress = Math.round(this.allTaskProgress);
       this.items.forEach(el => {
         el.progress = this.allTaskProgress;
         if (el.progress < el.lastCertificateIssuedAt) {
@@ -747,7 +732,7 @@ export default {
         if (el.progress < el.lastCertificateIssuedAt) {
           el.progress = el.lastCertificateIssuedAt;
         } else {
-          el.progress = Math.round(el.progress / 5) * 5;
+          el.progress = Math.round(el.progress);
           el.remaining = el.price - (el.price * el.progress) / 100;
         }
       });
@@ -857,22 +842,16 @@ export default {
         method: "post",
         url: `${url}/processValuationNotification`,
         data: data
-      })
-        // .then((result) => {
-        //   this.dialog = false;
-
-        // })
-        .catch(() => {
-          this.snackBarMessage = "There was an error, please try again later!";
-          this.snackbar = true;
-        });
+      }).catch(() => {
+        this.snackBarMessage = "There was an error, please try again later!";
+        this.snackbar = true;
+      });
     },
     async saveProgressAll() {
       if (this.tasks[0].progressID !== null) {
         this.processNotification();
       }
       let progress = [];
-      // let taskIds = [];
 
       this.items.forEach(el => {
         if (el.fix !== "Ret") {

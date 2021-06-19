@@ -7,6 +7,12 @@
         </v-col>
         <br />
         <v-col cols="10" offset="1">
+          <v-btn @click="editAllSuppliers" v-if="suppliersToUpdate.length"
+            >Update Supplier Details</v-btn
+          >
+        </v-col>
+
+        <v-col cols="10" offset="1">
           <v-card color="#0F0F0F" v-if="suppliersInApp.length">
             <v-toolbar color="#0F0F0F" height="85" dark>
               <v-spacer></v-spacer>
@@ -469,6 +475,7 @@ export default {
       items: [],
       suppliers: [],
       suppliersInApp: [],
+      suppliersToUpdate: [],
       selected: null,
       search: "",
       searchApp: "",
@@ -489,6 +496,7 @@ export default {
     };
   },
   async mounted() {
+    // axios.defaults.headers.common["Authorization"] = this.$store.state.token;
     this.checkToken();
     this.consentUrl = "";
     await this.getXeroCredentials();
@@ -524,6 +532,35 @@ export default {
   },
   methods: {
     mobileStuff() {},
+    async editAllSuppliers() {
+      let info = this.suppliersToUpdate;
+      while (info.length) {
+        let splicedInfo = info.splice(0, 25);
+        let data = {
+          data: splicedInfo
+        };
+        await axios({
+          method: "post",
+          url: `${url}/editAllSuppliersInApp`,
+          data: data
+        })
+          .then(
+            response => {
+              console.log(response.data);
+              // this.getSuppliers();
+            },
+            error => {
+              console.log("the Error", error);
+            }
+          )
+          .catch(e => {
+            console.log(e);
+          });
+      }
+      if (!info.length) {
+        this.getSuppliers();
+      }
+    },
     getSupplierToAdd(event) {
       this.supplierToAdd = this.items.filter((el, index) => {
         return index === parseInt(event.currentTarget.id);
@@ -635,16 +672,63 @@ export default {
       })
         .then(
           response => {
+            console.log(response.data);
             if (response.data.err) {
               this.getConnected();
             } else {
+              this.suppliersToUpdate = [];
+              response.data.mysqlResult.forEach(el => {
+                let contactID = el.contactID;
+                let filtered = response.data.suppliers.filter(el2 => {
+                  return el2.contactID === contactID;
+                });
+                this.suppliersToUpdate.push(filtered[0]);
+              });
+              console.log("suppliersToUpdate:", this.suppliersToUpdate);
+              this.suppliersToUpdate = this.suppliersToUpdate.filter(el => {
+                return el !== undefined;
+              });
+              this.suppliersToUpdate.forEach(el => {
+                let postalAddressArray = [];
+                let streetAddressArray = [];
+
+                // console.log(el.addresses[1])
+                // console.log(el.addresses[0])
+                let postalAddress = el.addresses[1];
+                let streetAddress = el.addresses[0];
+
+                delete postalAddress.addressType;
+                delete streetAddress.addressType;
+
+                for (var key of Object.keys(postalAddress)) {
+                  postalAddressArray.push(postalAddress[key]);
+                }
+                postalAddressArray = postalAddressArray.filter(el => {
+                  return el !== "";
+                });
+                el.postalAddress = postalAddressArray.join("\n");
+                for (var key1 of Object.keys(streetAddress)) {
+                  streetAddressArray.push(streetAddress[key1]);
+                }
+                streetAddressArray = streetAddressArray.filter(el => {
+                  return el !== "";
+                });
+                el.streetAddress = streetAddressArray.join("\n");
+                el.default_number = el.phones[1].phoneNumber;
+                el.mobile_number = el.phones[3].phoneNumber;
+              });
+              console.log("suppliersToUpdate:", this.suppliersToUpdate);
+
               let suppliers = response.data.suppliers;
+
               suppliers.forEach(el => {
                 if (el.isSupplier === false && el.isCustomer === false) {
                   el.color = "red";
                 }
               });
               this.suppliersInApp = response.data.mysqlResult;
+
+              console.log(this.suppliersInApp);
               this.suppliersInApp.forEach(el => {
                 el.pmtTerms = this.terms.filter(el2 => {
                   return el2.termNumber === el.terms;
