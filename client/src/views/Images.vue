@@ -397,7 +397,7 @@ export default {
   name: "Images",
   components: {
     CldImage,
-    CldTransformation,
+    CldTransformation
   },
   metaInfo: {
     title: "Images",
@@ -405,13 +405,13 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `About CPC here.`,
-      },
+        content: `About CPC here.`
+      }
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true,
-    },
+      amp: true
+    }
   },
   data() {
     return {
@@ -427,7 +427,7 @@ export default {
       title: "",
       description: "",
       hashtag: "",
-      rules: [(v) => v.length <= 140 || "Max 140 characters"],
+      rules: [v => v.length <= 140 || "Max 140 characters"],
       email: "waynebruton@icloud.com",
       progressActive: false,
       files: [],
@@ -453,7 +453,7 @@ export default {
       emailAddressArray: [],
       additionalEmailChosen: "",
       emailMessage: "",
-      emailSubject: "",
+      emailSubject: ""
     };
   },
   computed: {
@@ -461,7 +461,7 @@ export default {
       if (this.searchImages === "") {
         return this.cards;
       } else {
-        return this.cards.filter((el) => {
+        return this.cards.filter(el => {
           return (
             !this.searchImages ||
             el.blockName
@@ -480,7 +480,7 @@ export default {
           );
         });
       }
-    },
+    }
   },
   created() {
     this.windowSize = window.innerWidth;
@@ -500,21 +500,21 @@ export default {
       let id = parseInt(event.currentTarget.id);
       await axios({
         method: "get",
-        url: `${url}/suppliers`,
+        url: `${url}/suppliers`
       })
         .then(
-          (response) => {
+          response => {
             this.suppliers = response.data;
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
 
-      let whatsAppData = this.cards.filter((el) => {
+      let whatsAppData = this.cards.filter(el => {
         return el.id === id;
       });
 
@@ -530,13 +530,13 @@ export default {
         message: this.emailMessage,
         sentBy: this.$store.state.userEmail,
         unit: this.unitChosen,
-        development: this.$store.state.development.developmentName,
+        development: this.$store.state.development.developmentName
       };
 
       await axios({
         method: "post",
         url: `${url}/sendEmailImage`,
-        data: data,
+        data: data
       })
         .then(
           () => {
@@ -550,11 +550,11 @@ export default {
             this.emailSubject = "";
             this.snackbar = true;
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
@@ -572,9 +572,9 @@ export default {
       if (this.emailAddress.length) {
         sampleEmails.push(this.emailAddress);
       }
-      this.suppliersChosen.forEach((el) => {
+      this.suppliersChosen.forEach(el => {
         let supplierName = el;
-        this.suppliers.forEach((el2) => {
+        this.suppliers.forEach(el2 => {
           if (el2.supplierName === supplierName) {
             sampleEmails.push(el2.emailAddress);
           }
@@ -584,33 +584,33 @@ export default {
       this.additionalEmailChosen = sampleEmails.join(";");
     },
     async deleteImage(event) {
-      let filteredData = this.cards.filter((el) => {
+      let filteredData = this.cards.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
 
       let data = {
         id: filteredData[0].id,
-        url_id: filteredData[0].publicId,
+        url_id: filteredData[0].publicId
       };
       await axios({
         method: "post",
         url: `${url}/removeImage`,
-        data: data,
+        data: data
       })
         .then(
           () => {
             this.getImagesFromDataBase();
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     sendWhatsApp(event) {
-      let whatsAppData = this.cards.filter((el) => {
+      let whatsAppData = this.cards.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       this.url = whatsAppData[0].secure_url;
@@ -640,64 +640,47 @@ export default {
       return theBlob;
     },
     convertImage() {
-      let newFile = [];
-      let file;
-      this.files.forEach((el) => {
-        console.log("Size", el.size);
-        imageConversion.compressAccurately(el, 500).then((res) => {
-          console.log(res);
-          file = this.blobToFile(
-            res,
-            el.name,
-            el.lastModifiedDate,
-            el.lastModified,
-          );
-          
-          
+      return new Promise((resolve, reject) => {
+        let newFile = [];
+        let file;
 
-          newFile.push(file);
+        this.files.forEach(el => {
+          if (el.size > 1000000) {
+            console.log("Size", el.size);
+            imageConversion.compressAccurately(el, 700).then(res => {
+              console.log(res);
+              file = this.blobToFile(
+                res,
+                el.name,
+                el.lastModifiedDate,
+                el.lastModified
+              );
+
+              newFile.push(file);
+            });
+          } else {
+            newFile.push(el);
+          }
+        });
+        resolve(() => {
+          this.files = newFile;
+          console.log(newFile);
+          console.log("After Conversion", this.files);
+        });
+        reject(err => {
+          console.log(err);
         });
       });
-      // setTimeout(() => {
-      this.files = newFile;
-      console.log(newFile);
-      console.log("After Conversion", this.files);
-      // }, 600);
-
-      // setTimeout(() => {
-      //   console.log("newFile", newFile);
-      // }, 1500);
     },
     async checkImage() {
-      // let newFile = [];
-      // let file;
-      // await this.files.forEach(el => {
-      //   console.log("Size", el.size);
-      //   imageConversion.compressAccurately(el, 500).then(res => {
-      //     console.log(res);
-      //     file = this.blobToFile(
-      //       res,
-      //       el.name,
-      //       el.lastModifiedDate,
-      //       el.lastModified
-      //     );
+      await this.convertImage();
 
-      //     newFile.push(file);
-      //   });
-      // });
-      // setTimeout(() => {
-      //   console.log("newFile", newFile);
-      // }, 1500);
-      this.convertImage()
-     
-        console.log("Second", this.files.length);
-  
-      setTimeout(() => {
+      console.log("Second", this.files.length);
       if (this.files.length) {
-        console.log("Start This")
+        console.log("Start This");
         this.progressActive = true;
         var formData = new FormData();
-        this.files.forEach((el) => {
+        this.files.forEach(el => {
           formData.append("files", el);
         });
         formData.append("development", this.$store.state.development.id);
@@ -708,16 +691,16 @@ export default {
         axios({
           method: "post",
           url: `${url}/uploadCoverImage`,
-          data: formData,
+          data: formData
         })
           .then(
-            (response) => {
+            response => {
               if (response.data.done) {
                 this.progressActive = false;
                 this.getImagesFromDataBase();
               }
             },
-            (error) => {
+            error => {
               console.log(error);
             }
           )
@@ -734,13 +717,12 @@ export default {
               this.getImagesFromDataBase();
             }, 500);
           })
-          .catch((e) => {
+          .catch(e => {
             console.log(e);
           });
       } else {
         console.log("No Length!!!");
       }
-      }, 2000)
     },
     selectUnit() {
       this.getUnits();
@@ -752,21 +734,21 @@ export default {
       this.developmentParam = parameter;
       axios({
         method: "get",
-        url: `${url}/subsection/${parameter}`,
+        url: `${url}/subsection/${parameter}`
       }).then(
-        (response) => {
+        response => {
           if (response.data.success === false) {
             return this.$router.push({ name: "Login" });
           }
           this.block = response.data;
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
     },
     getUnits() {
-      let filtered = this.block.filter((el) => {
+      let filtered = this.block.filter(el => {
         return el.subsectionName === this.blockChosen;
       });
 
@@ -775,36 +757,36 @@ export default {
       this.subsectionParam = parameter;
       axios({
         method: "get",
-        url: `${url}/getUnits/${this.developmentParam}/${parameter}`,
+        url: `${url}/getUnits/${this.developmentParam}/${parameter}`
       }).then(
-        (response) => {
+        response => {
           this.units = response.data;
-          this.units.forEach((el) => {
+          this.units.forEach(el => {
             if (el.unitName.substring(1, 2) === ".") {
               this.units.push(this.units.shift()); // results in [1, 2, 3, 4, 5, 6, 7, 8]
             }
           });
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
     },
     async getImagesFromDataBase() {
       let data = {
-        id: this.$store.state.development.id,
+        id: this.$store.state.development.id
       };
       await axios({
         method: "post",
         url: `${url}/getImagesFromDatabase`,
-        data: data,
+        data: data
       })
         .then(
-          (response) => {
+          response => {
             this.cards = [];
             this.cards = response.data;
 
-            this.cards.forEach((el) => {
+            this.cards.forEach(el => {
               if (this.windowSize < 767) {
                 el.flex = 12;
               } else if (this.windowSize < 968) {
@@ -819,21 +801,21 @@ export default {
               }
             });
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
     },
     expandImage(event) {
-      this.card = this.cards.filter((el) => {
+      this.card = this.cards.filter(el => {
         return el.id === parseInt(event.currentTarget.id);
       });
       this.dialog1 = true;
-    },
-  },
+    }
+  }
 };
 </script>
 
