@@ -6,6 +6,62 @@ var fs = require("fs");
 const { response } = require("express");
 const runReport = require("./itcPDFs");
 
+router.post("/getP&G", (req, res) => {
+    console.log(req.body);
+    let mysql = `select * from pandg;
+    select activity, sum(budgetAmount) as sumAmounts from  pandgoriginal
+    group by activity;
+    SELECT activity, IF(posted = 0, sum(budgetAmount), sum(actualAmount)) AS expenditure_to_date
+    FROM pandg
+      group by activity, posted;
+      select * from pandg; 
+      select sum(budgetAmount) as totalBudget from pandgoriginal;`;
+    pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log("THE ERR", err);
+        connection.release();
+        resizeBy.send("Error with connection");
+      }
+      connection.query(mysql, function (error, result) {
+        if (error) {
+          console.log("THE ERROR", error);
+        } else {
+          res.json(result);
+        }
+      });
+      connection.release();
+    });
+  });
+
+router.post("/updateP&G", (req, res) => {
+    // console.log(req.body);
+    console.log(req.body.length);
+    let mysql = ""
+    req.body.forEach((el) => {
+      mysql = `${mysql} update pandg set actualAmount = ${parseFloat(el.actualAmount)}, budgetAmount = ${parseFloat(el.budgetAmount)}, posted = ${el.posted} where id = ${el.id};`
+    })
+    // let mysql = `update `;
+    // console.log(mysql)
+    // res.json({Awesome: "It Works!!!"})
+
+    pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log("THE ERR", err);
+        connection.release();
+        resizeBy.send("Error with connection");
+      }
+      connection.query(mysql, function (error, result) {
+        if (error) {
+          console.log("THE ERROR", error);
+        } else {
+          res.json(result);
+        
+        }
+      });
+      connection.release();
+    });
+  });
+
 router.post("/getSubcontractors", (req, res) => {
     console.log(req.body);
     let mysql = `select * from suppliers where isSubcontractor = true order by supplierName`;

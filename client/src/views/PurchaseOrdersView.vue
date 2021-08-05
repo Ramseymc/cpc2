@@ -26,7 +26,7 @@
       <v-col class="mb-4" cols="10" offset="1">
         <v-data-table
           :headers="headers2"
-          :items="items2"
+          :items="items2Filtered"
           sort-by="calories"
           class="elevation-1"
           :search="search"
@@ -39,6 +39,16 @@
 
               <v-divider class="mx-4" inset vertical></v-divider>
               Total: {{ totalFulfilled }}
+              <v-spacer></v-spacer>
+              <v-radio-group v-model="row" row>
+                <v-radio label="All" value="all"></v-radio>
+                <v-radio
+                  label="Awaiting Invoice"
+                  value="awaiting_Invoice"
+                ></v-radio>
+                <v-radio label="Captured" value="captured"></v-radio>
+                <v-radio label="Paid" value="paid"></v-radio>
+              </v-radio-group>
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -391,6 +401,7 @@ export default {
   },
   data() {
     return {
+      row: "all",
       public_id: [],
 
       publicId: null,
@@ -496,8 +507,54 @@ export default {
         { text: "View", value: "actions", sortable: false },
         { text: "Img", value: "DNImageFile", sortable: false }
         // { text: "Email", value: "email", sortable: false }
-      ]
+      ],
+      items2Filtered: []
     };
+  },
+  watch: {
+    row: function() {
+      let filtered = [];
+      switch (this.row) {
+        case "All":
+          filtered = this.items2;
+          break;
+        case "awaiting_Invoice":
+          filtered = this.items2.filter(el => {
+            return el.xeroStatus === "Awaiting Invoice";
+          });
+          break;
+        case "captured":
+          filtered = this.items2.filter(el => {
+            return el.xeroStatus === "Captured";
+          });
+          break;
+        case "paid":
+          filtered = this.items2.filter(el => {
+            return el.xeroStatus === "Paid";
+          });
+          break;
+        default:
+          filtered = this.items2;
+      }
+      console.log(filtered);
+      if (filtered.length) {
+        this.totalFulfilled = this.convertToString(
+          filtered.reduce((prev, curr) => {
+            let nettCost = parseFloat(
+              curr.nettCost
+                .split("R")
+                .join("")
+                .split(" ")
+                .join("")
+            );
+            return prev + nettCost;
+          }, 0)
+        );
+      } else {
+        this.totalFulfilled = "R0.00";
+      }
+      this.items2Filtered = filtered;
+    }
   },
 
   async mounted() {
@@ -870,6 +927,7 @@ export default {
             this.items2 = this.items.filter(el => {
               return el.fulfilled === true;
             });
+
             this.items = this.items.filter(el => {
               return el.fulfilled === false;
             });
@@ -878,6 +936,7 @@ export default {
                 el.xeroStatus = "Awaiting Invoice";
               }
             });
+            this.items2Filtered = this.items2;
 
             let totalFulfilled = this.items2.reduce((prev, curr) => {
               return (

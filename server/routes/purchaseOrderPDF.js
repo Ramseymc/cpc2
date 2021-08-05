@@ -202,7 +202,7 @@ const runReport = (data) => {
   }, 0);
   let totalsData = [
     { price: grossPrice, type: "Gross" },
-    { price: vatPrice, type: "Vat" },
+    { price: vatPrice, type: "VAT" },
     { price: nettPrice, type: "Nett" },
   ];
   let dataInput2 = [];
@@ -215,7 +215,7 @@ const runReport = (data) => {
   };
   let tinsert2 = {
     border: [true, true, true, true],
-    text: `\n Delivery: SITE \n Delivery Date: ${data[0].deliveryDate}`,
+    text: `\n Delivery: Endulini,\n corner of Kruis and Crammix Roads,\n Brackenfell,\n Cape Town \n (33°53'36.27"S & 18°42'48.33"E) \n \n Delivery Date: ${data[0].deliveryDate}`,
     fontSize: 8,
     alignment: "left",
   };
@@ -304,6 +304,21 @@ const runReport = (data) => {
     pageSize: "A4",
     footer: function (currentPage, pageCount) {
       return [
+        {
+          text:
+          "For order queries please contact Herbert du Plessis on herbert@capeprojects.co.za / 074 333 0903",
+          
+          fontSize: 8,
+          alignment: "center",
+        },
+        {
+          text:
+         
+          "For delivery queries please contact Morne Grové on morne@cpconstruction.co.za / 082 920 0931",
+          fontSize: 8,
+          alignment: "center",
+        },
+       
         {
           text:
             "Page " + currentPage.toString() + " of " + pageCount + " Pages",

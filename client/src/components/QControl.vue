@@ -233,6 +233,7 @@
 import axios from "axios";
 import { CldImage, CldTransformation } from "cloudinary-vue";
 import dayjs from "dayjs";
+import * as imageConversion from "image-conversion";
 let url = process.env.VUE_APP_BASEURL;
 export default {
   props: {
@@ -334,7 +335,41 @@ export default {
   },
 
   methods: {
+    async blobToFile(theBlob, fileName, lastModifiedDate, lastModified) {
+      theBlob.lastModifiedDate = lastModifiedDate;
+      theBlob.lastModified = lastModified;
+      theBlob.name = fileName;
+      return theBlob;
+    },
+    convertImage() {
+      return new Promise((resolve, reject) => {
+        let file;
+        if (this.imageFile.size > 2000000) {
+          console.log("Size", this.imageFile.size);
+          imageConversion.compressAccurately(this.imageFile, 1700).then(res => {
+            console.log(res);
+            file = this.blobToFile(
+              res,
+              this.imageFile.name,
+              this.imageFile.lastModifiedDate,
+              this.imageFile.lastModified
+            );
+          });
+        }
+        resolve(() => {
+          this.imageFile = file;
+          console.log(file);
+          console.log("After Conversion", this.imageFile);
+        });
+        reject(err => {
+          console.log(err);
+        });
+      });
+    },
     async uploadedImageFile() {
+      console.log(this.imageFile);
+      console.log(this.imageFile.size);
+      await this.convertImage();
       let formData = new FormData();
       formData.append("image", this.imageFile);
       formData.append("id", this.currentIdForUploadImage);

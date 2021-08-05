@@ -260,7 +260,7 @@
             Cancel
           </v-btn>
           <v-btn color="green darken-1" text @click="savePO">
-            Update
+            UpdateXX
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -422,7 +422,9 @@ export default {
       "Item",
       "No.",
       "hour",
-      "day"
+      "day",
+      "kg",
+      "tons"
     ],
     stockItemsToUpdate: [],
     stockItemsToAdd: [],
@@ -648,6 +650,7 @@ export default {
     },
 
     async getAvailableStock() {
+      console.log("Get Available Stock");
       let availableCriteria = [];
       this.desserts.forEach(el => {
         let insert = {
@@ -663,6 +666,7 @@ export default {
         data: availableCriteria
       }).then(
         response => {
+          console.log("RESPONSE");
           this.stockItemsCurrentPO = response.data[0];
           this.stockItemsCurrentPOPurchased = response.data[1];
         },
@@ -674,8 +678,12 @@ export default {
 
     async savePO() {
       await this.getAvailableStock();
+      // console.log(this.desserts)
+      console.log("UpDATE THIS");
       this.desserts.forEach(el => {
         el.quantity = parseFloat(el.quantity);
+        console.log(el.price);
+
         let available =
           this.stockItemsCurrentPO.reduce((prev, current) => {
             if (
@@ -758,12 +766,14 @@ export default {
         purchaseOrdersToDelete: itemToDelete,
         purchaseOrderToInsert: PODataInsert
       };
+      console.log("DATA to Edit PO", data);
       await axios({
         method: "post",
         url: `${url}/POEdit`,
         data: data
       }).then(
-        () => {
+        response => {
+          console.log(response.data);
           this.closeEdit();
           this.getPODetails();
         },
@@ -920,6 +930,7 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
+        console.log(this.editedItem);
         this.editedItem.description = this.editedItem.itemDescription;
         let filtered = this.stockItems.filter(el => {
           return (
@@ -1067,7 +1078,7 @@ export default {
           return this.stockItemChosen === el.siItemDescription;
         });
 
-        this.editedItem.price = stockFilter[0].siUnitCost;
+        // this.editedItem.price = stockFilter[0].siUnitCost;
         this.editedItem.itemCode = stockFilter[0].itemCode;
         this.editedItem.description = this.stockItemChosen.siItemDescription;
       }

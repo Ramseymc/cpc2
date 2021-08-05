@@ -633,7 +633,6 @@ export default {
       this.dialog = true;
     },
     async blobToFile(theBlob, fileName, lastModifiedDate, lastModified) {
-      //A Blob() is almost a File() - it's just missing the two properties below which we will add
       theBlob.lastModifiedDate = lastModifiedDate;
       theBlob.lastModified = lastModified;
       theBlob.name = fileName;
@@ -645,9 +644,9 @@ export default {
         let file;
 
         this.files.forEach(el => {
-          if (el.size > 1000000) {
+          if (el.size > 2000000) {
             console.log("Size", el.size);
-            imageConversion.compressAccurately(el, 700).then(res => {
+            imageConversion.compressAccurately(el, 1700).then(res => {
               console.log(res);
               file = this.blobToFile(
                 res,

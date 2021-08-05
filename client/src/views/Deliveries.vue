@@ -277,6 +277,7 @@
 import * as dayjs from "dayjs";
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
+import * as imageConversion from "image-conversion";
 export default {
   name: "Deliveries",
   components: {
@@ -407,8 +408,48 @@ export default {
     removeFromList(event) {
       this.files.splice(parseInt(event.currentTarget.id), 1);
     },
+    async blobToFile(theBlob, fileName, lastModifiedDate, lastModified) {
+      theBlob.lastModifiedDate = lastModifiedDate;
+      theBlob.lastModified = lastModified;
+      theBlob.name = fileName;
+      return theBlob;
+    },
+    convertImage() {
+      return new Promise((resolve, reject) => {
+        let newFile = [];
+        let file;
+
+        this.files.forEach(el => {
+          if (el.size > 2000000) {
+            console.log("Size", el.size);
+            imageConversion.compressAccurately(el, 1700).then(res => {
+              console.log(res);
+              file = this.blobToFile(
+                res,
+                el.name,
+                el.lastModifiedDate,
+                el.lastModified
+              );
+
+              newFile.push(file);
+            });
+          } else {
+            newFile.push(el);
+          }
+        });
+        resolve(() => {
+          this.files = newFile;
+          console.log(newFile);
+          console.log("After Conversion", this.files);
+        });
+        reject(err => {
+          console.log(err);
+        });
+      });
+    },
     async uploadedImageFile() {
       if (this.files.length) {
+        await this.convertImage();
         this.progressActive = true;
         let formData = new FormData();
         this.files.forEach(el => {
@@ -432,6 +473,10 @@ export default {
         );
       }
     },
+    closeClientInfo() {
+      this.$emit("closeForm", false);
+    },
+
     receiptAll() {
       this.desserts.forEach(el => {
         el.delivered = el.quantity;

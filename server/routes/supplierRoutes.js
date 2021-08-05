@@ -218,9 +218,10 @@ router.post("/editAllSuppliersInApp", (req, res) => {
     postal_address = ${newPostalAddress}
     where contactID = '${el.contactID}';`;
   }) 
-  let mysql2 = `Update suppliers set emailAddress = 'wayne@opportunity.co.za';`
+  // let mysql2 = `Update suppliers set emailAddress = 'wayne@opportunity.co.za';`
 
-  let mysql = `${mysql1}${mysql2}`
+  // let mysql = `${mysql1}${mysql2}`
+  let mysql = `${mysql1}`
  
 
   // console.log(chalk.red(mysql));

@@ -153,7 +153,7 @@ router.post("/POEdit", (req, res) => {
   // let mysql4 = "";
   // if (req.body.purchaseOrdersToDelete.length) {
     // req.body.purchaseOrdersToDelete.forEach((el) => {
-      let mysql1 = `Delete from PurchaseOrders where PONumber = '${req.body.purchaseOrdersToDelete}'; Delete from stockPurchased where PONumber = '${req.body.purchaseOrdersToDelete}'; `;
+      let mysql1 = `Delete from purchaseOrders where PONumber = '${req.body.purchaseOrdersToDelete}'; Delete from stockPurchased where PONumber = '${req.body.purchaseOrdersToDelete}'; `;
     // });
   // }
   // let mysql5 = `update purchaseOrders set overBudget = ${req.body.purchaseOrderToUpdate[0].overBudget} where PONumber = '${req.body.purchaseOrderToUpdate[0].PONumber}'`
@@ -168,9 +168,10 @@ router.post("/POEdit", (req, res) => {
     connection.query(mysql, function (error, result) {
       if (error) {
         console.log("THE ERROR", error);
+        res.json({ "THE ERROR": error,"mysql": mysql});
       } else {
 
-        res.json(result);
+        res.json({result, "mysql": mysql});
       }
     });
     connection.release();
@@ -423,7 +424,9 @@ router.post("/getSupplierForStock", (req, res) => {
 router.post("/deletePurchaseOrder", (req, res) => {
   // console.log(req.body);
 
-  let mysql = `delete from purchaseOrders where PONumber = '${req.body.PO}'`;
+  let mysql1 = `delete from purchaseOrders where PONumber = '${req.body.PO}'`;
+  let mysql2 = `delete from stockPurchased where PONumber = '${req.body.PO}'`;
+  let mysql = `${mysql1};${mysql2}`
   // console.log(mysql);
   // res.json({ awesome: "It works!!!!" });
   fs.unlink(`public/purchaseorders/${req.body.PO}.pdf`, function (err) {

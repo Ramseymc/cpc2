@@ -149,7 +149,8 @@ router.get("/getSignatures", (req, res) => {
     connection.release();
   });
 });
-
+// <strong>Herbert du Plessis</strong><br>
+// Project Manager<br>
 router.post("/sendpurchaseorder", (req, res) => {
   let mysql = `select first_name, last_name, emailAddress from suppliers where contactID = '${req.body.supplier}'`;
   let filename = req.body.PONumber;
@@ -173,13 +174,16 @@ router.post("/sendpurchaseorder", (req, res) => {
         Please achknowledge receipt of this email
         Kind regards<br><br>
 
-        <strong>Herbert du Plessis</strong><br>
-        Project Manager<br>
-        CPC<br><br>
+        For order queries: <br /> 
+        please contact <strong>Herbert du Plessis</strong> on <a href="mailto:herbert@capeprojects.co.za">herbert@capeprojects.co.za</a> / 074 333 0903<br />
+        For delivery queries: <br /> 
+        please contact <strong>Morne Grové</strong> on <a href="mailto:morne@cpconstruction.co.za">morne@cpconstruction.co.za</a> / 082 920 0931 <br />
+
+       
+        <strong>CPC</strong><br><br>
         `;
         sendPOMail(subject, recipient, output, filename)
           .then(() => {
-            // console.log(fileName)
             let mysql2 = `update purchaseOrders set sentToSupplier = true where PONumber = '${req.body.PONumber}'`;
             console.log(chalk.blue(mysql2));
             connection.query(mysql2, function (error, result) {
@@ -198,8 +202,6 @@ router.post("/sendpurchaseorder", (req, res) => {
           .catch((e) => {
             res.json({ success: false });
           });
-
-        // res.json(result);
       }
     });
     connection.release();
@@ -443,30 +445,18 @@ async function sendImageMail(subject, recipient, output, filename, personToCC) {
 }
 
 async function sendPOMail(subject, recipient, output, filename) {
-  // let mailError;
   let mailOptions = {
-    // from: "Perfect Staff Contact Form <wayne@eccentrictoad.com>",
     from: "Cape Projects Construction <wayne@eccentrictoad.com>",
     to: `${recipient}`,
-    cc: [
-      "herbert@capeprojects.co.za",
-      // 'wynand@capeprojects.co.za',
-    ],
+    cc: "herbert@capeprojects.co.za, waynebruton@icloud.com",
     subject: `${subject}`,
     text: "Hello world?",
     html: output,
     attachments: [
       {
-        // file on disk as an attachment
         filename: `${filename}.pdf`,
         path: `public/purchaseorders/${filename}.pdf`, // stream this file
-        // path: `../public/${filename}.pdf`, // stream this file
       },
-      // {
-      //   // file on disk as an attachment
-      //   filename: `${filename}Annex.pdf`,
-      //   path: `public/${filename}Annex.pdf`, // stream this file
-      // },
     ],
   };
 
@@ -474,9 +464,6 @@ async function sendPOMail(subject, recipient, output, filename) {
     if (error) {
       console.log("Error with connection", error);
     }
-    // else {
-
-    // }
   });
 }
 

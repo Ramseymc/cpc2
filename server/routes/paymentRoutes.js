@@ -37,7 +37,7 @@ u.unitName,  t.price,  p.progress - p.lastCertificateIssuedAt as unIssued, p.pro
 from  tasks t,taskTypes tt, units u, progress p
 left join paymentCertificatesDetails pcd
 on p.id = pcd.progressId
- where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber and t.development = ${req.body.id}`;
+ where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber and t.development = ${req.body.id} and t.PC = 1`;
 let mysql2 = `select distinct p.unitNumber, t.supplier, tt.taskName,u.unitName, s.terms
 from  tasks t,taskTypes tt, units u, progress p, suppliers s
 where p.progress > 0 and p.task = t.id and t.taskType = tt.id and u.id = p.unitNumber and u.development = ${req.body.id} and s.id = t.supplier`
@@ -217,7 +217,7 @@ router.post("/certificates", (req, res) => {
   let mysql2 = `select distinct t.id, p.id as progressId, t.supplier,s.vatVendor,t.taskDescription, t.fix, tt.taskName, u.unitName, round(t.price, 2) as price,s.retention, p.progress, 
   round(((t.price * p.progress / 100) - (t.price * p.lastCertificateIssuedAt / 100)),2) as toDate, p.lastCertificateIssuedAt, p.certificateIssued, p.lastCertificateNumber 
   from tasks t, progress p, units u, taskTypes tt, suppliers s
-    where t.id = p.task and t.supplier = ${req.body.id} and t.development = ${req.body.development} and t.unitNumber = u.id and t.taskType = tt.id and s.id = t.supplier 
+    where t.id = p.task and t.supplier = ${req.body.id} and t.development = ${req.body.development} and t.unitNumber = u.id and t.taskType = tt.id and s.id = t.supplier and t.pc = true
     order by p.progress desc, t.id`;
   let mysql3 = `select round(sum(price),2) as contractPrice from tasks where supplier = ${req.body.id}`;
   let mysql4 = `select p.id as progressID, p.development, p.supplier, p.taskType,'Retention' as fix, t.taskName, u.unitName, p.unitNumber, p.progress, round(p.totalRetention,2) as price, round(p.totalRetention * (p.progress / 100) - (p.totalRetention * ((p.lastCertificateIssuedAt)/100)),2) as toDate, p.progressDate, p.certificateIssued, p.lastCertificateIssuedAt, p.lastCertificateNumber, 

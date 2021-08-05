@@ -181,9 +181,8 @@ export default {
             this.mainData = response.data;
             setTimeout(() => {
               this.show = true;
+              this.loading = false;
             }, 1750);
-
-            this.loading = false;
           },
           error => {
             console.log("the Error", error);

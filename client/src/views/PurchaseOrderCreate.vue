@@ -208,12 +208,12 @@
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
+                            <!-- @blur="chooseStockItem" -->
                             <v-text-field
                               v-if="stockItemChosen"
                               v-model="editedItem.price"
                               label="rate*"
                               @change="chooseQuantity"
-                              @blur="chooseStockItem"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
@@ -516,7 +516,9 @@ export default {
         "Item",
         "No.",
         "hour",
-        "day"
+        "day",
+        "kg",
+        "tons"
       ],
       stockItemsToUpdate: [],
       // stockItemsToAdd: [],
@@ -1095,6 +1097,7 @@ export default {
       this.totalGross = this.convertToString(this.totalGross);
       this.totalVAT = this.convertToString(this.totalVAT);
       this.totalNett = this.convertToString(this.totalNett);
+      this.editedItem.quantity = 0;
       this.close();
     },
     itemRowColor(item) {

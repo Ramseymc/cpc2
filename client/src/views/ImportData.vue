@@ -255,6 +255,8 @@ export default {
     //CHECKS IMPORTED DATA IS CORRECT
     async verificationCheck() {
       let developmentId = this.$store.state.development.id;
+      console.log(developmentId);
+
       let checkDevelopment = this.desserts.filter(el => {
         return el.ID !== developmentId;
       });

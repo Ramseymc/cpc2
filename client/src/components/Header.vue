@@ -1,32 +1,19 @@
 <template>
   <!-- <div> -->
   <v-app-bar app color="#393e46" dark class="mobile">
-    <!-- <div class="d-flex align-center" v-if="windowSize > 767">
-      <v-img
-        :to="{ name: 'Home' }"
-        alt="Vuetify Logo"
-        class="shrink mr-2"
-        contain
-        :src="require('../assets/CPCLogo.png')"
-        transition="scale-transition"
-        width="40"
-      />
-    </div> -->
-
     <v-btn text min-width="100" style="font-size: 120%;" :to="{ name: 'Home' }"
       >CPC {{ this.$store.state.development.developmentName }}</v-btn
     >
     <v-spacer></v-spacer>
-
-    <!-- <h2 style="margin-left: 15px;">
-      {{ this.$store.state.development.developmentName }}
-    </h2>
-    <v-spacer></v-spacer> -->
     <h2 v-if="this.$store.state.isLoggedIn && windowSize > 767">
       Hello {{ this.$store.state.userName }}
     </h2>
     <v-spacer></v-spacer>
-    <!-- <v-btn color="red" :to="{ name: 'TaskList' }">Tasks</v-btn> -->
+    <v-btn text v-if="this.$store.state.isLoggedIn" :to="{ name: 'TaskList' }">
+      <span class="mr-2">Issues</span>
+      <v-icon>mdi-wall</v-icon>
+    </v-btn>
+    <v-spacer></v-spacer>
 
     <v-btn text v-if="this.$store.state.isLoggedIn" @click="logout">
       <span class="mr-2">Logout</span>
@@ -222,16 +209,16 @@ export default {
             menu: 1,
             id: "images",
             color: "yellow"
-          },
-          {
-            title: "Instruction To Commence",
-            name: "ITC",
-            icon: "mdi-handshake",
-            role: 3,
-            menu: 1,
-            id: "ITC",
-            color: "white"
           }
+          // {
+          //   title: "P&G's",
+          //   name: "PandG",
+          //   icon: "mdi-food-fork-drink",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "P&G",
+          //   color: "blue"
+          // }
         ]
       },
 
@@ -270,6 +257,15 @@ export default {
             menu: 1,
             id: "Deliveries",
             color: "amber"
+          },
+          {
+            title: "Instruction To Commence",
+            name: "ITC",
+            icon: "mdi-handshake",
+            role: 3,
+            menu: 1,
+            id: "ITC",
+            color: "white"
           }
         ]
       },
@@ -319,6 +315,24 @@ export default {
             menu: 1,
             id: "apartment",
             color: "amber"
+          },
+          {
+            title: "Start Sales",
+            name: "salesstart",
+            icon: "mdi-home-variant",
+            role: 2,
+            menu: 1,
+            id: "salesstart",
+            color: "blue"
+          },
+          {
+            title: "Sales Info",
+            name: "salesinfo",
+            icon: "mdi-account-check",
+            role: 2,
+            menu: 1,
+            id: "salesinfo",
+            color: "orange"
           }
         ]
       },
@@ -423,6 +437,53 @@ export default {
             menu: 1,
             id: "edituser",
             color: "yellow accent-2"
+          }
+        ]
+      },
+      {
+        title: "DashBoard",
+        name: "sysAdmin",
+        icon: "mdi-view-dashboard",
+        role: 3,
+        menu: 1,
+        id: "sdashboard",
+        color: "yellow",
+        items: [
+          {
+            title: "P&G's WIP",
+            name: "PandG",
+            icon: "mdi-food-fork-drink",
+            role: 3,
+            menu: 1,
+            id: "P&G",
+            color: "blue"
+          },
+          {
+            title: "Finance Input WIP",
+            name: "FinanceInput",
+            icon: "mdi-cash-usd",
+            role: 3,
+            menu: 1,
+            id: "financeinput",
+            color: "orange"
+          },
+          {
+            title: "Sales Input WIP",
+            name: "SalesData",
+            icon: "mdi-sale",
+            role: 3,
+            menu: 1,
+            id: "salesdata",
+            color: "amber"
+          },
+          {
+            title: "Investor Data WIP",
+            name: "InvestorData",
+            icon: "mdi-bank",
+            role: 3,
+            menu: 1,
+            id: "investordata",
+            color: "yellow"
           }
         ]
       }

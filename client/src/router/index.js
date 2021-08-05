@@ -146,6 +146,12 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "Deliveries" */ "../views/Deliveries.vue")
   },
+  {
+    path: "/pandg",
+    name: "PandG",
+    component: () =>
+      import(/* webpackChunkName: "Deliveries" */ "../views/P&G.vue")
+  },
   // {
   //   path: "/ganttv2",
   //   name: "ganttv2",
@@ -202,6 +208,36 @@ const routes = [
     path: "/instructionToCommit",
     name: "ITC",
     component: () => import(/* webpackChunkName: "ITC" */ "../views/ITC.vue")
+  },
+  {
+    path: "/salesinfo",
+    name: "salesinfo",
+    component: () =>
+      import(/* webpackChunkName: "salesinfo" */ "../views/SalesInfo.vue")
+  },
+  {
+    path: "/salesstart",
+    name: "salesstart",
+    component: () =>
+      import(/* webpackChunkName: "salesstart" */ "../views/SalesStart.vue")
+  },
+  {
+    path: "/financeinput",
+    name: "FinanceInput",
+    component: () =>
+      import(/* webpackChunkName: "FinanceInput" */ "../views/FinanceInput.vue")
+  },
+  {
+    path: "/salesData",
+    name: "SalesData",
+    component: () =>
+      import(/* webpackChunkName: "SalesData" */ "../views/SalesData.vue")
+  },
+  {
+    path: "/investorData",
+    name: "InvestorData",
+    component: () =>
+      import(/* webpackChunkName: "InvestorData" */ "../views/InvestorData.vue")
   },
   {
     path: "/*",

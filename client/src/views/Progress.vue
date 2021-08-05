@@ -183,13 +183,8 @@
           </template>
         </v-progress-linear>
         <span>Now: {{ today }}</span>
-
-        <!-- <span>Total Value: {{ totalAmount }}</span> -->
         <v-list two-line v-show="showDetail">
           <v-list-item-group v-model="selected" multiple>
-            <!-- <template v-for="item in items"> -->
-            <!-- :style="{ 'background-color': item.color }" -->
-            <!-- :style="{ 'border':'10px solid' + item.color }" -->
             <template v-for="item in items">
               <v-list-item
                 class="listItem"
@@ -212,7 +207,6 @@
                         "
                       ></v-list-item-title>
                     </div>
-                    <!-- v-model="allTaskProgress" -->
                     <v-progress-linear
                       style="margin-top: 5px;"
                       v-model="item.progress"
@@ -253,7 +247,6 @@
                         ><small>{{ item.endDate }}</small></span
                       >
                     </div>
-                    <!-- @mouseover="changeValue" -->
                     <v-progress-linear
                       v-if="item.currentTime > item.progress"
                       style="margin-top: 5px;"
@@ -284,68 +277,6 @@
                         >
                       </template>
                     </v-progress-linear>
-                    <!-- ??????????????????????????? -->
-                    <!-- <v-progress-linear
-                      v-if="item.baselineCategory === 1"
-                      style="margin-top: 5px;"
-                      value="100"
-                      color="red"
-                      height="7"
-                      class="test"
-                      striped
-                    >
-                      <template v-slot:default="{ value }">
-                        <small style="color: white;"
-                          >{{ Math.ceil(value) }}%</small
-                        >
-                      </template>
-                    </v-progress-linear>
-                    <v-progress-linear
-                      v-else-if="item.baselineCategory === 2"
-                      style="margin-top: 5px;"
-                      value="100"
-                      color="orange"
-                      height="7"
-                      class="test"
-                      striped
-                    >
-                      <template v-slot:default="{ value }">
-                        <small style="color: white;"
-                          >{{ Math.ceil(value) }}%</small
-                        >
-                      </template>
-                    </v-progress-linear>
-                    <v-progress-linear
-                      v-else-if="item.baselineCategory === 3"
-                      style="margin-top: 5px;"
-                      value="100"
-                      color="blue"
-                      height="7"
-                      class="test"
-                      striped
-                    >
-                      <template v-slot:default="{ value }">
-                        <small style="color: white;"
-                          >{{ Math.ceil(value) }}%</small
-                        >
-                      </template>
-                    </v-progress-linear>
-                    <v-progress-linear
-                      v-else
-                      style="margin-top: 5px;"
-                      value="100"
-                      color="green"
-                      height="7"
-                      class="test"
-                      striped
-                    >
-                      <template v-slot:default="{ value }">
-                        <small style="color: white;"
-                          >{{ Math.ceil(value) }}%</small
-                        >
-                      </template>
-                    </v-progress-linear> -->
-                    <!-- ??????????????????????????? -->
                   </v-list-item-content>
                 </template>
                 <v-list-item-action>
@@ -362,9 +293,7 @@
                 </v-list-item-action>
               </v-list-item>
             </template>
-            <v-list-item>
-              <!-- <template v-slot:default="{ active }"> -->
-            </v-list-item>
+            <v-list-item> </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-card>
@@ -631,6 +560,7 @@ export default {
         total = Math.round(total, 2);
 
         this.allTaskProgressStart = total;
+        console.log("watch allTaskProgressStart", this.allTaskProgressStart);
 
         this.changeIndividualProgress();
       }
@@ -720,6 +650,7 @@ export default {
         return acc + el.price;
       }, 0);
       this.totalAmountDigits = progressAmount;
+      console.log("XXXX totalAmountDigits", this.totalAmountDigits);
       this.totalAmount = this.convertToString(
         totalAmount - (totalAmount - progressAmount)
       );
@@ -754,6 +685,7 @@ export default {
         totalAmount - (totalAmount - progressAmount)
       );
       this.allTaskProgressStart = startAmount;
+      console.log("ZZZZ allTaskProgressStart", this.allTaskProgressStart);
     },
     showTasks() {
       if (this.btnIcon === "mdi-arrow-down") {
@@ -1242,6 +1174,35 @@ export default {
       this.addDays = 0;
       this.getTasks();
     }
+    // test() {
+    //   let bankSQL = fileDetails.filter((el) => {
+    //     console.log("Element in the filter file details array:", el);
+    //     return el.fileType ===  'fileBank'
+    //   })  // does this below need to be inside the loop?
+    //   console.log(chalk.green("bankSQL = ", bankSQL))
+    //   let additionalSQL = ""
+    //   if (bankSQL.length > 0) {
+    //     bankSQL.forEach((el) => {
+    //       additionalSQL = `${additionalSQL}, fileBank = '${el.fileName}'`
+    //     })
+    //   }
+    //   let ficaSQL = fileDetails.filter((el) => {
+    //     console.log("Element in the filter file details array:", el);
+    //     return el.fileType ===  'fileFica'
+    //   })  // does this below need to be inside the loop?
+    //   console.log(chalk.green("ficaSQL = ", ficaSQL))
+    //   let additionalSQL = ""
+    //   let insertArray = []
+
+    //   if (ficaSQL.length > 0) {
+    //     ficaSQL.forEach((el) => {
+    //       insertArray.push(el.fileName)
+    //     })
+    //    additionalSQL = `${additionalSQL}, fileFica = '${insertArray.join(",")}'`
+    //   }
+    // }
+
+    //  additionalSQL = `${additionalSQL}, fileFica = '${el.fileName}'`
   }
 };
 </script>

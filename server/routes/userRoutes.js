@@ -15,7 +15,8 @@ router.post("/resetOTP", (req, res) => {
   let OTP = otpGenerator.generate(6, { upperCase: false, specialChars: false });
 
   
-  let mysql = `select userMobile, userName from users where userEmail = '${req.body.email}'` 
+  let mysql = `select userMobile, userName from users where userEmail = '${req.body.email}'`
+  console.log(mysql) 
   pool.getConnection(function (err, connection) {
     if (err) {
       connection.release();

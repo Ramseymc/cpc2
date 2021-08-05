@@ -456,6 +456,7 @@
                       " -->
 
                     <v-checkbox
+                      v-if="userRole < 3"
                       v-model="item.produceCertificate"
                       hide-details
                       class="shrink mr-2 mt-0"
@@ -526,6 +527,7 @@ export default {
   },
   data() {
     return {
+      userRole: null,
       src2: "",
       showIssued: false,
       showUnIssued: true,
@@ -690,6 +692,7 @@ export default {
     }
   },
   async mounted() {
+    this.userRole = this.$store.state.userRole;
     this.checkToken();
     this.consentUrl = "";
     await this.getSuppliers();
@@ -1060,46 +1063,49 @@ export default {
           certificateDetailsToPost.push(el2);
         });
       });
-      this.certificateDetailsToPost = certificateDetailsToPost;
+      if (certificateDetailsToPost.length) {
+        this.certificateDetailsToPost = certificateDetailsToPost;
 
-      let data = {
-        supplier: this.certificateDetailsToPost[0].supplier,
-        development: this.$store.state.development.id
-      };
+        let data = {
+          supplier: this.certificateDetailsToPost[0].supplier,
+          development: this.$store.state.development.id
+        };
 
-      this.depositDetails = [];
-      await axios({
-        method: "post",
-        url: `${url}/depositHistory`,
-        data: data
-      })
-        .then(
-          response => {
-            this.depositDetails = response.data;
-            if (this.depositDetails.length) {
-              let oldCertNumber;
-              if (this.certificates.length) {
-                oldCertNumber = this.certificates[this.certificates.length - 1]
-                  .certificateNumber;
-              } else {
-                oldCertNumber = null;
+        this.depositDetails = [];
+        await axios({
+          method: "post",
+          url: `${url}/depositHistory`,
+          data: data
+        })
+          .then(
+            response => {
+              this.depositDetails = response.data;
+              if (this.depositDetails.length) {
+                let oldCertNumber;
+                if (this.certificates.length) {
+                  oldCertNumber = this.certificates[
+                    this.certificates.length - 1
+                  ].certificateNumber;
+                } else {
+                  oldCertNumber = null;
+                }
+                let newInsert = {
+                  oldCertNumber: oldCertNumber,
+                  newCertNumber: this.certNumber
+                };
+
+                this.depositDetails.push(newInsert);
               }
-              let newInsert = {
-                oldCertNumber: oldCertNumber,
-                newCertNumber: this.certNumber
-              };
+            },
 
-              this.depositDetails.push(newInsert);
+            error => {
+              console.log(error);
             }
-          },
-
-          error => {
-            console.log(error);
-          }
-        )
-        .catch(e => {
-          console.log(e);
-        });
+          )
+          .catch(e => {
+            console.log(e);
+          });
+      }
     },
     selectAllProgress() {
       if (this.produceCertificate) {
