@@ -148,7 +148,7 @@
                       style="width: 300px"
                       v-if="floorChosen"
                       :label="`${value.fix} ${value.unitName}`"
-                      :value="value.total"
+                      v-model="value.total"
                       outlined
                       width="50%"
                     ></v-text-field>
@@ -166,6 +166,7 @@
                       v-model="value.processITC"
                       color="red"
                       @change="calculateTotal"
+                      label="Use"
                     ></v-checkbox>
                     <!-- <v-dialog
                       v-if="floorChosen"

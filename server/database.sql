@@ -1508,27 +1508,27 @@ create table pandg (
 
 
 
-CREATE TABLE `salesinfo` (
+CREATE TABLE salesinfo (
   id int auto_increment primary key,
-  `firstname` varchar(50) NOT NULL,
-  `lastname` varchar(50) NOT NULL,
-  `iDNumber` varchar(13) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `bankName` varchar(50) NOT NULL,
-  `accountNumber` varchar(50) NOT NULL,
-  `accountType` varchar(20) NOT NULL,
-  `block` varchar(30) NOT NULL,
-  `unit` varchar(20) NOT NULL,
-  `mood` varchar(30) NOT NULL DEFAULT 'Mood 1',
-  `flooring` varchar(30) NOT NULL DEFAULT 'Tiles',
-  `fileOTP` varchar(111) NOT NULL,
-  `fileId` varchar(111) NOT NULL,
-  `fileBank` varchar(111) NOT NULL,
-  `filePaySlip` varchar(250) NOT NULL,
-  `fileFica` varchar(250) NOT NULL,
-  `salesEmailSent` varchar(1) NOT NULL DEFAULT 'N',
-  `dateCreated` datetime NOT NULL,
-  `signedOff` Boolean NOT NULL DEFAULT false
+  firstname varchar(50) NOT NULL,
+  lastname varchar(50) NOT NULL,
+  iDNumber varchar(13) NOT NULL,
+  email varchar(100) NOT NULL,
+  bankName varchar(50) NOT NULL,
+  accountNumber varchar(50) NOT NULL,
+  accountType varchar(20) NOT NULL,
+  block varchar(30) NOT NULL,
+  unit varchar(20) NOT NULL,
+  mood varchar(30) NOT NULL DEFAULT 'Mood 1',
+  flooring varchar(30) NOT NULL DEFAULT 'Tiles',
+  fileOTP varchar(111) NOT NULL,
+  fileId varchar(111) NOT NULL,
+  fileBank varchar(111) NOT NULL,
+  filePaySlip varchar(250) NOT NULL,
+  fileFica varchar(250) NOT NULL,
+  salesEmailSent varchar(1) NOT NULL DEFAULT 'N',
+  dateCreated datetime NOT NULL,
+  signedOff Boolean NOT NULL DEFAULT false
 );
 
 
@@ -1971,8 +1971,11 @@ ADD CONSTRAINT fk_salesData FOREIGN KEY (unit) REFERENCES units(id);
 
 alter table salesData add development int default 1;
 
+
+alter table salesData add actualsale_date datetime;
 insert into salesData (unit,beds,bath,unit_type,size,base_price,contract_price,sold,isEnclosed,bathAdd,study,parking,bay_no,mood_board,extras,notes,deductions,sale_date,bond_app_date,lodge_date,transfer_date) values
 (54,2,2,"G",78,1404900,1411900,TRUE,0,0,0,25000,"","",2000,"Yard gate Cash Deal",20000,"2021/11/08","2021/11/28","2021/12/18","2022/01/07"),
+
 (55,2,2,"H",78,1449900,1429900,TRUE,0,1,0,0,"","",0," Cash Deal",20000,"2021/11/08","2021/11/28","2021/12/18","2022/01/07"),
 (56,2,1,"C",73,1479900,1499900,TRUE,20000,0,0,0,"","",0," ",0,"2021/11/08","2021/11/28","2021/12/18","2022/01/07"),
 (57,2,2,"H",78,1479900,1479900,FALSE,0,0,0,0,"","",0," ",0,"2021/11/22","2021/12/12","2022/01/01","2022/01/21"),
@@ -2055,6 +2058,8 @@ opc_comm float
 );
 
 alter table investorDetails add development int default 1;
+
+alter table investorDetails add drawAdjustment decimal(20,2) default 0.00;
 
 insert into investorDetails (unit,investor_code,investor,la_email_date,la_sign_date,pledged,attorney_inv_amount,fica_inv_date,amount,quinteDate,draw,interest_rate,trust_account_interest,supplementary_interest,opc_comm) values
 (1,"","K Ngoepe","2021-05-25",Null,190000,0,Null,0,Null,null,0.15,0.035,0.0275,0.04),
@@ -2173,3 +2178,208 @@ insert into investorDetails (unit,investor_code,investor,la_email_date,la_sign_d
 (58,"ZNIE01","G van Niekerk","2021-05-05","2021-05-05",0,125000,"2021-05-13",125000,"2021-06-15",5,0.15,0.035,0.0275,0.07),
 (59,"ZHEI01","D Heinze","2020-07-30","2020-08-11",0,623724.7,"2020-06-25",626924.55,"2021-01-22",39,0.18,0.035,0.0275,0.04),
 (59,"ZHEI01","D Heinze ","2020-07-30","2020-08-11",0,376275.36,"2020-07-18",373075.45,"2021-01-22",39,0.18,0.035,0.0275,0.04);
+
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+update investorDetails set pledged = attorney_inv_amount where attorney_inv_amount != 0;
+
+UPDATE    investorDetails i,
+          salesData s
+    SET       i.repayment_date = s.transfer_date
+   WHERE     i.unit = s.unit and i.amount != 0;
+
+   insert into developments (developmentName) values ('Heron Fields');
+
+   alter table pandg add development int default 1;
+   alter table pandgoriginal add development int default 1;
+
+
+   &&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+   insert into subsection (development, subsectionName) values 
+
+(2,	'Block A'),
+(2,	'Block B');
+
+insert into units (development, subsection, unitName) values 
+(2,8,"A101"),
+(2,8,"A102"),
+(2,8,"A103"),
+(2,8,"A104"),
+(2,8,"A105"),
+(2,8,"A106"),
+(2,8,"A201"),
+(2,8,"A202"),
+(2,8,"A203"),
+(2,8,"A204"),
+(2,8,"A205"),
+(2,8,"A206"),
+(2,8,"A301"),
+(2,8,"A302"),
+(2,8,"A303"),
+(2,8,"A304"),
+(2,8,"A305"),
+(2,8,"A306"),
+(2,9,"B101"),
+(2,9,"B102"),
+(2,9,"B103"),
+(2,9,"B104"),
+(2,9,"B105"),
+(2,9,"B106"),
+(2,9,"B107"),
+(2,9,"B108"),
+(2,9,"B109"),
+(2,9,"B110"),
+(2,9,"B111"),
+(2,9,"B201"),
+(2,9,"B202"),
+(2,9,"B203"),
+(2,9,"B204"),
+(2,9,"B205"),
+(2,9,"B206"),
+(2,9,"B207"),
+(2,9,"B208"),
+(2,9,"B209"),
+(2,9,"B210"),
+(2,9,"B211"),
+(2,9,"B212"),
+(2,9,"B213"),
+(2,9,"B214"),
+(2,9,"B215"),
+(2,9,"B301"),
+(2,9,"B302"),
+(2,9,"B303"),
+(2,9,"B304"),
+(2,9,"B305"),
+(2,9,"B306"),
+(2,9,"B307"),
+(2,9,"B308"),
+(2,9,"B309"),
+(2,9,"B310"),
+(2,9,"B311"),
+(2,9,"B312"),
+(2,9,"B313"),
+(2,9,"B314"),
+(2,9,"B315");
+
+
+################################################
+insert into dashboardCategories (discipline, section, lineNumber) values 
+('Substation Slab',4,21), ('External Works',4,22), ('Landscaping',4,23), ('Security',4,24), ('Boundary Wall',4,25), ('Play Equipment',4, 26);
+
+insert into dashboardCategories (discipline, section, lineNumber) values 
+ ('Escalations',4,27), ('Contingencies',4, 28);
+
+ alter table investorDetails add drawn Boolean default false;
+
+
+ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+ CREATE TABLE balconyinfo (
+   id int auto_increment primary key,
+  plan varchar(50) NOT NULL,
+  enclosedBalcony int NOT NULL,
+  enclosedValue int NOT NULL
+); 
+
+
+INSERT INTO balconyinfo (id, plan, enclosedBalcony, enclosedValue) VALUES
+(1, 'A', 0, 0),
+(2, 'B', 1, 20000),
+(3, 'C', 0, 0),
+(4, 'D', 1, 20000),
+(5, 'G', 0, 0),
+(6, 'H', 1, 20000),
+(7, 'N', 0, 0);
+
+DROP TABLE IF EXISTS salesinfo;
+CREATE TABLE salesinfo (
+  id int auto_increment primary key,
+  firstname varchar(50) NOT NULL,
+  lastname varchar(50) NOT NULL,
+  iDNumber varchar(13) NOT NULL,
+  email varchar(100) NOT NULL,
+  bankName varchar(50) NOT NULL,
+  accountNumber varchar(50) NOT NULL,
+  accountType varchar(20) NOT NULL,
+  block varchar(30) NOT NULL,
+  unit varchar(20) NOT NULL,
+  mood varchar(30) NOT NULL DEFAULT 'Mood 1',
+  flooring varchar(30) NOT NULL DEFAULT 'Tiles',
+  fileOTP varchar(111) NOT NULL,
+  fileId varchar(111) NOT NULL,
+  fileBank varchar(111) NOT NULL,
+  filePaySlip varchar(250) NOT NULL,
+  fileFica varchar(250) NOT NULL,
+  salesEmailSent varchar(1) NOT NULL DEFAULT 'N',
+  dateCreated datetime NOT NULL,
+  signedOff int NOT NULL DEFAULT 0,
+  mobile varchar(20) NOT NULL,
+  landline varchar(20) NOT NULL,
+  floorplan varchar(20) NOT NULL,
+  postalAddress text NOT NULL,
+  residentialAddress text NOT NULL,
+  salesAgent varchar(50) NOT NULL,
+  salesAgentPhone varchar(25) NOT NULL,
+  saleType varchar(50) NOT NULL,
+  personTwoFirstName varchar(50)  NOT NULL,
+  personTwoLastName varchar(50)  NOT NULL,
+  personTwoIDNumber varchar(20)  NOT NULL,
+  personTwoEmail varchar(50)  NOT NULL,
+  personTwoBankName varchar(50)  NOT NULL,
+  personTwoAccountNumber varchar(50)  NOT NULL,
+  personTwoAccountType varchar(50)  NOT NULL,
+  personTwoFileID varchar(250)  NOT NULL,
+  personTwoFileBank varchar(250)  NOT NULL,
+  personTwoFilePaySlip varchar(250)  NOT NULL,
+  personTwoFileFica varchar(250)  NOT NULL,
+  personTwoMobile varchar(20)  NOT NULL,
+  personTwoLandline varchar(20)  NOT NULL,
+  personTwoPostalAddress varchar(80)  NOT NULL,
+  personTwoResidentialAddress varchar(80)  NOT NULL,
+  marital varchar(30)  NOT NULL,
+  salePerson varchar(80)  NOT NULL,
+  saleBuyers int NOT NULL,
+  cashDeal Boolean default 0,
+  balanceRem int NOT NULL,
+  deposit int NOT NULL,
+  depositDate datetime,
+  gasStove int NOT NULL,
+  personTwoMarital varchar(20) NOT NULL,
+  spareRoom varchar(50)  NOT NULL,
+  additionalExtras varchar(500)  NOT NULL,
+  additionalExtrasCost int NOT NULL DEFAULT 0,
+  bayNo varchar(100) NOT NULL,
+  notes varchar(500) NOT NULL,
+  enclosedBalcony int NOT NULL DEFAULT 0,
+  fileDepositPop varchar(500) NOT NULL DEFAULT '',
+  gasStoveCost int NOT NULL
+);
+
+
+
+CREATE PROCEDURE spSalesInfoR1 ()
+BEGIN
+select 
+si.*, 
+sd.parking, 
+sd.bay_no, 
+sd.extras, 
+sd.deductions, 
+sd.contract_price, 
+sd.base_price, 
+sd.sold, 
+sd.actualsale_date, 
+sd.unit_type, 
+sd.notes as sdnotes, 
+sd.beds, 
+sd.bath ,
+        u.id as unitId
+from salesinfo si 
+join units u on si.unit = u.unitName 
+join salesdata sd on sd.unit = u.id 
+where si.id > 0 
+ and si.firstName > '' ;
+END
+

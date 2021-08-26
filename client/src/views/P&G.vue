@@ -378,106 +378,109 @@ export default {
       })
         .then(
           response => {
-            this.editData = [];
-            this.editData = response.data[3];
-            this.editData.forEach(el => {
-              el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
-              el.budgetAmount = el.budgetAmount.toFixed(2);
-              el.actualAmount = el.actualAmount.toFixed(2);
-              el.actualAmountInitial = el.actualAmount;
-              el.variance = el.budgetAmount - el.actualAmount;
-            });
+            console.log("TERST", response.data);
+            if (!response.data.noInfo) {
+              this.editData = [];
+              this.editData = response.data[3];
+              this.editData.forEach(el => {
+                el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
+                el.budgetAmount = el.budgetAmount.toFixed(2);
+                el.actualAmount = el.actualAmount.toFixed(2);
+                el.actualAmountInitial = el.actualAmount;
+                el.variance = el.budgetAmount - el.actualAmount;
+              });
 
-            var myObject = response.data[0][0];
-            var keyNames = Object.keys(myObject);
-            this.pivotData = [];
-            this.pivotData.push(keyNames);
-            // console.log(this.pivotData);
-            response.data[0].forEach(el => {
-              let insert = [];
-              insert.push(el.id);
-              insert.push(el.activity);
-              insert.push(el.itemDescription);
-              insert.push(dayjs(el.monthEnd).format("YYYY MM"));
-              insert.push(el.budgetAmount);
-              insert.push(el.actualAmount);
-              insert.push(el.posted);
-              this.pivotData.push(insert);
-            });
-            console.log(this.pivotData);
-            this.mainData = [];
-            this.mainData = this.pivotData;
+              var myObject = response.data[0][0];
+              var keyNames = Object.keys(myObject);
+              this.pivotData = [];
+              this.pivotData.push(keyNames);
+              // console.log(this.pivotData);
+              response.data[0].forEach(el => {
+                let insert = [];
+                insert.push(el.id);
+                insert.push(el.activity);
+                insert.push(el.itemDescription);
+                insert.push(dayjs(el.monthEnd).format("YYYY MM"));
+                insert.push(el.budgetAmount);
+                insert.push(el.actualAmount);
+                insert.push(el.posted);
+                this.pivotData.push(insert);
+              });
+              console.log(this.pivotData);
+              this.mainData = [];
+              this.mainData = this.pivotData;
 
-            var myObjectUsed = response.data[0][0];
-            var keyNamesUsed = Object.keys(myObjectUsed);
-            this.budgetData = [];
+              var myObjectUsed = response.data[0][0];
+              var keyNamesUsed = Object.keys(myObjectUsed);
+              this.budgetData = [];
 
-            this.budgetData.push(keyNamesUsed);
+              this.budgetData.push(keyNamesUsed);
 
-            let initialPostedData = response.data[0].filter(el => {
-              return el.posted === 1;
-            });
-            initialPostedData.forEach(el => {
-              el.budgetAmount = el.actualAmount;
-            });
-            let initialUnPostedData = response.data[0].filter(el => {
-              return el.posted === 0;
-            });
-            initialPostedData.forEach(el => {
-              let insert = [];
-              insert.push(el.id);
-              insert.push(el.activity);
-              insert.push(el.itemDescription);
-              insert.push(dayjs(el.monthEnd).format("YYYY MM"));
-              insert.push(el.budgetAmount);
-              insert.push(el.actualAmount);
-              insert.push(el.posted);
-              this.budgetData.push(insert);
-            });
+              let initialPostedData = response.data[0].filter(el => {
+                return el.posted === 1;
+              });
+              initialPostedData.forEach(el => {
+                el.budgetAmount = el.actualAmount;
+              });
+              let initialUnPostedData = response.data[0].filter(el => {
+                return el.posted === 0;
+              });
+              initialPostedData.forEach(el => {
+                let insert = [];
+                insert.push(el.id);
+                insert.push(el.activity);
+                insert.push(el.itemDescription);
+                insert.push(dayjs(el.monthEnd).format("YYYY MM"));
+                insert.push(el.budgetAmount);
+                insert.push(el.actualAmount);
+                insert.push(el.posted);
+                this.budgetData.push(insert);
+              });
 
-            initialUnPostedData.forEach(el => {
-              let insert = [];
-              insert.push(el.id);
-              insert.push(el.activity);
-              insert.push(el.itemDescription);
-              insert.push(dayjs(el.monthEnd).format("YYYY MM"));
-              insert.push(el.budgetAmount);
-              insert.push(el.actualAmount);
-              insert.push(el.posted);
-              this.budgetData.push(insert);
-            });
+              initialUnPostedData.forEach(el => {
+                let insert = [];
+                insert.push(el.id);
+                insert.push(el.activity);
+                insert.push(el.itemDescription);
+                insert.push(dayjs(el.monthEnd).format("YYYY MM"));
+                insert.push(el.budgetAmount);
+                insert.push(el.actualAmount);
+                insert.push(el.posted);
+                this.budgetData.push(insert);
+              });
 
-            this.editData.forEach(el => {
-              el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
-              // el.budgetAmount = el.budgetAmount;
-              // el.actualAmount = el.actualAmount;
-              el.variance = el.budgetAmount - el.actualAmount;
-            });
-            this.originalData = response.data[1];
-            // console.log(this.editData);
-            // console.log(this.originalData);
-            this.updatedTotal = response.data[2]
-              .reduce((prev, curr) => {
-                return prev + curr.expenditure_to_date;
-              }, 0)
-              .toFixed(2);
+              this.editData.forEach(el => {
+                el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
+                // el.budgetAmount = el.budgetAmount;
+                // el.actualAmount = el.actualAmount;
+                el.variance = el.budgetAmount - el.actualAmount;
+              });
+              this.originalData = response.data[1];
+              // console.log(this.editData);
+              // console.log(this.originalData);
+              this.updatedTotal = response.data[2]
+                .reduce((prev, curr) => {
+                  return prev + curr.expenditure_to_date;
+                }, 0)
+                .toFixed(2);
 
-            this.originalDataTotal = response.data[4][0].totalBudget;
-            console.log(response.data[4]);
-            // this.originalDataTotal = this.originalData
-            //   .reduce((prev, curr) => {
-            //     return prev + curr.sumAmounts;
-            //   }, 0)
-            //   .toFixed(2);
+              this.originalDataTotal = response.data[4][0].totalBudget;
+              console.log(response.data[4]);
+              // this.originalDataTotal = this.originalData
+              //   .reduce((prev, curr) => {
+              //     return prev + curr.sumAmounts;
+              //   }, 0)
+              //   .toFixed(2);
 
-            //  - response.data[2].reduce((prev, curr) => {
-            //   return prev + curr.expenditure_to_date
-            // },0)
+              //  - response.data[2].reduce((prev, curr) => {
+              //   return prev + curr.expenditure_to_date
+              // },0)
 
-            setTimeout(() => {
-              this.show = true;
-              this.loading = false;
-            }, 1750);
+              setTimeout(() => {
+                this.show = true;
+                this.loading = false;
+              }, 1750);
+            }
           },
           error => {
             console.log("the Error", error);

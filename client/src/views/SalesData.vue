@@ -35,17 +35,6 @@
               <v-spacer></v-spacer>
 
               <v-dialog v-model="dialog" max-width="1200px">
-                <!-- <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    color="primary"
-                    dark
-                    class="mb-2"
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    New Item
-                  </v-btn>
-                </template> -->
                 <v-card>
                   <v-card-title>
                     <span class="text-h5">{{ formTitle }}</span>
@@ -92,7 +81,6 @@
                             type="number"
                             v-model="editedItem.base_price"
                             label="Base Price"
-                            background-color="light-blue"
                             filled
                             @change="changeContractPrice"
                           ></v-text-field>
@@ -102,7 +90,6 @@
                             type="number"
                             v-model="editedItem.isEnclosed"
                             label="Enclosed"
-                            background-color="light-blue"
                             filled
                             @change="changeContractPrice"
                           ></v-text-field>
@@ -126,7 +113,6 @@
                             type="number"
                             v-model="editedItem.parking"
                             label="Parking"
-                            background-color="light-blue"
                             filled
                             @change="changeContractPrice"
                           ></v-text-field>
@@ -148,7 +134,6 @@
                             type="number"
                             v-model="editedItem.extras"
                             label="Extras"
-                            background-color="light-blue"
                             filled
                             @change="changeContractPrice"
                           ></v-text-field>
@@ -158,7 +143,6 @@
                             type="number"
                             v-model="editedItem.deductions"
                             label="Deductions"
-                            background-color="light-blue"
                             filled
                             @change="changeContractPrice"
                           ></v-text-field>
@@ -171,117 +155,70 @@
                             outlined
                           ></v-textarea>
                         </v-col>
-                        <v-col cols="12" sm="6" md="6">
+                        <v-col cols="12" sm="12" md="12">
                           <v-menu
-                            v-model="saleMenu"
+                            v-model="actualsaleMenu"
                             :close-on-content-click="false"
                             :nudge-right="40"
                             transition="scale-transition"
                             offset-y
                             min-width="auto"
+                            readonly
                           >
                             <template v-slot:activator="{ on, attrs }">
                               <v-text-field
-                                v-model="editedItem.sale_date"
-                                label="Sale Date"
+                                v-model="editedItem.actualsale_date"
+                                label="Actual Sale Date"
                                 prepend-icon="mdi-calendar"
                                 readonly
                                 v-bind="attrs"
                                 v-on="on"
                                 clearable
-                                @click:clear="clearsale_date"
+                                @click:clear="clearactualsale_date"
                               ></v-text-field>
                             </template>
                             <v-date-picker
-                              @change="sale_dateChange"
-                              v-model="sale_date"
-                              @input="saleMenu = false"
+                              @change="actualsale_dateChange"
+                              v-model="actualsale_date"
+                              @input="actualsaleMenu = false"
                             ></v-date-picker>
                           </v-menu>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
-                          <v-menu
-                            v-model="bondMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.bond_app_date"
-                                label="Bond App Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="clearbond_app_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="bond_app_dateChange"
-                              v-model="bond_app_date"
-                              @input="bondMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
+                          <v-text-field
+                            v-model="editedItem.sale_date"
+                            label="Projected Sale Date"
+                            prepend-icon="mdi-calendar"
+                            disabled
+                            clearable
+                          ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
-                          <v-menu
-                            v-model="lodgeMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.lodge_date"
-                                label="Lodge Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="clearlodge_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="lodge_dateChange"
-                              v-model="lodge_date"
-                              @input="lodgeMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
+                          <v-text-field
+                            v-model="editedItem.bond_app_date"
+                            label="Projected Bond App Date"
+                            prepend-icon="mdi-calendar"
+                            disabled
+                            clearable
+                          ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
-                          <v-menu
-                            v-model="transferMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.transfer_date"
-                                label="Transfer Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="cleartransfer_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="transfer_dateChange"
-                              v-model="transfer_date"
-                              @input="transferMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
+                          <v-text-field
+                            v-model="editedItem.lodge_date"
+                            label="Projected Lodge Date"
+                            prepend-icon="mdi-calendar"
+                            disabled
+                            clearable
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="6">
+                          <v-text-field
+                            v-model="editedItem.transfer_date"
+                            label="Projected Transfer Date"
+                            prepend-icon="mdi-calendar"
+                            disabled
+                            clearable
+                          ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
@@ -339,9 +276,9 @@
             <v-icon color="green" class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <v-icon color="red" @click="deleteItem(item)">
+            <!-- <v-icon color="red" @click="deleteItem(item)">
               mdi-delete
-            </v-icon>
+            </v-icon> -->
           </template>
           <template v-slot:no-data>
             <v-btn color="primary">
@@ -392,26 +329,12 @@ export default {
       dialogDelete: false,
       sold: [],
       unitType: [],
-      sale_date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      saleMenu: false,
-      bond_app_date: new Date(
+      actualsale_date: new Date(
         Date.now() - new Date().getTimezoneOffset() * 60000
       )
         .toISOString()
         .substr(0, 10),
-      bondMenu: false,
-      lodge_date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      lodgeMenu: false,
-      transfer_date: new Date(
-        Date.now() - new Date().getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .substr(0, 10),
-      transferMenu: false,
+      actualsaleMenu: false,
       headers: [
         {
           text: "Unit",
@@ -423,7 +346,8 @@ export default {
         // { text: "Bath", value: "bath", width: 60,  },
         // { text: "Beds", value: "beds", width: 60 },
         // { text: "Type", value: "unit_type", width: 80, },
-        { text: "Size", value: "size", width: 60 },
+
+        // { text: "Size", value: "size", width: 60 },
         { text: "Base Price", value: "base_price", width: 150, align: "end" },
         {
           text: "Contract Price",
@@ -432,6 +356,7 @@ export default {
           align: "end"
         },
         { text: "Sold", value: "sold", width: 100 },
+
         // { text: "Enclosed", value: "isEnclosed", width:100 },
         // { text: "Bath Add", value: "bathAdd", width: 100 },
         // { text: "Study", value: "study", width: 100 },
@@ -441,6 +366,7 @@ export default {
         // { text: "Extras", value: "extras", width: 100 },
         // { text: "Deductions", value: "deductions", width: 100 },
         // { text: "Notes", value: "notes", width: 80 },
+
         { text: "Sale Date", value: "sale_date", width: 120 },
         { text: "Bond Date", value: "bond_app_date", width: 120 },
         { text: "Lodge Date", value: "lodge_date", width: 120 },
@@ -468,6 +394,7 @@ export default {
         deductions: 0,
         notes: "",
         sale_date: "",
+        actualsale_date: "",
         bond_app_date: "",
         lodge_date: "",
         transfer_date: ""
@@ -491,6 +418,7 @@ export default {
         deductions: 0,
         notes: "",
         sale_date: "",
+        actualsale_date: "",
         bond_app_date: "",
         lodge_date: "",
         transfer_date: ""
@@ -515,29 +443,13 @@ export default {
       }
     },
     dialog(val) {
-      if (this.formTitle === "Edit Item" && this.editedItem.sale_date !== "") {
-        this.sale_date = new Date(this.editedItem.sale_date)
-          .toISOString()
-          .substr(0, 10);
-      }
       if (
         this.formTitle === "Edit Item" &&
-        this.editedItem.bond_app_date !== ""
+        this.editedItem.actualsale_date !== "" &&
+        this.editedItem.actualsale_date !== null &&
+        this.editedItem.actualsale_date !== undefined
       ) {
-        this.bond_app_date = new Date(this.editedItem.bond_app_date)
-          .toISOString()
-          .substr(0, 10);
-      }
-      if (this.formTitle === "Edit Item" && this.editedItem.lodge_date !== "") {
-        this.lodge_date = new Date(this.editedItem.lodge_date)
-          .toISOString()
-          .substr(0, 10);
-      }
-      if (
-        this.formTitle === "Edit Item" &&
-        this.editedItem.transfer_date !== ""
-      ) {
-        this.transfer_date = new Date(this.editedItem.transfer_date)
+        this.actualsale_date = new Date(this.editedItem.actualsale_date)
           .toISOString()
           .substr(0, 10);
       }
@@ -571,6 +483,11 @@ export default {
               el.transfer_date = dayjs(el.transfer_date).format("YYYY-MM-DD");
               el.base_price = el.base_price.toFixed(2);
               el.contract_price = el.contract_price.toFixed(2);
+              if (el.actualsale_date !== null) {
+                el.actualsale_date = dayjs(el.actualsale_date).format(
+                  "YYYY-MM-DD"
+                );
+              }
               if (el.sold === 0) {
                 el.sold = "No";
               } else {
@@ -661,11 +578,12 @@ export default {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         await axios({
           method: "post",
-          url: `${url}/editFinanceInputzz`,
+          url: `${url}/editsalesData`,
           data: this.editedItem
         })
           .then(
             response => {
+              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessage = "Input succesfully updated!";
               } else {
@@ -713,7 +631,7 @@ export default {
       else return "orange";
     },
     getFiltered(e) {
-      if (this.search === "") {
+      if (this.search === "" || this.search === null) {
         this.dataTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
             return parseFloat(curr.contract_price) + prev;
@@ -727,48 +645,11 @@ export default {
         );
       }
     },
-    clearsale_date() {
-      this.editedItem.sale_date = "";
+    clearactualsale_date() {
+      this.editedItem.actualsale_date = "";
     },
-    clearbond_app_date() {
-      this.editedItem.bond_app_date = "";
-    },
-    clearlodge_date() {
-      this.editedItem.bond_app_date = "";
-    },
-    cleartransfer_date() {
-      this.editedItem.bond_app_date = "";
-    },
-
-    sale_dateChange() {
-      this.editedItem.sale_date = this.sale_date;
-      this.editedItem.bond_app_date = dayjs(this.editedItem.sale_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-      this.editedItem.lodge_date = dayjs(this.editedItem.bond_app_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-      this.editedItem.transfer_date = dayjs(this.editedItem.lodge_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-    },
-    bond_app_dateChange() {
-      this.editedItem.bond_app_date = this.bond_app_date;
-      this.editedItem.lodge_date = dayjs(this.editedItem.bond_app_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-      this.editedItem.transfer_date = dayjs(this.editedItem.lodge_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-    },
-    lodge_dateChange() {
-      this.editedItem.lodge_date = this.lodge_date;
-      this.editedItem.transfer_date = dayjs(this.editedItem.lodge_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-    },
-    transfer_dateChange() {
-      this.editedItem.transfer_date = this.transfer_date;
+    actualsale_dateChange() {
+      this.editedItem.actualsale_date = this.actualsale_date;
     },
     changeContractPrice() {
       this.editedItem.contract_price =

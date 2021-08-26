@@ -34,6 +34,10 @@ Vue.use(svgJs);
 import VueNotify from "vuejs-notify";
 Vue.use(VueNotify);
 
+import VueHotkey from "v-hotkey";
+
+Vue.use(VueHotkey);
+
 // import VueDraggable from 'vue-draggable'
 
 // Vue.use(VueDraggable)

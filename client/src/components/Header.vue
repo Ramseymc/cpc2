@@ -307,15 +307,15 @@ export default {
         id: "sales",
         color: "orange accent-1",
         items: [
-          {
-            title: "Apartment Options",
-            name: "apartment",
-            icon: "mdi-table-furniture",
-            role: 2,
-            menu: 1,
-            id: "apartment",
-            color: "amber"
-          },
+          // {
+          //   title: "Apartment Options",
+          //   name: "apartment",
+          //   icon: "mdi-table-furniture",
+          //   role: 2,
+          //   menu: 1,
+          //   id: "apartment",
+          //   color: "amber"
+          // },
           {
             title: "Start Sales",
             name: "salesstart",
@@ -484,6 +484,15 @@ export default {
             menu: 1,
             id: "investordata",
             color: "yellow"
+          },
+          {
+            title: "Dashboard Summary WIP",
+            name: "DashboardSummary",
+            icon: "mdi-view-dashboard",
+            role: 3,
+            menu: 1,
+            id: "dashboardsummary",
+            color: "pink"
           }
         ]
       }

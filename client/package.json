@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "0.2.5",
+  "version": "0.2.9",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -24,6 +24,7 @@
     "sortablejs": "^1.10.2",
     "svg.js": "^2.7.1",
     "uuidv4": "^6.2.6",
+    "v-hotkey": "^0.9.0",
     "vue": "^2.6.11",
     "vue-crosstab": "^0.8.0",
     "vue-currency-input": "^1.22.6",

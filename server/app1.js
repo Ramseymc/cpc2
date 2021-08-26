@@ -14,13 +14,15 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// console.log("WTF")
+
 app.use(
   cors({
     allowedHeaders: [
       "sessionId",
       "Content-Type",
       "Authorization",
-      "authorization",
+      "authorization", 
     ],
     exposedHeaders: ["sessionId"],
     // 'origin': ['https://cape-projects.co.za', 'https://www.cape-projects.co.za', 'https://cape-projectsbe.co.za', 'https://www.cape-projectsbe.co.za'],

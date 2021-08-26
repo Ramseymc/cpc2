@@ -1,16 +1,9 @@
 <template>
-  <!-- 
-          TYPE: Component
-          NAME: singOffOTP
-       PURPOSE: Dialog form to replace the OTP with the updated final signed version
-          DATE: July 2021
-          AUTH: Connor McLean, Wayne Bruton
- -->
   <v-container>
     <div class="about">
       <br /><br /><br />
       <v-row justify="center">
-        <v-dialog v-model="dialogFiles" max-width="500px">
+        <v-dialog v-model="dialogFiles" max-width="800px">
           <v-card>
             <v-card-title>
               <span class="text-h5">Sign Off OTP</span>
@@ -19,9 +12,9 @@
               <v-container>
                 <v-row>
                   <v-col
-                    cols="4"
-                    sm="4"
-                    md="4"
+                    cols="3"
+                    sm="3"
+                    md="3"
                     v-if="
                       fileData[0].fileOTP !== null &&
                         fileData[0].fileOTP !== '' &&
@@ -31,25 +24,12 @@
                     <span>Signed OTP</span>
                   </v-col>
 
-                  <v-col
-                    cols="6"
-                    sm="6"
-                    md="6"
-                    v-if="
-                      fileData[0].fileOTP === null ||
-                        fileData[0].fileOTP === '' ||
-                        fileData[0].fileOTP === 'undefined'
-                    "
-                  >
-                    <span>No OTP Document uploaded yet</span>
-                  </v-col>
-
                   <!-- this will be a new file upload for fileOTP -->
                   <v-col
-                    cols="6"
-                    sm="8"
-                    md="8"
-                    lg="8"
+                    cols="8"
+                    sm="7"
+                    md="7"
+                    lg="9"
                     v-if="
                       fileData[0].fileOTP !== null &&
                         fileData[0].fileOTP !== '' &&
@@ -95,6 +75,7 @@
 
 <script>
 import axios from "axios";
+let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "signoffotp",
 
@@ -106,7 +87,7 @@ export default {
     return {
       snackbar: false,
       snackBarmessage: "Successfully Signed Off!",
-      url: "",
+      // url: "",
       arrFicaFiles: [],
       arrPaySlipFiles: [],
       fileOTP: null
@@ -123,7 +104,7 @@ export default {
       }
       await axios({
         method: "post",
-        url: `${this.url}/updateClientOTP`,
+        url: `${url}/updateClientOTP`,
         data: formData
       }).then(
         response => {

@@ -9,7 +9,7 @@
         ></v-progress-linear>
       </template>
 
-      <v-img height="350" src="../assets/internal4a.jpg"></v-img>
+      <v-img height="350" src="../assets/flat.jpg"></v-img>
 
       <v-card-title>Choose your options</v-card-title>
 

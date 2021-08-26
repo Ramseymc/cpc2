@@ -72,7 +72,7 @@ router.post("/getDataforTemplate", (req, res) => {
   let mysql2 = `select id, development, subsectionName from subsection where development = ${req.body.developmentId} order by subsectionName`;
   let mysql3 = `select id, development, subsection, unitName from units where development = ${req.body.developmentId} order by unitName`;
   let mysql4 = `select id, development,taskName from taskTypes where development = ${req.body.developmentId} order by taskName`;
-  let mysql5 = `select id, supplierName from suppliers order by supplierName`;
+  let mysql5 = `select id, supplierName, vatVendor from suppliers order by supplierName`;
   let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5}`;
   pool.getConnection(function (err, connection) {
     if (err) {

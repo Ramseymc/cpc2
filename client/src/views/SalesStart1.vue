@@ -10,7 +10,7 @@
           <v-card-text>
             <div style="display: flex">
               <v-autocomplete
-                style="margin-right: 8px"
+                style="margin-right: 8px;"
                 v-model="blockValue"
                 :items="blocks"
                 dense
@@ -22,7 +22,7 @@
               <!-- </div>
         <div> -->
               <v-autocomplete
-                style="margin-left: 8px"
+                style="margin-left: 8px;"
                 v-model="unitValue"
                 :items="items"
                 dense
@@ -32,7 +32,7 @@
                 @change="unitChosen"
               ></v-autocomplete>
               <v-btn
-                style="margin-left: 20px"
+                style="margin-left:20px;"
                 v-if="blockValue && unitValue"
                 text
                 @click="getClientInfo"
@@ -93,7 +93,7 @@ export default {
       blockValue: null, //From Dropdown
       unitValue: null,
       unitId: null,
-      flatPic: require("../assets/flat.jpg"),
+      flatPic: require("../assets/unfurnished-flat.jpg"),
       items: [],
       blocks: [],
       clientDialog: false,
@@ -113,7 +113,7 @@ export default {
     })
       .then(
         response => {
-          console.log("RESPONSE DATA CONNOR:", response.data);
+          console.log(response.data);
           this.blocks = response.data.filter(el => {
             return el.subsectionName !== "Common Area";
           });

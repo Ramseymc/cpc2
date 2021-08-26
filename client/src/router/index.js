@@ -240,6 +240,14 @@ const routes = [
       import(/* webpackChunkName: "InvestorData" */ "../views/InvestorData.vue")
   },
   {
+    path: "/dashboardSummary",
+    name: "DashboardSummary",
+    component: () =>
+      import(
+        /* webpackChunkName: "DashboardSummary" */ "../views/DashboardSummary.vue"
+      )
+  },
+  {
     path: "/*",
     name: "filenotfound",
     component: () =>

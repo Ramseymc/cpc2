@@ -10,6 +10,7 @@
           sort-by="calories"
           dense
           class="elevation-1"
+          multi-sort
           :items-per-page="itemsPerPage"
         >
           <template v-slot:item.sold="{ item }">
@@ -17,11 +18,20 @@
               {{ item.sold }}
             </v-chip>
           </template>
+          <template v-slot:item.drawn="{ item }">
+            <v-simple-checkbox
+              v-model="item.drawn"
+              disabled
+            ></v-simple-checkbox>
+          </template>
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>Investor Input</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
-              Quinate Amount: {{ dataTotals }}
+              <small
+                >Pledged: {{ pledgedTotals }} - Momentum :
+                {{ momentumTotals }} - Drawn: {{ drawnTotals }}</small
+              ><br />
               <v-spacer></v-spacer>
               <v-spacer></v-spacer>
               <v-text-field
@@ -31,6 +41,7 @@
                 single-line
                 hide-details
                 clearable
+                @keyup="test($event)"
               ></v-text-field>
               <v-spacer></v-spacer>
 
@@ -54,126 +65,230 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col cols="12" sm="6" md="3">
+                        <!-- <v-col cols="12" sm="6" md="3">
                           <v-text-field
-                            type="number"
-                            v-model="editedItem.bath"
-                            label="Bath"
+                          
+                            v-model="editedItem.unitName"
+                            label="Unit"
                           ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.beds"
-                            label="Beds"
-                          ></v-text-field>
-                        </v-col>
+                        </v-col> -->
                         <v-col cols="12" sm="6" md="3">
                           <v-autocomplete
-                            v-model="editedItem.unit_type"
-                            :items="unitType"
+                            v-model="editedItem.unitName"
+                            :items="units"
                             outlined
                             dense
                             chips
                             small-chips
-                            multiple
-                            label="Unit Type"
+                            item-text="unitName"
+                            clearable
+                            label="Unit"
+                          ></v-autocomplete>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            v-model="editedItem.investor_code"
+                            label="Code"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            v-model="editedItem.investor"
+                            label="Investor"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            type="number"
+                            v-model="editedItem.pledged"
+                            label="Pledged"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-menu
+                            v-model="la_email_dateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.la_email_date"
+                                label="Email Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                clearable
+                                @click:clear="clearla_email_date"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              @change="la_email_dateChange"
+                              v-model="la_email_date"
+                              @input="la_email_dateMenu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-menu
+                            v-model="la_sign_dateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.la_sign_date"
+                                label="LA Signed Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                clearable
+                                @click:clear="clearla_sign_date"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              @change="la_sign_dateChange"
+                              v-model="la_sign_date"
+                              @input="la_sign_dateMenu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            type="number"
+                            v-model="editedItem.attorney_inv_amount"
+                            label="Momentum"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-menu
+                            v-model="fica_inv_dateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.fica_inv_date"
+                                label="Momentum Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                clearable
+                                @click:clear="clearfica_inv_date"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              @change="fica_inv_dateChange"
+                              v-model="fica_inv_date"
+                              @input="fica_inv_dateMenu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            type="number"
+                            v-model="editedItem.amount"
+                            label="Quinate"
+                            @blur="showSaveBtn"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-checkbox
+                            v-if="showDrawn"
+                            v-model="editedItem.drawn"
+                            label="Drawn"
+                          ></v-checkbox>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-menu
+                            v-model="quinteDateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.quinteDate"
+                                label="Quinate Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                clearable
+                                @click:clear="clearquinteDate"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              @change="quinteDateChange"
+                              v-model="quinteDate"
+                              @input="quinteDateMenu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-autocomplete
+                            v-model="editedItem.drawNumber"
+                            :items="draws"
+                            outlined
+                            dense
+                            chips
+                            small-chips
+                            item-text="drawNumber"
+                            clearable
+                            label="Draw"
                           ></v-autocomplete>
                         </v-col>
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
-                            v-model="editedItem.size"
-                            label="Size"
+                            v-model="editedItem.drawAdjustment"
+                            label="Draw Adjust"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
-                            v-model="editedItem.base_price"
-                            label="Base Price"
-                            background-color="light-blue"
-                            filled
-                            @change="changeContractPrice"
+                            v-model="editedItem.trust_account_interest"
+                            label="Trust Interest"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
-                            v-model="editedItem.isEnclosed"
-                            label="Enclosed"
-                            background-color="light-blue"
-                            filled
-                            @change="changeContractPrice"
+                            v-model="editedItem.supplementary_interest"
+                            label="Supplementary Interest"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
-                            v-model="editedItem.bathAdd"
-                            label="Add Bath"
+                            v-model="editedItem.interest_rate"
+                            label="Investor Interest"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
-                            v-model="editedItem.study"
-                            label="Study"
+                            v-model="editedItem.opc_comm"
+                            label="OPC Rate"
                           ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.parking"
-                            label="Parking"
-                            background-color="light-blue"
-                            filled
-                            @change="changeContractPrice"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            v-model="editedItem.bay_no"
-                            label="Bay No:"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            v-model="editedItem.mood_board"
-                            label="Mood Board"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.extras"
-                            label="Extras"
-                            background-color="light-blue"
-                            filled
-                            @change="changeContractPrice"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.deductions"
-                            label="Deductions"
-                            background-color="light-blue"
-                            filled
-                            @change="changeContractPrice"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="8" md="8">
-                          <v-textarea
-                            v-model="editedItem.notes"
-                            label="Notes"
-                            :rows="2"
-                            outlined
-                          ></v-textarea>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
                           <v-menu
-                            v-model="saleMenu"
+                            v-model="repayment_dateMenu"
                             :close-on-content-click="false"
                             :nudge-right="40"
                             transition="scale-transition"
@@ -182,125 +297,22 @@
                           >
                             <template v-slot:activator="{ on, attrs }">
                               <v-text-field
-                                v-model="editedItem.sale_date"
-                                label="Sale Date"
+                                v-model="editedItem.repayment_date"
+                                label="Repayment Date"
                                 prepend-icon="mdi-calendar"
                                 readonly
                                 v-bind="attrs"
                                 v-on="on"
                                 clearable
-                                @click:clear="clearsale_date"
+                                @click:clear="clearrepayment_date"
                               ></v-text-field>
                             </template>
                             <v-date-picker
-                              @change="sale_dateChange"
-                              v-model="sale_date"
-                              @input="saleMenu = false"
+                              @change="repayment_dateChange"
+                              v-model="repayment_date"
+                              @input="repayment_dateMenu = false"
                             ></v-date-picker>
                           </v-menu>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-menu
-                            v-model="bondMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.bond_app_date"
-                                label="Bond App Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="clearbond_app_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="bond_app_dateChange"
-                              v-model="bond_app_date"
-                              @input="bondMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-menu
-                            v-model="lodgeMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.lodge_date"
-                                label="Lodge Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="clearlodge_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="lodge_dateChange"
-                              v-model="lodge_date"
-                              @input="lodgeMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-menu
-                            v-model="transferMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.transfer_date"
-                                label="Transfer Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="cleartransfer_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="transfer_dateChange"
-                              v-model="transfer_date"
-                              @input="transferMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.contract_price"
-                            label="Contract Price"
-                            disabled
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-autocomplete
-                            v-model="editedItem.sold"
-                            :items="sold"
-                            outlined
-                            dense
-                            chips
-                            small-chips
-                            label="Sold"
-                          ></v-autocomplete>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -310,6 +322,7 @@
                     <v-btn color="blue darken-1" text @click="close">
                       Cancel
                     </v-btn>
+                    <!-- v-if="showSave" -->
                     <v-btn color="blue darken-1" text @click="save">
                       Save
                     </v-btn>
@@ -333,6 +346,15 @@
                   </v-card-actions>
                 </v-card>
               </v-dialog>
+            </v-toolbar>
+            <v-toolbar flat>
+              <!-- <v-toolbar-title>Draw Info</v-toolbar-title> -->
+              <!-- <v-divider class="mx-4" inset vertical></v-divider> -->
+              <small>Planned Draws: {{ plannedDrawTotals }}</small>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <small>Required : R0</small>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <small>Variance: {{ plannedDrawTotals }}</small>
             </v-toolbar>
           </template>
           <template v-slot:item.actions="{ item }">
@@ -383,8 +405,13 @@ export default {
   },
   data() {
     return {
+      showCheckbox: true,
       itemsPerPage: 10,
       dataTotals: 0,
+      pleadgedTotals: 0,
+      momentumTotals: 0,
+      plannedDrawTotals: 0,
+      drawnTotals: 0,
       search: "",
       snackbar: false,
       snackbarMessage: "",
@@ -392,26 +419,21 @@ export default {
       dialogDelete: false,
       sold: [],
       unitType: [],
-      sale_date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      saleMenu: false,
-      bond_app_date: new Date(
-        Date.now() - new Date().getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .substr(0, 10),
-      bondMenu: false,
-      lodge_date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      lodgeMenu: false,
-      transfer_date: new Date(
-        Date.now() - new Date().getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .substr(0, 10),
-      transferMenu: false,
+      showSave: false,
+      // la_email_date: new Date().toISOString().substr(0, 10),
+      la_email_date: "2020-06-04",
+      la_email_dateMenu: false,
+      la_sign_date: new Date().toISOString().substr(0, 10),
+      la_sign_dateMenu: false,
+      fica_inv_date: new Date().toISOString().substr(0, 10),
+      fica_inv_dateMenu: false,
+      quinteDate: new Date().toISOString().substr(0, 10),
+      quinteDateMenu: false,
+      repayment_date: new Date().toISOString().substr(0, 10),
+      repayment_dateMenu: false,
+      draws: [],
+      units: [],
+
       headers: [
         {
           text: "Unit",
@@ -421,93 +443,106 @@ export default {
           width: 60
         },
         { text: "Code", value: "investor_code", width: 60 },
-        { text: "Name", value: "investor", width: 150 },
-        { text: "Pledged", value: "pledged", width: 100, align: "end" },
+        { text: "Name", value: "investor", width: 140 },
+        { text: "Pledged", value: "pledged", width: 90, align: "end" },
         { text: "email", value: "la_email_date", width: 120 },
         { text: "signed", value: "la_sign_date", width: 120 },
 
         {
-          text: "Trust Acc",
+          text: "Momentum",
           value: "attorney_inv_amount",
-          width: 120,
+          width: 90,
           align: "end"
         },
-        { text: "Fica/Inv Date", value: "fica_inv_date", width: 120 },
+        { text: "Inv Date", value: "fica_inv_date", width: 120 },
         {
           text: "Quinate Amount",
           value: "amount",
-          width: 120,
+          width: 90,
           align: "end"
         },
         { text: "Quinate Date", value: "quinteDate", width: 120 },
+        { text: "Drawn", value: "drawn" },
         { text: "Draw", value: "drawNumber", width: 90 },
-        { text: "Int Rate", value: "interest_rate", width: 60 },
-        { text: "Trust Rate", value: "trust_account_interest", width: 60 },
-        {
-          text: "Supplementary Rate",
-          value: "supplementary_interest",
-          width: 60
-        },
-        { text: "OPC", value: "opc_comm", width: 60 },
-        // { text: "Repay", value: "repayment_date", width: 120 },
+        { text: "Draw Adj", value: "drawAdjustment", width: 90 },
+        // { text: "Int Rate", value: "interest_rate", width: 60 },
+        // { text: "Trust Rate", value: "trust_account_interest", width: 60 },
+        // {
+        //   text: "Supplementary Rate",
+        //   value: "supplementary_interest",
+        //   width: 60
+        // },
+        // { text: "OPC", value: "opc_comm", width: 60 },
+        { text: "Repay", value: "repayment_date", width: 120 },
         { text: "Actions", value: "actions", sortable: false, width: 100 }
       ],
       desserts: [],
       editedIndex: -1,
       editedItem: {
+        amount: 0,
+        attorney_inv_amount: 0,
+        development: 0,
+        draw: null,
+        drawAdjustment: 0,
+        drawNumber: null,
+        fica_inv_date: "",
+        drawn: false,
         id: 0,
-        bath: 0,
-        beds: 0,
-        unit_type: "",
-        size: 0,
-        base_price: 0,
-        contract_price: 0,
-        sold: false,
-        isEnclosed: 0,
-        bathAdd: 0,
-        study: 0,
-        parking: 0,
-        bay_no: "",
-        mood_board: "",
-        extras: 0,
-        deductions: 0,
-        notes: "",
-        sale_date: "",
-        bond_app_date: "",
-        lodge_date: "",
-        transfer_date: ""
+        interest_rate: 0,
+        investor: "",
+        investor_code: "",
+        la_email_date: "",
+        la_sign_date: "",
+        opc_comm: 0,
+        pledged: 0,
+        quinteDate: "",
+        repayment_date: "",
+        supplementary_interest: 0,
+        trust_account_interest: 0,
+        unit: 0,
+        unitName: ""
       },
       defaultItem: {
+        amount: 0,
+        attorney_inv_amount: 0,
+        development: 0,
+        draw: null,
+        drawAdjustment: 0,
+        drawNumber: null,
+        fica_inv_date: "",
+        drawn: false,
         id: 0,
-        bath: 0,
-        beds: 0,
-        unit_type: "",
-        size: 0,
-        base_price: 0,
-        contract_price: 0,
-        sold: false,
-        isEnclosed: 0,
-        bathAdd: 0,
-        study: 0,
-        parking: 0,
-        bay_no: "",
-        mood_board: "",
-        extras: 0,
-        deductions: 0,
-        notes: "",
-        sale_date: "",
-        bond_app_date: "",
-        lodge_date: "",
-        transfer_date: ""
+        interest_rate: 0,
+        investor: "",
+        investor_code: "",
+        la_email_date: "",
+        la_sign_date: "",
+        opc_comm: 0,
+        pledged: 0,
+        quinteDate: "",
+        repayment_date: "",
+        supplementary_interest: 0,
+        trust_account_interest: 0,
+        unit: 0,
+        unitName: ""
       }
     };
   },
   mounted() {
+    this.la_email_date = new Date().toISOString().substr(0, 10);
+    console.log(this.la_email_date);
     this.initialData();
   },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
+    },
+    showDrawn() {
+      if (this.editedIndex > -1 && this.editedItem.drawn) {
+        return false;
+      } else {
+        return true;
+      }
     }
   },
 
@@ -519,33 +554,55 @@ export default {
         return (this.itemsPerPage = 10);
       }
     },
+    // showSave() {
+    //   if (this.editedItem.amount !== 0 && this.editedItem.amount !== null) {
+    //     if (this.editedItem.quinteDate !== "") {
+    //       this.showSave = true
+    //     } else {
+    //       this.showSave = false
+    //     }
+    //   }
+
+    // },
     dialog(val) {
-      if (this.formTitle === "Edit Item" && this.editedItem.sale_date !== "") {
-        this.sale_date = new Date(this.editedItem.sale_date)
+      if (
+        this.formTitle === "Edit Item" &&
+        this.editedItem.la_email_date !== ""
+      ) {
+        this.la_email_date = new Date(this.editedItem.la_email_date)
           .toISOString()
           .substr(0, 10);
       }
       if (
         this.formTitle === "Edit Item" &&
-        this.editedItem.bond_app_date !== ""
+        this.editedItem.la_sign_date !== ""
       ) {
-        this.bond_app_date = new Date(this.editedItem.bond_app_date)
-          .toISOString()
-          .substr(0, 10);
-      }
-      if (this.formTitle === "Edit Item" && this.editedItem.lodge_date !== "") {
-        this.lodge_date = new Date(this.editedItem.lodge_date)
+        this.la_sign_date = new Date(this.editedItem.la_sign_date)
           .toISOString()
           .substr(0, 10);
       }
       if (
         this.formTitle === "Edit Item" &&
-        this.editedItem.transfer_date !== ""
+        this.editedItem.fica_inv_date !== ""
       ) {
-        this.transfer_date = new Date(this.editedItem.transfer_date)
+        this.fica_inv_date = new Date(this.editedItem.fica_inv_date)
           .toISOString()
           .substr(0, 10);
       }
+      if (this.formTitle === "Edit Item" && this.editedItem.quinteDate !== "") {
+        this.quinteDate = new Date(this.editedItem.quinteDate)
+          .toISOString()
+          .substr(0, 10);
+      }
+      if (
+        this.formTitle === "Edit Item" &&
+        this.editedItem.repayment_date !== ""
+      ) {
+        this.repayment_date = new Date(this.editedItem.repayment_date)
+          .toISOString()
+          .substr(0, 10);
+      }
+
       val || this.close();
     },
     dialogDelete(val) {
@@ -554,6 +611,28 @@ export default {
   },
 
   methods: {
+    show() {
+      this.showCheckbox = true;
+    },
+    test(event) {
+      console.log(event);
+    },
+    showSaveBtn() {
+      if (this.editedItem.amount !== 0 && this.editedItem.amount !== null) {
+        if (this.editedItem.quinteDate !== "") {
+          this.showSave = true;
+        } else {
+          this.showSave = false;
+        }
+      } else if (
+        this.editedItem.amount !== 0 &&
+        (this.editedItem.amount !== null) & (this.editedItem.quinteDate !== 0)
+      ) {
+        this.showSave = true;
+      } else {
+        this.showSave = false;
+      }
+    },
     async initialData() {
       let data = {
         id: this.$store.state.development.id
@@ -565,7 +644,7 @@ export default {
       })
         .then(
           response => {
-            console.log(response.data[0]);
+            console.log(response.data);
             this.desserts = response.data[0];
             this.desserts.forEach(el => {
               el.amount = el.amount.toFixed(2);
@@ -573,20 +652,35 @@ export default {
               el.attorney_inv_amount = el.attorney_inv_amount.toFixed(2);
               if (el.fica_inv_date !== null) {
                 el.fica_inv_date = dayjs(el.fica_inv_date).format("YYYY-MM-DD");
+              } else {
+                el.fica_inv_date = "";
               }
               if (el.la_email_date !== null) {
                 el.la_email_date = dayjs(el.la_email_date).format("YYYY-MM-DD");
+              } else {
+                el.la_email_date = "";
               }
               if (el.la_sign_date !== null) {
                 el.la_sign_date = dayjs(el.la_sign_date).format("YYYY-MM-DD");
+              } else {
+                el.la_sign_date = "";
               }
               if (el.quinteDate !== null) {
                 el.quinteDate = dayjs(el.quinteDate).format("YYYY-MM-DD");
+              } else {
+                el.quinteDate = "";
               }
               if (el.repayment_date !== null) {
                 el.repayment_date = dayjs(el.repayment_date).format(
                   "YYYY-MM-DD"
                 );
+              } else {
+                el.repayment_date = "";
+              }
+              if (el.drawn === 1) {
+                el.drawn = true;
+              } else {
+                el.drawn = false;
               }
               el.interest_rate = (el.interest_rate * 100).toFixed(2);
               el.opc_comm = (el.opc_comm * 100).toFixed(2);
@@ -596,7 +690,18 @@ export default {
               el.trust_account_interest = (
                 el.trust_account_interest * 100
               ).toFixed(2);
+              el.drawAdjustment = el.drawAdjustment.toFixed(2);
             });
+            this.draws = response.data[1];
+            if (this.$store.state.development.id === 1) {
+              this.units = response.data[2].filter(el => {
+                return el.subsection <= 6 && !el.unitName.includes(".");
+              });
+            } else {
+              this.units = response.data[2];
+            }
+            this.units.sort((a, b) => (a.unitName > b.unitName ? 1 : -1));
+            // console.log(this.units);
           },
           error => {
             console.log(error);
@@ -609,6 +714,12 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
+      // if (this.editedItem.la_email_date === null) {
+      //   this.editedItem.la_email_date = ""
+      //   // this.la_email_date = new Date().toISOString().substr(0,10)
+      // }
+      // console.log(new Date().toISOString().substr(0,10))
+      // console.log(this.editedItem.la_email_date)
       this.dialog = true;
     },
 
@@ -626,7 +737,7 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/deleteFinanceInputzz`,
+        url: `${url}/deleteInvestmentData`,
         data: data
       })
         .then(
@@ -666,15 +777,27 @@ export default {
     },
 
     async save() {
+      if (this.editedItem.drawNumber !== null) {
+        let draw = this.draws.filter(el => {
+          return el.drawNumber === this.editedItem.drawNumber;
+        });
+        this.editedItem.draw = draw[0].id;
+      }
+      let unit = this.units.filter(el => {
+        return el.unitName === this.editedItem.unitName;
+      });
+      this.editedItem.unit = unit[0].id;
+
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         await axios({
           method: "post",
-          url: `${url}/editFinanceInputzz`,
+          url: `${url}/editInvestmentData`,
           data: this.editedItem
         })
           .then(
             response => {
+              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessage = "Input succesfully updated!";
               } else {
@@ -693,11 +816,12 @@ export default {
         this.editedItem.development = this.$store.state.development.id;
         await axios({
           method: "post",
-          url: `${url}/insertFinanceInputzz`,
+          url: `${url}/insertinvestorDetails`,
           data: this.editedItem
         })
           .then(
             response => {
+              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessage = "Input succesfully updated!";
                 this.desserts.push(this.editedItem);
@@ -722,10 +846,48 @@ export default {
       else return "orange";
     },
     getFiltered(e) {
-      if (this.search === "") {
+      if (this.search === "" || this.search === null) {
         this.dataTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
             return parseFloat(curr.amount) + prev;
+          }, 0)
+        );
+        this.pledgedTotals = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            return parseFloat(curr.pledged) + prev;
+          }, 0) -
+            this.desserts.reduce((prev, curr) => {
+              return parseFloat(curr.attorney_inv_amount) + prev;
+            }, 0)
+        );
+        this.momentumTotals = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            return parseFloat(curr.attorney_inv_amount) + prev;
+          }, 0) -
+            this.desserts.reduce((prev, curr) => {
+              if (curr.drawn) {
+                return parseFloat(curr.amount) + prev;
+              } else {
+                return prev;
+              }
+            }, 0)
+        );
+        this.drawnTotals = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            if (curr.drawn) {
+              return parseFloat(curr.amount) + prev;
+            } else {
+              return prev;
+            }
+          }, 0)
+        );
+        this.plannedDrawTotals = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            if (!curr.drawn && curr.draw !== null) {
+              return parseFloat(curr.amount) + prev;
+            } else {
+              return prev;
+            }
           }, 0)
         );
       } else {
@@ -734,58 +896,81 @@ export default {
             return parseFloat(curr.amount) + prev;
           }, 0)
         );
+        this.pledgedTotals = this.convertToString(
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.pledged) + prev;
+          }, 0) -
+            e.reduce((prev, curr) => {
+              return parseFloat(curr.attorney_inv_amount) + prev;
+            }, 0)
+        );
+        this.momentumTotals = this.convertToString(
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.attorney_inv_amount) + prev;
+          }, 0) -
+            e.reduce((prev, curr) => {
+              if (curr.drawn) {
+                return parseFloat(curr.amount) + prev;
+              } else {
+                return prev + 0;
+              }
+            }, 0)
+        );
+        this.drawnTotals = this.convertToString(
+          e.reduce((prev, curr) => {
+            if (curr.drawn) {
+              return parseFloat(curr.amount) + prev;
+            } else {
+              return prev + 0;
+            }
+          }, 0)
+        );
+        this.plannedDrawTotals = this.convertToString(
+          e.reduce((prev, curr) => {
+            if (!curr.drawn && curr.draw !== null) {
+              return parseFloat(curr.amount) + prev;
+            } else {
+              return prev;
+            }
+          }, 0)
+        );
       }
     },
-    clearsale_date() {
-      this.editedItem.sale_date = "";
+    clearla_email_date() {
+      this.editedItem.la_email_date = "";
+      this.la_email_date = new Date().toISOString().substr(0, 10);
     },
-    clearbond_app_date() {
-      this.editedItem.bond_app_date = "";
+    clearla_sign_date() {
+      this.editedItem.la_sign_date = "";
+      this.la_sign_date = new Date().toISOString().substr(0, 10);
     },
-    clearlodge_date() {
-      this.editedItem.bond_app_date = "";
+    clearfica_inv_date() {
+      this.editedItem.fica_inv_date = "";
+      this.fica_inv_date = new Date().toISOString().substr(0, 10);
     },
-    cleartransfer_date() {
-      this.editedItem.bond_app_date = "";
+    clearquinteDate() {
+      this.editedItem.quinteDate = "";
+      this.quinteDate = new Date().toISOString().substr(0, 10);
     },
-
-    sale_dateChange() {
-      this.editedItem.sale_date = this.sale_date;
-      this.editedItem.bond_app_date = dayjs(this.editedItem.sale_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-      this.editedItem.lodge_date = dayjs(this.editedItem.bond_app_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-      this.editedItem.transfer_date = dayjs(this.editedItem.lodge_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
+    clearrepayment_date() {
+      this.editedItem.repayment_date = "";
+      this.repayment_date = new Date().toISOString().substr(0, 10);
     },
-    bond_app_dateChange() {
-      this.editedItem.bond_app_date = this.bond_app_date;
-      this.editedItem.lodge_date = dayjs(this.editedItem.bond_app_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
-      this.editedItem.transfer_date = dayjs(this.editedItem.lodge_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
+    la_email_dateChange() {
+      this.editedItem.la_email_date = this.la_email_date;
     },
-    lodge_dateChange() {
-      this.editedItem.lodge_date = this.lodge_date;
-      this.editedItem.transfer_date = dayjs(this.editedItem.lodge_date)
-        .add(20, "d")
-        .format("YYYY-MM-DD");
+    la_sign_dateChange() {
+      this.editedItem.la_sign_date = this.la_sign_date;
     },
-    transfer_dateChange() {
-      this.editedItem.transfer_date = this.transfer_date;
+    fica_inv_dateChange() {
+      this.editedItem.fica_inv_date = this.fica_inv_date;
     },
-    changeContractPrice() {
-      this.editedItem.contract_price =
-        parseFloat(this.editedItem.base_price) +
-        parseFloat(this.editedItem.isEnclosed) +
-        parseFloat(this.editedItem.parking) +
-        parseFloat(this.editedItem.extras) -
-        parseFloat(this.editedItem.deductions);
+    quinteDateChange() {
+      this.editedItem.quinteDate = this.quinteDate;
+      this.showSaveBtn();
+    },
+    repayment_dateChange() {
+      this.editedItem.repayment_date = this.repayment_date;
     }
   }
 };
@@ -804,5 +989,8 @@ rect:hover {
 }
 path:hover {
   cursor: pointer;
+}
+.toolbar__items {
+  flex-wrap: wrap;
 }
 </style>

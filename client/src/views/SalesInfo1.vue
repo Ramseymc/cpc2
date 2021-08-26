@@ -1,11 +1,4 @@
 <template>
-  <!-- 
-          TYPE: View
-          NAME: SalesInfo
-       PURPOSE: a list of the sales with actions (update, delete, edit, view files)
-          DATE: July 2021
-          AUTH: Connor McLean, Wayne Bruton
- -->
   <v-container>
     <v-row justify="center">
       <div class="about">
@@ -50,32 +43,17 @@
                       >
                     </v-list-item>
                     <div style="display: flex; justify-content: flex-start">
-                      <v-list-item-subtitle
+                      <v-list-item-title
                         v-text="item.block"
-                      ></v-list-item-subtitle>
-                      <v-list-item-subtitle
-                        v-text="item.unit"
-                      ></v-list-item-subtitle>
+                      ></v-list-item-title>
+                      <v-list-item-title v-text="item.unit"></v-list-item-title>
 
-                      <v-list-item-subtitle
+                      <v-list-item-title
                         v-text="item.lastname"
-                      ></v-list-item-subtitle>
-                      <v-list-item-subtitle
+                      ></v-list-item-title>
+                      <v-list-item-title
                         v-text="item.firstname"
-                      ></v-list-item-subtitle>
-                    </div>
-
-                    <!-- Person Two Details -->
-                    <div style="display: flex; justify-content: flex-start">
-                      <v-list-item-subtitle :v-text="''"></v-list-item-subtitle>
-                      <v-list-item-subtitle v-text="''"></v-list-item-subtitle>
-
-                      <v-list-item-subtitle
-                        v-text="item.personTwoLastName"
-                      ></v-list-item-subtitle>
-                      <v-list-item-subtitle
-                        v-text="item.personTwoFirstName"
-                      ></v-list-item-subtitle>
+                      ></v-list-item-title>
                     </div>
 
                     <v-stepper elevation="0">
@@ -91,9 +69,11 @@
                         </v-stepper-step>
                         <v-stepper-step
                           step="1"
-                          complete
+                          :complete="item.allFilesReceived"
                           :id="item.id"
-                          :color="item.step1colour"
+                          :color="
+                            item.allFilesReceived ? 'green accent-3' : 'grey'
+                          "
                           @click="openSignOff($event)"
                         >
                           Info Received
@@ -103,15 +83,15 @@
 
                         <v-stepper-step
                           step="2"
-                          color="indigo"
+                          color="green accent-3"
                           :complete="item.signedOff > 0"
                         >
-                          Signed
+                          Signed OTP
                         </v-stepper-step>
                         <v-divider></v-divider>
 
                         <v-stepper-step step="3" :id="item.id" color="green">
-                          Awaiting confirmation
+                          Next
                         </v-stepper-step>
                         <v-divider></v-divider>
 
@@ -124,10 +104,6 @@
                           Next
                         </v-stepper-step>
                         <v-divider></v-divider>
-
-                        <v-stepper-step step="6" :id="item.id" color="green">
-                          Next
-                        </v-stepper-step>
                       </v-stepper-header>
                     </v-stepper>
                   </v-list-item-content>
@@ -143,7 +119,6 @@
       :dialog="clientDialog"
       :editData="salesEditData"
       @closeForm="closeClientForm"
-      :unitId="unitId"
     />
     <ClientFiles
       v-if="clientFilesData.length > 0"
@@ -180,24 +155,24 @@ export default {
       showActions: false,
       blockValue: null, //From Dropdown
       unitValue: null,
-      flatPic: require("../assets/flat.jpg"),
+      flatPic: require("../assets/unfurnished-flat.jpg"),
       items: [],
       blocks: [],
       clientDialog: Boolean,
       dialog: null,
       el: "#v-for-object",
       sales: [],
-      // url: "",
+      url: "",
       salesEditData: [],
       search: "",
-      unitId: 0,
-      personTwo1: "Person",
-      personTwo2: "Two",
+
       // client Files dialog
       clientFileDialog: false,
       clientFilesData: [],
       dialogFiles: null,
+      allFilesReceived: Boolean,
 
+      //
       signOffDialog: false,
       signOffData: []
     };
@@ -221,17 +196,14 @@ export default {
     }
   },
   async mounted() {
-    // this.url = this.$store.state.url;
     this.initialData();
   },
   methods: {
     editItem(event) {
       let targetId = event.currentTarget.id; //Spot on
-      // console.log("id",event.currentTarget.id;)
       this.salesEditData = this.sales.filter(el => {
         return el.id === parseInt(targetId);
       });
-      console.log("ZZZZZ@@", this.salesEditData);
       this.clientDialog = true;
     },
     async emailItem(event) {
@@ -254,7 +226,7 @@ export default {
         .then(
           response => {
             console.log("CLIENT-SIDE: RESPONSE DATA: ", response.data);
-            if (response.data.success === true) {
+            if (response.data.success) {
               this.initialData();
             }
           },
@@ -277,12 +249,12 @@ export default {
       })
         .then(
           response => {
-            console.log("CLIENT-SIDE: RESPONSE DATA: ", response.data[0]);
+            console.log("CLIENT-SIDE: RESPONSE DATA: ", response.data);
 
-            this.sales = response.data[0];
-            this.unitId = response.data[0].unitId;
+            this.sales = response.data;
             this.sales.forEach(el => {
-              el.fileOTPurl = `${this.url}/uploads/${el.fileOTP}`;
+              el.fileOTPurl = `${url}/uploads/${el.fileOTP}`;
+              el.showActions = false;
               // console.log("FileId", el.fileId);
               if (
                 el.fileOTP === "" ||
@@ -297,15 +269,15 @@ export default {
                 el.fileFica === "undefined"
               ) {
                 el.iconColor = "red";
-                el.step1colour = "lime lighten-2";
+                el.allFilesReceived = false;
               } else {
                 el.iconColor = "green";
-                el.step1colour = "green accent-3";
+                el.allFilesReceived = true;
               }
               if (el.salesEmailSent === "Y") {
-                el.emailIconColor = "green darken-1";
+                el.emailIconColor = "green";
               } else {
-                el.emailIconColor = "orange lighten-2";
+                el.emailIconColor = "blue";
               }
             });
           },
@@ -318,14 +290,11 @@ export default {
         });
     },
     async deleteItem(event) {
-      // get the id of clicked item (its element has an 'id' which we binded to it during the data call)
       let targetValue = event.currentTarget.id;
-      console.log("SALES CLIENT SIDE: ", this.sales);
+      //console.log(targetValue);
       let data = {
-        id: targetValue,
-        unit: this.sales[0].unit
+        id: targetValue
       };
-      console.log(data);
       await axios({
         method: "post",
         url: `${url}/deleteSalesRecord`,
@@ -337,7 +306,7 @@ export default {
             this.initialData();
           },
           error => {
-            console.log("Error Deleting", error);
+            console.log("the Error", error);
           }
         )
         .catch(e => {
@@ -345,18 +314,14 @@ export default {
         });
     },
     async showFiles(event) {
-      console.log(event);
       let targetVal = event.currentTarget.id;
       this.clientFilesData = this.sales.filter(el => {
         return el.id === parseInt(targetVal);
       });
-      console.log("File Dialog");
       this.clientFileDialog = true;
     },
     async openSignOff(event) {
-      console.log(event);
       let targetVal = event.currentTarget.id;
-      console.log(targetVal);
       this.signOffData = this.sales.filter(el => {
         return el.id === parseInt(targetVal);
       });
@@ -394,8 +359,6 @@ export default {
       } else {
         console.log("No File");
       }
-
-      console.log("Check for all files, files = ", files);
     },
     closeClientForm(event) {
       this.clientDialog = event;
@@ -415,11 +378,15 @@ export default {
       this.initialData();
     },
     closeClientFiles(event) {
-      console.log("THE EVENT", event);
       this.clientFileDialog = event;
     }
   }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+/* .formatThis {
+  display: flex;
+  width: 50px;
+} */
+</style>

@@ -26,7 +26,8 @@
             <v-toolbar flat>
               <v-toolbar-title>FINANCE INPUT</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
-              Actual Amount: {{ dataTotals }}
+              Budget: {{ dataTotals2 }} - Actual: {{ dataTotals }} variance:
+              {{ diffTotal }}
               <v-spacer></v-spacer>
               <v-spacer></v-spacer>
               <v-text-field
@@ -62,7 +63,7 @@
                         <v-col cols="12" sm="6" md="4">
                           <v-autocomplete
                             v-model="editedItem.discipline"
-                            :items="desserts"
+                            :items="dashboardCategories"
                             item-text="discipline"
                             outlined
                             dense
@@ -260,7 +261,11 @@
             <v-icon color="green" class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <v-icon color="red" @click="deleteItem(item)">
+            <v-icon
+              color="red"
+              @click="deleteItem(item)"
+              v-if="userName === 'Wayne Bruton' || userName === 'Deric Dudley'"
+            >
               mdi-delete
             </v-icon>
           </template>
@@ -304,10 +309,13 @@ export default {
   },
   data() {
     return {
+      userName: "",
       itemsPerPage: 10,
       vatSwitch: false,
       vatDateDisabled: true,
       dataTotals: 0,
+      dataTotals2: 0,
+      diffTotal: 0,
       search: "",
       snackbar: false,
       snackbarMessage: "",
@@ -386,6 +394,7 @@ export default {
     };
   },
   mounted() {
+    this.userName = this.$store.state.userName;
     this.initialData();
   },
   computed: {
@@ -438,6 +447,7 @@ export default {
       })
         .then(
           response => {
+            console.log(response.data);
             let suppliers = [];
             response.data[0].forEach(el => {
               if (el.invoiceDate) {
@@ -467,6 +477,7 @@ export default {
             this.suppliers.sort();
             this.desserts = response.data[0];
             this.dashboardCategories = response.data[1];
+            // console.log(this.dashboardCategories)
             this.draws = response.data[2];
             this.supplierTerms = response.data[3];
           },
@@ -538,9 +549,10 @@ export default {
     },
 
     async save() {
-      this.editedItem.category = this.desserts.filter(el => {
+      this.editedItem.category = this.dashboardCategories.filter(el => {
         return el.discipline === this.editedItem.discipline;
-      })[0].category;
+      })[0].id;
+      console.log(this.editedItem.category);
       if (
         this.editedItem.drawNumber !== "" &&
         this.editedItem.drawNumber !== null
@@ -618,17 +630,46 @@ export default {
       else return "orange";
     },
     getFiltered(e) {
-      if (this.search === "") {
+      if (this.search === "" || this.search === null) {
         this.dataTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
             return parseFloat(curr.actualAmount) + prev;
           }, 0)
+        );
+        this.dataTotals2 = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            return parseFloat(curr.budgetAmount) + prev;
+          }, 0)
+        );
+
+        this.diffTotal = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            return parseFloat(curr.budgetAmount) + prev;
+          }, 0) -
+            this.desserts.reduce((prev, curr) => {
+              return parseFloat(curr.actualAmount) + prev;
+            }, 0)
         );
       } else {
         this.dataTotals = this.convertToString(
           e.reduce((prev, curr) => {
             return parseFloat(curr.actualAmount) + prev;
           }, 0)
+        );
+
+        this.dataTotals2 = this.convertToString(
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.budgetAmount) + prev;
+          }, 0)
+        );
+
+        this.diffTotal = this.convertToString(
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.budgetAmount) + prev;
+          }, 0) -
+            e.reduce((prev, curr) => {
+              return parseFloat(curr.actualAmount) + prev;
+            }, 0)
         );
       }
     },
