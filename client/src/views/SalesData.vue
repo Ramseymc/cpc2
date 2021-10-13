@@ -23,6 +23,7 @@
               <v-divider class="mx-4" inset vertical></v-divider>
               Contract Price: {{ dataTotals }}
               <v-spacer></v-spacer>
+              <a :href="href">UpdateTransferDates</a>
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -272,13 +273,15 @@
               </v-dialog>
             </v-toolbar>
           </template>
+          <template v-slot:item.unitName="{ item }">
+            <v-chip :id="item.id" small @click="redirectToUnitInfo">{{
+              item.unitName
+            }}</v-chip>
+          </template>
           <template v-slot:item.actions="{ item }">
             <v-icon color="green" class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <!-- <v-icon color="red" @click="deleteItem(item)">
-              mdi-delete
-            </v-icon> -->
           </template>
           <template v-slot:no-data>
             <v-btn color="primary">
@@ -321,6 +324,7 @@ export default {
   data() {
     return {
       itemsPerPage: 10,
+      href: "",
       dataTotals: 0,
       search: "",
       snackbar: false,
@@ -426,6 +430,8 @@ export default {
     };
   },
   mounted() {
+    this.href = `${process.env.VUE_APP_BASEURL}/authSmartsheets/${this.$store.state.development.id}`;
+    console.log(this.href);
     this.initialData();
   },
   computed: {
@@ -461,13 +467,20 @@ export default {
   },
 
   methods: {
+    redirectToUnitInfo(event) {
+      let infoFiltered = this.desserts.filter(el => {
+        return el.id === parseInt(event.currentTarget.id);
+      });
+      let unitId = infoFiltered[0].unit;
+      this.$router.push({ name: `UnitInfo`, params: { id: unitId } });
+    },
     async initialData() {
       let data = {
         id: this.$store.state.development.id
       };
       await axios({
         method: "post",
-        url: `${url}/getSalesData`,
+        url: `${url}/getSalesDataWb`,
         data: data
       })
         .then(
@@ -513,6 +526,26 @@ export default {
         .catch(e => {
           console.log(e);
         });
+    },
+    async checkDates() {
+      // // let data = {
+      // //   id: this.$store.state.development.id
+      // // };
+      // await axios({
+      //   method: "get",
+      //   url: `${url}/authSmartsheets`,
+      // })
+      //   .then(
+      //     response => {
+      //      console.log(response)
+      //     },
+      //     error => {
+      //       console.log(error);
+      //     }
+      //   )
+      //   .catch(e => {
+      //     console.log(e);
+      //   });
     },
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
@@ -575,10 +608,11 @@ export default {
 
     async save() {
       if (this.editedIndex > -1) {
+        console.log("editedItem", this.editedItem);
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         await axios({
           method: "post",
-          url: `${url}/editsalesData`,
+          url: `${url}/editsalesDataWb`,
           data: this.editedItem
         })
           .then(

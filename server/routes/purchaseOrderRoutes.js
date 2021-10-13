@@ -7,6 +7,75 @@ const { response } = require("express");
 const runReport = require("./purchaseOrderPDF");
 
 
+router.post("/POFullTextSearch", (req,res) => {
+
+  let mysql = `SELECT distinct p.PONumber,p.createdAt,s.subsectionName, u.unitName,  (MATCH(p.reference, p.itemCode, p.itemDescription) AGAINST('${req.body.searchTerms}' IN NATURAL LANGUAGE MODE)) 
+  as score FROM purchaseOrders p, subsection s, units u where p.development = ${req.body.id}   and u.id = p.unitNumber and s.id = p.subsection and u.development = ${req.body.id} and s.development = ${req.body.id} order by score desc;
+  ;`
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        result = result.filter((el) => {
+          return el.score > 0
+        })
+        // console.log(result)
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+})
+
+router.post("/getTasksForPO", (req,res) => {
+
+  let mysql = `select  t.id, t.unitNumber,u.unitName, t.taskDescription, t.taskType from tasks t, units u where t.unitNumber IN (${req.body.unitNumbers}) and u.id = t.unitNumber and t.taskType = ${req.body.taskNumber} and t.development = ${req.body.id} and t.supplier = ${req.body.supplier}`
+  console.log("mysql",chalk.red(mysql))
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+})
+
+router.post("/getTaskTypesForPO", (req,res) => {
+  console.log("BODY",req.body)
+
+  let mysql = `select distinct tt.id, t.unitNumber, tt.taskName from tasks t, tasktypes tt where t.unitNumber IN (${req.body.unitNumbers}) and t.taskType = tt.id and t.development = ${req.body.id} and t.supplier = ${req.body.supplier} order by tt.taskName`
+  console.log("mysql",mysql)
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+})
+
 router.post("/unitsToAddStockTo", (req,res) => {
 
   let mysql = `select * from units where development = ${req.body.id}`
@@ -262,7 +331,7 @@ router.post("/POEdit", (req, res) => {
 // });
 
 router.post("/POPosting", (req, res) => {
-  // console.log(req.body.purchaseOrderPDFData);
+  console.log(req.body.stockItemsToUpdate);
   req.body.purchaseOrderPDFData.forEach((el) => {
     if (el.supplierPostal === null || el.supplierPostal === "") {
       el.supplierPostal = el.supplierStreet
@@ -279,11 +348,11 @@ router.post("/POPosting", (req, res) => {
   let mysql2 = "";
   if (req.body.stockItemsToUpdate.length) {
     req.body.stockItemsToUpdate.forEach((el) => {
-      mysql2 = `${mysql2} update stockItems set itemDescription = '${
-        el.itemDescription
-      }', unitDescription = '${el.unitDescription}', unitCost = ${parseFloat(
-        el.unitCost
-      )} where id = ${el.id};`;
+      mysql2 = `${mysql2} update stockItems set unitCost = ${parseFloat(
+        el.siUnitCost
+      )} where id = ${el.siId}; update stockBudget set costPerItem = ${parseFloat(
+        el.siUnitCost
+      )} where stockItem = ${el.siId};`;
     });
   }
   // let mysql3 = "";
@@ -295,11 +364,12 @@ router.post("/POPosting", (req, res) => {
   //   });
   // }
 
-  let mysql1 = `insert into purchaseOrders (PONumber,development,subsection, unitNumber, supplier, reference, deliveryDate,stockId, itemCode, itemDescription, quantity, unitDescription, unitCost, totalCost, vat, nettCost, overBudget, available ) values ?`;
+  let mysql1 = `insert into purchaseOrders (PONumber,development,subsection, unitNumber,task, supplier, reference, deliveryDate,stockId, itemCode, itemDescription, quantity, unitDescription, unitCost, totalCost, vat, nettCost, overBudget, available ) values ?`;
   let mysql3 = `insert into stockPurchased (stockItem,quantityPurchased,costPerItem, totalCost, vatAmount, nettCost, supplier,PONumber, datePurchased, development,section, unitNumber  ) values ?`;
   let mysql4 = `select id, userName from users`
   // let mysql = `${mysql1};${mysql2}${mysql3}`;
   let mysql = `${mysql1};${mysql2}${mysql4}`;
+  console.log(mysql)
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);

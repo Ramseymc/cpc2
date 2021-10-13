@@ -65,6 +65,7 @@
                     style="background-color: lightgrey"
                   >
                     <v-text-field
+                      v-model="editData[0].trustName"
                       label="Trust / Company name*"
                       required
                     ></v-text-field>
@@ -77,6 +78,7 @@
                     style="background-color: lightgrey"
                   >
                     <v-text-field
+                      v-model="editData[0].trustNumber"
                       label="Trust / Company Number"
                       required
                     ></v-text-field>
@@ -217,7 +219,8 @@
                   >
                     <span
                       v-if="
-                        editData[0].salePerson === 'person' && buyers === '2'
+                        editData[0].salePerson === 'person' &&
+                          editData[0].saleBuyers === '2'
                       "
                       ><strong>2nd Purchaser</strong></span
                     >
@@ -408,8 +411,8 @@
 
                   <!-- First row with the Bond/cash switch and the deposit amount and date  -->
                   <v-col
-                    cols="5"
-                    sm="5"
+                    cols="4"
+                    sm="4"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <v-radio-group v-model="editData[0].saleType" row>
@@ -431,8 +434,8 @@
                     ></v-switch> -->
                   </v-col>
                   <v-col
-                    cols="7"
-                    sm="7"
+                    cols="4"
+                    sm="4"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Floorplan</b></strong>
@@ -447,6 +450,31 @@
                       ></v-radio>
                     </v-radio-group>
                   </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <!-- <strong><b>Floorplan</b></strong> -->
+                    <v-file-input
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      label="Client signed plan"
+                      v-model="planFile"
+                      clearable
+                      @change="showUploadBtn"
+                    ></v-file-input>
+                    <v-btn v-if="showUploadButton" @click="addPlans"
+                      >Upload</v-btn
+                    >
+                    <a
+                      :href="editData[0].url"
+                      v-if="editData[0].planType"
+                      target="_blank"
+                      >View PlanType
+                      <v-icon color="blue">mdi-attachment</v-icon>
+                    </a>
+                  </v-col>
+
                   <!-- end row 1 -->
                   <!-- Base Price -->
                   <v-col
@@ -483,8 +511,8 @@
                   >
                     <strong><b>Deposit Date Paid</b></strong>
                     <v-text-field
-                      v-model="editData[0].depositDate"
-                      type="date"
+                      v-model="this.depositDate"
+                      type="text"
                       label="Deposit Date"
                     ></v-text-field>
                   </v-col>
@@ -637,8 +665,8 @@
 
                   <!-- Standard Extras -->
                   <v-col
-                    cols="4"
-                    sm="4"
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Garden Number:</b></strong>
@@ -650,8 +678,8 @@
                     ></v-text-field>
                   </v-col>
                   <v-col
-                    cols="4"
-                    sm="4"
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Garden Size:</b></strong>
@@ -665,8 +693,20 @@
                     ></v-text-field>
                   </v-col>
                   <v-col
-                    cols="4"
-                    sm="4"
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Original Bay No:</b></strong>
+                    <v-text-field
+                      label="Original Bay Number"
+                      v-model="editData[0].originalBayNo"
+                    >
+                    </v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Parking Bay No:</b></strong>
@@ -851,7 +891,14 @@
                     ></v-file-input>
                   </v-col>
 
-                  <v-col cols="12" sm="12">
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].fileDepositPop.length ||
+                        editData[0].fileDepositPop === 'undefined'
+                    "
+                  >
                     <v-file-input
                       v-model="fileDepositPop"
                       accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
@@ -930,85 +977,78 @@
                       persistent-hint
                     ></v-file-input>
                   </v-col> -->
-                  <div
+
+                  <v-col
+                    cols="12"
+                    sm="12"
                     v-if="
-                      (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === '2') ||
-                        editData[0].salePerson === 'Legal'
+                      !editData[0].personTwoFileID.length ||
+                        editData[0].personTwoFileID === 'undefined'
                     "
                   >
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      v-if="
-                        !editData[0].personTwoFileID.length ||
-                          editData[0].personTwoFileID === 'undefined'
-                      "
-                      >>
-                      <v-file-input
-                        v-model="personTwoFileID"
-                        label="Upload ID/Passport Photo"
-                        accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
-                        filled
-                        hint="Upload ID/Passport Photo"
-                        persistent-hint
-                      ></v-file-input>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      v-if="
-                        !editData[0].personTwoFileFica.length ||
-                          editData[0].personTwoFileFica === 'undefined'
-                      "
-                    >
-                      >
-                      <v-file-input
-                        v-model="personTwoFileFica"
-                        label="Proof of address documentation"
-                        accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
-                        filled
-                        multiple
-                        hint="Proof of address documentation"
-                        persistent-hint
-                      ></v-file-input>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      v-if="
-                        !editData[0].personTwoFileBank.length ||
-                          editData[0].personTwoFileBank === 'undefined'
-                      "
-                      >>
-                      <v-file-input
-                        v-model="personTwoFileBank"
-                        label="Upload Bank Statements"
-                        accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
-                        filled
-                        hint="Upload Bank Statements"
-                        persistent-hint
-                      ></v-file-input>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      v-if="
-                        !editData[0].personTwoFilePaySlip.length ||
-                          editData[0].personTwoFilePaySlip === 'undefined'
-                      "
-                      >>
-                      <v-file-input
-                        v-model="personTwoFilePaySlip"
-                        label="Upload latest 3 months payslips"
-                        accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
-                        filled
-                        multiple
-                        hint="Upload latest 3 months payslips"
-                        persistent-hint
-                      ></v-file-input>
-                    </v-col>
-                  </div>
+                    <v-file-input
+                      v-model="personTwoFileID"
+                      label="Upload ID/Passport Photo"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      hint="Upload ID/Passport Photo"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFileFica.length ||
+                        editData[0].personTwoFileFica === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFileFica"
+                      label="Proof of address documentation"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      multiple
+                      hint="Proof of address documentation"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFileBank.length ||
+                        editData[0].personTwoFileBank === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFileBank"
+                      label="Upload Bank Statements"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      hint="Upload Bank Statements"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFilePaySlip.length ||
+                        editData[0].personTwoFilePaySlip === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFilePaySlip"
+                      label="Upload latest 3 months payslips"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      multiple
+                      hint="Upload latest 3 months payslips"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+
                   <v-col cols="6" style="background-color: lightsalmon">
                     <v-text-field
                       v-model="editData[0].salesAgent"
@@ -1062,6 +1102,10 @@
                 rounded
               >
                 Save
+
+                <v-icon dark right>
+                  mdi-checkbox-marked-circle
+                </v-icon>
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -1103,12 +1147,22 @@ export default {
       filePaySlip: null,
       fileFica: null,
       fileDepositPop: null,
+      planFile: null,
+      showUploadButton: false,
+
+      // fileOTP: null,
+      personTwoFileID: null,
+      personTwoFileBank: null,
+      personTwoFilePaySlip: null,
+      personTwoFileFica: null,
+      // fileDepositPop: null,
+
       firstNameLabel: "First Name*",
       lastNameLabel: "Last Name*",
       twoPersonFirstNameLabel: "2nd Person First Name",
       twoPersonLastNameLabel: "2nd Person Last Name",
-      person: "",
-      buyers: 0,
+      //person: "",
+      //buyers: 0,
       plans: [],
       floorPlans: [],
       floorplancost: 0,
@@ -1163,6 +1217,8 @@ export default {
     //console.log("BEFORE MOUNTED");
     //  this.finalEditData = this.editData[0]
     this.editData.forEach(el => {
+      el.saleBuyers = parseInt(el.saleBuyers);
+      el.gasStove = parseInt(el.gasStove);
       el.id = el.id.toString();
       if (el.flooring === "") {
         el.flooring = "Tiles";
@@ -1171,10 +1227,18 @@ export default {
         el.mood = "Mood1";
       }
     });
-    console.log("Before Mount in ClientUpdate", this.editData);
 
-    this.buyers = this.editData[0].saleBuyers;
-    this.person = this.editData[0].salePerson;
+    console.log("WWWWWW", this.editData);
+    this.editData[0].url = `${process.env.VUE_APP_BASEURL}/uploads/${this.editData[0].planType}`;
+
+    console.log("Before Mount in ClientUpdate", this.editData);
+    console.log("salesBuyers", this.editData[0].saleBuyers);
+    console.log("salesPerson", this.editData[0].salePerson);
+    // console.log("this.buyers", this.buyers);
+    //console.log("this.person", this.person);
+
+    // this.buyers = this.editData[0].saleBuyers;
+    // this.person = this.editData[0].salePerson;
     this.plans = this.editData[0].unit_type.split(",");
     this.parkingPriceStr = this.convertToString(
       parseFloat(this.editData[0].parking)
@@ -1204,9 +1268,45 @@ export default {
     this.balanceRemStr = this.convertToString(this.editData[0].balanceRem);
     this.depositStr = this.convertToString(this.editData[0].deposit);
     this.basePriceStr = this.convertToString(this.editData[0].base_price);
+    this.depositDate = this.editData[0].depositDate.split(" ")[0];
+    //d = d.split(' ')[0];
   },
 
   methods: {
+    showUploadBtn() {
+      // console.log(this.planFile)
+      if (this.planFile !== null) {
+        this.showUploadButton = true;
+      } else {
+        this.showUploadButton = false;
+      }
+    },
+    async addPlans() {
+      // console.log(this.planFile);
+      let formData = new FormData();
+      // console.log(this.unitId)
+      // console.log(this.editData[0].id)
+      formData.append("plans", this.planFile);
+      formData.append("id", this.editData[0].id);
+      // formData.append("unit", this.unitId);
+      await axios({
+        method: "post",
+        url: `${url}/uploadPlansWB`,
+        data: formData
+      }).then(
+        response => {
+          console.log(response.data);
+          this.showUploadButton = false;
+          // little box saying 'Posted Successfully
+          this.snackbar = true;
+          // close the form after completing
+          // this.closeClientInfo();
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
     closeClientInfo() {
       this.$emit("closeForm", false);
     },
@@ -1328,7 +1428,7 @@ export default {
     },
     naturalTrust() {
       console.log("AWESOME", this.planType);
-      if (this.person === "Legal") {
+      if (this.editData[0].salePerson === "Legal") {
         this.firstNameLabel = "Director / Trustee First Name*";
         this.twoPersonFirstNameLabel = "2nd Director / Trustee First Name*";
         this.lastNameLabel = "Director / Trustee Last Name*";
@@ -1337,7 +1437,7 @@ export default {
         this.firstNameLabel = "First Name*";
         this.lastNameLabel = "Last Name*";
       }
-      this.buyers = "1";
+      this.editData[0].saleBuyers = "1";
     },
     mobileStuff(event) {
       // this.mobileResults = event;
@@ -1417,6 +1517,9 @@ export default {
         formData.append("documents", files[x]);
         //console.log("FileInfo::: ", files[x]);
       }
+
+      formData.append("trustName", this.editData[0].trustName);
+      formData.append("trustNumber", this.editData[0].trustNumber);
       formData.append("firstName", this.editData[0].firstname);
       formData.append("lastName", this.editData[0].lastname);
       formData.append("iDNumber", this.editData[0].iDNumber);
@@ -1444,6 +1547,7 @@ export default {
         "personTwoFirstName",
         this.editData[0].personTwoFirstName
       );
+
       formData.append("personTwoLastName", this.editData[0].personTwoLastName);
       formData.append("personTwoIDNumber", this.editData[0].personTwoIDNumber);
       formData.append("personTwoMarital", this.editData[0].personTwoMarital);
@@ -1471,6 +1575,7 @@ export default {
       formData.append("base_price", this.editData[0].base_price);
 
       formData.append("parking", this.editData[0].parking);
+      formData.append("originalBayNo", this.editData[0].originalBayNo);
 
       formData.append("extras", this.editData[0].extras);
 
@@ -1488,7 +1593,7 @@ export default {
       formData.append("balanceRem", this.editData[0].balanceRem);
 
       formData.append("deposit", this.editData[0].deposit);
-      formData.append("depositDate", this.editData[0].depositDate);
+      formData.append("depositDate", this.depositDate);
       formData.append("gasStove", this.editData[0].gasStove);
       formData.append("additionalExtras", this.editData[0].additionalExtras);
       formData.append(
@@ -1505,8 +1610,8 @@ export default {
 
       //formData.append("gasStove", this.editData[0].enclosedBalcony);
 
-      formData.append("salePerson", this.person);
-      formData.append("saleBuyers", this.buyers);
+      formData.append("salePerson", this.editData[0].salePerson);
+      formData.append("saleBuyers", this.editData[0].saleBuyers);
 
       // bayNo
 

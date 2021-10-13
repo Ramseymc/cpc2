@@ -30,7 +30,8 @@
 <script>
 // import HomePage from "./components/HomePage";
 import Header from "./components/Header";
-// import Development from "./components/Development"
+import axios from "axios";
+let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "App",
   components: {
@@ -41,7 +42,27 @@ export default {
   data: () => ({
     //
   }),
-  mounted() {
+  async mounted() {
+    let data = {
+      id: this.$store.state.development.id
+    };
+    await axios({
+      method: "post",
+      url: `${url}/updateTasksWithPayDateWB`,
+      data: data
+    })
+      .then(
+        response => {
+          console.log(response.data);
+          // this.getInitialData();
+        },
+        error => {
+          console.log(error);
+        }
+      )
+      .catch(e => {
+        console.log(e);
+      });
     // this.$router.push({name:'Home'})
   }
 };

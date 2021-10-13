@@ -1,15 +1,294 @@
 <template>
   <div class="about">
     <v-row class="text-center">
-      <v-col cols="10" offset="1">
+      <v-col cols="12" offset="0">
+        <v-col cols="6" offset="5">
+          <div>
+            <v-switch
+              v-model="switch1"
+              :label="switch1 ? 'Show Planning' : 'Show Investor Input'"
+            ></v-switch>
+            <v-switch
+              v-if="
+                this.$store.state.userName === 'Wayne Bruton' ||
+                  this.$store.state.userName === 'Wynand Haywood' ||
+                  this.$store.state.userName === 'Debbie Landsberg' ||
+                  this.$store.state.userName === 'Nick Morgan'
+              "
+              v-model="switch2"
+              :label="switch2 ? 'Hide Summary' : 'Show Summary'"
+            ></v-switch>
+          </div>
+        </v-col>
+        <v-card
+          class="mx-auto"
+          outlined
+          max-width="650"
+          style="margin: 25px 25px;"
+          v-if="switch2"
+        >
+          <v-list-item three-line>
+            <v-list-item-content>
+              <div class="text-overline mb-4">
+                <v-spacer></v-spacer>
+              </div>
+              <v-list-item-title class="text-h5 mb-1">
+                Investor Input
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Pledges</strong>
+                  </div>
+                  <div>
+                    <strong>{{ pledgedTotals }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Momentum</strong>
+                  </div>
+                  <div>
+                    <strong>{{ momentumTotals }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Planned Draws</strong>
+                  </div>
+                  <div>
+                    <strong>{{ plannedDrawTotals }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Drawn to Date</strong>
+                  </div>
+                  <div>
+                    <strong>{{ drawnTotals }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+
+              <hr />
+              <br />
+              <v-list-item-title class="text-h5 mb-1">
+                Available Security
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Security available</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalFundsAvailable }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Security Allocate</strong>
+                  </div>
+                  <div>
+                    <strong>{{ allocatedTotalsP }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Security Unallocated</strong>
+                  </div>
+                  <div>
+                    <strong>{{ unallocatedTotalsP }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <hr />
+              <br />
+              <v-list-item-title class="text-h5 mb-1">
+                Total Funds
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Funds raised</strong>
+                  </div>
+                  <div>
+                    <strong>{{ subscribedTotals }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Security Available</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalFundsAvailable }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Total Funding</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalFundingInclAvailable }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <hr />
+              <br />
+              <v-list-item-title class="text-h5 mb-1">
+                Interest on Repayment
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Trust Interest (6.25%)</strong>
+                  </div>
+                  <div>
+                    <strong>{{ trustInterestRepayableAtRepayment }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Contract Interest</strong>
+                  </div>
+                  <div>
+                    <strong>{{ contractInterestRepayableAtRepayment }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Contract Interest (on Available Security)</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalInteresRepayableAtRepaymentP }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Total Interest</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalInterestAtRepayment }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+
+              <hr />
+              <br />
+              <v-list-item-title class="text-h5 mb-1">
+                Interest - Daily {{ now }}
+              </v-list-item-title>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Trust Interest (6.25%)</strong>
+                  </div>
+                  <div>
+                    <strong>{{ trustInterestRepayableAtToday }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Contract Interest</strong>
+                  </div>
+                  <div>
+                    <strong>{{ contractInterestRepayableAtToday }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Contract Interest (on Available Security)</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalInterestRepayableAtTodayP }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                >
+                  <div>
+                    <strong>Total Interest</strong>
+                  </div>
+                  <div>
+                    <strong>{{ totalInterestAtToday }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row class="text-center" v-if="switch1">
+      <v-col cols="12" offset="0">
         <v-data-table
+          style="margin: 25px 25px;"
           :headers="headers"
           :items="desserts"
           :search="search"
           @current-items="getFiltered"
-          sort-by="calories"
           dense
-          class="elevation-1"
+          class="elevation-0"
           multi-sort
           :items-per-page="itemsPerPage"
         >
@@ -20,19 +299,26 @@
           </template>
           <template v-slot:item.drawn="{ item }">
             <v-simple-checkbox
+              color="green"
               v-model="item.drawn"
               disabled
             ></v-simple-checkbox>
+          </template>
+          <template v-slot:item.unitName="{ item }">
+            <v-chip :id="item.id" small @click="redirectToUnitInfo">{{
+              item.unitName
+            }}</v-chip>
           </template>
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>Investor Input</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
-              <small
+              <!-- <small
                 >Pledged: {{ pledgedTotals }} - Momentum :
-                {{ momentumTotals }} - Drawn: {{ drawnTotals }}</small
+                {{ momentumTotals }} - Drawn: {{ drawnTotals }} - Subscribed
+                {{ subscribedTotals }}</small
               ><br />
-              <v-spacer></v-spacer>
+              <v-spacer></v-spacer> -->
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -97,6 +383,43 @@
                             label="Investor"
                           ></v-text-field>
                         </v-col>
+                        <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+                        <!-- <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            type="number"
+                            v-model="editedItem.available"
+                            label="Available"
+                          ></v-text-field>
+                        </v-col> -->
+                        <!-- <v-col cols="12" sm="6" md="3">
+                          <v-menu
+                            v-model="available_dateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.available_date"
+                                label="Available Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                clearable
+                                @click:clear="clearavailable_date"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              @change="available_dateChange"
+                              v-model="available_date"
+                              @input="available_dateMenu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col> -->
+                        <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
@@ -199,7 +522,7 @@
                           <v-text-field
                             type="number"
                             v-model="editedItem.amount"
-                            label="Quinate"
+                            :label="labelName"
                             @blur="showSaveBtn"
                           ></v-text-field>
                         </v-col>
@@ -222,7 +545,7 @@
                             <template v-slot:activator="{ on, attrs }">
                               <v-text-field
                                 v-model="editedItem.quinteDate"
-                                label="Quinate Date"
+                                :label="labelDateName"
                                 prepend-icon="mdi-calendar"
                                 readonly
                                 v-bind="attrs"
@@ -265,13 +588,13 @@
                             label="Trust Interest"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="3">
+                        <!-- <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
                             v-model="editedItem.supplementary_interest"
                             label="Supplementary Interest"
                           ></v-text-field>
-                        </v-col>
+                        </v-col> -->
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
@@ -286,7 +609,7 @@
                             label="OPC Rate"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="6">
+                        <v-col cols="12" sm="12" md="12">
                           <v-menu
                             v-model="repayment_dateMenu"
                             :close-on-content-click="false"
@@ -311,6 +634,68 @@
                               @change="repayment_dateChange"
                               v-model="repayment_date"
                               @input="repayment_dateMenu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="3"
+                          style="background-color: salmon"
+                          v-if="
+                            parseFloat(editedItem.attorney_inv_amount) === 0 &&
+                              parseFloat(editedItem.pledged) !== 0 &&
+                              parseFloat(editedItem.amount) === 0
+                          "
+                        >
+                          <!-- v-if="showDrawn" -->
+                          <v-checkbox
+                            v-if="
+                              parseFloat(editedItem.attorney_inv_amount) ===
+                                0 &&
+                                parseFloat(editedItem.pledged) !== 0 &&
+                                parseFloat(editedItem.amount) === 0
+                            "
+                            v-model="editedItem.pledgeUsed"
+                            label="Pledge Utilised"
+                          ></v-checkbox>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="6"
+                          style="background-color: salmon"
+                          v-if="
+                            parseFloat(editedItem.attorney_inv_amount) === 0 &&
+                              parseFloat(editedItem.pledged) !== 0 &&
+                              parseFloat(editedItem.amount) === 0
+                          "
+                        >
+                          <v-menu
+                            v-if="editedItem.pledgeUsed"
+                            v-model="pledge_dateMenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.pledge_date"
+                                label="Pledge Utilised Date"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                clearable
+                                @click:clear="clearpledge_date"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              @change="pledge_dateChange"
+                              v-model="pledge_date"
+                              @input="pledge_dateMenu = false"
                             ></v-date-picker>
                           </v-menu>
                         </v-col>
@@ -347,15 +732,26 @@
                 </v-card>
               </v-dialog>
             </v-toolbar>
-            <v-toolbar flat>
-              <!-- <v-toolbar-title>Draw Info</v-toolbar-title> -->
-              <!-- <v-divider class="mx-4" inset vertical></v-divider> -->
+            <!-- <v-toolbar flat>
               <small>Planned Draws: {{ plannedDrawTotals }}</small>
               <v-divider class="mx-4" inset vertical></v-divider>
               <small>Required : R0</small>
               <v-divider class="mx-4" inset vertical></v-divider>
               <small>Variance: {{ plannedDrawTotals }}</small>
-            </v-toolbar>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <small>Units: {{ unitCount }}</small>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <small>Available: {{ availableTotals }}</small>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <small
+                >Interest At Repayment:
+                {{ totalInteresRepayableAtRepayment }}</small
+              >
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <small
+                >Interest At Today: {{ totalInterestRepayableAtToday }}</small
+              >
+            </v-toolbar> -->
           </template>
           <template v-slot:item.actions="{ item }">
             <v-icon color="green" class="mr-2" @click="editItem(item)">
@@ -371,6 +767,13 @@
             </v-btn>
           </template>
         </v-data-table>
+        <!-- <v-col class="text-truncate" cols="12" md="12">
+          Total {{ totalRecords }} records
+        </v-col>
+          <v-col cols="12" md="12">
+          
+          <v-pagination v-model="page" :length="pageCount"> </v-pagination>
+        </v-col> -->
       </v-col>
       <v-snackbar v-model="snackbar" top color="amber">
         {{ snackbarMessage }}
@@ -379,16 +782,24 @@
         </v-btn>
       </v-snackbar>
     </v-row>
+    <v-row class="text-center" v-if="!switch1">
+      <v-col cols="12" offset="0">
+        <InvestorDataPlanningComp @fundsToBeFunded="fundsToBeFunded" />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script>
 import * as dayjs from "dayjs";
 import axios from "axios";
+import InvestorDataPlanningComp from "../components/InvestorDataPlanningComp";
 let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "InvestorData",
-  components: {},
+  components: {
+    InvestorDataPlanningComp
+  },
   metaInfo: {
     title: "About us",
     titleTemplate: "CPC - %s",
@@ -405,13 +816,33 @@ export default {
   },
   data() {
     return {
+      allocatedTotalsP: 0,
+      unallocatedTotalsP: 0,
+      totalInterestRepayableAtTodayP: 0,
+      totalInteresRepayableAtRepaymentP: 0,
+      contractInterestRepayableAtRepayment: 0,
+      contractInterestRepayableAtToday: 0,
+      trustInterestRepayableAtRepayment: 0,
+      trustInterestRepayableAtToday: 0,
+      totalFundingInclAvailable: 0,
+      totalInterestAtRepayment: 0,
+      totalInterestAtToday: 0,
+      now: "",
+      switch1: false,
+      switch2: false,
+      totalFundsAvailable: "",
+      labelName: "",
+      labelDateName: "",
       showCheckbox: true,
-      itemsPerPage: 10,
+      itemsPerPage: 15,
+      unitCount: 0,
       dataTotals: 0,
+      availableTotals: 0,
       pleadgedTotals: 0,
       momentumTotals: 0,
       plannedDrawTotals: 0,
       drawnTotals: 0,
+      subscribedTotals: 0,
       search: "",
       snackbar: false,
       snackbarMessage: "",
@@ -420,6 +851,8 @@ export default {
       sold: [],
       unitType: [],
       showSave: false,
+      totalInteresRepayableAtRepayment: 0,
+      totalInterestRepayableAtToday: 0,
       // la_email_date: new Date().toISOString().substr(0, 10),
       la_email_date: "2020-06-04",
       la_email_dateMenu: false,
@@ -431,6 +864,10 @@ export default {
       quinteDateMenu: false,
       repayment_date: new Date().toISOString().substr(0, 10),
       repayment_dateMenu: false,
+      available_date: new Date().toISOString().substr(0, 10),
+      available_dateMenu: false,
+      pledge_date: new Date().toISOString().substr(0, 10),
+      pledge_dateMenu: false,
       draws: [],
       units: [],
 
@@ -444,27 +881,33 @@ export default {
         },
         { text: "Code", value: "investor_code", width: 60 },
         { text: "Name", value: "investor", width: 140 },
-        { text: "Pledged", value: "pledged", width: 90, align: "end" },
-        { text: "email", value: "la_email_date", width: 120 },
-        { text: "signed", value: "la_sign_date", width: 120 },
+        // { text: "Available", value: "available", width: 90, align: "end" },
+        { text: "Pledged", value: "pledgedStr", width: 120, align: "end" },
+        // { text: "email", value: "la_email_date", width: 120 },
+        // { text: "signed", value: "la_sign_date", width: 120 },
 
         {
           text: "Momentum",
-          value: "attorney_inv_amount",
-          width: 90,
+          value: "attorney_inv_amountStr",
+          width: 120,
           align: "end"
         },
-        { text: "Inv Date", value: "fica_inv_date", width: 120 },
+        { text: "Deposit Date", value: "fica_inv_date", width: 120 },
         {
-          text: "Quinate Amount",
-          value: "amount",
-          width: 90,
+          text: `${this.$store.state.development.developmentName} Amount`,
+          // text: "Quinate Amount",
+          value: "amountStr",
+          width: 150,
           align: "end"
         },
-        { text: "Quinate Date", value: "quinteDate", width: 120 },
-        { text: "Drawn", value: "drawn" },
+        {
+          text: `${this.$store.state.development.developmentName} Date`,
+          value: "quinteDate",
+          width: 120
+        },
+        { text: "Drawn", value: "drawn", width: 90 },
         { text: "Draw", value: "drawNumber", width: 90 },
-        { text: "Draw Adj", value: "drawAdjustment", width: 90 },
+        // { text: "Draw Adj", value: "drawAdjustment", width: 90 },
         // { text: "Int Rate", value: "interest_rate", width: 60 },
         // { text: "Trust Rate", value: "trust_account_interest", width: 60 },
         // {
@@ -473,6 +916,12 @@ export default {
         //   width: 60
         // },
         // { text: "OPC", value: "opc_comm", width: 60 },
+        { text: "Int Today", value: "interestPayableAtTodayStr", width: 120 },
+        {
+          text: "Int Repay",
+          value: "interestPayableAtRepaymentStr",
+          width: 120
+        },
         { text: "Repay", value: "repayment_date", width: 120 },
         { text: "Actions", value: "actions", sortable: false, width: 100 }
       ],
@@ -493,10 +942,14 @@ export default {
         investor_code: "",
         la_email_date: "",
         la_sign_date: "",
+        available_date: "",
+        available: 0,
         opc_comm: 0,
         pledged: 0,
         quinteDate: "",
         repayment_date: "",
+        pledge_date: "",
+        pledgeUsed: false,
         supplementary_interest: 0,
         trust_account_interest: 0,
         unit: 0,
@@ -517,10 +970,14 @@ export default {
         investor_code: "",
         la_email_date: "",
         la_sign_date: "",
+        available_date: "",
+        available: 0,
         opc_comm: 0,
         pledged: 0,
         quinteDate: "",
         repayment_date: "",
+        pledge_date: "",
+        pledgeUsed: false,
         supplementary_interest: 0,
         trust_account_interest: 0,
         unit: 0,
@@ -528,10 +985,20 @@ export default {
       }
     };
   },
+  beforeMount() {
+    this.pledgedTotals = 0;
+  },
   mounted() {
     this.la_email_date = new Date().toISOString().substr(0, 10);
-    console.log(this.la_email_date);
+    this.labelName = `${this.$store.state.development.developmentName} Amount`;
+    this.labelDateName = `${this.$store.state.development.developmentName} Date`;
+    this.now = dayjs(new Date()).format("YYYY-MM-DD");
+    // console.log(this.la_email_date);
+
     this.initialData();
+    setTimeout(() => {
+      this.switch1 = true;
+    }, 250);
   },
   computed: {
     formTitle() {
@@ -543,6 +1010,12 @@ export default {
       } else {
         return true;
       }
+    },
+    totalRecords() {
+      return this.desserts.length;
+    },
+    pageCount() {
+      return this.totalRecords / this.itemsPerPage;
     }
   },
 
@@ -602,6 +1075,22 @@ export default {
           .toISOString()
           .substr(0, 10);
       }
+      if (
+        this.formTitle === "Edit Item" &&
+        this.editedItem.available_date !== ""
+      ) {
+        this.available_date = new Date(this.editedItem.available_date)
+          .toISOString()
+          .substr(0, 10);
+      }
+      if (
+        this.formTitle === "Edit Item" &&
+        this.editedItem.pledge_date !== ""
+      ) {
+        this.pledge_date = new Date(this.editedItem.pledge_date)
+          .toISOString()
+          .substr(0, 10);
+      }
 
       val || this.close();
     },
@@ -611,6 +1100,23 @@ export default {
   },
 
   methods: {
+    fundsToBeFunded(event) {
+      console.log("Event", event);
+      (this.totalFundsAvailable = event.availableTotalsP),
+        (this.allocatedTotalsP = event.allocatedTotalsP);
+      this.unallocatedTotalsP = event.unallocatedTotalsP;
+      this.totalInterestRepayableAtTodayP =
+        event.totalInterestRepayableAtTodayP;
+      this.totalInteresRepayableAtRepaymentP =
+        event.totalInteresRepayableAtRepaymentP;
+    },
+    redirectToUnitInfo(event) {
+      let infoFiltered = this.desserts.filter(el => {
+        return el.id === parseInt(event.currentTarget.id);
+      });
+      let unitId = infoFiltered[0].unit;
+      this.$router.push({ name: `UnitInfo`, params: { id: unitId } });
+    },
     show() {
       this.showCheckbox = true;
     },
@@ -639,14 +1145,16 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/getInvestmentData`,
+        url: `${url}/getInvestmentDataForFile`,
         data: data
       })
         .then(
           response => {
-            console.log(response.data);
+            console.log("Initial Data", response.data);
             this.desserts = response.data[0];
+            let unitCount = [];
             this.desserts.forEach(el => {
+              unitCount.push(el.unitName);
               el.amount = el.amount.toFixed(2);
               el.pledged = el.pledged.toFixed(2);
               el.attorney_inv_amount = el.attorney_inv_amount.toFixed(2);
@@ -677,11 +1185,31 @@ export default {
               } else {
                 el.repayment_date = "";
               }
+              if (el.available_date !== null) {
+                el.available_date = dayjs(el.available_date).format(
+                  "YYYY-MM-DD"
+                );
+              } else {
+                el.available_date = "";
+              }
+              if (el.pledge_date !== null) {
+                el.pledge_date = dayjs(el.pledge_date).format("YYYY-MM-DD");
+              } else {
+                el.pledge_date = "";
+              }
+              // console.log(el.available_date)
               if (el.drawn === 1) {
                 el.drawn = true;
               } else {
                 el.drawn = false;
               }
+              if (el.pledgeUsed === 1) {
+                el.pledgeUsed = true;
+              } else {
+                el.pledgeUsed = false;
+                el.pledge_date = "";
+              }
+
               el.interest_rate = (el.interest_rate * 100).toFixed(2);
               el.opc_comm = (el.opc_comm * 100).toFixed(2);
               el.supplementary_interest = (
@@ -692,6 +1220,142 @@ export default {
               ).toFixed(2);
               el.drawAdjustment = el.drawAdjustment.toFixed(2);
             });
+
+            unitCount = unitCount.sort();
+            unitCount = Array.from(new Set(unitCount));
+            this.unitCount = unitCount.length;
+            // console.log(unitCount.length)
+            console.log(this.desserts);
+            this.desserts.forEach(el => {
+              el.dailyTrustInterest =
+                (parseFloat(el.attorney_inv_amount) *
+                  ((parseFloat(el.supplementary_interest) +
+                    parseFloat(el.trust_account_interest)) /
+                    100)) /
+                365;
+              el.dailyContractInterest =
+                (parseFloat(el.amount) * parseFloat(el.interest_rate)) /
+                100 /
+                365;
+              el.trustInteresRepayableAtRepayment = 0;
+              el.trustInterestRepayableAtToday = 0;
+              if (el.dailyTrustInterest !== 0) {
+                if (el.quinteDate !== "" && el.drawn && el.amount !== 0) {
+                  el.trustInteresRepayableAtRepayment =
+                    el.dailyTrustInterest *
+                    dayjs(el.quinteDate).diff(dayjs(el.fica_inv_date), "day");
+
+                  el.trustInterestRepayableAtToday =
+                    el.dailyTrustInterest *
+                    dayjs(el.quinteDate).diff(dayjs(el.fica_inv_date), "day");
+                } else if (
+                  el.quinteDate !== "" &&
+                  !el.drawn &&
+                  el.amount !== 0
+                ) {
+                  el.trustInteresRepayableAtRepayment =
+                    el.dailyTrustInterest *
+                    dayjs(el.repayment_date).diff(
+                      dayjs(el.fica_inv_date),
+                      "day"
+                    );
+                  el.trustInterestRepayableAtToday =
+                    el.dailyTrustInterest *
+                    dayjs(new Date()).diff(dayjs(el.fica_inv_date), "day");
+                } else if (
+                  el.quinteDate === "" &&
+                  !el.drawn &&
+                  el.amount === 0
+                ) {
+                  el.trustInteresRepayableAtRepayment =
+                    el.dailyTrustInterest *
+                    dayjs(el.repayment_date).diff(
+                      dayjs(el.fica_inv_date),
+                      "day"
+                    );
+                  el.trustInterestRepayableAtToday =
+                    el.dailyTrustInterest *
+                    dayjs(new Date()).diff(dayjs(el.fica_inv_date), "day");
+                }
+              }
+              if (
+                el.dailyContractInterest !== 0 &&
+                el.quinteDate !== "" &&
+                el.amount !== 0
+              ) {
+                el.contractInteresRepayableAtRepayment =
+                  el.dailyContractInterest *
+                  (dayjs(el.repayment_date).diff(dayjs(el.quinteDate), "day") +
+                    1);
+                // console.log(el.contractInteresRepayableAtRepayment)
+                el.contractInterestRepayableAtToday =
+                  el.dailyContractInterest *
+                  (dayjs(new Date()).diff(dayjs(el.quinteDate), "day") + 1);
+                // console.log(el.contractInterestRepayableAtToday)
+              } else {
+                el.contractInteresRepayableAtRepayment = 0;
+                el.contractInterestRepayableAtToday = 0;
+              }
+              el.interestPayableAtRepayment = (
+                el.trustInteresRepayableAtRepayment +
+                el.contractInteresRepayableAtRepayment
+              ).toFixed(2);
+              el.interestPayableAtToday = (
+                el.contractInterestRepayableAtToday +
+                el.trustInterestRepayableAtToday
+              ).toFixed(2);
+              // console.log(el.interestPayableAtRepayment)
+              // console.log(el.interestPayableAtToday)
+              // console.log(
+              //   dayjs(new Date()).diff(dayjs(el.fica_inv_date), "day")
+              // );
+              el.pledgedStr = this.convertToString(el.pledged);
+              el.attorney_inv_amountStr = this.convertToString(
+                el.attorney_inv_amount
+              );
+              el.amountStr = this.convertToString(el.amount);
+              el.interestPayableAtTodayStr = this.convertToString(
+                el.interestPayableAtToday
+              );
+              el.interestPayableAtRepaymentStr = this.convertToString(
+                el.interestPayableAtRepayment
+              );
+            });
+
+            this.contractInterestRepayableAtRepayment = this.convertToString(
+              this.desserts.reduce((prev, el) => {
+                return (
+                  prev + parseFloat(el.contractInteresRepayableAtRepayment)
+                );
+              }, 0)
+            );
+            this.contractInterestRepayableAtToday = this.convertToString(
+              this.desserts.reduce((prev, el) => {
+                return prev + parseFloat(el.contractInterestRepayableAtToday);
+              }, 0)
+            );
+            this.trustInterestRepayableAtRepayment = this.convertToString(
+              this.desserts.reduce((prev, el) => {
+                return prev + parseFloat(el.trustInteresRepayableAtRepayment);
+              }, 0)
+            );
+            this.trustInterestRepayableAtToday = this.convertToString(
+              this.desserts.reduce((prev, el) => {
+                return prev + parseFloat(el.trustInterestRepayableAtToday);
+              }, 0)
+            );
+
+            this.totalInteresRepayableAtRepayment = this.convertToString(
+              this.desserts.reduce((prev, el) => {
+                return prev + parseFloat(el.interestPayableAtRepayment);
+              }, 0)
+            );
+            this.totalInterestRepayableAtToday = this.convertToString(
+              this.desserts.reduce((prev, el) => {
+                return prev + parseFloat(el.interestPayableAtToday);
+              }, 0)
+            );
+
             this.draws = response.data[1];
             if (this.$store.state.development.id === 1) {
               this.units = response.data[2].filter(el => {
@@ -701,6 +1365,14 @@ export default {
               this.units = response.data[2];
             }
             this.units.sort((a, b) => (a.unitName > b.unitName ? 1 : -1));
+
+            //    this.desserts = this.desserts.map((item) => {
+            //     return {
+            //       details: {},
+            //       ...item
+            //     }
+            // })
+
             // console.log(this.units);
           },
           error => {
@@ -777,6 +1449,13 @@ export default {
     },
 
     async save() {
+      if (
+        this.editedItem.attorney_inv_amount !== 0 ||
+        this.editedItem.amount !== 0
+      ) {
+        this.pledgeUsed = false;
+        this.pledge_date = "";
+      }
       if (this.editedItem.drawNumber !== null) {
         let draw = this.draws.filter(el => {
           return el.drawNumber === this.editedItem.drawNumber;
@@ -787,7 +1466,7 @@ export default {
         return el.unitName === this.editedItem.unitName;
       });
       this.editedItem.unit = unit[0].id;
-
+      console.log(this.editedItem);
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         await axios({
@@ -852,13 +1531,20 @@ export default {
             return parseFloat(curr.amount) + prev;
           }, 0)
         );
+        this.availableTotals = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            return parseFloat(curr.available) + prev;
+          }, 0)
+        );
+
         this.pledgedTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
-            return parseFloat(curr.pledged) + prev;
-          }, 0) -
-            this.desserts.reduce((prev, curr) => {
-              return parseFloat(curr.attorney_inv_amount) + prev;
-            }, 0)
+            if (curr.attorney_inv_amount == 0) {
+              return parseFloat(curr.pledged) + prev;
+            } else {
+              return prev;
+            }
+          }, 0)
         );
         this.momentumTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
@@ -872,6 +1558,7 @@ export default {
               }
             }, 0)
         );
+
         this.drawnTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
             if (curr.drawn) {
@@ -890,19 +1577,51 @@ export default {
             }
           }, 0)
         );
+        console.log("Planned Draws", this.plannedDrawTotals);
+        this.subscribedTotals = this.convertToString(
+          this.desserts.reduce((prev, curr) => {
+            return parseFloat(curr.pledged) + prev;
+          }, 0) -
+            this.desserts.reduce((prev, curr) => {
+              return parseFloat(curr.attorney_inv_amount) + prev;
+            }, 0) +
+            this.desserts.reduce((prev, curr) => {
+              return parseFloat(curr.attorney_inv_amount) + prev;
+            }, 0) -
+            this.desserts.reduce((prev, curr) => {
+              if (curr.drawn) {
+                return parseFloat(curr.amount) + prev;
+              } else {
+                return prev;
+              }
+            }, 0) +
+            this.desserts.reduce((prev, curr) => {
+              if (curr.drawn) {
+                return parseFloat(curr.amount) + prev;
+              } else {
+                return prev;
+              }
+            }, 0)
+        );
       } else {
         this.dataTotals = this.convertToString(
           e.reduce((prev, curr) => {
             return parseFloat(curr.amount) + prev;
           }, 0)
         );
+        this.availableTotals = this.convertToString(
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.available) + prev;
+          }, 0)
+        );
         this.pledgedTotals = this.convertToString(
           e.reduce((prev, curr) => {
-            return parseFloat(curr.pledged) + prev;
-          }, 0) -
-            e.reduce((prev, curr) => {
-              return parseFloat(curr.attorney_inv_amount) + prev;
-            }, 0)
+            if (curr.attorney_inv_amount == 0) {
+              return parseFloat(curr.pledged) + prev;
+            } else {
+              return prev;
+            }
+          }, 0)
         );
         this.momentumTotals = this.convertToString(
           e.reduce((prev, curr) => {
@@ -934,7 +1653,106 @@ export default {
             }
           }, 0)
         );
+        // this.subscribedTotals = this.convertToString(
+        this.subscribedTotals =
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.pledged) + prev;
+          }, 0) -
+          e.reduce((prev, curr) => {
+            return parseFloat(curr.attorney_inv_amount) + prev;
+          }, 0);
+        //  +
+        // e.reduce((prev, curr) => {
+        //   return parseFloat(curr.attorney_inv_amount) + prev;
+        // }, 0) -
+        // e.reduce((prev, curr) => {
+        //   if (curr.drawn) {
+        //     return parseFloat(curr.amount) + prev;
+        //   } else {
+        //     return prev;
+        //   }
+        // }, 0) +
+        // e.reduce((prev, curr) => {
+        //   if (curr.drawn) {
+        //     return parseFloat(curr.amount) + prev;
+        //   } else {
+        //     return prev;
+        //   }
+        // }, 0)
       }
+      // let totalFundingInclAvailable = 0
+      this.totalFundingInclAvailable = this.convertToString(
+        parseFloat(
+          this.subscribedTotals
+            .split("")
+            .filter(el => {
+              return el !== " " && el !== "R";
+            })
+            .join("")
+        ) +
+          parseFloat(
+            this.totalFundsAvailable
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          )
+      );
+
+      this.totalInterestAtRepayment = this.convertToString(
+        parseFloat(
+          this.trustInterestRepayableAtRepayment
+            .split("")
+            .filter(el => {
+              return el !== " " && el !== "R";
+            })
+            .join("")
+        ) +
+          parseFloat(
+            this.contractInterestRepayableAtRepayment
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          ) +
+          parseFloat(
+            this.totalInteresRepayableAtRepaymentP
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          )
+      );
+
+      this.totalInterestAtToday = this.convertToString(
+        parseFloat(
+          this.trustInterestRepayableAtToday
+            .split("")
+            .filter(el => {
+              return el !== " " && el !== "R";
+            })
+            .join("")
+        ) +
+          parseFloat(
+            this.contractInterestRepayableAtToday
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          ) +
+          parseFloat(
+            this.totalInterestRepayableAtTodayP
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          )
+      );
     },
     clearla_email_date() {
       this.editedItem.la_email_date = "";
@@ -956,6 +1774,14 @@ export default {
       this.editedItem.repayment_date = "";
       this.repayment_date = new Date().toISOString().substr(0, 10);
     },
+    clearavailable_date() {
+      this.editedItem.available_date = "";
+      this.available_date = new Date().toISOString().substr(0, 10);
+    },
+    clearpledge_date() {
+      this.editedItem.pledge_date = "";
+      this.pledge_date = new Date().toISOString().substr(0, 10);
+    },
     la_email_dateChange() {
       this.editedItem.la_email_date = this.la_email_date;
     },
@@ -971,12 +1797,22 @@ export default {
     },
     repayment_dateChange() {
       this.editedItem.repayment_date = this.repayment_date;
+    },
+    available_dateChange() {
+      this.editedItem.available_date = this.available_date;
+    },
+    pledge_dateChange() {
+      this.editedItem.pledge_date = this.pledge_date;
     }
   }
 };
 </script>
 
 <style scoped>
+.layout {
+  display: inline-block;
+  width: 95%;
+}
 .corner {
   background-color: orange;
   cursor: pointer;

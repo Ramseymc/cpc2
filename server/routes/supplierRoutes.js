@@ -165,11 +165,41 @@ router.get("/callback", async (req, res) => {
 });
 
 router.post("/getSuppliersUsed", async (req, res) => {
-  let mysql = `select distinct t.supplier, s.supplierName, t.taskType,u.subsection, ss.subsectionName, t.unitNumber,u.unitName, tt.taskName
+  let mysql1 = `select distinct t.supplier, s.supplierName, t.taskType,u.subsection, ss.subsectionName, t.unitNumber,u.unitName, tt.taskName
  from tasks t, taskTypes tt, suppliers s, units u, subsection ss
  where tt.id = t.taskType and s.id = t.supplier and u.id = t.unitNumber and u.subsection = ss.id
- and t.development = ${req.body.id} = u.development = ss.development`;
+ and t.development = ${req.body.id} = u.development = ss.development order by s.supplierName`;
+ let mysql2 = `Select id, supplierName from suppliers order by supplierName`
+ let mysql = `${mysql1};${mysql2}`
 
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/editSuppliersUsed", async (req, res) => {
+  let mysql = ``;
+  console.log(req.body)
+
+  // res.json({awesome: "It Works!!!!"})
+  if (req.body.taskType === null && req.body.unitNumber === null) {
+    mysql = `update tasks set supplier = ${req.body.newSupplier} where supplier = ${req.body.oldSupplier} and development = ${req.body.development}`
+  } else {
+    mysql = `update tasks set supplier = ${req.body.newSupplier} where supplier = ${req.body.oldSupplier} and development = ${req.body.development} and unitNumber = ${req.body.unitNumber} and taskType = ${req.body.taskType}`
+  }
+  console.log(chalk.red(mysql))
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);

@@ -376,7 +376,7 @@ export default {
 
       await axios({
         method: "post",
-        url: `${url}/uploadImage`,
+        url: `${url}/uploadImageWB`,
         data: formData
       }).then(
         response => {
@@ -455,7 +455,22 @@ export default {
           sfSignature: this.sfSignature,
           public_id: this.public_id
         };
-
+        // let formData = new FormData()
+        // formData.append("saveDate", now)
+        // formData.append("development", this.$store.state.development.id)
+        // formData.append("unit", this.unit)
+        // formData.append("section", this.section)
+        // formData.append("controlDate", this.today)
+        // formData.append("controlTimestamp", this.timestamp)
+        // formData.append("info", this.desserts)
+        // formData.append("signedConstructionManager", this.signedConstructionManager)
+        // formData.append("signedSubcontractor", this.signedSubcontractor)
+        // formData.append("signedSiteforeman", this.signedSiteforeman)
+        // formData.append("cmSignature", this.cmSignature)
+        // formData.append("scSignature", this.scSignature)
+        // formData.append("sfSignature", this.sfSignature)
+        // formData.append("public_id", this.public_id)
+        console.log("DATA TO BE SAVED", data);
         axios.defaults.headers.common[
           "Authorization"
         ] = this.$store.state.token;
@@ -463,6 +478,7 @@ export default {
           method: "post",
           url: `${url}/postQC`,
           data: data
+          // data: formData
         }).then(
           () => {},
           error => {
@@ -492,6 +508,22 @@ export default {
           sfSignature: this.sfSignature,
           signaturesOnly: false
         };
+        //  let formData = new FormData()
+        // formData.append("saveDate", now)
+        // formData.append("development", this.$store.state.development.id)
+        // formData.append("unit", this.unit)
+        // formData.append("section", this.section)
+        // formData.append("controlDate", this.today)
+        // formData.append("controlTimestamp", this.timestamp)
+        // formData.append("info", this.desserts)
+        // formData.append("signedConstructionManager", this.signedConstructionManager)
+        // formData.append("signedSubcontractor", this.signedSubcontractor)
+        // formData.append("signedSiteforeman", this.signedSiteforeman)
+        // formData.append("cmSignature", this.cmSignature)
+        // formData.append("scSignature", this.scSignature)
+        // formData.append("sfSignature", this.sfSignature)
+        // formData.append("signaturesOnly", false)
+        console.log("DATA TO BE SAVED", data);
 
         axios.defaults.headers.common[
           "Authorization"
@@ -500,6 +532,7 @@ export default {
           method: "post",
           url: `${url}/editQC`,
           data: data
+          // data: formData
         }).then(
           () => {},
           error => {
@@ -690,6 +723,7 @@ export default {
       if (event.title === "Subcontractor Signature") {
         this.signedSubcontractor = true;
         this.scSignature = event.data;
+        console.log("Signature Image", this.scSignature);
       }
       if (event.title === "Site Foreman Signature") {
         this.signedSiteforeman = true;

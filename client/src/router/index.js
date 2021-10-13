@@ -240,12 +240,85 @@ const routes = [
       import(/* webpackChunkName: "InvestorData" */ "../views/InvestorData.vue")
   },
   {
+    path: "/investorDataPlanning",
+    name: "InvestorDataPlanning",
+    component: () =>
+      import(
+        /* webpackChunkName: "InvestorDataPlanning" */ "../views/InvestorDataPlanning.vue"
+      )
+  },
+  {
     path: "/dashboardSummary",
     name: "DashboardSummary",
     component: () =>
       import(
         /* webpackChunkName: "DashboardSummary" */ "../views/DashboardSummary.vue"
       )
+  },
+  {
+    path: "/percentageInvesors",
+    name: "PercentageInvestors",
+    component: () =>
+      import(
+        /* webpackChunkName: "PercentageInvestors" */ "../views/PercentageInvestors.vue"
+      )
+  },
+  {
+    path: "/purchaseorderallocate",
+    name: "PurchaseOrderAllocate",
+    component: () =>
+      import(
+        /* webpackChunkName: "PurchaseOrderAllocate" */ "../views/PurchaseOrderAllocate.vue"
+      )
+  },
+  {
+    path: "/financeconstructioninput",
+    name: "FinanceConstructionInput",
+    component: () =>
+      import(
+        /* webpackChunkName: "FinanceConstructionInput" */ "../views/FinanceConstructionInput.vue"
+      )
+  },
+  {
+    path: "/Contingencies",
+    name: "Contingencies",
+    component: () =>
+      import(
+        /* webpackChunkName: "Contingencies" */ "../views/Contingencies.vue"
+      )
+  },
+  {
+    path: "/Escalations",
+    name: "Escalations",
+    component: () =>
+      import(/* webpackChunkName: "Escalations" */ "../views/Escalations.vue")
+  },
+  {
+    path: "/stocktrx",
+    name: "StockTrx",
+    component: () =>
+      import(/* webpackChunkName: "StockTrx" */ "../views/StockTrx.vue")
+  },
+  {
+    path: "/stocktake",
+    name: "StockTake",
+    component: () =>
+      import(/* webpackChunkName: "StockTake" */ "../views/StockTake.vue")
+  },
+  {
+    path: "/updateTaskDates",
+    name: "UpdateTaskDates",
+    component: () =>
+      import(
+        /* webpackChunkName: "UpdateTaskDates" */ "../views/UpdateTaskDates.vue"
+      )
+  },
+  {
+    path: "/unitinfo/:id",
+    name: "UnitInfo",
+    params: true,
+    component: () =>
+      import(/* webpackChunkName: "UnitInfo" */ "../views/UnitInfo.vue")
   },
   {
     path: "/*",

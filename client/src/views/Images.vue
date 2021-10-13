@@ -208,7 +208,15 @@
             <v-btn color="blue darken-1" text @click="cancelUpload">
               Cancel
             </v-btn>
-            <v-btn text @click="checkImage" v-if="!progressActive"
+            <v-btn
+              text
+              @click="checkImage"
+              v-if="
+                !progressActive &&
+                  unitChosen !== '' &&
+                  blockChosen !== '' &&
+                  files.length > 0
+              "
               >Upload</v-btn
             >
           </v-card-actions>

@@ -58,6 +58,7 @@ const cashflowRoutes = require("./routes/cashflowRoutes");
 const iTCRoutes = require("./routes/iTCRoutes");
 const salesRoutes = require("./routes/salesRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const pandgRoutes = require("./routes/pandgRoutes");
 app.use(
   progressRoutes,
   progressResultsRoutes,
@@ -72,7 +73,8 @@ app.use(
   cashflowRoutes,
   iTCRoutes,
   salesRoutes,
-  dashboardRoutes
+  dashboardRoutes,
+  pandgRoutes
 );
 
 app.listen(port, () => {

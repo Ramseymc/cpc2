@@ -1,8 +1,68 @@
 <template>
   <div class="about">
+    <VatFinance
+      v-if="vatDialog"
+      :vatDialog="vatDialog"
+      @closeVATForm="closeVATForm"
+    />
+
+    <!-- <v-dialog
+      class="test"
+      v-model="vatDialog"
+      transition="dialog-top-transition"
+      max-width="900"
+    >
+      <v-card>
+        <v-toolbar color="primary" dark>Edit Vat</v-toolbar>
+        <v-card-text>
+          <v-data-table
+            :headers="vatHeaders"
+            :items="vatData"
+            dense
+            class="elevation-1"
+            :items-per-page="itemsPerPage"
+            fixed-header
+            height="410"
+            id="virtual-scroll-table"
+            multi-sort
+          >
+            <template v-slot:item.actions="{ item }">
+              <v-icon color="green" class="mr-2" @click="editItem1(item)">
+                mdi-pencil
+              </v-icon>
+              <v-icon
+                color="red"
+                @click="deleteItem1(item)"
+                v-if="
+                  userName === 'Wayne Bruton' || userName === 'Deric Dudley'
+                "
+              >
+                mdi-delete
+              </v-icon>
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn text @click="vatDialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog> -->
+
     <v-row class="text-center">
-      <v-col cols="10" offset="1">
+      <v-col cols="12" offset="0">
+        <v-btn
+          color="primary"
+          dark
+          v-if="
+            this.$store.state.userName === 'Deric Dudley' ||
+              this.$store.state.userName === 'Wayne Bruton'
+          "
+          @click="vatDialog = true"
+        >
+          Edit Vat
+        </v-btn>
         <v-data-table
+          style="margin: 25px 25px;"
           :headers="headers"
           :items="desserts"
           :search="search"
@@ -11,12 +71,23 @@
           dense
           class="elevation-1"
           :items-per-page="itemsPerPage"
+          fixed-header
+          height="610"
+          id="virtual-scroll-table"
+          multi-sort
         >
           <template v-slot:item.vatable="{ item }">
             <v-chip :color="getColor(item.vatable)" small dark>
               {{ item.vatable }}
             </v-chip>
           </template>
+
+          <template v-slot:item.pop="{ item }">
+            <a :href="item.pop" target="_blank" v-if="item.pop">
+              PoP
+            </a>
+          </template>
+
           <template v-slot:item.paid="{ item }">
             <v-chip :color="getColor(item.paid)" small dark>
               {{ item.paid }}
@@ -215,6 +286,16 @@
                             label="Draw Number"
                           ></v-autocomplete>
                         </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-file-input
+                            v-model="editedItem.pop"
+                            label="POP"
+                            accept=" application/pdf"
+                            filled
+                            hint="POP"
+                            persistent-hint
+                          ></v-file-input>
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -290,9 +371,12 @@
 import * as dayjs from "dayjs";
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
+import VatFinance from "../components/VATFinance";
 export default {
   name: "FinanceInput",
-  components: {},
+  components: {
+    VatFinance
+  },
   metaInfo: {
     title: "About us",
     titleTemplate: "CPC - %s",
@@ -309,8 +393,10 @@ export default {
   },
   data() {
     return {
+      editVat: false,
+      vatDialog: false,
       userName: "",
-      itemsPerPage: 10,
+      itemsPerPage: 15,
       vatSwitch: false,
       vatDateDisabled: true,
       dataTotals: 0,
@@ -333,6 +419,46 @@ export default {
         .toISOString()
         .substr(0, 10),
       invoiceMenu: false,
+      // vatHeaders: [
+      //   {
+      //     text: "Discipline",
+      //     align: "start",
+      //     sortable: false,
+      //     value: "discipline",
+      //     width: 150,
+      //   },
+      //   {
+      //     text: "Amount",
+      //     align: "start",
+      //     sortable: false,
+      //     value: "amount",
+      //     width: 150,
+      //   },
+      //   {
+      //     text: "Date",
+      //     align: "start",
+      //     sortable: false,
+      //     value: "vatDate",
+      //     width: 150,
+      //   },
+      //   {
+      //     text: "Period",
+      //     align: "start",
+      //     sortable: false,
+      //     value: "vatPeriod",
+      //     width: 150,
+      //   },
+      //   {
+      //     text: "Processed",
+      //     align: "start",
+      //     sortable: false,
+      //     value: "processed",
+      //     width: 150,
+      //   },
+      //   { text: "Actions", value: "actions", sortable: false, width: 100 },
+      // ],
+      // vatData: [],
+
       headers: [
         {
           text: "Discipline",
@@ -350,6 +476,7 @@ export default {
         { text: "VAT", value: "vatable", width: 80 },
         { text: "Draw", value: "drawNumber", width: 80 },
         { text: "Paid", value: "paid", width: 80 },
+        { text: "POP", value: "pop", width: 80 },
         { text: "Actions", value: "actions", sortable: false, width: 100 }
       ],
       desserts: [],
@@ -370,7 +497,8 @@ export default {
         vatable: false,
         vatDate: "",
         drawId: 0,
-        drawNumber: ""
+        drawNumber: "",
+        pop: null
       },
       defaultItem: {
         id: 0,
@@ -388,6 +516,7 @@ export default {
         vatable: true,
         vatDate: "",
         drawId: 0,
+        pop: null,
         drawNumber: "",
         total: 0
       }
@@ -436,6 +565,10 @@ export default {
   },
 
   methods: {
+    closeVATForm(event) {
+      console.log("EVENT", event);
+      this.vatDialog = event;
+    },
     async initialData() {
       let data = {
         id: this.$store.state.development.id
@@ -472,6 +605,9 @@ export default {
               }
               el.budgetAmount = el.budgetAmount.toFixed(2);
               el.actualAmount = el.actualAmount.toFixed(2);
+              if (el.pop) {
+                el.pop = `${url}/uploads/${el.pop}`;
+              }
             });
             this.suppliers = Array.from(new Set(suppliers));
             this.suppliers.sort();
@@ -552,7 +688,7 @@ export default {
       this.editedItem.category = this.dashboardCategories.filter(el => {
         return el.discipline === this.editedItem.discipline;
       })[0].id;
-      console.log(this.editedItem.category);
+      console.log("CHECK THIS", this.editedItem);
       if (
         this.editedItem.drawNumber !== "" &&
         this.editedItem.drawNumber !== null
@@ -573,13 +709,30 @@ export default {
       } else {
         this.editedItem.supplierTermsId = 1;
       }
+      let formData = new FormData();
+      formData.append("POP", this.editedItem.pop);
+      formData.append("invoiceNumber", this.editedItem.invoiceNumber);
+      formData.append("invoiceDate", this.editedItem.invoiceDate);
+      formData.append("category", this.editedItem.category);
+      formData.append("budgetAmount", this.editedItem.budgetAmount);
+      formData.append("paymentDate", this.editedItem.paymentDate);
+      formData.append("actualAmount", this.editedItem.actualAmount);
+      formData.append("supplier", this.editedItem.supplier);
+      formData.append("vatable", this.editedItem.vatable);
+      formData.append("drawId", this.editedItem.drawId);
+      formData.append("vatDate", this.editedItem.vatDate);
+      formData.append("paid", this.editedItem.paid);
+      formData.append("supplierTermsId", this.editedItem.supplierTermsId);
+      formData.append("id", this.editedItem.id);
 
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
+
         await axios({
           method: "post",
           url: `${url}/editFinanceInput`,
-          data: this.editedItem
+          data: formData
+          // data: this.editedItem,
         })
           .then(
             response => {
@@ -702,12 +855,12 @@ export default {
         testVatMonth = parseInt(newVatDate.split("-")[1]);
         if (testVatMonth % 2 === 0) {
           newVatDate = dayjs(newVatDate)
-            .add(2, "months")
+            .add(1, "months")
             .endOf("month")
             .format("YYYY-MM-DD");
         } else {
           newVatDate = dayjs(newVatDate)
-            .add(3, "months")
+            .add(2, "months")
             .endOf("month")
             .format("YYYY-MM-DD");
         }
@@ -738,6 +891,10 @@ export default {
 </script>
 
 <style scoped>
+.layout {
+  display: inline-block;
+  width: 95%;
+}
 .corner {
   background-color: orange;
   cursor: pointer;
@@ -750,5 +907,16 @@ rect:hover {
 }
 path:hover {
   cursor: pointer;
+}
+#virtual-scroll-table {
+  max-height: 80vh;
+  overflow: auto;
+}
+.test {
+  z-index: -10;
+}
+a {
+  width: 100%;
+  height: 100%;
 }
 </style>

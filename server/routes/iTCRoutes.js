@@ -8,14 +8,8 @@ const runReport = require("./itcPDFs");
 
 router.post("/getP&G", (req, res) => {
     console.log(req.body);
-    let mysql = `select * from pandg where development = ${req.body.id};
-    select activity, sum(budgetAmount) as sumAmounts from  pandgoriginal where development = ${req.body.id}
-    group by activity;
-    SELECT activity, IF(posted = 0, sum(budgetAmount), sum(actualAmount)) AS expenditure_to_date
-    FROM pandg where development = ${req.body.id}
-      group by activity, posted;
-      select * from pandg where development = ${req.body.id}; 
-      select sum(budgetAmount) as totalBudget from pandgoriginal  where development = ${req.body.id};`;
+    let mysql = `select * from pandgNew where development = ${req.body.id};
+   `;
     pool.getConnection(function (err, connection) {
       if (err) {
         console.log("THE ERR", err);

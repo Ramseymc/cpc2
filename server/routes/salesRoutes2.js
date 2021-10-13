@@ -33,45 +33,6 @@ router.get("/test", (req, res) => {
   res.json({ Awesome: "It Works!!!!!" })
 })
 
-router.post("/uploadPlansWB", upload.single("plans"), (req, res) => {
-  console.log("Body",req.body)
-  console.log("File",req.file)
-
-  fs.rename(`public/uploads/${req.file.filename}`, `public/uploads/${req.file.originalname}`, (err) => {
-    if (err) {
-      console.log("Error renaming");
-    } //throw err
-  })
-  let fileName = `${req.file.originalname}`
-  // console.log(fileName)
-
-  let mysql = `update salesinfo set planType = '${fileName}' where id = ${req.body.id}`;
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log("XXXXXX", err)//
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-
-      } else {
-        console.log(result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
-
-  // pull the mimetype from req.files - futureproof
- 
-
-  
-    
-    
-  });
-
 // get blocks for development
 router.post("/getblocksForOptions", (req, res) => {
   console.log(req.body)
@@ -285,8 +246,7 @@ router.post("/getSalesDataForUnit", (req, res) => {
 // salesinfo routes
 // get all valid salesInfo
 router.post("/getClientInfoForSalesInfo", (req, res) => {
-  console.log(req.body)
-  let mysql = `CALL spSalesInfoR1(${req.body.id})`
+  let mysql = 'CALL spSalesInfoR1();'
    console.log("SERVER-SIDE getting data for salesinfo", mysql);
   // hello
   pool.getConnection(function (err, connection) {

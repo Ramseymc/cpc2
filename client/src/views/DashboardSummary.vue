@@ -8,6 +8,8 @@
         cols="10"
         sm="10"
         md="10"
+        lg="10"
+        xl="10"
         style="margin-bottom: 20px;"
       >
         <a :href="src" download v-if="show">
@@ -15,7 +17,28 @@
         >
         <span v-else>Loading...</span>
       </v-col>
-      <v-col class="mb-4" cols="4" sm="4" md="4">
+      <v-col
+        class="mb-4"
+        offset="1"
+        cols="10"
+        sm="10"
+        md="10"
+        style="margin-bottom: 20px;"
+      >
+        <!-- <v-col cols="10" offset="1" > -->
+        <v-data-table
+          :headers="headers"
+          :items="data"
+          dense
+          class="elevation-1"
+          fixed-header
+          height="410"
+          id="virtual-scroll-table"
+          :items-per-page="-1"
+        ></v-data-table>
+      </v-col>
+
+      <!-- <v-col class="mb-4" cols="4" sm="4" md="4">
         <v-card class="mx-auto" color="green" dark max-width="400">
           <v-card-text>
             <v-sheet color="rgba(0, 0, 0, .12)">
@@ -125,7 +148,7 @@
             ></v-sparkline>
           </v-sheet>
         </v-card>
-      </v-col>
+      </v-col> -->
     </v-row>
 
     <v-snackbar v-model="snackbar" bottom top shaped color="blue">
@@ -173,7 +196,9 @@ export default {
       labels: ["12am", "3am", "6am", "9am", "12pm", "3pm", "6pm", "9pm"],
       value2: [200, 675, 410, 390, 310, 460, 250, 240],
       checking: false,
-      heartbeats: []
+      heartbeats: [],
+      headers: [],
+      data: []
     };
   },
   computed: {
@@ -210,7 +235,113 @@ export default {
             console.log(response.data.fileWritten);
             if (response.data.fileWritten) {
               this.show = true;
+              setTimeout(() => {
+                this.getSpreadsheetData();
+              }, 1000);
             }
+          },
+          error => {
+            console.log(error);
+          }
+        )
+        .catch(e => {
+          console.log(e);
+        });
+    },
+    async getSpreadsheetData() {
+      await axios({
+        method: "get",
+        url: `${url}/getExcelData`
+
+        // url: `${url}/data.json`,
+      })
+        .then(
+          response => {
+            // console.log(response.data);
+            this.data = response.data;
+            for (const key in this.data[9]) {
+              if (
+                key !== "Description" &&
+                key !== "Budget" &&
+                key !== "Totals"
+              ) {
+                this.data[9][key] = this.data[8][key] + this.data[7][key];
+              }
+            }
+            for (const key in this.data[5]) {
+              if (key === "Totals") {
+                this.data[5][key] = null;
+              }
+            }
+            this.data.forEach(el => {
+              let total = 0;
+              for (const key in el) {
+                if (
+                  key !== "Description" &&
+                  key !== "Budget" &&
+                  key !== "Totals"
+                ) {
+                  total = total + el[key];
+                }
+                if (key !== "Description" && el[key] !== null) {
+                  el[key] = this.convertToString(el[key]);
+                }
+              }
+              el.Totals = total;
+              // console.log(total);
+            });
+            for (const key in this.data[5]) {
+              if (key === "Totals") {
+                this.data[5][key] = null;
+              }
+            }
+            for (const key in this.data[6]) {
+              if (key === "Totals") {
+                this.data[6][key] = null;
+              }
+            }
+            for (const key in this.data[10]) {
+              if (key === "Totals") {
+                this.data[10][key] = null;
+              }
+            }
+            // this.data.forEach((el) => {
+            //   for (const key in el) {
+            //     if (key === "Totals" && key !== null) {
+            //       el[key] = this.convertToString(el[key]);
+            //     } else {
+            //       el[key] = null;
+            //     }
+            //   }
+            // });
+
+            for (const key in response.data[0]) {
+              // console.log(`${key}`);
+              let width = 0;
+              let align = "end";
+              if (`${key}` === "Description") {
+                width = 280;
+                align = "start";
+              } else if (`${key}` === "Totals") {
+                width = 150;
+                align = "end";
+              } else {
+                width = 120;
+                align = "end";
+              }
+              let insert = {
+                text: `${key}`,
+                align: align,
+                sortable: false,
+                value: `${key}`,
+                width: width
+              };
+              this.headers.push(insert);
+            }
+            // console.log(this.headers);
+            // if (response.data.fileWritten) {
+            //   this.show = true;
+            // }
           },
           error => {
             console.log(error);
@@ -244,5 +375,12 @@ a {
 .v-sheet--offset {
   top: -24px;
   position: relative;
+}
+#virtual-scroll-table {
+  max-height: 80vh;
+  overflow: auto;
+}
+.v-data-table td {
+  font-size: 20px;
 }
 </style>

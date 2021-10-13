@@ -55,6 +55,7 @@
                     style="background-color: lightgrey"
                   >
                     <v-text-field
+                      v-model="trustName"
                       label="Trust / Company name*"
                       required
                     ></v-text-field>
@@ -67,6 +68,7 @@
                     style="background-color: lightgrey"
                   >
                     <v-text-field
+                      v-model="trustNumber"
                       label="Trust / Company Number"
                       required
                     ></v-text-field>
@@ -615,8 +617,8 @@
 
                   <!-- Standard Extras -->
                   <v-col
-                    cols="4"
-                    sm="4"
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Garden Number:</b></strong>
@@ -628,8 +630,8 @@
                     ></v-text-field>
                   </v-col>
                   <v-col
-                    cols="4"
-                    sm="4"
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Garden Size:</b></strong>
@@ -643,9 +645,23 @@
                       required
                     ></v-text-field>
                   </v-col>
+
                   <v-col
-                    cols="4"
-                    sm="4"
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Original Bay No:</b></strong>
+                    <v-text-field
+                      label="Original Bay No"
+                      v-model="originalBayNo"
+                    >
+                    </v-text-field>
+                  </v-col>
+
+                  <v-col
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Parking Bay No:</b></strong>
@@ -1066,6 +1082,8 @@ export default {
       deductionsStr: "",
       notes: "",
 
+      trustName: "",
+      trustNumber: "",
       marital: "Not married",
       firstNameLabel: "First Name*",
       lastNameLabel: "Last Name*",
@@ -1114,6 +1132,7 @@ export default {
       personTwoLandline: "",
       personTwoPostalAddress: "",
       personTwoResidentialAddress: "",
+      originalBayNo: "",
       //url: "",
       mobile: {
         countryCode: "ZA",
@@ -1382,6 +1401,9 @@ export default {
       formData.append("postalAddress", this.postaladdress);
       formData.append("residentialAddress", this.residentialAddress);
 
+      formData.append("trustName", this.trustName);
+      formData.append("trustNumber", this.trustNumber);
+
       // personTwo
       formData.append("personTwoFirstName", this.personTwoFirstName);
       formData.append("personTwoLastName", this.personTwoLastName);
@@ -1429,6 +1451,7 @@ export default {
       formData.append("base_price", this.basePrice);
 
       formData.append("parking", this.parking);
+      formData.append("originalBayNo", this.originalBayNo);
       formData.append("extras", this.extras);
 
       formData.append("deductions", this.deductions);
@@ -1465,7 +1488,7 @@ export default {
           // little box saying 'Posted Successfully
           this.snackbar = true;
           // close the form after completing
-          this.closeClientInfo();
+          // this.closeClientInfo();
         },
         error => {
           console.log(error);

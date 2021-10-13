@@ -188,7 +188,7 @@ router.post("/sendpurchaseorder", (req, res) => {
             console.log(chalk.blue(mysql2));
             connection.query(mysql2, function (error, result) {
               if (error) {
-                console.log("THE ERROR", error);
+                console.log("THE ERROR WAYNE", error);
               } else {
                 console.log(result);
                 res.json({
@@ -408,7 +408,7 @@ async function sendImageMail(subject, recipient, output, filename, personToCC) {
   // let mailError;
   let mailOptions = {
     // from: "Perfect Staff Contact Form <wayne@eccentrictoad.com>",
-    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
     to: `${recipient}`,
     cc: [
       `${personToCC}`,
@@ -446,7 +446,7 @@ async function sendImageMail(subject, recipient, output, filename, personToCC) {
 
 async function sendPOMail(subject, recipient, output, filename) {
   let mailOptions = {
-    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
     to: `${recipient}`,
     cc: "herbert@capeprojects.co.za, waynebruton@icloud.com",
     subject: `${subject}`,
@@ -471,7 +471,7 @@ async function sendITCMail(subject, recipient, output, filename) {
   // let mailError;
   let mailOptions = {
     // from: "Perfect Staff Contact Form <wayne@eccentrictoad.com>",
-    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
     to: `${recipient}`,
     cc: [
       "herbert@capeprojects.co.za",
@@ -509,7 +509,7 @@ async function sendMail(subject, recipient, output, filename) {
   // let mailError;
   let mailOptions = {
     // from: "Perfect Staff Contact Form <wayne@eccentrictoad.com>",
-    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
     to: `${recipient}`,
     cc: [
       "herbert@capeprojects.co.za",
@@ -544,7 +544,7 @@ async function sendMail(subject, recipient, output, filename) {
 
 async function sendBulkMail(subject, recipient, output, attachments) {
   let mailOptions = {
-    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
     to: `${recipient}`,
     cc: [
       "herbert@capeprojects.co.za",
@@ -620,7 +620,7 @@ router.post("/deliveryVariance", (req, res) => {
 // async function sendDeliveryVariance(subject, recipient, output, attachments) {
 async function sendDeliveryVariance(subject, recipient, output) {
   let mailOptions = {
-    from: "Cape Projects Construction <wayne@eccentrictoad.com>",
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
     to: `${recipient}`,
     cc: [
       "herbert@capeprojects.co.za",

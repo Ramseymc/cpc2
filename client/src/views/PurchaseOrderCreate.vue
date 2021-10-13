@@ -133,8 +133,6 @@
                             ></v-autocomplete>
                           </v-col>
                           <v-col class="d-flex" cols="12" sm="6">
-                            <!-- v-model="unitChosen" -->
-                            <!-- v-model="editedItem.unitChosen" -->
                             <v-autocomplete
                               v-model="editedItem.unitChosen"
                               :items="units"
@@ -146,6 +144,37 @@
                               item-color="#0F0F0F"
                               multiple
                               @blur="filterStock"
+                            ></v-autocomplete>
+                          </v-col>
+                          <v-col class="d-flex" cols="12" sm="6">
+                            <!-- v-model="editedItem.unitChosen" -->
+                            <!-- v-if="editedItem.unitChosen !== ''" -->
+                            <v-autocomplete
+                              v-if="formTitle === 'Edit Item'"
+                              v-model="editedItem.taskTypeChosen"
+                              :items="tasktypes"
+                              item-text="taskName"
+                              label="Choose TaskType"
+                              clearable
+                              prepend-icon="mdi-home-analytics"
+                              color="#0F0F0F"
+                              item-color="#0F0F0F"
+                              @blur="chooseTask"
+                            ></v-autocomplete>
+                          </v-col>
+                          <v-col class="d-flex" cols="12" sm="6">
+                            <!-- @blur="filterStock" -->
+                            <!-- v-if="editedItem.taskTypeChosen !== ''" -->
+                            <v-autocomplete
+                              v-model="editedItem.taskChosen"
+                              v-if="formTitle === 'Edit Item'"
+                              :items="tasks"
+                              item-text="taskDescription"
+                              label="Choose Task"
+                              clearable
+                              prepend-icon="mdi-home-analytics"
+                              color="#0F0F0F"
+                              item-color="#0F0F0F"
                             ></v-autocomplete>
                           </v-col>
                           <v-col class="d-flex" cols="1" sm="1">
@@ -214,6 +243,7 @@
                               v-model="editedItem.price"
                               label="rate*"
                               @change="chooseQuantity"
+                              @focus="testingThis"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="6" md="4">
@@ -504,6 +534,7 @@ export default {
       stockItemsDuplicated: [],
       date: new Date().toISOString().substr(0, 10),
       minDate: "",
+
       menu: false,
       // items: ["Each", "Roll", "l/m", "sqm", "hour"],
       items: [
@@ -542,6 +573,8 @@ export default {
       subsection: [],
       unitChosen: [],
       units: [],
+      tasktypes: [],
+      tasks: [],
       subsectionParam: null,
       PONumber: "",
       reference: "",
@@ -594,6 +627,8 @@ export default {
       editedItem: {
         block: "",
         unitChosen: "",
+        taskTypeChosen: "0",
+        taskChosen: "0",
         stockId: 0,
         itemCode: "",
         description: "",
@@ -607,6 +642,8 @@ export default {
       defaultItem: {
         block: "",
         unitChosen: "",
+        taskTypeChosen: "0",
+        taskChosen: "0",
         stockId: 0,
         itemCode: "",
         description: "",
@@ -627,12 +664,22 @@ export default {
     stockItemsFiltered() {
       if (this.showReleventStock === false) {
         return this.stockItems;
-      } else {
+      } else if (this.formTitle === "New Item") {
         let stockFilter = this.editedItem.unitChosen;
         let unitNumbers = [];
         stockFilter.forEach(el => {
           unitNumbers.push(parseInt(el.split("-")[1]));
         });
+
+        return this.stockItems.filter(({ sbUnitNumber }) =>
+          unitNumbers.includes(sbUnitNumber)
+        );
+      } else {
+        let stockFilter = this.editedItem.unitChosen;
+        let unitNumbers = [];
+        // stockFilter.forEach((el) => {
+        unitNumbers.push(parseInt(stockFilter.split("-")[1]));
+        // });
 
         return this.stockItems.filter(({ sbUnitNumber }) =>
           unitNumbers.includes(sbUnitNumber)
@@ -670,6 +717,78 @@ export default {
           this.filterStock();
         })
         .catch(() => {});
+    },
+    async chooseTask() {
+      console.log("taskTypeChosen", this.editedItem.taskTypeChosen);
+      let filteredData = this.tasktypes.filter(el => {
+        return el.taskName === this.editedItem.taskTypeChosen;
+      });
+
+      console.log("filteredData", filteredData);
+
+      let unitNumbers = filteredData[0].unitNumber;
+      let supplier = this.suppliers.filter(el => {
+        return el.supplierName === this.supplier;
+      });
+      console.log("supplier", supplier);
+
+      let data = {
+        id: this.$store.state.development.id,
+        unitNumbers: unitNumbers,
+        taskNumber: filteredData[0].id,
+        supplier: supplier[0].id
+      };
+      await axios({
+        method: "post",
+        url: `${url}/getTasksForPO`,
+        data: data
+      })
+        .then(response => {
+          console.log(response.data);
+          response.data.forEach(el => {
+            el.taskDescription = `${el.unitName}-${el.taskDescription}`;
+          });
+          this.tasks = response.data;
+          console.log(this.tasks);
+        })
+        .catch(() => {});
+    },
+    async chooseTaskType() {
+      console.log("Testing", this.editedItem.unitChosen);
+      let unitNumber = [];
+      unitNumber.push(this.editedItem.unitChosen.split("-")[1]);
+      let supplier = this.suppliers.filter(el => {
+        return el.supplierName === this.supplier;
+      });
+      console.log("supplier", supplier);
+      // if (this.editedItem.unitChosen.length > 0) {
+      //   this.editedItem.unitChosen.forEach((el) => {
+      //     let splitUnit = el.split("-");
+      //     unitNumber.push(splitUnit[1]);
+
+      //   });
+      console.log(this.supplierName);
+      unitNumber = unitNumber.join(",");
+      console.log("unitNumber", unitNumber);
+      let data = {
+        id: this.$store.state.development.id,
+        unitNumbers: unitNumber,
+        supplier: supplier[0].id
+      };
+      console.log(data);
+
+      await axios({
+        method: "post",
+        url: `${url}/getTaskTypesForPO`,
+        data: data
+      })
+        .then(response => {
+          console.log(response.data);
+          this.tasktypes = response.data;
+        })
+        .catch(() => {});
+      // }
+      this.showReleventStock = true;
     },
     filterStock() {
       this.showReleventStock = true;
@@ -754,6 +873,17 @@ export default {
           break;
         }
       }
+      this.desserts.forEach(el => {
+        let task = this.tasks.filter(el2 => {
+          return el.taskChosen === el2.taskDescription;
+        });
+        if (task.length > 0) {
+          el.taskChosen = task[0].id;
+        } else {
+          el.taskChosen = 0;
+        }
+        // console.log("task",task)
+      });
 
       this.desserts.forEach(el => {
         el.PONumber = this.PONumber;
@@ -779,6 +909,7 @@ export default {
         if (this.reference === "") {
           this.reference = "none";
         }
+        insert.push(el.taskChosen);
         insert.push(supplier[0].id);
         insert.push(this.reference);
         insert.push(this.date);
@@ -819,7 +950,7 @@ export default {
         }
         stockData.push(stockInsert);
       });
-      console.log(this.desserts);
+      // console.log(this.desserts);
 
       let data = {
         purchaseOrderPDFData: this.desserts,
@@ -829,6 +960,9 @@ export default {
         stockItemsToUpdate: this.stockItemsToUpdate,
         userName: this.$store.state.userName
       };
+      console.log("StockItemsToUpdate", this.stockItemsToUpdate);
+      console.log("POData", POData);
+      console.log("desserts", this.desserts);
 
       await axios({
         method: "post",
@@ -913,9 +1047,49 @@ export default {
         );
       }
     },
+    testingThis() {
+      console.log("Focus Event");
+      this.stockItemsToUpdate = [];
+      console.log(this.editedItem.price);
+      console.log(this.editedItem);
+      console.log("StockItems", this.stockItems);
+      let test = this.stockItems.filter(el => {
+        return (
+          this.editedItem.itemCode === el.siItemCode
+          // &&
+          // this.editedItem.price === el.siUnitCost
+        );
+      });
+      console.log(test);
+      // if (test.length > 0) {
+      let insert = {
+        sbStockItem: test[0].sbStockItem,
+        siId: test[0].siId,
+        siUnitCost: test[0].siUnitCost
+      };
+      this.stockItemsToUpdate.push(insert);
+      console.log(this.stockItemsToUpdate);
+      console.log(insert);
+      // }
+      // console.log("Test", test)
+    },
     chooseQuantity() {
+      console.log(this.editedItem.price);
       let filteredItem = this.suppliers.filter(el => {
         return el.supplierName === this.supplier;
+      });
+      setTimeout(() => {
+        console.log("Blur Event");
+        if (this.stockItemsToUpdate.length > 0) {
+          if (this.stockItemsToUpdate[0].siUnitCost !== this.editedItem.price) {
+            console.log("Items changed");
+            this.stockItemsToUpdate[0].siUnitCost = this.editedItem.price;
+            console.log(this.stockItemsToUpdate);
+          } else {
+            console.log("No Items changed");
+            this.stockItemsToUpdate = [];
+          }
+        }
       });
 
       if (this.editedItem.quantity !== 0 && this.editedItem.quantity !== "") {
@@ -970,6 +1144,8 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
+      console.log(this.editedItem.unitChosen);
+      this.chooseTaskType();
       this.dialog = true;
     },
 
@@ -1078,6 +1254,7 @@ export default {
         this.stockItemChosen.unitDescription = this.editedItem.unit;
         this.stockItemChosen.unitCost = this.editedItem.price;
         this.stockItemsToUpdate.push(this.stockItemChosen);
+        console.log("stockItemsToUpdate", this.stockItemsToUpdate);
       }
       // else {
       //   this.stockItemsToAdd.push(this.editedItem);

@@ -15,11 +15,29 @@
       </v-alert>
     </v-col>
     <v-row class="text-center">
-      <v-col cols="10" offset="1">
+      <v-col cols="10" offset="1" md="10" sm="10" lg="10" xl="10">
         <v-btn v-if="consentUrl"
           ><a class="xeroBtn" @click="redirect" :href="consentUrl"
             >Xero Login</a
           ></v-btn
+        >
+      </v-col>
+      <v-col cols="10" offset="1" md="5" sm="5" lg="5" xl="5">
+        <v-text-field
+          v-model="fullTextSearch"
+          append-icon="mdi-search-web"
+          label="Full Text Search"
+          color="green"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="10" offset="0" md="3" sm="3" lg="3" xl="3">
+        <v-btn
+          text
+          color="primary"
+          icon
+          v-if="fullTextSearch.length"
+          @click="searchFullText"
+          ><v-icon>mdi-search-web</v-icon>Full Text Search</v-btn
         >
       </v-col>
 
@@ -30,6 +48,7 @@
           sort-by="calories"
           class="elevation-1"
           :search="search"
+          multi-sort
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -84,6 +103,16 @@
               mdi-file-pdf-box
             </v-icon>
           </template>
+          <template v-slot:item.edit="{ item }">
+            <v-icon
+              :id="item.PONumber"
+              class="mr-2"
+              color="orange"
+              @click="editPurchaseOrder($event)"
+            >
+              mdi-pencil
+            </v-icon>
+          </template>
           <template v-slot:item.DNImageFile="{ item }">
             <v-icon
               v-if="item.DNImage.length"
@@ -105,6 +134,7 @@
           class="elevation-1"
           :search="search"
           :item-class="itemRowColor"
+          multi-sort
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -124,7 +154,6 @@
           </template>
           <template v-slot:item.edit="{ item }">
             <v-icon
-              v-if="!item.sentToSupplier"
               :id="item.PONumber"
               class="mr-2"
               color="orange"
@@ -311,6 +340,40 @@
         </cld-image>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="fullTextDialog" :max-width="maxWidth" max-heigh="90vh">
+      <v-card>
+        <v-spacer></v-spacer>
+        <v-card-title class="headline">
+          <v-spacer></v-spacer>
+          <span>Search Results by score descending</span>
+        </v-card-title>
+        <v-card-text>
+          <v-data-table
+            :headers="fullTextHeaders"
+            :items="fullTextRows"
+            class="elevation-1"
+            multi-sort
+          >
+          </v-data-table>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="closeFullText">Close</v-btn>
+        </v-card-actions>
+
+        <!-- <cld-image
+          :cloudName="cloudName"
+          :publicId="publicId"
+          class="white--text align-end"
+          width="95%"
+          height="95%"
+          loading="lazy"
+        >
+          <cld-transformation radius="20" quality="auto" />
+        </cld-image> -->
+      </v-card>
+    </v-dialog>
     <purchaseOrderEdit
       v-if="showEdit"
       :mainDialog="showEdit"
@@ -432,11 +495,40 @@ export default {
       poNumber: "",
       search: "",
       alerts: [],
-      headers: [
+      fullTextSearch: "",
+      fullTextDialog: false,
+      fullTextHeaders: [
         {
           text: "Number",
           align: "start",
           sortable: false,
+          value: "PONumber"
+        },
+        {
+          text: "PO Date",
+          align: "start",
+          sortable: false,
+          value: "createdAt"
+        },
+        {
+          text: "Block",
+          align: "start",
+          sortable: false,
+          value: "subsectionName"
+        },
+        {
+          text: "Unit",
+          align: "start",
+          sortable: false,
+          value: "unitName"
+        }
+      ],
+      fullTextRows: [],
+      headers: [
+        {
+          text: "Number",
+          align: "start",
+          sortable: true,
           value: "PONumber"
         },
         {
@@ -472,7 +564,7 @@ export default {
         {
           text: "Number",
           align: "start",
-          sortable: false,
+          sortable: true,
           value: "PONumber",
           width: 150
         },
@@ -502,7 +594,7 @@ export default {
           align: "center",
           width: 100
         },
-
+        { text: "edit", value: "edit", sortable: false },
         { text: "invoice", value: "invoice", sortable: false },
         { text: "View", value: "actions", sortable: false },
         { text: "Img", value: "DNImageFile", sortable: false }
@@ -566,6 +658,58 @@ export default {
     await this.getInvoices();
   },
   methods: {
+    closeFullText() {
+      this.fullTextRows = [];
+      this.fullTextSearch = "";
+      this.fullTextDialog = false;
+    },
+    async searchFullText() {
+      let data = {
+        id: this.$store.state.development.id,
+        searchTerms: this.fullTextSearch
+      };
+      await axios({
+        method: "post",
+        url: `${url}/POFullTextSearch`,
+        data: data
+      })
+        .then(
+          response => {
+            this.fullTextRows = [];
+            console.log(response.data);
+            this.fullTextRows = response.data;
+            this.fullTextRows.forEach(el => {
+              el.createdAt = dayjs(el.createdAt).format("YYYY-MM-DD");
+            });
+            this.fullTextDialog = true;
+            var result = this.fullTextRows.reduce((unique, o) => {
+              if (
+                !unique.some(
+                  obj =>
+                    obj.PONumber === o.PONumber &&
+                    obj.createdAt === o.createdAt &&
+                    obj.subsectionName === o.subsectionName &&
+                    obj.unitName === o.unitName
+                )
+              ) {
+                unique.push(o);
+              }
+              return unique;
+            }, []);
+            this.fullTextRows = result;
+            // console.log("XXXX",result);
+
+            // this.fulfilledDialog = false;
+            // this.getPurchaseOrders();
+          },
+          error => {
+            console.log("the Error", error);
+          }
+        )
+        .catch(e => {
+          console.log(e);
+        });
+    },
     getImage(event) {
       let filteredData = this.items.filter(el => {
         return el.PONumber === event.currentTarget.id;
@@ -765,6 +909,7 @@ export default {
           })
             .then(
               response => {
+                console.log(response.data);
                 if (response.data.Status == 401) {
                   this.getConnected();
                 }

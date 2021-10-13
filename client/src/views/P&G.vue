@@ -2,21 +2,17 @@
   <div>
     <v-row class="text-center">
       <v-col cols="10" offset="1" mb-4>
-        <v-btn text @click="show = !show">Arrange Pivot</v-btn>
-        <v-btn text @click="dialog = true">Edit Data</v-btn>
-        <v-btn text>Chart</v-btn>
-        <v-col cols="4" offset="4" mb-4>
-          <!-- <v-switch
-            v-model="switch1"
-            :label="switch1 ? 'Show Claim' : 'Show Budget'"
-            @change="switchActual"
-          ></v-switch> -->
-          <v-radio-group v-model="choices" row @change="switchActual">
+        <!-- <v-btn text @click="show = !show">Arrange Pivot</v-btn> -->
+        <v-btn text @click="dialog = true">Import Data</v-btn>
+        <!-- <v-btn text>Chart</v-btn> -->
+        <!-- <v-col cols="4" offset="4" mb-4> -->
+
+        <!-- <v-radio-group v-model="choices" row @change="switchActual">
             <v-radio label="Budget" value="Budget"></v-radio>
             <v-radio label="Claim" value="Claim"></v-radio>
             <v-radio label="Variance" value="Variance"></v-radio>
-          </v-radio-group>
-        </v-col>
+          </v-radio-group> -->
+        <!-- </v-col> -->
 
         <v-card class="mx-auto" elevation="0">
           <v-list-item three-line max-width="1500">
@@ -74,7 +70,7 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <v-col cols="12" sm="6">
+                <!-- <v-col cols="12" sm="6">
                   <v-select
                     :items="editData"
                     label="Month"
@@ -84,6 +80,13 @@
                     clearable
                     required
                   ></v-select>
+                </v-col> -->
+                <v-col cols="12" sm="6">
+                  <v-file-input
+                    v-model="file"
+                    accept=".xlsx"
+                    label="Import Data"
+                  ></v-file-input>
                 </v-col>
                 <!-- <v-col cols="12" sm="6">
                   <v-select
@@ -96,7 +99,7 @@
                     required
                   ></v-select>
                 </v-col> -->
-                <v-col cols="12" sm="12" md="12">
+                <!-- <v-col cols="12" sm="12" md="12">
                   <v-data-table
                     v-if="editDataFiltered.length > 0"
                     :headers="headers"
@@ -169,30 +172,6 @@
                             </v-card-actions>
                           </v-card>
                         </v-dialog>
-                        <!-- <v-dialog v-model="dialogDelete" max-width="500px">
-                          <v-card>
-                            <v-card-title class="text-h5"
-                              >Are you sure you want to delete this
-                              item?</v-card-title
-                            >
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn
-                                color="blue darken-1"
-                                text
-                                @click="closeDelete"
-                                >Cancel</v-btn
-                              >
-                              <v-btn
-                                color="blue darken-1"
-                                text
-                                @click="deleteItemConfirm"
-                                >OK</v-btn
-                              >
-                              <v-spacer></v-spacer>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog> -->
                       </v-toolbar>
                     </template>
                     <template v-slot:item.actions="{ item }">
@@ -206,7 +185,7 @@
                       </v-btn>
                     </template>
                   </v-data-table>
-                </v-col>
+                </v-col> -->
               </v-row>
             </v-container>
             <!-- <small>*indicates required field</small> -->
@@ -216,12 +195,7 @@
             <v-btn color="blue darken-1" text @click="closeMainDialog">
               Close
             </v-btn>
-            <v-btn
-              v-if="showSaveButton"
-              color="blue darken-1"
-              text
-              @click="saveAllChanges"
-            >
+            <v-btn color="blue darken-1" text @click="saveToDatabase">
               Save
             </v-btn>
           </v-card-actions>
@@ -241,6 +215,7 @@ export default {
   name: "PandG",
   data() {
     return {
+      file: null,
       dialog: false,
       dialog1: false,
       monthSelected: null,
@@ -258,8 +233,8 @@ export default {
       rendererName: "Table Heatmap",
 
       rows: ["activity"], //Left
-      cols: ["monthEnd"], //Top
-      vals: ["budgetAmount"], //Adds
+      cols: ["effectiveDate"], //Top
+      vals: ["amount"], //Adds
 
       disabledFromDragDrop: ["id"],
       hiddenFromDragDrop: ["id"],
@@ -330,6 +305,33 @@ export default {
     this.getData();
   },
   methods: {
+    async saveToDatabase() {
+      console.log(this.file);
+      let formData = new FormData();
+
+      formData.append("PandG", this.file);
+      formData.append("development", this.$store.state.development.id);
+
+      await axios({
+        method: "post",
+        url: `${url}/importPandG`,
+        data: formData
+      })
+        .then(
+          response => {
+            console.log(response.data);
+            this.file = null;
+            this.dialog = false;
+            this.getData();
+          },
+          error => {
+            console.log("the Error", error);
+          }
+        )
+        .catch(e => {
+          console.log(e);
+        });
+    },
     closeMainDialog() {
       this.monthSelected = null;
       this.showSaveButton = false;
@@ -378,109 +380,140 @@ export default {
       })
         .then(
           response => {
-            console.log("TERST", response.data);
-            if (!response.data.noInfo) {
-              this.editData = [];
-              this.editData = response.data[3];
-              this.editData.forEach(el => {
-                el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
-                el.budgetAmount = el.budgetAmount.toFixed(2);
-                el.actualAmount = el.actualAmount.toFixed(2);
-                el.actualAmountInitial = el.actualAmount;
-                el.variance = el.budgetAmount - el.actualAmount;
-              });
+            // console.log("TERST", response.data);
+            // if (!response.data.noInfo) {
+            // this.editData = [];
+            // this.editData = response.data[3];
+            // this.editData.forEach((el) => {
+            //   el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
+            //   el.budgetAmount = el.budgetAmount.toFixed(2);
+            //   el.actualAmount = el.actualAmount.toFixed(2);
+            //   el.actualAmountInitial = el.actualAmount;
+            //   el.variance = el.budgetAmount - el.actualAmount;
+            // });
 
-              var myObject = response.data[0][0];
-              var keyNames = Object.keys(myObject);
-              this.pivotData = [];
-              this.pivotData.push(keyNames);
-              // console.log(this.pivotData);
-              response.data[0].forEach(el => {
-                let insert = [];
-                insert.push(el.id);
-                insert.push(el.activity);
-                insert.push(el.itemDescription);
-                insert.push(dayjs(el.monthEnd).format("YYYY MM"));
-                insert.push(el.budgetAmount);
-                insert.push(el.actualAmount);
-                insert.push(el.posted);
-                this.pivotData.push(insert);
-              });
-              console.log(this.pivotData);
-              this.mainData = [];
-              this.mainData = this.pivotData;
+            // var myObject = response.data[0];
+            // var keyNames = Object.keys(myObject);
+            this.pivotData = [];
+            let keyNames = [
+              "Processed",
+              "Draw",
+              "effectiveDate",
+              "development",
+              "activity",
+              "amount"
+            ];
 
-              var myObjectUsed = response.data[0][0];
-              var keyNamesUsed = Object.keys(myObjectUsed);
-              this.budgetData = [];
+            this.pivotData.push(keyNames);
+            // console.log("XXX", this.pivotData);
+            response.data.forEach(el => {
+              for (const key in el) {
+                // console.log(`${key}: ${el[key]}`);
+                if (
+                  `${key}` !== "Draw" &&
+                  `${key}` !== "development" &&
+                  `${key}` !== "Processed" &&
+                  `${key}` !== "effectiveDate" &&
+                  `${key}` !== "id"
+                ) {
+                  let insert = [];
+                  insert.push(el.Processed),
+                    insert.push(el.Draw),
+                    insert.push(dayjs(el.effectiveDate).format("YYYY MM")),
+                    insert.push(el.development),
+                    insert.push(`${key}`),
+                    insert.push(`${parseFloat(el[key])}`);
 
-              this.budgetData.push(keyNamesUsed);
+                  this.pivotData.push(insert);
+                }
+              }
 
-              let initialPostedData = response.data[0].filter(el => {
-                return el.posted === 1;
-              });
-              initialPostedData.forEach(el => {
-                el.budgetAmount = el.actualAmount;
-              });
-              let initialUnPostedData = response.data[0].filter(el => {
-                return el.posted === 0;
-              });
-              initialPostedData.forEach(el => {
-                let insert = [];
-                insert.push(el.id);
-                insert.push(el.activity);
-                insert.push(el.itemDescription);
-                insert.push(dayjs(el.monthEnd).format("YYYY MM"));
-                insert.push(el.budgetAmount);
-                insert.push(el.actualAmount);
-                insert.push(el.posted);
-                this.budgetData.push(insert);
-              });
+              // let insert = [];
+              // insert.push(el.id);
+              // insert.push(el.activity);
+              // insert.push(el.itemDescription);
+              // insert.push(dayjs(el.monthEnd).format("YYYY MM"));
+              // insert.push(el.budgetAmount);
+              // insert.push(el.actualAmount);
+              // insert.push(el.posted);
+              // this.pivotData.push(insert);
+            });
+            // console.log(this.pivotData);
+            // this.mainData = [];
+            // this.mainData = this.pivotData;
 
-              initialUnPostedData.forEach(el => {
-                let insert = [];
-                insert.push(el.id);
-                insert.push(el.activity);
-                insert.push(el.itemDescription);
-                insert.push(dayjs(el.monthEnd).format("YYYY MM"));
-                insert.push(el.budgetAmount);
-                insert.push(el.actualAmount);
-                insert.push(el.posted);
-                this.budgetData.push(insert);
-              });
+            // var myObjectUsed = response.data[0][0];
+            // var keyNamesUsed = Object.keys(myObjectUsed);
+            // this.budgetData = [];
 
-              this.editData.forEach(el => {
-                el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
-                // el.budgetAmount = el.budgetAmount;
-                // el.actualAmount = el.actualAmount;
-                el.variance = el.budgetAmount - el.actualAmount;
-              });
-              this.originalData = response.data[1];
-              // console.log(this.editData);
-              // console.log(this.originalData);
-              this.updatedTotal = response.data[2]
-                .reduce((prev, curr) => {
-                  return prev + curr.expenditure_to_date;
-                }, 0)
-                .toFixed(2);
+            // this.budgetData.push(keyNamesUsed);
 
-              this.originalDataTotal = response.data[4][0].totalBudget;
-              console.log(response.data[4]);
-              // this.originalDataTotal = this.originalData
-              //   .reduce((prev, curr) => {
-              //     return prev + curr.sumAmounts;
-              //   }, 0)
-              //   .toFixed(2);
+            // let initialPostedData = response.data[0].filter((el) => {
+            //   return el.posted === 1;
+            // });
+            // initialPostedData.forEach((el) => {
+            //   el.budgetAmount = el.actualAmount;
+            // });
+            // let initialUnPostedData = response.data[0].filter((el) => {
+            //   return el.posted === 0;
+            // });
+            // initialPostedData.forEach((el) => {
+            //   let insert = [];
+            //   insert.push(el.id);
+            //   insert.push(el.activity);
+            //   insert.push(el.itemDescription);
+            //   insert.push(dayjs(el.monthEnd).format("YYYY MM"));
+            //   insert.push(el.budgetAmount);
+            //   insert.push(el.actualAmount);
+            //   insert.push(el.posted);
+            //   this.budgetData.push(insert);
+            // });
 
-              //  - response.data[2].reduce((prev, curr) => {
-              //   return prev + curr.expenditure_to_date
-              // },0)
+            // initialUnPostedData.forEach((el) => {
+            //   let insert = [];
+            //   insert.push(el.id);
+            //   insert.push(el.activity);
+            //   insert.push(el.itemDescription);
+            //   insert.push(dayjs(el.monthEnd).format("YYYY MM"));
+            //   insert.push(el.budgetAmount);
+            //   insert.push(el.actualAmount);
+            //   insert.push(el.posted);
+            //   this.budgetData.push(insert);
+            // });
 
-              setTimeout(() => {
-                this.show = true;
-                this.loading = false;
-              }, 1750);
-            }
+            // this.editData.forEach((el) => {
+            //   el.monthEnd = dayjs(el.monthEnd).format("MMMM YYYY");
+            //   // el.budgetAmount = el.budgetAmount;
+            //   // el.actualAmount = el.actualAmount;
+            //   el.variance = el.budgetAmount - el.actualAmount;
+            // });
+            // this.originalData = response.data[1];
+            // // console.log(this.editData);
+            // // console.log(this.originalData);
+            // this.updatedTotal = response.data[2]
+            //   .reduce((prev, curr) => {
+            //     return prev + curr.expenditure_to_date;
+            //   }, 0)
+            //   .toFixed(2);
+
+            // this.originalDataTotal = response.data[4][0].totalBudget;
+            // console.log(response.data[4]);
+
+            // this.originalDataTotal = this.originalData
+            //   .reduce((prev, curr) => {
+            //     return prev + curr.sumAmounts;
+            //   }, 0)
+            //   .toFixed(2);
+
+            //  - response.data[2].reduce((prev, curr) => {
+            //   return prev + curr.expenditure_to_date
+            // },0)
+
+            setTimeout(() => {
+              this.show = true;
+              this.loading = false;
+            }, 1750);
+            // }
           },
           error => {
             console.log("the Error", error);

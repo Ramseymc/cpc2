@@ -35,7 +35,10 @@
     "otp-generator": "^2.0.0",
     "pdfkit": "^0.11.0",
     "pdfmake": "^0.1.70",
+    "querystring": "^0.2.1",
+    "smartsheet": "^2.126.0",
     "uniqid": "^5.3.0",
-    "xero-node": "^4.9.1"
+    "xero-node": "^4.9.1",
+    "xlsx": "^0.17.1"
   }
 }

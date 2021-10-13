@@ -2059,6 +2059,8 @@ opc_comm float
 
 alter table investorDetails add development int default 1;
 
+
+
 alter table investorDetails add drawAdjustment decimal(20,2) default 0.00;
 
 insert into investorDetails (unit,investor_code,investor,la_email_date,la_sign_date,pledged,attorney_inv_amount,fica_inv_date,amount,quinteDate,draw,interest_rate,trust_account_interest,supplementary_interest,opc_comm) values
@@ -2382,4 +2384,289 @@ join salesdata sd on sd.unit = u.id
 where si.id > 0 
  and si.firstName > '' ;
 END
+
++++++++++++++++++++++++++
+
+alter table investorDetails add available_date datetime;
+alter table investorDetails add available decimal(20,2) default 0.00;
+
+
+++++++++++++++++++++++++++
+*****************************
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+alter table investorDetails add pledgeUsed Boolean default false;
+alter table investorDetails add pledge_date datetime;
+
+Create table percentagesToInvestors (
+    id int auto_increment primary key,
+    development int not null,
+    vatOrSales  varchar(20) not null,
+    dashboardDate datetime not null,
+    percentageTransferred float
+);
+
+insert into percentagesToInvestors (development, vatOrSales, dashboardDate, percentageTransferred) values 
+(1, "Sales", '2021-08-30', 50),
+(1, "Sales", '2021-08-30', 40),
+(1, "VAT", '2021-07-30', 30);
+
+**********************************************
+
+
+update financeInput set vatDate = date_sub(vatDate, interval 1 month)
+
+
+create table VATPlanning (
+    id int auto_increment primary key,
+    development int not null,
+    discipline varchar(250) not null,
+    amount float not null default 0,
+    vatDate dateTime not null,
+    vatPeriod varchar(6)
+);
+
+alter table VATPlanning add processed boolean default false;
+
+ALTER TABLE purchaseOrders ADD FULLTEXT (reference, itemCode, itemDescription);
+
+*****************************************************************************
+
+alter table purchaseOrders add task int default 0 after unitNumber;
+
+*****************************************************************************
+
+CREATE TABLE financeConstructionInput (
+    id int auto_increment primary key,
+    development Int not null,
+    task Int not null default 0,
+    taskType Int not null default 0,
+    unitNumber Int not null default 0,
+    supplier int not null,
+    vatVendor Boolean not null,
+    paymentDate dateTime not null,
+    budgetAmount float default 0,
+    vatDate dateTime,
+    actualAmount float default 0,
+    invoiceNumber varchar(150),
+    invoiceDate datetime,
+    budgetted boolean default true,
+    purchaseOrder int,
+    purchaseOrderNumber varchar(150),
+    purchaseOrderAmount float default 0,
+    purchaseOrderDate dateTime,
+    paymentCertificate int,
+    paymentCertificateNumber varchar(150),
+    paymentCertificateAmount float default 0,
+    paymentCertificateDate dateTime,
+    finalised boolean default false,
+    paid boolean default false
+);
+
+*****************************************************************************
+
+alter table VATPlanning add processed boolean default false;
+
+*****************************************************************************
+
+alter table financeInput add pop varchar(250);
+
+*****************************************************************************
+
+create table pandgNew (
+    id int auto_increment primary key,
+    Processed Boolean default false,
+  Draw varchar(30),
+  OFFICE_BASED_MANAGEMENT float,
+  SITE_BASED_MANAGEMENT float,
+  INSURANCE float,
+  MAINTENANCE_ALLOWANCE float,
+  SITE_STAFF float,
+  SITE_ESTABLISHMENT float,
+  TRAINING float,
+  SITE_SECURITY float,
+  TEMPORARY_FENCING__GATES_ETC float,
+  PHONES_FAX_INTERNET_RADIOS float,
+  TEMPORARY_ELECTRICAL_SERVICES float,
+  TEMPORARY_WATER_SUPPLY float,
+  SETTING_OUT__GENERAL_Assistance float,
+  SITE_SAFETY_AND_SAFETY_EQUIPMENT float,
+  MEDICALS float,
+  COMPUTER_EXPENSES float,
+  PRINTING__STATIONARY_EXPENSES float,
+  MINOR_PLANT_AND_LOOSE_TOOLS float,
+  HOUSEKEEPING_SITE_TIDINESS float,
+  HAND_OVER_CLEANING_ float,
+  PROTECTION_OF_WORKS float,
+  HIRED_PLANT_INTERNAL_incl_weekends float,
+  GENERAL_TRANSPORT float,
+  RUBBLE_MANAGEMENT float,
+  SCAFFOLDING float,
+  MATERIALS_HANDLING float,
+  PETTY_CASH float,
+  effectiveDate dateTime,
+  development Int
+);
+
+create table contingenciesAndEscalationsBudget (
+    id int auto_increment primary key,
+    development int,
+    category varchar(150),
+    amount float
+);
+
+insert into contingenciesAndEscalationsBudget (development, category, amount) values
+(1, 'Contingincies',  806566.64 ),
+(1, 'Escalations',   1613133.27  );
+
+create table contingencies (
+    id int auto_increment primary key,
+    development int,
+    paymentDate datetime,
+    amount float,
+    processed boolean default false,
+    draw int
+);
+
+create table escalations (
+    id int auto_increment primary key,
+    development int,
+    paymentDate datetime,
+    amount float,
+    processed boolean default false,
+    draw int
+);
+
+insert into dashboardCategories (discipline, section, lineNumber) values ('Overs / Unders', 4, 28);
+
+*************************
+
+ALTER TABLE `salesinfo` 
+ADD COLUMN `trustName` VARCHAR(45) NULL;
+
+ALTER TABLE `salesinfo` 
+ADD COLUMN `trustNumber` VARCHAR(45) NULL;
+
+ALTER TABLE `salesinfo` 
+ADD COLUMN `originalBayNo` VARCHAR(45) NULL; 
+
+CREATE TABLE `stocktake` (
+  id int auto_increment primary key,
+  `stockId` int DEFAULT NULL,
+  `itemCode` varchar(45) DEFAULT NULL,
+  `reference` varchar(45) DEFAULT NULL,
+  `qtyOnHand` int DEFAULT NULL,
+  `qtyCounted` int DEFAULT NULL,
+  `countCorrect` int DEFAULT 0,
+  `stockTakeDate` datetime DEFAULT NULL,
+  `supplierId` int DEFAULT NULL,
+  `contactId` varchar(115) DEFAULT NULL,
+  `stocktakecol` varchar(45) DEFAULT NULL,
+  `user` varchar(45) DEFAULT NULL,
+  `userId` int DEFAULT NULL
+); 
+
+CREATE TABLE `stocktranfers` (
+  `transferId` int auto_increment primary key,
+  `supplierName` varchar(45) DEFAULT NULL,
+  `contactID` varchar(45) DEFAULT NULL,
+  `block` varchar(4000) DEFAULT NULL,
+  `unit` varchar(4000) DEFAULT NULL,
+  `stockId` varchar(45) DEFAULT NULL,
+  `qtyTransfered` varchar(45) DEFAULT NULL,
+  `stockImageUrl` varchar(45) DEFAULT NULL,
+  `transferDate` date DEFAULT NULL,
+  `user` varchar(45) DEFAULT NULL,
+  `userId` int DEFAULT NULL
+);
+
+alter table stockItems add requisitioned int;
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+alter table salesinfo add column planType varchar(160);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+insert into taskTypes (taskName) values 
+('Landscaping - Soft'),
+('Landscaping - Hard'),
+('Metalwork'),
+('DSTV / Data'),
+('Electric Fencing'),
+('CCTV System'),
+('Site Signage'),
+('Shadenetting (Vehicle Parking)'),
+('Powerfloating'),
+('Fencing around attenuation dam'),
+('Painting of vibracrete walling'),
+('Yard gate  - supply and fit'),
+('Waterheating'),
+('Metalwork');
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+alter table purchaseOrders add column paid Boolean;
+alter table purchaseOrders add column paidAmount float;
+
+alter table tasks add column payDate datetime;
+alter table tasks add column actualAmount float;
+update tasks set actualAmount = price;
+
+alter table paymentCertificates add column paid Boolean;
+alter table paymentCertificates add column paidAmount float;
+alter table paymentCertificates add column payDate datetime;
+alter table purchaseOrders add column payDate datetime;
+alter table paymentCertificatesDetails add column paid Boolean;
+alter table paymentCertificatesDetails add column paidAmount float;
+alter table paymentCertificatesDetails add column payDate datetime;
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+CREATE TABLE investorDetailsPlanning LIKE investorDetails; 
+INSERT investorDetailsPlanning SELECT * FROM investorDetails;
+
+delete from investorDetails where available > 0;
+delete from investorDetailsPlanning where available = 0;
+
+INSERT INTO investorDetailsPlanning (unit, investor, available)
+SELECT u.id, 'Available' as investor, 0 as available FROM units u 
+WHERE u.development = 1 and u.subsection != 7 and length(u.unitName) <= 4 
+and u.id not IN (SELECT unit FROM investorDetailsPlanning);
+
+update investorDetails set trust_account_interest = trust_account_interest + supplementary_interest, supplementary_interest = 0;
+
+update investorDetailsPlanning set trust_account_interest = trust_account_interest + supplementary_interest, supplementary_interest = 0;
+
+update investorDetailsPlanning set repayment_date = '2022-05-23' where repayment_date is null and available != 0;
+
+alter table salesData add column smartRow varchar(100);
+alter table salesData add column smartColumn varchar(100);
+
+update salesData set smartRow = '1725948637931396', smartColumn = '3634515536045956' where unit = 1; update salesData set smartRow = '6080809387091844', smartColumn = '3634515536045956' where unit = 2; update salesData set smartRow = '1577209759721348', smartColumn = '3634515536045956' where unit = 3; update salesData set smartRow = '7206709293934468', smartColumn = '3634515536045956' where unit = 4; update salesData set smartRow = '2703109666563972', smartColumn = '3634515536045956' where unit = 5; update salesData set smartRow = '4954909480249220', smartColumn = '3634515536045956' where unit = 6; update salesData set smartRow = '451309852878724', smartColumn = '3634515536045956' where unit = 7; update salesData set smartRow = '8614084177487748', smartColumn = '3634515536045956' where unit = 8; update salesData set smartRow = '6060394199574404', smartColumn = '3634515536045956' where unit = 9; update salesData set smartRow = '1556794572203908', smartColumn = '3634515536045956' where unit = 10; update salesData set smartRow = '7186294106417028', smartColumn = '3634515536045956' where unit = 11; update salesData set smartRow = '6362284363802500', smartColumn = '3634515536045956' where unit = 12; update salesData set smartRow = '1858684736432004', smartColumn = '3634515536045956' where unit = 13; update salesData set smartRow = '7488184270645124', smartColumn = '3634515536045956' where unit = 14; update salesData set smartRow = '2984584643274628', smartColumn = '3634515536045956' where unit = 15; update salesData set smartRow = '5236384456959876', smartColumn = '3634515536045956' where unit = 16; update salesData set smartRow = '732784829589380', smartColumn = '3634515536045956' where unit = 17; update salesData set smartRow = '8051134224066436', smartColumn = '3634515536045956' where unit = 18; update salesData set smartRow = '7355448172144516', smartColumn = '3634515536045956' where unit = 19; update salesData set smartRow = '2851848544774020', smartColumn = '3634515536045956' where unit = 20; update salesData set smartRow = '5103648358459268', smartColumn = '3634515536045956' where unit = 21; update salesData set smartRow = '600048731088772', smartColumn = '3634515536045956' where unit = 22; update salesData set smartRow = '7918398125565828', smartColumn = '3634515536045956' where unit = 23; update salesData set smartRow = '3414798498195332', smartColumn = '3634515536045956' where unit = 24; update salesData set smartRow = '5666598311880580', smartColumn = '3634515536045956' where unit = 25; update salesData set smartRow = '800212997564292', smartColumn = '3634515536045956' where unit = 26; update salesData set smartRow = '8118562392041348', smartColumn = '3634515536045956' where unit = 27; update salesData set smartRow = '3614962764670852', smartColumn = '3634515536045956' where unit = 28; update salesData set smartRow = '5866762578356100', smartColumn = '3634515536045956' where unit = 29; update salesData set smartRow = '1363162950985604', smartColumn = '3634515536045956' where unit = 30; update salesData set smartRow = '6992662485198724', smartColumn = '3634515536045956' where unit = 31; update salesData set smartRow = '6346739132327812', smartColumn = '3634515536045956' where unit = 88; update salesData set smartRow = '1843139504957316', smartColumn = '3634515536045956' where unit = 89; update salesData set smartRow = '7472639039170436', smartColumn = '3634515536045956' where unit = 32; update salesData set smartRow = '2969039411799940', smartColumn = '3634515536045956' where unit = 33; update salesData set smartRow = '5220839225485188', smartColumn = '3634515536045956' where unit = 34; update salesData set smartRow = '717239598114692', smartColumn = '3634515536045956' where unit = 35; update salesData set smartRow = '3698560008120196', smartColumn = '3634515536045956' where unit = 36; update salesData set smartRow = '5950359821805444', smartColumn = '3634515536045956' where unit = 37; update salesData set smartRow = '1446760194434948', smartColumn = '3634515536045956' where unit = 38; update salesData set smartRow = '7076259728648068', smartColumn = '3634515536045956' where unit = 39; update salesData set smartRow = '2572660101277572', smartColumn = '3634515536045956' where unit = 40; update salesData set smartRow = '4824459914962820', smartColumn = '3634515536045956' where unit = 41; update salesData set smartRow = '320860287592324', smartColumn = '3634515536045956' where unit = 42; update salesData set smartRow = '8483634612201348', smartColumn = '3634515536045956' where unit = 43; update salesData set smartRow = '3980034984830852', smartColumn = '3634515536045956' where unit = 44; update salesData set smartRow = '117817856157572', smartColumn = '3634515536045956' where unit = 45; update salesData set smartRow = '8913910878365572', smartColumn = '3634515536045956' where unit = 46; update salesData set smartRow = '4410311250995076', smartColumn = '3634515536045956' where unit = 47; update salesData set smartRow = '6662111064680324', smartColumn = '3634515536045956' where unit = 48; update salesData set smartRow = '2158511437309828', smartColumn = '3634515536045956' where unit = 49; update salesData set smartRow = '7788010971522948', smartColumn = '3634515536045956' where unit = 50; update salesData set smartRow = '3284411344152452', smartColumn = '3634515536045956' where unit = 51; update salesData set smartRow = '5536211157837700', smartColumn = '3634515536045956' where unit = 52; update salesData set smartRow = '1032611530467204', smartColumn = '3634515536045956' where unit = 53; update salesData set smartRow = '8948213976852356', smartColumn = '3634515536045956' where unit = 54; update salesData set smartRow = '4444614349481860', smartColumn = '3634515536045956' where unit = 55; update salesData set smartRow = '6696414163167108', smartColumn = '3634515536045956' where unit = 56; update salesData set smartRow = '2192814535796612', smartColumn = '3634515536045956' where unit = 57; update salesData set smartRow = '7822314070009732', smartColumn = '3634515536045956' where unit = 58; update salesData set smartRow = '3318714442639236', smartColumn = '3634515536045956' where unit = 59;
+
+-- ALTER TABLE salesData DROP COLUMN smartRow;
+-- ALTER TABLE salesData DROP COLUMN smartColumn;
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+ALTER TABLE investorDetailsPlanning ALTER interest_rate SET DEFAULT 0;
+ALTER TABLE investorDetailsPlanning ALTER trust_account_interest SET DEFAULT 0;
+ALTER TABLE investorDetailsPlanning ALTER supplementary_interest SET DEFAULT 0;
+
+
+
 

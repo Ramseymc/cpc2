@@ -1,8 +1,14 @@
+<!-- 
+          TYPE: Component
+          NAME: ClientUpdate
+       PURPOSE: Dialog form to maintain(update) a client sales 
+          DATE: July 2021
+          AUTH: Connor McLean, Wayne Bruton
+ -->
 <template>
   <v-container>
     <div class="about">
-      <br />
-      <br />
+      <br /><br /><br />
       <v-row justify="center">
         <v-dialog v-model="dialog" persistent max-width="900px">
           <v-card>
@@ -12,30 +18,130 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" sm="6" md="6">
+                  <v-col cols="12" sm="4" md="4" offset="1" row>
+                    <v-radio-group
+                      v-model="editData[0].salePerson"
+                      @change="naturalTrust"
+                    >
+                      <v-radio
+                        label="Individual"
+                        color="black"
+                        value="person"
+                      ></v-radio>
+                      <v-radio
+                        label="Company / Trust"
+                        color="red darken-3"
+                        value="Legal"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <v-col cols="12" sm="4" md="4" offset="1">
+                    <!-- {{ editData[0].saleBuyers}} -->
+                    <v-radio-group
+                      v-model="editData[0].saleBuyers"
+                      row
+                      v-if="editData[0].salePerson === 'person'"
+                    >
+                      <v-radio
+                        label="1 Person"
+                        color="black"
+                        :value="1"
+                      ></v-radio>
+                      <v-radio
+                        label="2 People"
+                        color="red darken-3"
+                        :value="2"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <v-col cols="12">
+                    <hr color="red" />
+                  </v-col>
+                  <!-- <div style="width: 100%;"> -->
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                    v-if="editData[0].salePerson === 'Legal'"
+                    style="background-color: lightgrey"
+                  >
+                    <v-text-field
+                      label="Trust / Company name*"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                    v-if="editData[0].salePerson === 'Legal'"
+                    style="background-color: lightgrey"
+                  >
+                    <v-text-field
+                      label="Trust / Company Number"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                    style="background-color: lightgrey"
+                  >
+                    <v-radio-group
+                      v-model="editData[0].marital"
+                      row
+                      v-if="editData[0].salePerson === 'person'"
+                    >
+                      <v-radio
+                        label="Not married"
+                        color="black"
+                        value="Not married"
+                      ></v-radio>
+                      <v-radio
+                        label="Married - ANC"
+                        color="red darken-3"
+                        value="Married - ANC"
+                      ></v-radio>
+                      <v-radio
+                        label="Married - COP"
+                        color="red darken-3"
+                        value="Married - COP"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                    style="background-color: lightgrey"
+                  >
                     <v-text-field
                       v-model="editData[0].firstname"
-                      label="First name*"
+                      :label="firstNameLabel"
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="6">
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                    style="background-color: lightgrey"
+                  >
                     <v-text-field
                       v-model="editData[0].lastname"
-                      label="Last name*"
+                      :label="lastNameLabel"
                       required
                     ></v-text-field>
                   </v-col>
-
-                  <v-col cols="12" sm="6" md="6">
+                  <v-col cols="6" style="background-color: lightgrey">
                     <v-text-field
                       v-model="editData[0].iDNumber"
                       label="ID Number*"
                       required
                     ></v-text-field>
                   </v-col>
-
-                  <v-col cols="12" sm="6" md="6">
+                  <v-col cols="6" style="background-color: lightgrey">
                     <v-text-field
                       v-model="editData[0].email"
                       label="Email*"
@@ -43,30 +149,33 @@
                     ></v-text-field>
                   </v-col>
 
-                  <v-col cols="6">
-                    <span>Mobile</span>
+                  <v-col cols="6" style="background-color: lightgrey">
+                    <span>Mobile - Required</span>
                     <VuePhoneNumberInput
+                      id="phoneNumber1"
+                      v-model="editData[0].mobile"
                       ref="mobile"
                       clearable
-                      v-model="mobile.phoneNumber"
                       default-country-code="ZA"
                       show-code-on-list
                       :only-countries="['ZA']"
+                      @update="mobileStuff"
                     />
                   </v-col>
-                  <v-col cols="6">
+                  <v-col cols="6" style="background-color: lightgrey">
                     <span>Landline</span>
                     <VuePhoneNumberInput
+                      id="phoneNumber2"
+                      v-model="editData[0].landline"
                       ref="landline"
                       clearable
-                      v-model="landline.phoneNumber"
                       default-country-code="ZA"
                       show-code-on-list
                       :only-countries="['ZA']"
+                      @update="mobileStuff"
                     />
                   </v-col>
-                  <v-col cols="6">
-                    <!-- v-model="postaladdress" -->
+                  <v-col cols="6" style="background-color: lightgrey">
                     <v-textarea
                       v-model="editData[0].postalAddress"
                       label="Postal Address"
@@ -75,7 +184,7 @@
                       rows="4"
                     ></v-textarea>
                   </v-col>
-                  <v-col cols="6">
+                  <v-col cols="6" style="background-color: lightgrey">
                     <v-textarea
                       v-model="editData[0].residentialAddress"
                       label="Residential Address"
@@ -84,24 +193,583 @@
                       rows="4"
                     ></v-textarea>
                   </v-col>
-                  <v-col cols="4" sm="4">
-                    <strong><b>Mood</b></strong>
-                    <v-radio-group v-model="editData[0].mood">
+
+                  <!-- </div> -->
+                  <v-col
+                    cols="12"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                  >
+                    <hr color="red" />
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <span
+                      v-if="
+                        editData[0].salePerson === 'person' &&
+                          editData[0].saleBuyers === '2'
+                      "
+                      ><strong>2nd Purchaser</strong></span
+                    >
+                    <span v-else-if="editData[0].salePerson === 'Legal'"
+                      ><strong>Trustee / Director</strong></span
+                    >
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                    style="background-color: lightblue"
+                    v-if="
+                      editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2'
+                    "
+                  >
+                    <v-radio-group
+                      v-model="editData[0].personTwoMarital"
+                      row
+                      v-if="
+                        editData[0].salePerson === 'person' &&
+                          editData[0].saleBuyers === '2'
+                      "
+                    >
                       <v-radio
-                        label="Mood 1"
+                        label="Not married"
                         color="black"
-                        value="Mood 1"
+                        value="Not married"
                       ></v-radio>
                       <v-radio
-                        label="Mood 2"
+                        label="Married - ANC"
                         color="red darken-3"
-                        value="Mood 2"
+                        value="Married - ANC"
+                      ></v-radio>
+                      <v-radio
+                        label="Married - COP"
+                        color="red darken-3"
+                        value="Married - COP"
                       ></v-radio>
                     </v-radio-group>
                   </v-col>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <v-text-field
+                      v-model="editData[0].personTwofirstName"
+                      :label="this.twoPersonFirstNameLabel"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <v-text-field
+                      v-model="editData[0].personTwoLastName"
+                      :label="this.twoPersonLastNameLabel"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <v-text-field
+                      v-model="editData[0].personTwoIDNumber"
+                      label="ID Number*"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <v-text-field
+                      v-model="editData[0].personTwoEmail"
+                      label="Email*"
+                      required
+                    ></v-text-field>
+                  </v-col>
 
-                  <!-- Flooring -->
-                  <v-col cols="4" sm="4">
+                  <v-col
+                    cols="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <span>Mobile - Required</span>
+                    <VuePhoneNumberInput
+                      id="phoneNumber1"
+                      v-model="editData[0].personTwoMobile"
+                      ref="mobile"
+                      clearable
+                      default-country-code="ZA"
+                      show-code-on-list
+                      :only-countries="['ZA']"
+                      @update="mobileStuff"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <span>Landline</span>
+                    <VuePhoneNumberInput
+                      id="phoneNumber2"
+                      v-model="editData[0].personTwoLandline"
+                      ref="landline"
+                      clearable
+                      default-country-code="ZA"
+                      show-code-on-list
+                      :only-countries="['ZA']"
+                      @update="mobileStuff"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <v-textarea
+                      v-model="editData[0].personTwoPostalAddress"
+                      label="Postal Address"
+                      required
+                      placeholder="Postal Address"
+                      rows="4"
+                    ></v-textarea>
+                  </v-col>
+                  <v-col
+                    cols="6"
+                    v-if="
+                      (editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2') ||
+                        editData[0].salePerson === 'Legal'
+                    "
+                    style="background-color: lightblue"
+                  >
+                    <v-textarea
+                      v-model="editData[0].personTwoResidentialAddress"
+                      label="Residential Address"
+                      required
+                      placeholder="Residential Address"
+                      rows="4"
+                    ></v-textarea>
+                  </v-col>
+
+                  <v-col cols="12">
+                    <hr color="red" />
+                  </v-col>
+
+                  <!-- First row with the Bond/cash switch and the deposit amount and date  -->
+                  <v-col
+                    cols="5"
+                    sm="5"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <v-radio-group v-model="editData[0].saleType" row>
+                      <v-radio
+                        label="Bonded"
+                        color="black"
+                        value="Bonded"
+                      ></v-radio>
+                      <v-radio
+                        label="Cash"
+                        color="green darken-3"
+                        value="Cash"
+                      ></v-radio>
+                    </v-radio-group>
+                    <!-- <v-switch
+                      v-model="editData[0].cashDeal"
+                    
+                      :label="editData[0].cashDeal ? 'Cash Deal' : 'Bonded'"
+                    ></v-switch> -->
+                  </v-col>
+                  <v-col
+                    cols="7"
+                    sm="7"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Floorplan</b></strong>
+                    <v-radio-group v-model="editData[0].floorplan" row>
+                      <v-radio
+                        v-for="plan in plans"
+                        :key="plan"
+                        :label="plan"
+                        color="black"
+                        :value="plan"
+                        @click="changePriceIfEnclosed"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <!-- end row 1 -->
+                  <!-- Base Price -->
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Base Price</b></strong>
+                    <v-text-field
+                      v-model="basePriceStr"
+                      label="Base Price"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Deposit</b></strong>
+                    <v-text-field
+                      v-model="editData[0].deposit"
+                      type="number"
+                      min="0"
+                      label="Deposit"
+                      @input="setBalanceRemaining"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Deposit Date Paid</b></strong>
+                    <v-text-field
+                      v-model="this.depositDate"
+                      type="text"
+                      label="Deposit Date"
+                    ></v-text-field>
+                  </v-col>
+                  <!-- end row -->
+
+                  <!-- parking, extras, and contract_price-->
+
+                  <v-col
+                    cols="2"
+                    sm="2"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <v-text-field
+                      v-model="editData[0].parkingNumber"
+                      type="number"
+                      min="0"
+                      max="4"
+                      label="Extra Parking Bays"
+                      required
+                      @input="changePricing"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="2"
+                    sm="2"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <v-text-field
+                      v-model="parkingPriceStr"
+                      label="Extra Parking Cost"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="2"
+                    sm="2"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Stove Option:</b></strong>
+                    <v-radio-group v-model="editData[0].gasStove">
+                      <v-radio
+                        label="Standard"
+                        color="black"
+                        value="0"
+                        @click="changePriceIfGas"
+                      ></v-radio>
+                      <v-radio
+                        label="Gas"
+                        color="orange darken-3"
+                        value="1"
+                        @click="changePriceIfGas"
+                      ></v-radio>
+                    </v-radio-group>
+                    <!-- <v-switch
+                      v-model="gasStove"
+                      @change="changePriceIfGas"
+                      :label="gasStove ? 'Gas Stove' : 'Standard Stove'"
+                    ></v-switch> -->
+                  </v-col>
+
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <v-text-field
+                      v-model="gasStoveStr"
+                      label="Stove Cost"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <v-text-field
+                      v-model="extrasStr"
+                      label="Total Extras Cost"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  ></v-col>
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  ></v-col>
+
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <label>
+                      <b> Balance Remaining </b>
+                    </label>
+
+                    <v-text-field
+                      v-model="balanceRemStr"
+                      type="text"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <label><b> Contract Price </b> </label>
+                    <v-text-field
+                      v-model="contractPriceStr"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <!-- end row 3  -->
+                  <v-col
+                    cols="3"
+                    sm="3"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Additional Extras Cost</b></strong>
+                    <v-text-field
+                      v-model="editData[0].additionalExtrasCost"
+                      type="number"
+                      min="0"
+                      label="Cost"
+                      @change="addAdditionalExtras"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="9"
+                    sm="9"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Notes</b></strong>
+                    <v-textarea
+                      label="Notes"
+                      rows="1"
+                      v-model="editData[0].notes"
+                    ></v-textarea>
+                  </v-col>
+                  <!-- row of addextras and notes -->
+
+                  <!-- Standard Extras -->
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Garden Number:</b></strong>
+                    <v-text-field
+                      v-model="editData[0].gardenNumber"
+                      type="text"
+                      label="Garden Number"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Garden Size:</b></strong>
+                    <v-text-field
+                      v-model="editData[0].gardenSize"
+                      type="number"
+                      min="0"
+                      max="4"
+                      label="Garden Size"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Parking Bay No:</b></strong>
+                    <v-text-field
+                      label="Bay Number"
+                      v-model="editData[0].bayNo"
+                    >
+                    </v-text-field>
+                  </v-col>
+                  <!--  Gas stove-->
+
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong
+                      ><b
+                        ><p style="font-size: 18px">
+                          Beds: {{ editData[0].beds }}
+                        </p>
+                      </b></strong
+                    >
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong
+                      ><b>
+                        <p style="font-size: 18px">
+                          Bath: {{ editData[0].bath }}
+                        </p>
+                      </b></strong
+                    >
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong
+                      ><b>
+                        <p style="font-size: 18px">
+                          Enclosed Balcony: {{ editData[0].enclosedBalcony }}
+                        </p>
+                      </b></strong
+                    >
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Spare Room:</b></strong>
+                    <v-radio-group v-model="editData[0].spareRoom">
+                      <v-radio
+                        label="Bathroom"
+                        color="black"
+                        value="bathroom"
+                      ></v-radio>
+                      <v-radio
+                        label="Study"
+                        color="orange darken-3"
+                        value="study"
+                      >
+                      </v-radio>
+                    </v-radio-group>
+                    <!-- <v-switch
+                      v-model="gasStove"
+                      @change="changePriceIfGas"
+                      :label="gasStove ? 'Gas Stove' : 'Standard Stove'"
+                    ></v-switch> -->
+                  </v-col>
+
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Mood</b></strong>
+                    <v-radio-group v-model="editData[0].mood">
+                      <v-radio
+                        label="Allure"
+                        color="black"
+                        value="Mood1"
+                      ></v-radio>
+                      <v-radio
+                        label="Serene"
+                        color="red darken-3"
+                        value="Mood2"
+                      ></v-radio>
+                    </v-radio-group>
+                    <small>*indicates required field</small>
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
                     <strong><b>Flooring</b></strong>
                     <v-radio-group v-model="editData[0].flooring">
                       <v-radio
@@ -111,63 +779,34 @@
                       ></v-radio>
                       <v-radio
                         label="Laminate"
-                        color="brown"
+                        color="red darken-3"
                         value="Laminate"
                       ></v-radio>
                     </v-radio-group>
                   </v-col>
-                  <v-col cols="4" sm="4">
-                    <strong><b>Floorplan</b></strong>
 
-                    <v-radio-group v-model="editData[0].floorplan" row>
-                      <v-radio
-                        label="Plan A"
-                        color="black"
-                        value="Plan A"
-                      ></v-radio>
-                      <v-radio
-                        label="Plan B"
-                        color="brown"
-                        value="Plan B"
-                      ></v-radio>
-                      <v-radio
-                        label="Plan C"
-                        color="brown"
-                        value="Plan C"
-                      ></v-radio>
-                      <v-radio
-                        label="Plan D"
-                        color="brown"
-                        value="Plan D"
-                      ></v-radio>
-                      <v-radio
-                        label="Plan E"
-                        color="brown"
-                        value="Plan E"
-                      ></v-radio>
-                      <v-radio
-                        label="Plan F"
-                        color="brown"
-                        value="Plan F"
-                      ></v-radio>
-                      <v-radio
-                        label="Plan G"
-                        color="brown"
-                        value="Plan G"
-                      ></v-radio>
-                    </v-radio-group>
+                  <!-- End of financial section -->
+
+                  <v-col cols="12">
+                    <hr color="red" />
                   </v-col>
+                  <label v-if="editData[0].salePerson === 'person'">
+                    <pre> File Uploads  </pre>
+                  </label>
 
-                  <!-- File Uploads  -->
+                  <label v-if="editData[0].salePerson === 'Legal'">
+                    Trust / Company Uploads
+                  </label>
 
-                  <!-- All files received -->
-                  <v-col cols="12" sm="12">
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].fileOTP.length ||
+                        editData[0].fileOTP === 'undefined'
+                    "
+                  >
                     <v-file-input
-                      v-if="
-                        editData[0].fileOTP === null ||
-                          editData[0].fileOTP === '' ||
-                          editData[0].fileOTP === 'undefined'
-                      "
                       v-model="fileOTP"
                       label="OTP"
                       accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
@@ -177,68 +816,232 @@
                     ></v-file-input>
                   </v-col>
 
-                  <v-col cols="12" sm="12">
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].fileId.length ||
+                        editData[0].fileId === 'undefined'
+                    "
+                  >
                     <v-file-input
-                      v-if="
-                        editData[0].fileId === null ||
-                          editData[0].fileId === '' ||
-                          editData[0].fileId === 'undefined'
-                      "
                       v-model="fileId"
-                      label="ID/Passport"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      label="Upload ID/Passport Photo"
                       filled
-                      hint="ID/Passport Photo"
+                      hint="Upload ID/Passport Photo"
                       persistent-hint
                     ></v-file-input>
                   </v-col>
-                  <v-col cols="12" sm="12">
+
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].fileFica.length ||
+                        editData[0].fileFica === 'undefined'
+                    "
+                  >
                     <v-file-input
-                      v-if="
-                        editData[0].fileFica === null ||
-                          editData[0].fileFica === '' ||
-                          editData[0].fileFica === 'undefined'
-                      "
                       v-model="fileFica"
-                      label="Proof of Address"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      label="Proof of address documentation"
                       filled
                       multiple
-                      hint="Proof of Address"
+                      hint="Proof of address documentation"
                       persistent-hint
                     ></v-file-input>
                   </v-col>
 
-                  <v-col cols="12" sm="12">
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].fileDepositPop.length ||
+                        editData[0].fileDepositPop === 'undefined'
+                    "
+                  >
                     <v-file-input
-                      v-if="
-                        editData[0].fileBank === null ||
-                          editData[0].fileBank === '' ||
-                          editData[0].fileBank === 'undefined'
-                      "
+                      v-model="fileDepositPop"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      label="Upload Deposit POP"
+                      filled
+                      multiple
+                      hint="Upload Deposit POP"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].fileBank.length ||
+                        editData[0].fileBank === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-if="editData[0].salePerson !== 'Legal'"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
                       v-model="fileBank"
-                      label="Bank Statement"
+                      label="Upload Bank Statements"
                       filled
-                      hint="Bank Statement"
+                      hint="Upload Bank Statements"
                       persistent-hint
                     ></v-file-input>
                   </v-col>
 
-                  <v-col cols="12" sm="12">
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].filePaySlip.length ||
+                        editData[0].filePaySlip === 'undefined'
+                    "
+                  >
                     <v-file-input
-                      v-if="
-                        editData[0].filePaySlip === null ||
-                          editData[0].filePaySlip === '' ||
-                          editData[0].filePaySlip === 'undefined'
-                      "
+                      v-if="editData[0].salePerson !== 'Legal'"
                       v-model="filePaySlip"
-                      label="Payslip"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      label="Upload latest 3 months payslips"
                       filled
                       multiple
-                      hint="Up to 3 payslip pref"
+                      hint="Upload latest 3 months payslips"
                       persistent-hint
                     ></v-file-input>
+                  </v-col>
+
+                  <v-col cols="12">
+                    <hr color="red" />
+                  </v-col>
+                  <label
+                    v-if="
+                      editData[0].salePerson === 'person' &&
+                        editData[0].saleBuyers === '2'
+                    "
+                  >
+                    Person 2 File Uploads
+                  </label>
+
+                  <label v-if="editData[0].salePerson === 'Legal'">
+                    Trustee Uploads
+                  </label>
+                  <!-- <v-col cols="12" sm="12" 
+                  v-if="(person === 'person' && buyers === '2') ||
+                        person === 'Legal'
+                    ">
+                    <v-file-input
+                      v-model="editData[0].personTwoFileID"
+                      label="OTP"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      hint="OTP"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col> -->
+
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFileID.length ||
+                        editData[0].personTwoFileID === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFileID"
+                      label="Upload ID/Passport Photo"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      hint="Upload ID/Passport Photo"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFileFica.length ||
+                        editData[0].personTwoFileFica === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFileFica"
+                      label="Proof of address documentation"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      multiple
+                      hint="Proof of address documentation"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFileBank.length ||
+                        editData[0].personTwoFileBank === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFileBank"
+                      label="Upload Bank Statements"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      hint="Upload Bank Statements"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-if="
+                      !editData[0].personTwoFilePaySlip.length ||
+                        editData[0].personTwoFilePaySlip === 'undefined'
+                    "
+                  >
+                    <v-file-input
+                      v-model="personTwoFilePaySlip"
+                      label="Upload latest 3 months payslips"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      filled
+                      multiple
+                      hint="Upload latest 3 months payslips"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+
+                  <v-col cols="6" style="background-color: lightsalmon">
+                    <v-text-field
+                      v-model="editData[0].salesAgent"
+                      label="Sales Agent"
+                      required
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6" style="background-color: lightsalmon">
+                    <span>Mobile</span>
+                    <VuePhoneNumberInput
+                      id="phoneNumber3"
+                      v-model="editData[0].salesAgentPhone"
+                      ref="mobile"
+                      clearable
+                      default-country-code="ZA"
+                      show-code-on-list
+                      :only-countries="['ZA']"
+                    />
                   </v-col>
                 </v-row>
               </v-container>
+              <!-- <p>
+                These documents pertain to persons applying in their personal
+                capacity.
+              </p>
+              <p>
+                Purchases being made in the name of a company / trust or any
+                other legal person may require additional information and
+                uploads. The Bond Originator will decide thereon.
+              </p> -->
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -276,92 +1079,335 @@
 
 <script>
 import axios from "axios";
-let url = process.env.VUE_APP_BASEURL;
 import VuePhoneNumberInput from "vue-phone-number-input";
+let url = process.env.VUE_APP_BASEURL;
 import "vue-phone-number-input/dist/vue-phone-number-input.css";
 export default {
   name: "salesstart",
   components: {
     VuePhoneNumberInput
   },
-
   props: {
     dialog: Boolean,
-    editData: Array
+    editData: Array,
+    unitId: Number
   },
 
   data() {
     return {
       snackbar: false,
-      snackBarmessage: "Successfully Posted!!",
-      url: "",
+      snackBarmessage: "Successfully Updated!!",
+
+      //url: "",
       fileOTP: null,
       fileId: null,
       fileBank: null,
       filePaySlip: null,
       fileFica: null,
-      floorplan: "Plan A",
-      mobile: {
-        countryCode: "ZA",
-        isValid: false,
-        phoneNumber: ""
-      },
-      landline: {
-        countryCode: "ZA",
-        isValid: false,
-        phoneNumber: ""
-      }
+      fileDepositPop: null,
+
+      // fileOTP: null,
+      personTwoFileID: null,
+      personTwoFileBank: null,
+      personTwoFilePaySlip: null,
+      personTwoFileFica: null,
+      // fileDepositPop: null,
+
+      firstNameLabel: "First Name*",
+      lastNameLabel: "Last Name*",
+      twoPersonFirstNameLabel: "2nd Person First Name",
+      twoPersonLastNameLabel: "2nd Person Last Name",
+      //person: "",
+      //buyers: 0,
+      plans: [],
+      floorPlans: [],
+      floorplancost: 0,
+
+      bayNo: "",
+      spareRoom: "",
+
+      BondAmountRequired: "Bond Amount Required",
+      BalanceRemaining: "Balance Remaining",
+
+      additionalExtras: "",
+      additionalExtrasCost: 0,
+      enclosedBalcony: 0,
+
+      gasStove: 0,
+      gasStoveCost: 0,
+      gasStoveStr: "",
+      cashDeal: false,
+
+      gardenSize: "",
+      gardenNumber: "",
+      beds: "",
+      bath: "",
+      balanceRem: "",
+      deposit: "",
+      depositStr: "",
+      depositDate: "",
+
+      Balance: "",
+
+      saleType: "",
+
+      contractPrice: 0,
+      contractPriceStr: "",
+      basePrice: 0,
+      basePriceStr: "",
+      parkingNumber: 0,
+      parking: 0,
+      parkingPrice: 25000,
+      parkingPriceStr: "",
+      extras: 0,
+      extrasStr: "",
+      deductions: 0,
+      deductionsStr: ""
       // tiles: "Tiles",
       // mood: "Mood 1"
       // finalEditData: {}
     };
   },
+
   beforeMount() {
     //console.log("BEFORE MOUNTED");
     //  this.finalEditData = this.editData[0]
+
+    console.log("wayne", this.editData);
     this.editData.forEach(el => {
+      console.log(el.saleBuyers);
+      el.saleBuyers = parseInt(el.saleBuyers);
+      el.gasStove = parseInt(el.gasStove);
       el.id = el.id.toString();
       if (el.flooring === "") {
         el.flooring = "Tiles";
       }
       if (el.mood === "") {
-        el.mood = "Mood 1";
+        el.mood = "Mood1";
       }
     });
-    //console.log(this.editData)
-  },
 
-  mounted() {
-    this.mobile.phoneNumber = this.editData[0].mobile;
-    this.landline.phoneNumber = this.editData[0].landline;
-    // this.url = this.$store.state.url;
-    //console.log("ClientUpdate Mounted EditData= ", this.editData);
+    console.log("Before Mount in ClientUpdate", this.editData);
+    console.log("salesBuyers", this.editData[0].saleBuyers);
+    console.log("salesPerson", this.editData[0].salePerson);
+    // console.log("this.buyers", this.buyers);
+    //console.log("this.person", this.person);
+
+    // this.buyers = this.editData[0].saleBuyers;
+    // this.person = this.editData[0].salePerson;
+    this.plans = this.editData[0].unit_type.split(",");
+    this.parkingPriceStr = this.convertToString(
+      parseFloat(this.editData[0].parking)
+    );
+    console.log(
+      "parseFloat(this.editData[0].parking)",
+      parseFloat(this.editData[0].parking)
+    );
+
+    if (parseFloat(this.editData[0].parking) > 0) {
+      this.editData[0].parkingNumber =
+        parseFloat(this.editData[0].parking) / this.parkingPrice;
+    }
+    this.extrasStr = this.convertToString(parseFloat(this.editData[0].extras));
+    this.contractPrice = parseFloat(this.editData[0].contract_price);
+    this.contractPriceStr = this.convertToString(
+      parseFloat(this.contractPrice)
+    );
+    if (parseInt(this.editData[0].gasStove) === 1) {
+      this.gasStoveCost = 12000;
+    } else {
+      this.gasStoveCost = 0;
+    }
+    this.gasStoveStr = this.convertToString(this.gasStoveCost);
+    this.finaliseCosts();
+
+    this.balanceRemStr = this.convertToString(this.editData[0].balanceRem);
+    this.depositStr = this.convertToString(this.editData[0].deposit);
+    this.basePriceStr = this.convertToString(this.editData[0].base_price);
+    this.depositDate = this.editData[0].depositDate.split(" ")[0];
+    //d = d.split(' ')[0];
   },
 
   methods: {
     closeClientInfo() {
       this.$emit("closeForm", false);
     },
+    convertToString(factor) {
+      //CONVERTS NUMBERS TO STRING WTH "R"
+      if (typeof factor === "string" || factor instanceof String) {
+        factor = parseFloat(factor);
+      }
+      let str = factor
+        .toFixed(2)
+        .toString()
+        .split("")
+        .reverse();
+      if (str.length > 9) {
+        str.splice(9, 0, " ");
+      }
+      if (str.length > 6) {
+        str.splice(6, 0, " ");
+      }
+      str.reverse().unshift("R");
+      str = str.join("");
+      return str;
+    },
+    setBalanceRemaining() {
+      console.log(
+        "Less the deposit from the contract price and set the balance remaining"
+      );
+      console.log("this.contractPrice = ", this.contractPrice);
+      console.log("this.balanceRem = ", this.balanceRem);
+      console.log("this.balanceRemStr = ", this.balanceRemStr);
+      console.log("this.editData[0].deposit = ", this.editData[0].deposit);
+      this.balanceRem =
+        parseFloat(this.contractPrice) - parseFloat(this.editData[0].deposit);
+      this.balanceRemStr = this.convertToString(this.balanceRem);
+    },
+    addAdditionalExtras() {
+      console.log(this.editData[0].additionalExtrasCost);
+      this.finaliseCosts();
+    },
+    // setDepositString() {
+    //   this.depositStr = this.convertToString(this.editData[0].deposit);
+    //   this.editData[0].deposit = this.depositStr;
+    // },
+    changePriceIfEnclosed() {
+      console.log(this.editData[0].floorplan);
+      let chosenFloorplan = this.editData[0].floorPlans.filter(el => {
+        return this.floorplan === el.plan;
+      });
+      console.log(chosenFloorplan[0]);
+      this.floorplancost = chosenFloorplan[0].enclosedValue;
+      this.enclosedBalcony = chosenFloorplan[0].enclosedBalcony;
+      this.finaliseCosts();
+    },
+    changePriceIfGas() {
+      console.log("XXXXX", this.editData[0].gasStove);
+      if (parseInt(this.editData[0].gasStove) === 1) {
+        this.gasStoveCost = 12000;
+      } else {
+        this.gasStoveCost = 0;
+      }
+      this.gasStoveStr = this.convertToString(this.gasStoveCost);
 
+      this.finaliseCosts();
+    },
+    finaliseCosts() {
+      this.editData[0].extras =
+        parseFloat(this.floorplancost) +
+        parseFloat(this.gasStoveCost) +
+        parseFloat(this.editData[0].parking);
+
+      this.extrasStr = this.convertToString(this.editData[0].extras);
+      this.contractPrice =
+        parseFloat(this.editData[0].base_price) +
+        //parseFloat(this.editData[0].parking) +
+        parseFloat(this.editData[0].extras) +
+        parseFloat(this.editData[0].additionalExtrasCost) -
+        parseFloat(this.editData[0].deductions);
+
+      console.log("&&&&&&");
+      console.log(this.editData[0].base_price);
+      console.log(this.editData[0].parking);
+      console.log(this.editData[0].extras);
+      console.log(this.editData[0].additionalExtrasCost);
+      console.log(this.editData[0].deductions);
+      console.log("ContractPrice to convert", this.contractPrice);
+
+      this.contractPriceStr = this.convertToString(this.contractPrice);
+
+      // if (this.editData[0].balanceRem === 0 && this.editData[0].deposit === 0) {
+      //   this.editData[0].balanceRem = this.editData[0].contract_price
+      // }
+      //this.editData[0].deposit
+      // if (this.editData[0].saleType === 'Cash') {
+      //   this.editData[0].balanceRem = (this.contractPrice - this.editData[0].deposit)
+      //   this.balanceRemStr = this.convertToString(this.editData[0].balanceRem)
+      // }
+      // maybe subtract the deposit here on a cash deal , first get RNan to dissapear
+      // this.contractPriceStr = this.convertToString(
+      //   this.contractPrice
+      // );
+    },
+    changePricing() {
+      this.editData[0].parking =
+        parseFloat(this.editData[0].parkingNumber) *
+        parseFloat(this.parkingPrice);
+
+      this.editData[0].deductionsStr = this.convertToString(this.deductions);
+      // this.basePriceStr = this.convertToString(this.basePrice)
+      this.parkingPriceStr = this.convertToString(
+        parseFloat(this.editData[0].parkingNumber) *
+          parseFloat(this.parkingPrice)
+      );
+      // this.editData[0].extrasStr = this.convertToString(this.extras);
+      // // console.log(this.basePrice + this.parking + this.extras - this.deductions)
+      // this.editData[0].contractPrice =
+      //   parseFloat(this.basePrice) + parseFloat(this.parking) + parseFloat(this.extras) - parseFloat(this.deductions);
+
+      this.finaliseCosts();
+    },
+    naturalTrust() {
+      console.log("AWESOME", this.planType);
+      if (this.editData[0].salePerson === "Legal") {
+        this.firstNameLabel = "Director / Trustee First Name*";
+        this.twoPersonFirstNameLabel = "2nd Director / Trustee First Name*";
+        this.lastNameLabel = "Director / Trustee Last Name*";
+        this.twoPersonLastNameLabel = "2nd Director / Trustee Last Name*";
+      } else {
+        this.firstNameLabel = "First Name*";
+        this.lastNameLabel = "Last Name*";
+      }
+      this.editData[0].saleBuyers = "1";
+    },
+    mobileStuff(event) {
+      // this.mobileResults = event;
+      console.log("landline", event);
+      console.log("mobile", event);
+    },
     async updateClientData() {
       // get the form fields data to pass to salesRoutes /updateClient
       let files = [];
       let contains = [];
-      if (this.fileOPT !== null) {
+      if (this.fileOTP !== null) {
         contains.push("fileOTP");
-        files.push(this.fileOPT); // append mimetype here?
+        files.push(this.fileOTP); // append mimetype here?
       }
       if (this.fileId !== null) {
         contains.push("fileId");
         files.push(this.fileId);
       }
+      if (this.personTwoFileID !== null) {
+        contains.push("personTwoFileID");
+        files.push(this.personTwoFileID);
+      }
+
       if (this.fileBank !== null) {
         contains.push("fileBank");
         files.push(this.fileBank);
       }
+      if (this.personTwoFileBank !== null) {
+        contains.push("personTwoFileBank");
+        files.push(this.personTwoFileBank);
+      }
+
+      if (this.fileDepositPop !== null) {
+        contains.push("fileDepositPop");
+        files.push(this.fileDepositPop);
+      }
+
       if (this.filePaySlip) {
         this.filePaySlip.forEach(el => {
           contains.push("filePaySlip");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+      if (this.personTwoFilePayslip) {
+        this.personTwoFilePayslip.forEach(el => {
+          contains.push("personTwoFilePaySlip");
           files.push(el);
         });
       } else {
@@ -376,8 +1422,15 @@ export default {
       } else {
         console.log("No File");
       }
+      if (this.personTwoFileFica) {
+        this.personTwoFileFica.forEach(el => {
+          contains.push("personTwoFileFica");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
 
-      // the file should be here, check files[0]
       // console.log("contains", contains);
       // console.log("files", files);
       let formData = new FormData();
@@ -389,6 +1442,7 @@ export default {
       formData.append("firstName", this.editData[0].firstname);
       formData.append("lastName", this.editData[0].lastname);
       formData.append("iDNumber", this.editData[0].iDNumber);
+      formData.append("marital", this.marital);
       formData.append("email", this.editData[0].email);
       formData.append("bankName", this.editData[0].bankName);
       formData.append("accountNumber", this.editData[0].accountNumber);
@@ -398,16 +1452,85 @@ export default {
       formData.append("mood", this.editData[0].mood);
       formData.append("flooring", this.editData[0].flooring);
       formData.append("floorplan", this.editData[0].floorplan);
-      formData.append("mobile", this.mobile.phoneNumber);
-      formData.append("landline", this.landline.phoneNumber);
+      formData.append("mobile", this.editData[0].mobile);
+      formData.append("landline", this.editData[0].landline);
       formData.append("postalAddress", this.editData[0].postalAddress);
       formData.append(
         "residentialAddress",
         this.editData[0].residentialAddress
       );
+      formData.append("contract_price", this.editData[0].contract_price);
+      // contractPrice: 0,
+      // contractPriceStr: "",
+      formData.append(
+        "personTwoFirstName",
+        this.editData[0].personTwoFirstName
+      );
+      formData.append("personTwoLastName", this.editData[0].personTwoLastName);
+      formData.append("personTwoIDNumber", this.editData[0].personTwoIDNumber);
+      formData.append("personTwoMarital", this.editData[0].personTwoMarital);
+      formData.append("personTwoEmail", this.editData[0].personTwoEmail);
+      formData.append("personTwoBankName", this.editData[0].personTwoBankName);
+      formData.append(
+        "personTwoAccountNumber",
+        this.editData[0].personTwoAccountNumber
+      );
+      formData.append(
+        "personTwoAccountType",
+        this.editData[0].personTwoAccountType
+      );
+      formData.append("personTwoMobile", this.editData[0].personTwoMobile);
+      formData.append("personTwoLandline", this.editData[0].personTwoLandline);
+      formData.append(
+        "personTwoPostalAddress",
+        this.editData[0].personTwoPostalAddress
+      );
+      formData.append(
+        "personTwoResidentialAddress",
+        this.editData[0].personTwoResidentialAddress
+      );
 
-      formData.append("id", this.editData[0].id);
+      formData.append("base_price", this.editData[0].base_price);
+
+      formData.append("parking", this.editData[0].parking);
+
+      formData.append("extras", this.editData[0].extras);
+
+      formData.append("deductions", this.editData[0].deductions);
+
+      formData.append("salesAgent", this.editData[0].salesAgent);
+      formData.append("salesAgentPhone", this.editData[0].salesAgentPhone);
+
       formData.append("contains", contains);
+      formData.append("id", this.editData[0].id);
+
+      formData.append("notes", this.editData[0].notes);
+
+      formData.append("cashDeal", this.editData[0].cashDeal);
+      formData.append("balanceRem", this.editData[0].balanceRem);
+
+      formData.append("deposit", this.editData[0].deposit);
+      formData.append("depositDate", this.depositDate);
+      formData.append("gasStove", this.editData[0].gasStove);
+      formData.append("additionalExtras", this.editData[0].additionalExtras);
+      formData.append(
+        "additionalExtrasCost",
+        this.editData[0].additionalExtrasCost
+      );
+
+      formData.append("spareRoom", this.editData[0].spareRoom);
+      formData.append("enclosedBalcony", this.editData[0].enclosedBalcony);
+
+      // additionalExtras,additionalExtrasCost,notes,spareRoom,enclosedBalcony,saleType,gasStove
+
+      formData.append("saleType", this.editData[0].saleType);
+
+      //formData.append("gasStove", this.editData[0].enclosedBalcony);
+
+      formData.append("salePerson", this.editData[0].salePerson);
+      formData.append("saleBuyers", this.editData[0].saleBuyers);
+
+      // bayNo
 
       await axios({
         method: "post",

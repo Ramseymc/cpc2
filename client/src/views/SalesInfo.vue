@@ -53,9 +53,13 @@
                       <v-list-item-subtitle
                         v-text="item.block"
                       ></v-list-item-subtitle>
-                      <v-list-item-subtitle
-                        v-text="item.unit"
-                      ></v-list-item-subtitle>
+                      <v-list-item-subtitle>
+                        <v-chip
+                          :id="item.id"
+                          v-text="item.unit"
+                          @click="redirectToUnitInfo"
+                        ></v-chip>
+                      </v-list-item-subtitle>
 
                       <v-list-item-subtitle
                         v-text="item.lastname"
@@ -225,6 +229,13 @@ export default {
     this.initialData();
   },
   methods: {
+    redirectToUnitInfo(event) {
+      let unitId = this.sales.filter(el => {
+        return el.id === parseInt(event.currentTarget.id);
+      })[0].unitId;
+      this.$router.push({ name: `UnitInfo`, params: { id: unitId } });
+    },
+
     editItem(event) {
       let targetId = event.currentTarget.id; //Spot on
       // console.log("id",event.currentTarget.id;)
@@ -268,7 +279,7 @@ export default {
     },
     async initialData() {
       let data = {
-        id: ""
+        id: this.$store.state.development.id
       };
       await axios({
         method: "post",
@@ -282,7 +293,7 @@ export default {
             this.sales = response.data[0];
             this.unitId = response.data[0].unitId;
             this.sales.forEach(el => {
-              el.fileOTPurl = `${this.url}/uploads/${el.fileOTP}`;
+              el.fileOTPurl = `${url}/uploads/${el.fileOTP}`;
               // console.log("FileId", el.fileId);
               if (
                 el.fileOTP === "" ||

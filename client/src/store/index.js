@@ -19,6 +19,7 @@ export default new Vuex.Store({
       id: null,
       developmentName: null
     }
+    // smartsheetToken: null
     // gridWidth: true
   },
   mutations: {
@@ -48,6 +49,13 @@ export default new Vuex.Store({
       state.development.id = development.id;
       state.development.developmentName = development.developmentName;
     }
+    // setSmartsheetToken(state) {
+    //   state.smartsheetToken = true
+    // },
+    // clearSmartsheetToken(state) {
+    //   state.smartsheetToken = false
+    // }
+
     // viewGrid(state) {
     //   console.log(state.gridWidth)
     //   state.gridWidth = !state.gridWidth

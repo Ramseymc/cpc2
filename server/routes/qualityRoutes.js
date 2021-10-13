@@ -23,7 +23,7 @@ const fileFilter = function (req, file, cb) {
   cb(null, true);
 };
 
-let MAX_SIZE = 2000000;
+let MAX_SIZE = 10000000;
 const upload = multer({
   dest: "./public/uploads/",
   // dest: `${process.env.DRAFT_INITIAL_UPLOADS}`,
@@ -114,7 +114,7 @@ router.post("/removeQCImage", (req, res) => {
   });
 });
 
-router.post("/uploadImage", upload.single("image"), (req, res) => {
+router.post("/uploadImageWB", upload.single("image"), (req, res) => {
   console.log(req.file);
   console.log(req.body.id);
   const directory = "public/uploads/";
@@ -133,7 +133,7 @@ router.post("/uploadImage", upload.single("image"), (req, res) => {
   });
 
   let filename;
-  // let publicId,
+
   let public_id = "";
 
   filename = req.file.filename;
@@ -155,15 +155,18 @@ router.post("/uploadImage", upload.single("image"), (req, res) => {
   }
 });
 
+
+
 router.post("/postQC", (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   console.log(req.body.unit);
+  console.log(req.body.info);
   console.log("file", req.file);
   // console.log(req.body.info)
   // req.body.info = JSON.parse(req.body.info);
   // console.log(req.body.info);
   let length = req.body.info.length - 1;
-  // console.log("LENGTH", length);
+
 
   let uniqueID = uniqid();
   if (req.body.scSignature !== "") {

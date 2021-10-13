@@ -109,6 +109,19 @@
             >
           </v-list-item>
         </v-list>
+        <v-list v-if="this.$store.state.userRole === 4">
+          <v-list-item
+            v-for="item in Storeman"
+            :key="item.id"
+            :to="{ name: item.name }"
+            @click="closeMenu"
+          >
+            <v-list-item-title style="text-align: left; margin-left: 5%;">
+              <v-icon :color="item.color">{{ item.icon }}</v-icon>
+              {{ item.title }}</v-list-item-title
+            >
+          </v-list-item>
+        </v-list>
         <v-list>
           <v-list-item
             v-for="item in anyUser"
@@ -164,14 +177,23 @@ export default {
             color: "lime accent-2"
           },
           {
-            title: "Gantt Chart",
-            name: "gantt4",
-            icon: "mdi-chart-gantt",
+            title: "Update Task Dates",
+            name: "UpdateTaskDates",
+            icon: "mdi-calendar-multiple",
             role: 3,
             menu: 1,
-            id: "gantt4",
+            id: "UpdateTaskDates",
             color: "light-green accent-2"
           },
+          // {
+          //   title: "Gantt Chart",
+          //   name: "gantt4",
+          //   icon: "mdi-chart-gantt",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "gantt4",
+          //   color: "light-green accent-2"
+          // },
           {
             title: "Payment Certificates",
             name: "paymentCertificates",
@@ -209,6 +231,24 @@ export default {
             menu: 1,
             id: "images",
             color: "yellow"
+          },
+          {
+            title: "Stock Take",
+            name: "StockTake",
+            icon: "mdi-camera",
+            role: 3,
+            menu: 1,
+            id: "StockTake",
+            color: "orange"
+          },
+          {
+            title: "Stock Transfer",
+            name: "StockTrx",
+            icon: "mdi-camera",
+            role: 3,
+            menu: 1,
+            id: "StockTrx",
+            color: "lime"
           }
           // {
           //   title: "P&G's",
@@ -452,7 +492,7 @@ export default {
           {
             title: "P&G's WIP",
             name: "PandG",
-            icon: "mdi-food-fork-drink",
+            icon: "mdi-diamond",
             role: 3,
             menu: 1,
             id: "P&G",
@@ -461,10 +501,46 @@ export default {
           {
             title: "Finance Input WIP",
             name: "FinanceInput",
-            icon: "mdi-cash-usd",
+            icon: "mdi-cash-100",
             role: 3,
             menu: 1,
             id: "financeinput",
+            color: "orange"
+          },
+          {
+            title: "Finance Construction Input WIP",
+            name: "FinanceConstructionInput",
+            icon: "mdi-escalator",
+            role: 3,
+            menu: 1,
+            id: "FinanceConstructionInput",
+            color: "yellow"
+          },
+          {
+            title: "Contingencies WIP",
+            name: "Contingencies",
+            icon: "mdi-escalator",
+            role: 3,
+            menu: 1,
+            id: "Contingencies",
+            color: "orange"
+          },
+          {
+            title: "Escalations WIP",
+            name: "Escalations",
+            icon: "mdi-escalator",
+            role: 3,
+            menu: 1,
+            id: "Escalations",
+            color: "amber"
+          },
+          {
+            title: "Allocate Tasks to PO WIP",
+            name: "PurchaseOrderAllocate",
+            icon: "mdi-checkbox-multiple-blank",
+            role: 3,
+            menu: 1,
+            id: "PurchaseOrderAllocate",
             color: "orange"
           },
           {
@@ -484,6 +560,24 @@ export default {
             menu: 1,
             id: "investordata",
             color: "yellow"
+          },
+          {
+            title: "Planning Investor Data WIP",
+            name: "InvestorDataPlanning",
+            icon: "mdi-currency-gbp",
+            role: 3,
+            menu: 1,
+            id: "investordataPlanning",
+            color: "purple"
+          },
+          {
+            title: "% to Investor WIP",
+            name: "PercentageInvestors",
+            icon: "mdi-percent",
+            role: 3,
+            menu: 1,
+            id: "PercentageInvestors",
+            color: "amber"
           },
           {
             title: "Dashboard Summary WIP",
@@ -569,6 +663,24 @@ export default {
         menu: 1,
         id: "ITC",
         color: "white"
+      },
+      {
+        title: "Stock Take",
+        name: "StockTake",
+        icon: "mdi-camera",
+        role: 3,
+        menu: 1,
+        id: "StockTake",
+        color: "orange"
+      },
+      {
+        title: "Stock Transfer",
+        name: "StockTrx",
+        icon: "mdi-camera",
+        role: 3,
+        menu: 1,
+        id: "StockTrx",
+        color: "lime"
       }
       // {
       //   title: "Schedule",
@@ -642,6 +754,53 @@ export default {
             color: "amber"
           }
         ]
+      },
+      {
+        title: "Stock Take",
+        name: "StockTake",
+        icon: "mdi-camera",
+        role: 3,
+        menu: 1,
+        id: "StockTake",
+        color: "orange"
+      },
+      {
+        title: "Stock Transfer",
+        name: "StockTrx",
+        icon: "mdi-camera",
+        role: 3,
+        menu: 1,
+        id: "StockTrx",
+        color: "lime"
+      }
+    ],
+    Storeman: [
+      {
+        title: "Deliveries",
+        name: "Deliveries",
+        icon: "mdi-truck",
+        role: 3,
+        menu: 1,
+        id: "Deliveries",
+        color: "amber"
+      },
+      {
+        title: "Stock Take",
+        name: "StockTake",
+        icon: "mdi-camera",
+        role: 3,
+        menu: 1,
+        id: "StockTake",
+        color: "orange"
+      },
+      {
+        title: "Stock Transfer",
+        name: "StockTrx",
+        icon: "mdi-camera",
+        role: 3,
+        menu: 1,
+        id: "StockTrx",
+        color: "lime"
       }
     ],
     anyUser: [
