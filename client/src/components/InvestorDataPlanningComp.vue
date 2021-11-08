@@ -515,7 +515,6 @@ export default {
         data: data
       })
         .then(response => {
-          console.log("Initial Data", response.data);
           this.dessertsP = response.data[0];
           let unitCount = [];
           this.dessertsP.forEach(el => {
@@ -558,7 +557,7 @@ export default {
             } else {
               el.pledge_date = "";
             }
-            // console.log(el.available_date)
+
             if (el.drawn === 1) {
               el.drawn = true;
             } else {
@@ -585,8 +584,7 @@ export default {
           unitCount = unitCount.sort();
           unitCount = Array.from(new Set(unitCount));
           this.unitCountP = unitCount.length;
-          // console.log(unitCount.length)
-          console.log(this.dessertsP);
+
           this.dessertsP.forEach(el => {
             el.dailyTrustInterest =
               (parseFloat(el.attorney_inv_amount) *
@@ -633,10 +631,7 @@ export default {
                   "day"
                 ) +
                   1);
-              console.log(
-                "Contract Interest",
-                el.contractInteresRepayableAtRepayment
-              );
+
               if (new Date(el.available_date) < new Date()) {
                 el.contractInterestRepayableAtToday =
                   el.dailyContractInterest *
@@ -644,7 +639,6 @@ export default {
               } else {
                 el.contractInterestRepayableAtToday = 0;
               }
-              // console.log(el.contractInterestRepayableAtToday)
             } else {
               el.contractInteresRepayableAtRepayment = 0;
               el.contractInterestRepayableAtToday = 0;
@@ -665,7 +659,6 @@ export default {
             );
             el.availableStr = this.convertToString(el.available);
           });
-          console.log(this.dessertsP);
 
           this.totalInteresRepayableAtRepaymentP = this.convertToString(
             this.dessertsP.reduce((prev, el) => {
@@ -721,7 +714,7 @@ export default {
               updateInfoArrayP.push(insert);
             }
           });
-          console.log("updateInfoArray", updateInfoArrayP);
+
           let finalUpdateArrayP = [];
           this.dessertsP.forEach(el => {
             let filteredData = updateInfoArrayP.filter(el2 => {
@@ -734,11 +727,12 @@ export default {
               finalUpdateArrayP.push(filteredData[0]);
             }
           });
-          console.log("finalUpdateArray", finalUpdateArrayP);
 
           if (finalUpdateArrayP.length) {
             this.updateAvailableDataP(finalUpdateArrayP);
           }
+          this.getFilteredP();
+          this.emitStuff();
           error => {
             console.log(error);
           };
@@ -754,8 +748,7 @@ export default {
         data: data
       })
         .then(
-          response => {
-            console.log(response.data);
+          () => {
             this.initialData();
           },
           error => {
@@ -843,7 +836,7 @@ export default {
         return el.unitName === this.editedItemP.unitName;
       });
       this.editedItemP.unit = unit[0].id;
-      console.log(this.editedItemP);
+
       if (this.editedIndexP > -1) {
         Object.assign(this.dessertsP[this.editedIndexP], this.editedItemP);
         await axios({
@@ -853,13 +846,13 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessageP = "Input succesfully updated!";
               } else {
                 this.snackbarMessageP = "Error, please try again";
               }
               this.snackbarP = true;
+              this.initialDataP();
             },
             error => {
               console.log(error);
@@ -877,7 +870,6 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessageP = "Input succesfully updated!";
                 this.dessertsP.push(this.editedItem);
@@ -886,6 +878,7 @@ export default {
                 this.snackbarMessageP = "Error, please try again";
               }
               this.snackbarP = true;
+              this.initialDataP();
             },
             error => {
               console.log(error);

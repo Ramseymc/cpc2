@@ -208,6 +208,43 @@ router.post("/sendpurchaseorder", (req, res) => {
   });
 });
 
+router.post("/postSmartUpladEmailsWB", (req, res) => {
+  console.log(req.body);
+
+  // if (req.body.)
+
+  let subject = `New Documents Uploaded - ${req.body.name}`;
+  let recipient = `${req.body.addresses}`;
+  let output = `Dear Colleagues,
+
+        Please note that new documents for your attention have been uploaded.<br><br><br>
+        
+        <strong>Please go to the following link (Ensure you are logged in).</strong><br><br>
+
+        <a href="${req.body.path}">smartUploads</a><br><br>
+        
+        Please acknowledge receipt of this email
+        Kind regards<br><br>
+
+        ${req.body.user}
+
+       
+        <strong>CPC</strong><br><br>
+        `;
+  sendJBCCMail(subject, recipient, output)
+    // sendPOMail(subject, recipient, output, filename)
+    .then(() => {
+      res.json({
+        success: true,
+        hello: "Goodbye",
+        fileName: recipient,
+      });
+    })
+    .catch((e) => {
+      res.json({ success: false });
+    });
+});
+
 router.post("/sendITC", (req, res) => {
   let mysql = `select first_name, last_name, emailAddress from suppliers where id = ${req.body.supplier}`;
   let filename = req.body.itcRefNumber;
@@ -458,6 +495,23 @@ async function sendPOMail(subject, recipient, output, filename) {
         path: `public/purchaseorders/${filename}.pdf`, // stream this file
       },
     ],
+  };
+
+  await transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Error with connection", error);
+    }
+  });
+}
+
+async function sendJBCCMail(subject, recipient, output) {
+  let mailOptions = {
+    from: "Cape Projects Construction <admin@cape-projectsbe.co.za>",
+    to: `${recipient}`,
+    // cc: "herbert@capeprojects.co.za, waynebruton@icloud.com",
+    subject: `${subject}`,
+    text: "Hello world?",
+    html: output,
   };
 
   await transporter.sendMail(mailOptions, (error, info) => {

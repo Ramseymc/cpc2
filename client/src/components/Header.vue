@@ -41,7 +41,11 @@
           </v-btn>
         </template>
 
-        <v-list v-if="this.$store.state.userRole === 1">
+        <v-list
+          v-if="this.$store.state.userRole === 1"
+          style="max-height: 90vh"
+          class="overflow-y-auto"
+        >
           <template>
             <div v-for="item in superUser" :key="item.id">
               <v-list-group v-if="item.items" no-action :group="'items'">
@@ -175,6 +179,33 @@ export default {
             menu: 1,
             id: "signup",
             color: "lime accent-2"
+          },
+          {
+            title: "SmartProgress",
+            name: "SmartProgress",
+            icon: "mdi-database-plus",
+            role: 2,
+            menu: 1,
+            id: "SmartProgress",
+            color: "yellow"
+          },
+          {
+            title: "SmartSubcontractors",
+            name: "SmartSubcontractors",
+            icon: "mdi-factory",
+            role: 2,
+            menu: 1,
+            id: "SmartSubcontractors",
+            color: "yellow"
+          },
+          {
+            title: "SmartUploads",
+            name: "SmartUploads",
+            icon: "mdi-auto-upload",
+            role: 2,
+            menu: 1,
+            id: "SmartUploads",
+            color: "yellow"
           },
           {
             title: "Update Task Dates",
@@ -561,24 +592,15 @@ export default {
             id: "investordata",
             color: "yellow"
           },
-          {
-            title: "Planning Investor Data WIP",
-            name: "InvestorDataPlanning",
-            icon: "mdi-currency-gbp",
-            role: 3,
-            menu: 1,
-            id: "investordataPlanning",
-            color: "purple"
-          },
-          {
-            title: "% to Investor WIP",
-            name: "PercentageInvestors",
-            icon: "mdi-percent",
-            role: 3,
-            menu: 1,
-            id: "PercentageInvestors",
-            color: "amber"
-          },
+          // {
+          //   title: "% to Investor WIP",
+          //   name: "PercentageInvestors",
+          //   icon: "mdi-percent",
+          //   role: 3,
+          //   menu: 1,
+          //   id: "PercentageInvestors",
+          //   color: "amber"
+          // },
           {
             title: "Dashboard Summary WIP",
             name: "DashboardSummary",
@@ -822,6 +844,7 @@ export default {
   components: {},
   watch: {},
   methods: {
+    onScroll() {},
     closeMenu() {
       this.closeOnClick = true;
       setTimeout(() => {

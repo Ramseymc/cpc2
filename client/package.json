@@ -18,6 +18,7 @@
     "image-conversion": "^2.1.1",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.32",
+    "pdf-lib": "^1.17.1",
     "pdfmake": "^0.1.70",
     "regenerator-runtime": "^0.13.7",
     "request": "^2.88.2",

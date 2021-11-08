@@ -13,7 +13,7 @@
         <v-dialog v-model="dialog" persistent max-width="900px">
           <v-card>
             <v-card-title>
-              <span class="text-h5">Client Info</span>
+              <span class="text-h5">Client Info - {{ editData[0].unit }}</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -37,19 +37,18 @@
                   </v-col>
                   <v-col cols="12" sm="4" md="4" offset="1">
                     <v-radio-group
-                      v-model="editData[0].saleBuyers"
-                      row
                       v-if="editData[0].salePerson === 'person'"
+                      v-model="editData[0].saleBuyers"
                     >
                       <v-radio
+                        name="active"
                         label="1 Person"
-                        color="black"
-                        value="1"
+                        :value="1"
                       ></v-radio>
                       <v-radio
+                        name="active"
                         label="2 People"
-                        color="red darken-3"
-                        value="2"
+                        :value="2"
                       ></v-radio>
                     </v-radio-group>
                   </v-col>
@@ -521,8 +520,8 @@
                   <!-- parking, extras, and contract_price-->
 
                   <v-col
-                    cols="2"
-                    sm="2"
+                    cols="3"
+                    sm="3"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <v-text-field
@@ -547,30 +546,34 @@
                     ></v-text-field>
                   </v-col>
                   <v-col
-                    cols="2"
+                    cols="4"
                     sm="2"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <strong><b>Stove Option:</b></strong>
                     <v-radio-group v-model="editData[0].gasStove">
                       <v-radio
-                        label="Standard"
+                        name="active"
+                        label="Glass"
                         color="black"
-                        value="0"
+                        :value="0"
                         @click="changePriceIfGas"
                       ></v-radio>
                       <v-radio
+                        name="active"
                         label="Gas"
                         color="orange darken-3"
-                        value="1"
+                        :value="1"
+                        @click="changePriceIfGas"
+                      ></v-radio>
+                      <v-radio
+                        name="active"
+                        label="Other"
+                        color="orange darken-3"
+                        :value="2"
                         @click="changePriceIfGas"
                       ></v-radio>
                     </v-radio-group>
-                    <!-- <v-switch
-                      v-model="gasStove"
-                      @change="changePriceIfGas"
-                      :label="gasStove ? 'Gas Stove' : 'Standard Stove'"
-                    ></v-switch> -->
                   </v-col>
 
                   <v-col
@@ -587,7 +590,29 @@
 
                   <v-col
                     cols="3"
-                    sm="3"
+                    sm="2"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>KitchenOption:</b></strong>
+                    <v-radio-group v-model="editData[0].kitchenOption">
+                      <v-radio
+                        name="active"
+                        label="U-Shape"
+                        color="black"
+                        value="Ushape"
+                      ></v-radio>
+                      <v-radio
+                        name="active"
+                        label="L-Shape"
+                        color="orange darken-3"
+                        value="LShape"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+
+                  <v-col
+                    cols="4"
+                    sm="4"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <v-text-field
@@ -597,20 +622,20 @@
                     ></v-text-field>
                   </v-col>
 
-                  <v-col
+                  <!-- <v-col
                     cols="3"
                     sm="3"
                     style="background-color: lightgoldenrodyellow"
-                  ></v-col>
-                  <v-col
+                  ></v-col> -->
+                  <!-- <v-col
                     cols="3"
                     sm="3"
                     style="background-color: lightgoldenrodyellow"
-                  ></v-col>
+                  ></v-col> -->
 
                   <v-col
-                    cols="3"
-                    sm="3"
+                    cols="4"
+                    sm="4"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <label>
@@ -624,8 +649,8 @@
                     ></v-text-field>
                   </v-col>
                   <v-col
-                    cols="3"
-                    sm="3"
+                    cols="4"
+                    sm="4"
                     style="background-color: lightgoldenrodyellow"
                   >
                     <label><b> Contract Price </b> </label>
@@ -793,12 +818,12 @@
                       <v-radio
                         label="Allure"
                         color="black"
-                        value="Mood1"
+                        value="Allure"
                       ></v-radio>
                       <v-radio
                         label="Serene"
                         color="red darken-3"
-                        value="Mood2"
+                        value="Serene"
                       ></v-radio>
                     </v-radio-group>
                     <small>*indicates required field</small>
@@ -821,6 +846,23 @@
                         value="Laminate"
                       ></v-radio>
                     </v-radio-group>
+                  </v-col>
+                  <v-col
+                    cols="4"
+                    sm="4"
+                    style="background-color: lightgoldenrodyellow"
+                  >
+                    <strong><b>Actual Sales Date</b></strong>
+                    <v-text-field
+                      v-model="editData[0].actualSalesdate"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="8"
+                    sm="8"
+                    style="background-color: lightgoldenrodyellow"
+                  >
                   </v-col>
 
                   <!-- End of financial section -->
@@ -1121,6 +1163,7 @@
 
 <script>
 import axios from "axios";
+import * as dayjs from "dayjs";
 import VuePhoneNumberInput from "vue-phone-number-input";
 let url = process.env.VUE_APP_BASEURL;
 import "vue-phone-number-input/dist/vue-phone-number-input.css";
@@ -1214,8 +1257,6 @@ export default {
   },
 
   beforeMount() {
-    //console.log("BEFORE MOUNTED");
-    //  this.finalEditData = this.editData[0]
     this.editData.forEach(el => {
       el.saleBuyers = parseInt(el.saleBuyers);
       el.gasStove = parseInt(el.gasStove);
@@ -1229,22 +1270,10 @@ export default {
     });
 
     console.log("WWWWWW", this.editData);
-    this.editData[0].url = `${process.env.VUE_APP_BASEURL}/uploads/${this.editData[0].planType}`;
+    this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
 
-    console.log("Before Mount in ClientUpdate", this.editData);
-    console.log("salesBuyers", this.editData[0].saleBuyers);
-    console.log("salesPerson", this.editData[0].salePerson);
-    // console.log("this.buyers", this.buyers);
-    //console.log("this.person", this.person);
-
-    // this.buyers = this.editData[0].saleBuyers;
-    // this.person = this.editData[0].salePerson;
     this.plans = this.editData[0].unit_type.split(",");
     this.parkingPriceStr = this.convertToString(
-      parseFloat(this.editData[0].parking)
-    );
-    console.log(
-      "parseFloat(this.editData[0].parking)",
       parseFloat(this.editData[0].parking)
     );
 
@@ -1258,7 +1287,7 @@ export default {
       parseFloat(this.contractPrice)
     );
     if (parseInt(this.editData[0].gasStove) === 1) {
-      this.gasStoveCost = 12000;
+      this.gasStoveCost = 2000;
     } else {
       this.gasStoveCost = 0;
     }
@@ -1269,12 +1298,15 @@ export default {
     this.depositStr = this.convertToString(this.editData[0].deposit);
     this.basePriceStr = this.convertToString(this.editData[0].base_price);
     this.depositDate = this.editData[0].depositDate.split(" ")[0];
-    //d = d.split(' ')[0];
+    if (this.editData[0].actualSalesdate !== null) {
+      this.editData[0].actualSalesdate = dayjs(
+        this.editData[0].actualSalesdate
+      ).format("YYYY-MM-DD");
+    }
   },
 
   methods: {
     showUploadBtn() {
-      // console.log(this.planFile)
       if (this.planFile !== null) {
         this.showUploadButton = true;
       } else {
@@ -1282,13 +1314,15 @@ export default {
       }
     },
     async addPlans() {
-      // console.log(this.planFile);
       let formData = new FormData();
-      // console.log(this.unitId)
-      // console.log(this.editData[0].id)
+
       formData.append("plans", this.planFile);
       formData.append("id", this.editData[0].id);
-      // formData.append("unit", this.unitId);
+      formData.append(
+        "client",
+        `${this.editData[0].unit}-${this.editData[0].firstname}${this.editData[0].lastname}`
+      );
+
       await axios({
         method: "post",
         url: `${url}/uploadPlansWB`,
@@ -1298,6 +1332,7 @@ export default {
           console.log(response.data);
           this.showUploadButton = false;
           // little box saying 'Posted Successfully
+          this.updateClientData()
           this.snackbar = true;
           // close the form after completing
           // this.closeClientInfo();
@@ -1331,13 +1366,6 @@ export default {
       return str;
     },
     setBalanceRemaining() {
-      console.log(
-        "Less the deposit from the contract price and set the balance remaining"
-      );
-      console.log("this.contractPrice = ", this.contractPrice);
-      console.log("this.balanceRem = ", this.balanceRem);
-      console.log("this.balanceRemStr = ", this.balanceRemStr);
-      console.log("this.editData[0].deposit = ", this.editData[0].deposit);
       this.balanceRem =
         parseFloat(this.contractPrice) - parseFloat(this.editData[0].deposit);
       this.balanceRemStr = this.convertToString(this.balanceRem);
@@ -1346,24 +1374,19 @@ export default {
       console.log(this.editData[0].additionalExtrasCost);
       this.finaliseCosts();
     },
-    // setDepositString() {
-    //   this.depositStr = this.convertToString(this.editData[0].deposit);
-    //   this.editData[0].deposit = this.depositStr;
-    // },
+
     changePriceIfEnclosed() {
-      console.log(this.editData[0].floorplan);
       let chosenFloorplan = this.editData[0].floorPlans.filter(el => {
         return this.floorplan === el.plan;
       });
-      console.log(chosenFloorplan[0]);
+
       this.floorplancost = chosenFloorplan[0].enclosedValue;
       this.enclosedBalcony = chosenFloorplan[0].enclosedBalcony;
       this.finaliseCosts();
     },
     changePriceIfGas() {
-      console.log("XXXXX", this.editData[0].gasStove);
       if (parseInt(this.editData[0].gasStove) === 1) {
-        this.gasStoveCost = 12000;
+        this.gasStoveCost = 2000;
       } else {
         this.gasStoveCost = 0;
       }
@@ -1384,14 +1407,6 @@ export default {
         parseFloat(this.editData[0].extras) +
         parseFloat(this.editData[0].additionalExtrasCost) -
         parseFloat(this.editData[0].deductions);
-
-      console.log("&&&&&&");
-      console.log(this.editData[0].base_price);
-      console.log(this.editData[0].parking);
-      console.log(this.editData[0].extras);
-      console.log(this.editData[0].additionalExtrasCost);
-      console.log(this.editData[0].deductions);
-      console.log("ContractPrice to convert", this.contractPrice);
 
       this.contractPriceStr = this.convertToString(this.contractPrice);
 
@@ -1419,15 +1434,10 @@ export default {
         parseFloat(this.editData[0].parkingNumber) *
           parseFloat(this.parkingPrice)
       );
-      // this.editData[0].extrasStr = this.convertToString(this.extras);
-      // // console.log(this.basePrice + this.parking + this.extras - this.deductions)
-      // this.editData[0].contractPrice =
-      //   parseFloat(this.basePrice) + parseFloat(this.parking) + parseFloat(this.extras) - parseFloat(this.deductions);
 
       this.finaliseCosts();
     },
     naturalTrust() {
-      console.log("AWESOME", this.planType);
       if (this.editData[0].salePerson === "Legal") {
         this.firstNameLabel = "Director / Trustee First Name*";
         this.twoPersonFirstNameLabel = "2nd Director / Trustee First Name*";
@@ -1437,7 +1447,7 @@ export default {
         this.firstNameLabel = "First Name*";
         this.lastNameLabel = "Last Name*";
       }
-      this.editData[0].saleBuyers = "1";
+      // this.editData[0].saleBuyers = "1";
     },
     mobileStuff(event) {
       // this.mobileResults = event;
@@ -1509,13 +1519,10 @@ export default {
         console.log("No File");
       }
 
-      // console.log("contains", contains);
-      // console.log("files", files);
       let formData = new FormData();
 
       for (var x = 0; x < files.length; x++) {
         formData.append("documents", files[x]);
-        //console.log("FileInfo::: ", files[x]);
       }
 
       formData.append("trustName", this.editData[0].trustName);
@@ -1612,20 +1619,20 @@ export default {
 
       formData.append("salePerson", this.editData[0].salePerson);
       formData.append("saleBuyers", this.editData[0].saleBuyers);
+      formData.append("development", this.$store.state.development.id);
 
       // bayNo
 
       await axios({
         method: "post",
-        url: `${url}/updateClient`,
+        url: `${url}/updateClientCM`,
         data: formData
       }).then(
         response => {
           console.log(response.data);
 
           this.snackbar = true;
-          //console.log("ClientUpdate.vue - closing form");
-          // close the form after completing
+
           this.closeClientInfo();
         },
 

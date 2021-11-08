@@ -2667,6 +2667,702 @@ ALTER TABLE investorDetailsPlanning ALTER interest_rate SET DEFAULT 0;
 ALTER TABLE investorDetailsPlanning ALTER trust_account_interest SET DEFAULT 0;
 ALTER TABLE investorDetailsPlanning ALTER supplementary_interest SET DEFAULT 0;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+--  access_token: 'jlw06d5tf5l9dqh6b4e6oa5ddk',
+--   token_type: 'bearer',
+--   refresh_token: 'gblnv7smcr31hrh0adnyj9f46j',
+--   expires_in: 604799
+
+CREATE TABLE smartToken (
+    id int auto_increment primary key,
+    access_token varchar(100),
+    token_type varchar(100),
+    refresh_token varchar(100),
+    expires_in dateTime,
+    development int
+);
 
 
+CREATE TABLE smartTaskTypes (
+    id int auto_increment primary key,
+    taskTypeName varchar(150)
+);
 
+CREATE TABLE smartUnits (
+    id int auto_increment primary key,
+    subsection int,
+    development int,
+    unitName varchar(160)
+);
+
+CREATE TABLE smartTasks (
+    id int auto_increment primary key,
+    sheetId varchar(160),
+    rowId varchar(160),
+    subsection int,
+    development int,
+    unitName varchar(160),
+    taskName varchar(160),
+  taskType varchar(160),
+  startDate datetime,
+  endDate dateTime,
+  assignedTo varchar(350),
+  comments varchar(160),
+  subcontractor1 float,
+  subcontractor2 float,
+  labourCost float,
+  materialCost float,
+  totalCost float,
+  percentComplete float
+);
+
+--  duration: '1d',
+  
+--   taskName: 'WM, DW,Mixers,Sink',
+--   taskType: 'Interior Plumbing Works',
+--   startDate: '2022-02-14T08:00:00',
+--   endDate: '2022-02-14T16:59:59',
+--   assignedTo: null,
+--   comments: null,
+--   subcontractor1: 0,
+--   subcontractor2: 0,
+--   labourCost: 0,
+--   materialCost: 0,
+--   totalCost: 0,
+--   percentComplete: 0,
+
+ 
+
+  
+  
+
+CREATE TABLE smartsheetControl (
+    id int auto_increment primary key,
+    smartsheetId varchar(50),
+    development int,
+    block int,
+    TaskName varchar(50),
+    isUnit varchar(50),
+    isTaskType varchar(50),
+    isTask varchar(50),
+    Duration varchar(50),
+    StartDate varchar(50),
+    EndDate varchar(50),
+    Predecessors varchar(50),
+    PercentComplete varchar(50),
+    Status varchar(50),
+    AssignedTo varchar(50),
+    Comments varchar(50),
+    Subcontractor1 varchar(50),
+    Subcontractor2 varchar(50),
+    LabourCost varchar(50),
+    MaterialCost varchar(50),
+    TotalCost varchar(50)
+); 
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(
+    "5918862060349316",
+    1,
+    1,
+    "2339800723285892",
+    "5413181005817732",
+    "3161381192132484",
+    "7664980819502980",
+    "6843400350656388",
+    "1213900816443268",
+    "5717500443813764",
+    "3465700630128516",
+    "7969300257499012",
+    "650950863021956",
+    "5154550490392452",
+    "2902750676707204",
+    "5340804095993732",
+    "3089004282308484",
+    "3405797446182788",
+    "5657597259868036",
+    "1153997632497540"
+);
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(
+    "3689069659088772",
+    1,
+    2,
+    "5272006034777988",
+    "5411469998221188",
+    "3159670184535940",
+    "7663269811906436", 
+    "3020206221092740",
+    "7523805848463236",
+    "1894306314250116",
+    "6397905941620612",
+    "4146106127935364", 
+    "8649705755305860",
+    "486931430696836",
+    "4990531058067332",
+    "8604061460129668", 
+    "441287135520644",
+    "3279540440065924",
+    "5531340253751172",
+    "1027740626380676"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(
+
+    "2722152261674884",
+    1,
+    3,
+    "8062635265550212",
+    "8296047343626116",
+    "977697949149060",
+    "5481297576519556",
+    "744285871073156",
+    "5247885498443652",
+    "2996085684758404",
+    "7499685312128900",
+    "1870185777915780",
+    "6373785405286276",
+    "4121985591601028",
+    "8625585218971524",
+    "1154217346918276",
+    "5657816974288772",
+    "3513687024658308",
+    "5765486838343556", 
+    "1261887210973060"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(
+    "7066683480270724",
+    1,
+    4,
+    "1812736295364484",
+    "2425222186985348",
+    "6928821814355844",
+    "1299322280142724",
+    "6316335922734980",
+    "4064536109049732",
+    "8568135736420228",
+    "405361411811204", 
+    "4908961039181700",
+    "2657161225496452",
+    "7160760852866948",
+    "1531261318653828",
+    "2748199969548164", 
+    "7251799596918660",
+    "8377726749960068",
+    "3874127122589572",
+    "6125926936274820"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(
+    "4960391252993924",
+    1,
+    5,
+    "3021810190051204",
+    "6455619497551748",
+    "4203819683866500",
+    "8707419311236996",
+    "7525409817421700",
+    "1895910283208580",
+    "6399509910579076", 
+    "4147710096893828",
+    "8651309724264324",
+    "488535399655300",
+    "4992135027025796",
+    "2740335213340548",
+    "8027075553585028",
+    "708726159107972",
+    "3034246267856772",
+    "5286046081542020", 
+    "782446454171524"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+    "1115914486736772",
+    1,
+    6,
+    "1662779458381700", 
+    "8605181909723012",
+    "442407585113988",
+    "4946007212484484",
+    "6166379085752196",
+    "3914579272066948",
+    "8418178899437444",
+    "1099829504960388",
+    "5603429132330884",
+    "3351629318645636",
+    "7855228946016132",
+    "2225729411803012",
+    "4832761004484484",
+    "2580961190799236",
+    "192893473318788",
+    "8777880262993796",  
+    "4274280635623300"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+
+
+    "6713637168539524",
+    1,
+    1,
+    "7369453313779588",
+    "1427674693429124",
+    "3775853573236612",
+    "8279453200607108",
+    "1739953779566468",
+    "6243553406936964",
+    "3991753593251716", 
+    "8495353220622212",
+    "332578896013188",
+    "4836178523383684",
+    "2584378709698436",
+    "7087978337068932",
+    "7341478514059140",
+    "1711978979846020",
+    "6886660133676932",
+    "2383060506306436",
+    "4634860319991684"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+    "2316346571679620",
+    1,
+    2,
+    "3530018839127940",
+    "2258036290021252",
+    "6761635917391748",
+    "1132136383178628",
+    "8033618466498436",
+    "715269072021380",
+    "5218868699391876",
+    "2967068885706628",
+    "7470668513077124", 
+    "1841168978864004",
+    "6344768606234500",
+    "4092968792549252",
+    "4663411786180484",
+    "2411611972495236",
+    "489400835565444",
+    "8652175160174468", 
+    "4148575532803972"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+    "6781428932339588",
+    1,
+    3,
+    "8424300502902660",
+    "8789169718749060",
+    "204182929074052",
+    "4707782556444548",
+    "1105951108425604",
+    "5609550735796100",
+    "3357750922110852",
+    "7861350549481348",
+    "2231851015268228",
+    "6735450642638724",
+    "4483650828953476",
+    "8987250456323972",
+    "1001007273535364",
+    "5504606900905860",
+    "7953280901900164",
+    "3449681274529668",
+    "5701481088214916"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+    "2563083852900228",
+    1,
+    4,
+    "8638504480597892",
+    "5340560088164228",
+    "3088760274478980",
+    "7592359901849476",
+    "475730155988868",
+    "4979329783359364",
+    "2727529969674116",
+    "7231129597044612",
+    "1601630062831492",
+    "6105229690201988",
+    "3853429876516740",
+    "8357029503887236",
+    "872742370207620", 
+    "5376341997578116",
+    "1744639387559812",
+    "7374138921772932", 
+    "2870539294402436"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+    "3301577709643652",
+    1,
+    5,
+    "916703038203780",
+    "828370526201732",
+    "5331970153572228",
+    "3080170339886980",
+    "5420302665574276",
+    "3168502851889028",
+    "7672102479259524",
+    "2042602945046404",
+    "6546202572416900",
+    "4294402758731652",
+    "8798002386102148",
+    "213015596427140",
+    "7759378831959940",
+    "2129879297746820",
+    "4095214859118468",
+    "6347014672803716",
+    "1843415045433220"
+);
+
+
+insert into smartsheetControl (
+ smartsheetId,
+    development,
+    block,
+    TaskName,
+    isUnit,
+    isTaskType,
+    isTask,
+    Duration,
+    StartDate,
+    EndDate,
+    Predecessors,
+    PercentComplete,
+    Status,
+    AssignedTo,
+    Comments,
+    Subcontractor1,
+    Subcontractor2,
+    LabourCost,
+    MaterialCost,
+    TotalCost) values
+(     
+    "3232342836832132",
+    1,
+    6,
+    "2074720710485892",
+    "2357198494951300",
+    "6860798122321796",
+    "1231298588108676",
+    "6578320337856388",
+    "4326520524171140",
+    "8830120151541636",
+    "245133361866628",
+    "4748732989237124",
+    "2496933175551876",
+    "7000532802922372",
+    "1371033268709252",
+    "8795410843101060",
+    "210424053426052",
+    "4607939464980356",
+    "104339837609860",
+    "8900432859817860"
+);
+
+insert into smartsheetControl (smartsheetId, development, block) values ("3232342836832132", 1, 6);
+
+*******************************
+
+update salesinfo set mood = "Allure" where mood = "Mood1";
+update salesinfo set mood = "Serene" where mood = "Mood2";
+
+
+alter table salesinfo add column actualSalesdate datetime;
+alter table salesinfo add column development int;
+update salesinfo set development = 1;
+
+********************************
+
+create table smartUploads (
+    id int auto_increment primary key,
+    uploadUnsignedDoc1 varchar(100),
+    uploadUnsignedDoc2 varchar(100),
+    uploadUnsignedDoc3 varchar(100),
+    uploadUnsignedDoc4 varchar(100),
+    uploadUnsignedDoc5 varchar(100),
+    uploadUnsignedDocUser varchar(100),
+    uploadUnsignedDocDate datetime,
+    uploadSignedDoc1 varchar(100),
+    uploadSignedDoc2 varchar(100),
+    uploadSignedDoc3 varchar(100),
+    uploadSignedDoc4 varchar(100),
+    uploadSignedDoc5 varchar(100),
+    uploadSignedDocUser varchar(100),
+    uploadSignedDocDate datetime
+);
+
+alter table smartUploads add column submissionNumber Int;
+
+insert into smartUploads (
+    uploadUnsignedDoc1,
+    uploadUnsignedDoc2,
+    uploadUnsignedDoc3,
+    uploadUnsignedDoc4,
+    uploadUnsignedDoc5,
+    uploadUnsignedDocUser,
+    uploadUnsignedDocDate,
+    uploadSignedDoc1,
+    uploadSignedDoc2,
+    uploadSignedDoc3,
+    uploadSignedDoc4,
+    uploadSignedDoc5,
+    uploadSignedDocUser,
+    uploadSignedDocDate) values (
+        "test1",
+        "test2",
+        "test3",
+        "test4",
+        "test5",
+        "Wayne",
+        "2021-11-02",
+        "testing1",
+        "testing2",
+        "testing3",
+        "testing4",
+        "testing5",
+        "Bob",
+        "2021-11-03"
+    );

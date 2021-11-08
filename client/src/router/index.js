@@ -240,13 +240,35 @@ const routes = [
       import(/* webpackChunkName: "InvestorData" */ "../views/InvestorData.vue")
   },
   {
-    path: "/investorDataPlanning",
-    name: "InvestorDataPlanning",
+    path: "/smartProgress",
+    name: "SmartProgress",
     component: () =>
       import(
-        /* webpackChunkName: "InvestorDataPlanning" */ "../views/InvestorDataPlanning.vue"
+        /* webpackChunkName: "SmartProgress" */ "../views/smartProgress.vue"
       )
   },
+  {
+    path: "/smartUploads",
+    name: "SmartUploads",
+    component: () =>
+      import(/* webpackChunkName: "SmartUploads" */ "../views/smartUploads.vue")
+  },
+  {
+    path: "/smartSubcontractors",
+    name: "SmartSubcontractors",
+    component: () =>
+      import(
+        /* webpackChunkName: "SmartSubcontractors" */ "../views/smartSubcontractors.vue"
+      )
+  },
+  // {
+  //   path: "/investorDataPlanning",
+  //   name: "InvestorDataPlanning",
+  //   component: () =>
+  //     import(
+  //       /* webpackChunkName: "InvestorDataPlanning" */ "../views/InvestorDataPlanning.vue"
+  //     )
+  // },
   {
     path: "/dashboardSummary",
     name: "DashboardSummary",

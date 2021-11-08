@@ -463,7 +463,7 @@ export default {
         {
           text: "Discipline",
           align: "start",
-          sortable: false,
+          sortable: true,
           value: "discipline",
           width: 150
         },

@@ -3,7 +3,6 @@ const router = express.Router();
 const pool = require("./connection");
 const chalk = require("chalk");
 // const { checktoken, jwtSignUser } = require("./checkToken");
-// const moment = require("moment");
 const dayjs = require("dayjs");
 var isSameOrBefore = require("dayjs/plugin/isSameOrBefore");
 dayjs.extend(isSameOrBefore);
@@ -208,7 +207,7 @@ router.get("/authSmartsheets/:id", (req, res) => {
         console.log("THE ERROR", error);
       } else {
         unitsAffected = result;
-        console.log(unitsAffected);
+        // console.log(unitsAffected);
 
         res.redirect(authorizationUri);
       }
@@ -290,7 +289,38 @@ router.get("/callbackWB", (req, res) => {
               // sheetInfo.rows.forEach((el) => {
               //   el.cells.forEach((el1) => {
               //   // console.log(el1.displayValue.includes('Registration / Transfer'))
-              //   // console.log(el1.displayValue)
+                // console.log(sheetInfo.columns)
+                // let rowInfo = []
+                // sheetInfo.rows.forEach((el) => {
+
+                //   el.cells.forEach((el2) => {
+                //     if  (el2.displayValue !== undefined && el2.displayValue.includes(' - Transfer')
+                //     ) {
+                //       let insert = {
+                //         rowID: el.id,
+                //         unitName: el2.displayValue.substr(0,4).trim()
+                //       }
+                //     rowInfo.push(insert)
+                //     }
+                //   })
+
+                // })
+                // rowInfo.forEach((el) => {
+                //   let filtered = unitsAffected.filter((el2) => {
+                //     return el2.unitName === el.unitName
+                //   })
+                //   el.unit = filtered[0].unit
+                // })
+                // console.log(rowInfo)
+                // let mysql222 = ""
+                // rowInfo.forEach((el) => {
+                //   mysql222 = `${mysql222} Update salesData set smartRow = '${el.rowID}' where unit = ${el.unit};`
+                // })
+                // console.log(mysql222)
+
+                
+
+
               //     if (el1.displayValue !== undefined && el1.displayValue.includes('Registration / Transfer')) {
               //       console.log(el1.displayValue)
               //       let insert = {
@@ -345,9 +375,6 @@ router.get("/callbackWB", (req, res) => {
                 el.unit = filtered[0].unit;
                 el.unitName = filtered[0].unitName;
               });
-              console.log(finalSQLArray);
-              console.log(finalSQLArray.length);
-
               let mysql = "";
               finalSQLArray.forEach((el) => {
                 mysql = `${mysql} update salesData set transfer_date = '${
@@ -376,7 +403,11 @@ router.get("/callbackWB", (req, res) => {
                 };
                  `;
               });
+
+
               console.log(mysql);
+
+
 
               pool.getConnection(function (err, connection) {
                 if (err) {
@@ -1478,7 +1509,7 @@ router.post("/editsalesDataWb", (req, res) => {
     sold = true;
   }
 
-  let mysql = `Update salesData set base_price = ${parseFloat(
+  let mysql0 = `Update salesData set base_price = ${parseFloat(
     req.body.base_price
   )}, contract_price = ${parseFloat(req.body.contract_price)},
                   parking = ${parseFloat(req.body.parking)}, bay_no = '${
@@ -1492,6 +1523,8 @@ router.post("/editsalesDataWb", (req, res) => {
                   bond_app_date = ${bond_app_date}, lodge_date = ${lodge_date}, transfer_date = ${transfer_date}, actualsale_date = ${actualsale_date},
                   sold = ${sold} where id = ${req.body.id}   
     `;
+    let mysql1 = `update salesinfo set actualSalesdate = ${actualsale_date} where unit = '${req.body.unitName}' and development = ${req.body.development}`
+    let mysql = `${mysql0};${mysql1}`
   console.log(chalk.red(mysql));
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -1513,14 +1546,22 @@ router.post("/editsalesDataWb", (req, res) => {
 // Investment DATA
 router.post("/getInvestmentDataForFile", (req, res) => {
   // res.json({awesome: "This Far!!"})
-  let mysql1 = `select i.id, i.development, i.unit,u.unitName,i.investor_code,i.investor, i.available, i.available_date, i.la_email_date,i.la_sign_date,i.pledged,i.attorney_inv_amount,i.fica_inv_date,i.amount,
-    i.quinteDate,i.draw, d.drawNumber,i.drawn,  i.drawAdjustment, i.interest_rate,i.repayment_date, 
-    i.trust_account_interest,i.supplementary_interest,i.opc_comm from units u,investorDetails i
-    left join  draws d
-    on i.draw = d.id
-    where i.unit = u.id and i.development = ${req.body.id}
-    order by unit, id
+  let mysql1 = `select i.id, i.development, i.unit,u.unitName,s.sold,i.investor_code,i.investor, i.available, i.available_date, i.la_email_date,i.la_sign_date,i.pledged,i.attorney_inv_amount,i.fica_inv_date,i.amount,
+  i.quinteDate,i.draw, d.drawNumber,i.drawn,  i.drawAdjustment, i.interest_rate,i.repayment_date, 
+  i.trust_account_interest,i.supplementary_interest,i.opc_comm from salesData s, units u,investorDetails i
+  left join  draws d
+  on i.draw = d.id
+  where i.unit = u.id and i.development = ${req.body.id} and s.unit = i.unit
+  order by unitName, id
     `;
+  // let mysql1 = `select i.id, i.development, i.unit,u.unitName,i.investor_code,i.investor, i.available, i.available_date, i.la_email_date,i.la_sign_date,i.pledged,i.attorney_inv_amount,i.fica_inv_date,i.amount,
+  //   i.quinteDate,i.draw, d.drawNumber,i.drawn,  i.drawAdjustment, i.interest_rate,i.repayment_date, 
+  //   i.trust_account_interest,i.supplementary_interest,i.opc_comm from units u,investorDetails i
+  //   left join  draws d
+  //   on i.draw = d.id
+  //   where i.unit = u.id and i.development = ${req.body.id}
+  //   order by unit, id
+  //   `;
   let mysql2 = `select * from draws`;
   let mysql3 = `select * from units where development = ${req.body.id}`;
   let mysql = `${mysql1};${mysql2};${mysql3}`;
@@ -2390,8 +2431,20 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
     where  f.development =  ${req.body.id} and f.budgetAmount != 0
     group by discipline, f.paymentDate
     order by f.paymentDate;
-  select * from dashboardCategories;`;
-  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5};${mysql6};${mysql7};${mysql8};${mysql9};${mysql10};${mysql11};${mysql12};${mysql13};${mysql14};${mysql15};${mysql16};${mysql17};${mysql18};${mysql19}`;
+  select * from dashboardCategories`;
+  let mysql20 = `select 
+  if(d.section = 1, 'Total Land Costs Paid', 
+  if(d.section = 2, 'Total Professional Fees & Payments Paid', 
+  if (d.section = 3, 'Total Infrastructure Construction Paid', 
+  if(d.section = 4, 'Total Construction & Building Paid',0)))) as discipline,
+  sum(f.actualAmount) as amount, f.paymentDate as dashboardDate from financeInput f, dashboardCategories d 
+  where f.development = ${req.body.id} and f.category = d.id and f.paid = 1
+  group by d.section, dashboardDate`;
+  let mysql21 = `select 'Total Construction & Building Paid - Janine' as discipline, sum(actualAmount) as amount, paymentDate as dashboardDate 
+  from financeConstructionInput
+  where development = ${req.body.id} and paid != 0
+  group by paymentDate`;
+  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5};${mysql6};${mysql7};${mysql8};${mysql9};${mysql10};${mysql11};${mysql12};${mysql13};${mysql14};${mysql15};${mysql16};${mysql17};${mysql18};${mysql19};${mysql20};${mysql21}`;
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -3630,6 +3683,9 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           disciplineArray.push(el.discipline);
         });
 
+        // console.log("sql19",result[18])
+        // console.log("sql20",result[20])
+
         disciplineArray.sort();
         disciplineArray = Array.from(new Set(disciplineArray));
 
@@ -3734,6 +3790,11 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           { discipline: "calcbecomeslessthanzero" },
           { discipline: "VAT ON Sales to Process" },
           { discipline: "VAT on Expenses to Process" },
+          { discipline: "Total Land Costs Paid" },
+          { discipline: "Total Professional Fees & Payments Paid" },
+          { discipline: "Total Infrastructure Construction Paid" },
+          { discipline: "Total Construction & Building Paid" },
+          { discipline: "Total Construction & Building Paid - Janine" },
         ];
 
         let interestArray = result[8];
@@ -3795,6 +3856,18 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           result[13].push(el);
         });
 
+        // console.log(result[20])
+        // console.log(result[21])
+        if (result[21].length === 0) {
+          let insert = {
+            discipline: 'Total Construction & Building Paid - Janine',
+            Amount: 0,
+            dashboardDate: '2021-09-03'
+          }
+          result[21].push(insert)
+        }
+
+
         console.time("Merge 7 & 10");
         result[7] = [
           ...result[7],
@@ -3806,6 +3879,9 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           ...result[14],
           ...result[15],
           ...result[16],
+          ...result[20],
+          ...result[21],
+
         ];
 
         console.timeEnd("Merge 7 & 10");
@@ -4905,7 +4981,7 @@ const createDashboardXLSX = async (data, data2, data3) => {
 
   const totalTotals = mergeTotals(constructionTotals);
 
-  // console.log("totalTotals", totalTotals);
+  console.log("totalTotals", totalTotals);
 
   totalTotals.description = "Total Costs - Trust";
 
@@ -4971,6 +5047,11 @@ const createDashboardXLSX = async (data, data2, data3) => {
   let summaryObject114 = object52;
   let summaryObject115 = object50;
   let summaryObject116 = object49;
+  let summaryObject117 = {};
+  let summaryObject118 = {};
+  let summaryObject119 = {};
+  let summaryObject120 = {};
+  let summaryObject121 = {};
 
   // console.log("summaryObject114",summaryObject114)
 
@@ -5034,6 +5115,11 @@ const createDashboardXLSX = async (data, data2, data3) => {
     "summaryObject114",
     "summaryObject115",
     "summaryObject116",
+    "summaryObject117",
+    "summaryObject118",
+    "summaryObject119",
+    "summaryObject120",
+    "summaryObject121",
   ];
 
   // console.log("totalTotals",totalTotals)
@@ -5077,8 +5163,6 @@ const createDashboardXLSX = async (data, data2, data3) => {
     summaryObject52[`${dashboardDate}`] =
       el["Available Income (Units not funded - Debbie)"];
     summaryObject5[`${dashboardDate}`] = el["Actual Draws Done"];
-
-    summaryObject50[`${dashboardDate}`] = 0;
 
     summaryObject50[`${dashboardDate}`] = el["Draw (prepopulated - Debbie)"];
 
@@ -5127,15 +5211,14 @@ const createDashboardXLSX = async (data, data2, data3) => {
       el["Construction Expenses still due"];
     summaryObject112[`${dashboardDate}`] = el["VAT ON Sales to Process"];
     summaryObject113[`${dashboardDate}`] = el["VAT on Expenses to Process"];
-    // summaryObject114[`${dashboardDate}`] = el["Block A"];
-    // summaryObject115[`${dashboardDate}`] = el["Block B"];
-    // summaryObject116[`${dashboardDate}`] = el["Block C"];
+    summaryObject117[`${dashboardDate}`] = el["Total Land Costs Paid"];
+    summaryObject118[`${dashboardDate}`] = el["Total Professional Fees & Payments Paid"];
+    summaryObject119[`${dashboardDate}`] = el["Total Infrastructure Construction Paid"];
+    summaryObject120[`${dashboardDate}`] = el["Total Construction & Building Paid"];
+    summaryObject121[`${dashboardDate}`] = el["Total Construction & Building Paid - Janine"];
 
-    // console.log("summaryObject114",summaryObject114[`${dashboardDate}`])
+ 
 
-    // object52[`${dashboardDate}`] = el["Block A"];
-    // object50[`${dashboardDate}`] = el["Block B"];
-    // object49[`${dashboardDate}`] = el["Block C"];
 
     if (index === arr.length - 1) {
       summaryObject1.description = "Loan Agreement Emailed Not signed";
@@ -5198,6 +5281,17 @@ const createDashboardXLSX = async (data, data2, data3) => {
       // summaryObject114.description = "Block A";
       // summaryObject115.description = "Block B";
       // summaryObject116.description = "Block C";
+      summaryObject117.description = "Total Land Costs Paid";
+      summaryObject118.description = "Total Professional Fees & Payments Paid";
+      summaryObject119.description = "Total Infrastructure Construction Paid";
+      summaryObject120.description = "Total Construction & Building Paid";
+      summaryObject121.description = "Total Construction & Building Paid (PO & PC)";
+
+
+         // { discipline: "Total Land Costs Paid" },
+    //       { discipline: "Total Professional Fees & Payments Paid" },
+    //       { discipline: "Total Infrastructure Construction Paid" },
+    //       { discipline: "Total Construction & Building Paid" },
 
       sheet3.addRow({});
       sheet3.addRow({ description: "LOAN DETAILS" });
@@ -5205,6 +5299,7 @@ const createDashboardXLSX = async (data, data2, data3) => {
       // sheet3.addRow({description: "Loan"});
 
       summaryObjects.forEach((el, index) => {
+        console.log("summaryObject", index, el)
         if (
           index === 0 ||
           index === 7 ||
@@ -5268,6 +5363,24 @@ const createDashboardXLSX = async (data, data2, data3) => {
           sheet3.addRow({});
           sheet3.addRow({ description: "BOND" });
         }
+        if (index === 48) {
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({});
+          sheet3.addRow({ description: "Paid to Date - Amina" });
+        }
       });
     }
   });
@@ -5285,6 +5398,27 @@ const createDashboardXLSX = async (data, data2, data3) => {
   // console.log("C3", sheet3.getCell("C3").value);
   console.log("Columns", sheet3.columns.length);
   console.log("Last Column", cols[sheet3.columns.length - 1]);
+
+  sheet3.getCell("C3").value = {
+    formula: "+C99",
+    result: 0,
+  };
+  sheet3.getCell("C4").value = {
+    formula: "+C100",
+    result: 0,
+  };
+  sheet3.getCell("C5").value = {
+    formula: "+C101",
+    result: 0,
+  };
+  sheet3.getCell("C6").value = {
+    formula: "+C102+C103",
+    result: 0,
+  };
+  sheet3.getCell("C7").value = {
+    formula: "+C3+C4+C5+C6",
+    result: 0,
+  };
 
   sheet3.getCell("D14").value = {
     formula: "+D13+D12-D18",
@@ -5333,17 +5467,29 @@ const createDashboardXLSX = async (data, data2, data3) => {
 
   sheet3.fillFormula(
     `D43:${cols[sheet3.columns.length - 1]}43`,
-    "=(D36-D47-D42)+D59-D48"
+    "=+D36*D38*D39+(D59*D60)"
   );
+  // sheet3.fillFormula(
+  //   `D43:${cols[sheet3.columns.length - 1]}43`,
+  //   "=(D36-D47-D42)+D59-D48"
+  // );
 
   // sheet3.fillFormula(
   //   `CS46:D46`,
   //   "=IF(+D76+D6-D22-D23-D24-D25<0,+D23+D24+D25,+D76+D6-D22-D23-D24-D25)"
   // );
-  sheet3.fillFormula(`D46:CR46`, "0");
+
+
+  // sheet3.fillFormula(`D46:CR46`, "0");
+
+  // sheet3.fillFormula(
+  //   `CS46:${cols[sheet3.columns.length - 1]}46`,
+  //   "=CS76+CS77+CS80+CS81+CS82+CR53"
+  // );
+
 
   sheet3.fillFormula(
-    `CS46:${cols[sheet3.columns.length - 1]}46`,
+    `D46:${cols[sheet3.columns.length - 1]}46`,
     // "=IF(+CS76+CS76-CS22-CS23-CS24-CS25<0,+CS23+CS24+CS25,+CS76+CS6-CS22-CS23-CS24-CS25)+CR53"
     "=CS76+CS77+CS80+CS81+CS82+CR53"
     // "=CS76+CS77+CR53"
@@ -5360,13 +5506,14 @@ const createDashboardXLSX = async (data, data2, data3) => {
     `CS48:${cols[sheet3.columns.length - 1]}48`,
     "=+CS59*(1-CS60)"
   );
-  sheet3.fillFormula(`D49:CR49`, "0");
+  // sheet3.fillFormula(`D49:CR49`, "0");
 
-  sheet3.fillFormula(`CS49:${cols[sheet3.columns.length - 1]}49`, "=+CS78");
+  // sheet3.fillFormula(`CS49:${cols[sheet3.columns.length - 1]}49`, "=+CS78");
+  sheet3.fillFormula(`D49:${cols[sheet3.columns.length - 1]}49`, "=+D78");
 
   sheet3.fillFormula(
     `D52:${cols[sheet3.columns.length - 1]}52`,
-    "=IF(+D46-D47-D48-D49+D50+D51-D22-D23-D24-D25<0,0,+D46-D47-D48-D49+D50+D51-D22-D23-D24-D25)"
+    "=IF(+D46-D47-D48+D49+D50+D51-D22-D23-D24-D25<0,0,+D46-D47-D48+D49+D50+D51-D22-D23-D24-D25)"
   );
   sheet3.fillFormula(
     `D53:${cols[sheet3.columns.length - 1]}53`,
@@ -5405,26 +5552,28 @@ const createDashboardXLSX = async (data, data2, data3) => {
   // sheet3.fillFormula(`D80:${cols[sheet3.columns.length - 1]}80`, "=+Trust!D52+Trust!D53+Trust!D54");
   // console.log(sheet2);
 
-  sheet3.getCell("C3").value = {
+  sheet3.getCell("B3").value = {
     formula: `=sum(D3:${cols[sheet3.columns.length - 1]}3)`,
     result: 0,
   };
-  sheet3.getCell("C4").value = {
+  sheet3.getCell("B4").value = {
     formula: `=sum(D4:${cols[sheet3.columns.length - 1]}4)`,
     result: 0,
   };
-  sheet3.getCell("C5").value = {
+  sheet3.getCell("B5").value = {
     formula: `=sum(D5:${cols[sheet3.columns.length - 1]}5)`,
     result: 0,
   };
-  sheet3.getCell("C6").value = {
+  sheet3.getCell("B6").value = {
     formula: `=sum(D6:${cols[sheet3.columns.length - 1]}6)`,
     result: 0,
   };
-  sheet3.getCell("C7").value = {
+  sheet3.getCell("B7").value = {
     formula: `=sum(D7:${cols[sheet3.columns.length - 1]}7)`,
     result: 0,
   };
+
+  sheet3.getCell("C2").value = "Paid To Date"
   // sheet3.getCell("D8").value = {
   //   formula: `+D7)`,
   //   result: 0,
@@ -5484,6 +5633,10 @@ const createDashboardXLSX = async (data, data2, data3) => {
   };
   sheet3.getCell("C32").value = {
     formula: `=sum(D32:${cols[sheet3.columns.length - 1]}32)`,
+    result: 0,
+  };
+  sheet3.getCell("C33").value = {
+    formula: `=C31+C32`,
     result: 0,
   };
   sheet3.getCell("D33").value = {
@@ -5585,8 +5738,193 @@ const createDashboardXLSX = async (data, data2, data3) => {
     formula: `=sum(D82:${cols[sheet3.columns.length - 1]}82)`,
     result: 0,
   };
+  sheet3.getCell("A86").value = "Check Box"
+  sheet3.getCell("A87").value = "Budget expenditure less Actual Paid"
+  sheet3.getCell("A88").value = "Actual Expenditure less Actually Drawn"
+  sheet3.getCell("A89").value = "Raised plus Security less (R1 000 000 * No of units)"
+  sheet3.getCell("A90").value = "Company Income and VAT Check not utilized for expenses"
+  sheet3.getCell("A91").value = "Cumulative Interest"
+  // sheet3.getCell("A92").value = "Transfer Income"
+  // sheet3.getCell("A93").value = "Investor Repayment"
 
-  console.log("actualRowCoun", sheet3.columns.length);
+  sheet3.getCell("B87").value = {
+    formula: `=+B7-C7`,
+    result: 0,
+  };
+  sheet3.getCell("B88").value = {
+    formula: `=+C7-C22`,
+    result: 0,
+  };
+  sheet3.getCell("B89").value = {
+    formula: `=+C14+C17+C19-(1000000*C40)`,
+    result: 0,
+  };
+  sheet3.getCell("B90").value = {
+    formula: `+C105`,
+    result: 0,
+  };
+  sheet3.getCell("B91").value = {
+    formula: `=+C33`,
+    result: 0,
+  };
+
+
+  sheet3.getCell("A105").value = "Company Income and VAT Check not utilized for expenses"
+
+  sheet3.fillFormula(`D105:${cols[sheet3.columns.length - 1]}105`, "=+D36-D42-D43-D47+((D59*D60))");
+  sheet3.getCell("C105").value = {
+    formula: `=sum(D105:${cols[sheet3.columns.length - 1]}105)`,
+    result: 0,
+  };
+
+
+
+  sheet3.getCell('A86').border = {
+    top: { style: "medium" }, 
+  };
+  sheet3.getCell('A87').border = {
+    left: { style: "medium" }, 
+  };
+  sheet3.getCell('A88').border =  {
+   left: { style: "medium" }, 
+  };
+  sheet3.getCell('A89').border =  {
+   left: { style: "medium" }, 
+  };
+  sheet3.getCell('A90').border =  {
+   left: { style: "medium" }, 
+  };
+  sheet3.getCell('A61').border =  {
+   left: { style: "medium" }, 
+  };
+  sheet3.getCell('A92').border =  {
+   left: { style: "medium" }, 
+  };
+  sheet3.getCell('A93').border =  {
+   left: { style: "medium" }, 
+   bottom: { style: "medium" }, 
+  };
+  sheet3.getCell('B87').border = {
+    right: { style: "medium" }, 
+  };
+  sheet3.getCell('B88').border =  {
+   right: { style: "medium" }, 
+  };
+  sheet3.getCell('B89').border =  {
+   right: { style: "medium" }, 
+  };
+  sheet3.getCell('B90').border =  {
+   right: { style: "medium" }, 
+  };
+  sheet3.getCell('B91').border =  {
+   right: { style: "medium" }, 
+  };
+  sheet3.getCell('B92').border =  {
+   right: { style: "medium" }, 
+
+
+  };
+  sheet3.getCell('B93').border =  {
+   right: { style: "medium" }, 
+   bottom: { style: "medium" }, 
+  };
+ 
+  sheet3.getCell('B86').border = {
+    top: { style: "medium" }, 
+    right: { style: "medium" }, 
+  };
+sheet3.getCell(`A86`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A87`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A88`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A89`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A90`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A91`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A91`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A92`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`A93`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B86`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B87`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B88`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B89`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B90`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B91`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B91`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B92`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+sheet3.getCell(`B93`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FEE440" },
+    };
+
+  // console.log("actualRowCoun", sheet3.columns.length);
 
   for (x = 0; x < sheet3.columns.length; x++) {
     sheet3.getCell(`${cols[x]}1`).fill = {
@@ -5607,6 +5945,88 @@ const createDashboardXLSX = async (data, data2, data3) => {
     if (x >= 3 && x <= 94) {
       sheet3.getColumn(`${cols[x]}`).hidden = true;
     }
+    
+    sheet3.getCell(`${cols[1]}3`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "5089C6" },
+    };
+    sheet3.getCell(`${cols[1]}4`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "5089C6" },
+    };
+    sheet3.getCell(`${cols[1]}5`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "5089C6" },
+    };
+    sheet3.getCell(`${cols[1]}6`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "5089C6" },
+    };
+    sheet3.getCell(`${cols[1]}7`).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "5089C6" },
+    };
+    sheet3.getCell(`${cols[1]}3`).border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+    sheet3.getCell(`${cols[1]}4`).border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+    sheet3.getCell(`${cols[1]}5`).border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+    sheet3.getCell(`${cols[1]}6`).border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+    sheet3.getCell(`${cols[1]}7`).border = {
+      top: { style: "medium" },
+      left: { style: "medium" },
+      bottom: { style: "medium" },
+      right: { style: "medium" },
+    };
+
+    sheet3.getCell(`${cols[1]}3`).font = {
+      color: { argb: "FFFFFF" },
+      size: 13,
+      bold: false,
+    };
+    sheet3.getCell(`${cols[1]}4`).font = {
+      color: { argb: "FFFFFF" },
+      size: 13,
+      bold: false,
+    };
+    sheet3.getCell(`${cols[1]}5`).font = {
+      color: { argb: "FFFFFF" },
+      size: 13,
+      bold: false,
+    };
+    sheet3.getCell(`${cols[1]}6`).font = {
+      color: { argb: "FFFFFF" },
+      size: 13,
+      bold: false,
+    };
+    sheet3.getCell(`${cols[1]}7`).font = {
+      color: { argb: "FFFFFF" },
+      size: 13,
+      bold: true,
+    };
 
     if (x >= 2 && x <= sheet3.columns.length) {
       // balDue.eachCell((cell, rowNumber) => {
@@ -5654,8 +6074,10 @@ const createDashboardXLSX = async (data, data2, data3) => {
       });
 
       //CONDITIONAL FORMATTING
-      if (sheet3.getCell(`C21`).value > 60000000) {
-        sheet3.getCell(`C21`).fill = {
+
+      // console.log("C27 Value::", sheet3.getCell(`C27`).value)
+      if (sheet3.getCell(`C27`).value > 60000) {
+        sheet3.getCell(`C27`).fill = {
           type: "gradient",
           gradient: "angle",
           degree: 0,
@@ -5996,6 +6418,7 @@ const createDashboardXLSX = async (data, data2, data3) => {
       sheet3.getCell("A77").note = "These are Unpaid Construction Expenses";
       sheet3.getCell("A78").note = "These are VAT on Sales not yet paid";
       sheet3.getCell("A79").note = "These are VAT on Expenses not yet claimed";
+      sheet3.getCell("A90").note = "This checks that transfer fees as well as VAT not used in expenses reconciles. Thus rows 36, 42, 43 & 47 reconcile to Zero but that the %age of VAT not used (row 60 is where this is allocated) is also in the equation as row 43 includes the VAT not utilized for expenses.";
 
       sheet3.getCell(`A7`).font = {
         size: 14,
@@ -6088,9 +6511,41 @@ const createDashboardXLSX = async (data, data2, data3) => {
       };
 
       sheet3.getRow(24).hidden = true;
+      sheet3.getRow(68).hidden = true;
+      sheet3.getRow(69).hidden = true;
+      sheet3.getRow(70).hidden = true;
+      sheet3.getRow(71).hidden = true;
+      sheet3.getRow(76).hidden = true;
+      sheet3.getRow(77).hidden = true;
+      sheet3.getRow(78).hidden = true;
+      sheet3.getRow(79).hidden = true;
+      sheet3.getRow(80).hidden = true;
+      sheet3.getRow(81).hidden = true;
+      sheet3.getRow(82).hidden = true;
+      sheet3.getRow(98).hidden = true;
+      sheet3.getRow(99).hidden = true;
+      sheet3.getRow(100).hidden = true;
+      sheet3.getRow(101).hidden = true;
+      sheet3.getRow(102).hidden = true;
+      sheet3.getRow(103).hidden = true;
+      sheet3.getRow(104).hidden = true;
+      sheet3.getRow(105).hidden = true;
       // sheet3.insertRow(24, 0, style = 'n')
     }
   }
+
+  // if (sheet3.getCell(`C27`).formula > 60000) {
+  //   sheet3.getCell(`C27`).fill = {
+  //     type: "gradient",
+  //     gradient: "angle",
+  //     degree: 0,
+  //     stops: [
+  //       { position: 0, color: { argb: "ffffff" } },
+  //       { position: 0.5, color: { argb: "FF2626" } },
+  //       { position: 1, color: { argb: "BD1616" } },
+  //     ],
+  //   };
+  // }
 
   console.log("Last Column", cols[189]);
   console.log(cols.length);

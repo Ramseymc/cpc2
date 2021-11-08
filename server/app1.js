@@ -59,6 +59,8 @@ const iTCRoutes = require("./routes/iTCRoutes");
 const salesRoutes = require("./routes/salesRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const pandgRoutes = require("./routes/pandgRoutes");
+const smartRoutes = require("./routes/smartRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 app.use(
   progressRoutes,
   progressResultsRoutes,
@@ -74,7 +76,9 @@ app.use(
   iTCRoutes,
   salesRoutes,
   dashboardRoutes,
-  pandgRoutes
+  pandgRoutes,
+  smartRoutes,
+  uploadRoutes
 );
 
 app.listen(port, () => {

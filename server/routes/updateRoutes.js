@@ -681,7 +681,7 @@ router.post("/saveProjectChanges", (req, res) => {
   });
 });
 
-router.post("/getTaskList", (req, res) => {
+router.post("/getTaskListWb", (req, res) => {
   console.log(req.body);
   // res.json({awesome: "It Works"})
   let mysql = `select * from taskList where development = ${req.body.id} order by sortIndex`;
@@ -694,6 +694,7 @@ router.post("/getTaskList", (req, res) => {
     connection.query(mysql, function (error, result) {
       if (error) {
         console.log(error);
+        res.json(error)
       } else {
         console.log(result);
         res.json(result);
@@ -703,7 +704,7 @@ router.post("/getTaskList", (req, res) => {
   });
 });
 
-router.post("/createTaskListItem", (req, res) => {
+router.post("/createTaskListItemWb", (req, res) => {
   console.log(req.body);
 
   // res.json({awesome: "It Works"})
@@ -728,7 +729,7 @@ router.post("/createTaskListItem", (req, res) => {
   });
 });
 
-router.post("/deleteTaskListItem", (req, res) => {
+router.post("/deleteTaskListItemWb", (req, res) => {
   console.log(req.body);
   // res.json({awesome: "It Works"})
   let mysql = `delete from taskList where id = ${req.body.id}`;
@@ -750,7 +751,7 @@ router.post("/deleteTaskListItem", (req, res) => {
   });
 });
 
-router.post("/updateTaskList", (req, res) => {
+router.post("/updateTaskListWb", (req, res) => {
   console.log(req.body.info);
   // res.json({awesome: "It Works"})
 

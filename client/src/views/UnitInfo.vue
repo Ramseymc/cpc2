@@ -366,7 +366,7 @@ export default {
               el.gasStoveCost = this.convertToString(el.gasStoveCost);
               el.dateCreated = dayjs(el.dateCreated).format("YYYY-MM-DD");
               el.depositDate = dayjs(el.depositDate).format("YYYY-MM-DD");
-              el.link = `${process.env.VUE_APP_BASEURL}/uploads/${el.planType}`;
+              el.link = `${process.env.VUE_APP_BASEURL}/${el.planType}`;
             });
             console.log(this.salesInfo);
           },

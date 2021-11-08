@@ -33,47 +33,25 @@
                 <v-spacer></v-spacer>
               </div>
               <v-list-item-title class="text-h5 mb-1">
-                Investor Input
+                Investor Capital
               </v-list-item-title>
+
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
-                    <strong>Pledges</strong>
-                  </div>
-                  <div>
-                    <strong>{{ pledgedTotals }}</strong>
-                  </div>
-                </div>
-              </v-list-item-subtitle>
-              <v-list-item-subtitle class="text-h7 mb-1">
-                <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
-                >
-                  <div>
-                    <strong>Momentum</strong>
+                    <strong>Momentum Account</strong>
                   </div>
                   <div>
                     <strong>{{ momentumTotals }}</strong>
                   </div>
                 </div>
               </v-list-item-subtitle>
+
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
-                >
-                  <div>
-                    <strong>Planned Draws</strong>
-                  </div>
-                  <div>
-                    <strong>{{ plannedDrawTotals }}</strong>
-                  </div>
-                </div>
-              </v-list-item-subtitle>
-              <v-list-item-subtitle class="text-h7 mb-1">
-                <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Drawn to Date</strong>
@@ -84,29 +62,57 @@
                 </div>
               </v-list-item-subtitle>
 
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
+                >
+                  <div>
+                    <strong>Total Investor Capital</strong>
+                  </div>
+                  <div>
+                    <u
+                      ><strong>{{ investorCapitalTotal }}</strong></u
+                    >
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+
               <hr />
               <br />
               <v-list-item-title class="text-h5 mb-1">
                 Available Security
               </v-list-item-title>
+
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
-                    <strong>Security available</strong>
+                    <strong>Security Allocated</strong>
                   </div>
                   <div>
-                    <strong>{{ totalFundsAvailable }}</strong>
+                    <strong>{{ plannedDrawTotals }}</strong>
                   </div>
                 </div>
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
-                    <strong>Security Allocate</strong>
+                    <strong>Security Pledged</strong>
+                  </div>
+                  <div>
+                    <strong>{{ pledgedTotals }}</strong>
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
+                >
+                  <div>
+                    <strong>Security Planned</strong>
                   </div>
                   <div>
                     <strong>{{ allocatedTotalsP }}</strong>
@@ -115,7 +121,19 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  v-if="unallocatedTotalsP !== 'R0.00'"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%; color: red;"
+                >
+                  <div>
+                    <strong>Security Unallocated</strong>
+                  </div>
+                  <div>
+                    <strong>{{ unallocatedTotalsP }}</strong>
+                  </div>
+                </div>
+                <div
+                  v-else
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Security Unallocated</strong>
@@ -125,6 +143,21 @@
                   </div>
                 </div>
               </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-h7 mb-1">
+                <div
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
+                >
+                  <div>
+                    <strong>Total Available Security</strong>
+                  </div>
+                  <div>
+                    <u
+                      ><strong>{{ availableSecurityTotal }}</strong></u
+                    >
+                  </div>
+                </div>
+              </v-list-item-subtitle>
+
               <hr />
               <br />
               <v-list-item-title class="text-h5 mb-1">
@@ -132,7 +165,7 @@
               </v-list-item-title>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Funds raised</strong>
@@ -144,7 +177,7 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Security Available</strong>
@@ -157,13 +190,15 @@
 
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Total Funding</strong>
                   </div>
                   <div>
-                    <strong>{{ totalFundingInclAvailable }}</strong>
+                    <u
+                      ><strong>{{ totalFundingInclAvailable }}</strong></u
+                    >
                   </div>
                 </div>
               </v-list-item-subtitle>
@@ -174,7 +209,7 @@
               </v-list-item-title>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Trust Interest (6.25%)</strong>
@@ -186,7 +221,7 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Contract Interest</strong>
@@ -198,7 +233,7 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Contract Interest (on Available Security)</strong>
@@ -210,13 +245,15 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Total Interest</strong>
                   </div>
                   <div>
-                    <strong>{{ totalInterestAtRepayment }}</strong>
+                    <u
+                      ><strong>{{ totalInterestAtRepayment }}</strong></u
+                    >
                   </div>
                 </div>
               </v-list-item-subtitle>
@@ -228,7 +265,7 @@
               </v-list-item-title>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Trust Interest (6.25%)</strong>
@@ -240,7 +277,7 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Contract Interest</strong>
@@ -252,7 +289,7 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Contract Interest (on Available Security)</strong>
@@ -264,13 +301,15 @@
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-h7 mb-1">
                 <div
-                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;"
+                  style="display: flex; justify-content: space-between; margin-left:45px;margin-right:45px;font-size:110%;"
                 >
                   <div>
                     <strong>Total Interest</strong>
                   </div>
                   <div>
-                    <strong>{{ totalInterestAtToday }}</strong>
+                    <u
+                      ><strong>{{ totalInterestAtToday }}</strong></u
+                    >
                   </div>
                 </div>
               </v-list-item-subtitle>
@@ -279,18 +318,20 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row class="text-center" v-if="switch1">
+    <v-row class="text-center">
       <v-col cols="12" offset="0">
+        <!-- desserts -->
         <v-data-table
           style="margin: 25px 25px;"
           :headers="headers"
-          :items="desserts"
+          :items="filteredData"
           :search="search"
           @current-items="getFiltered"
           dense
           class="elevation-0"
           multi-sort
           :items-per-page="itemsPerPage"
+          v-if="switch1"
         >
           <template v-slot:item.sold="{ item }">
             <v-chip :color="getColor(item.sold)" small dark>
@@ -304,21 +345,36 @@
               disabled
             ></v-simple-checkbox>
           </template>
+          <template v-slot:item.drawn2="{ item }">
+            <v-chip :color="getColor2(item.drawn2)" small dark>
+              {{ item.drawn2 }}
+            </v-chip>
+          </template>
           <template v-slot:item.unitName="{ item }">
-            <v-chip :id="item.id" small @click="redirectToUnitInfo">{{
-              item.unitName
-            }}</v-chip>
+            <v-chip
+              :id="item.id"
+              small
+              @click="redirectToUnitInfo"
+              :color="getColor(item.sold)"
+              >{{ item.unitName }}</v-chip
+            >
           </template>
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>Investor Input</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
-              <!-- <small
-                >Pledged: {{ pledgedTotals }} - Momentum :
-                {{ momentumTotals }} - Drawn: {{ drawnTotals }} - Subscribed
-                {{ subscribedTotals }}</small
-              ><br />
-              <v-spacer></v-spacer> -->
+              <v-spacer></v-spacer>
+              <span v-if="!indeterminate && (search === '' || search === null)">
+                Drawn to date: <strong>{{ drawnTotalsOnly }}</strong>
+              </span>
+              <v-spacer></v-spacer>
+              <v-checkbox
+                v-if="search !== '' || search !== null"
+                v-model="filterDrawn"
+                :indeterminate="indeterminate"
+                @change="filterCheckBox"
+                :label="checkBoxLabel"
+              ></v-checkbox>
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -351,13 +407,6 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <!-- <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                          
-                            v-model="editedItem.unitName"
-                            label="Unit"
-                          ></v-text-field>
-                        </v-col> -->
                         <v-col cols="12" sm="6" md="3">
                           <v-autocomplete
                             v-model="editedItem.unitName"
@@ -383,43 +432,6 @@
                             label="Investor"
                           ></v-text-field>
                         </v-col>
-                        <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-                        <!-- <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.available"
-                            label="Available"
-                          ></v-text-field>
-                        </v-col> -->
-                        <!-- <v-col cols="12" sm="6" md="3">
-                          <v-menu
-                            v-model="available_dateMenu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.available_date"
-                                label="Available Date"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                                clearable
-                                @click:clear="clearavailable_date"
-                              ></v-text-field>
-                            </template>
-                            <v-date-picker
-                              @change="available_dateChange"
-                              v-model="available_date"
-                              @input="available_dateMenu = false"
-                            ></v-date-picker>
-                          </v-menu>
-                        </v-col> -->
-                        <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
@@ -588,13 +600,6 @@
                             label="Trust Interest"
                           ></v-text-field>
                         </v-col>
-                        <!-- <v-col cols="12" sm="6" md="3">
-                          <v-text-field
-                            type="number"
-                            v-model="editedItem.supplementary_interest"
-                            label="Supplementary Interest"
-                          ></v-text-field>
-                        </v-col> -->
                         <v-col cols="12" sm="6" md="3">
                           <v-text-field
                             type="number"
@@ -648,7 +653,6 @@
                               parseFloat(editedItem.amount) === 0
                           "
                         >
-                          <!-- v-if="showDrawn" -->
                           <v-checkbox
                             v-if="
                               parseFloat(editedItem.attorney_inv_amount) ===
@@ -732,26 +736,6 @@
                 </v-card>
               </v-dialog>
             </v-toolbar>
-            <!-- <v-toolbar flat>
-              <small>Planned Draws: {{ plannedDrawTotals }}</small>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <small>Required : R0</small>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <small>Variance: {{ plannedDrawTotals }}</small>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <small>Units: {{ unitCount }}</small>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <small>Available: {{ availableTotals }}</small>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <small
-                >Interest At Repayment:
-                {{ totalInteresRepayableAtRepayment }}</small
-              >
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <small
-                >Interest At Today: {{ totalInterestRepayableAtToday }}</small
-              >
-            </v-toolbar> -->
           </template>
           <template v-slot:item.actions="{ item }">
             <v-icon color="green" class="mr-2" @click="editItem(item)">
@@ -767,13 +751,6 @@
             </v-btn>
           </template>
         </v-data-table>
-        <!-- <v-col class="text-truncate" cols="12" md="12">
-          Total {{ totalRecords }} records
-        </v-col>
-          <v-col cols="12" md="12">
-          
-          <v-pagination v-model="page" :length="pageCount"> </v-pagination>
-        </v-col> -->
       </v-col>
       <v-snackbar v-model="snackbar" top color="amber">
         {{ snackbarMessage }}
@@ -782,9 +759,12 @@
         </v-btn>
       </v-snackbar>
     </v-row>
-    <v-row class="text-center" v-if="!switch1">
+    <v-row class="text-center">
       <v-col cols="12" offset="0">
-        <InvestorDataPlanningComp @fundsToBeFunded="fundsToBeFunded" />
+        <InvestorDataPlanningComp
+          @fundsToBeFunded="fundsToBeFunded"
+          v-if="!switch1"
+        />
       </v-col>
     </v-row>
   </div>
@@ -816,8 +796,13 @@ export default {
   },
   data() {
     return {
+      filterDrawn: "",
+      indeterminate: true,
+      checkBoxCount: 0,
+      checkBoxLabel: "No Filter Used (Click to see Drawn, or not Drawn)",
       allocatedTotalsP: 0,
       unallocatedTotalsP: 0,
+      drawnTotalsOnly: 0,
       totalInterestRepayableAtTodayP: 0,
       totalInteresRepayableAtRepaymentP: 0,
       contractInterestRepayableAtRepayment: 0,
@@ -827,6 +812,8 @@ export default {
       totalFundingInclAvailable: 0,
       totalInterestAtRepayment: 0,
       totalInterestAtToday: 0,
+      investorCapitalTotal: 0,
+      availableSecurityTotal: 0,
       now: "",
       switch1: false,
       switch2: false,
@@ -906,6 +893,7 @@ export default {
           width: 120
         },
         { text: "Drawn", value: "drawn", width: 90 },
+        { text: "Drawn", value: "drawn2", width: 90 },
         { text: "Draw", value: "drawNumber", width: 90 },
         // { text: "Draw Adj", value: "drawAdjustment", width: 90 },
         // { text: "Int Rate", value: "interest_rate", width: 60 },
@@ -923,6 +911,7 @@ export default {
           width: 120
         },
         { text: "Repay", value: "repayment_date", width: 120 },
+        // { text: "Drawn2", value: "drawn", width: 120 },
         { text: "Actions", value: "actions", sortable: false, width: 100 }
       ],
       desserts: [],
@@ -993,12 +982,11 @@ export default {
     this.labelName = `${this.$store.state.development.developmentName} Amount`;
     this.labelDateName = `${this.$store.state.development.developmentName} Date`;
     this.now = dayjs(new Date()).format("YYYY-MM-DD");
-    // console.log(this.la_email_date);
 
     this.initialData();
     setTimeout(() => {
       this.switch1 = true;
-    }, 250);
+    }, 300);
   },
   computed: {
     formTitle() {
@@ -1016,6 +1004,19 @@ export default {
     },
     pageCount() {
       return this.totalRecords / this.itemsPerPage;
+    },
+    filteredData: function() {
+      if (this.filterDrawn === true || this.filterDrawn === false) {
+        console.log(this.desserts);
+        return this.desserts.filter(el => {
+          return el.drawn === this.filterDrawn;
+        });
+      } else {
+        return this.desserts;
+      }
+      // this.drawnTotals = filteredData.reduce((prev, el) => {
+      //   return el.amount + prev
+      // })
     }
   },
 
@@ -1027,6 +1028,15 @@ export default {
         return (this.itemsPerPage = 10);
       }
     },
+    filteredData() {
+      console.log("Filtered DAta::", this.filteredData);
+      this.drawnTotalsOnly = this.convertToString(
+        this.filteredData.reduce((prev, curr) => {
+          return parseFloat(curr.amount) + prev;
+        }, 0)
+      );
+    },
+
     // showSave() {
     //   if (this.editedItem.amount !== 0 && this.editedItem.amount !== null) {
     //     if (this.editedItem.quinteDate !== "") {
@@ -1100,8 +1110,34 @@ export default {
   },
 
   methods: {
+    filterCheckBox() {
+      this.checkBoxCount++;
+      console.log(this.checkBoxCount);
+      if (this.checkBoxCount > 2) {
+        this.indeterminate = true;
+        this.filterDrawn = null;
+        this.checkBoxCount = 0;
+      } else {
+        this.indeterminate = false;
+      }
+      if (this.filterDrawn === true) {
+        this.checkBoxLabel = "Filtered on Drawn";
+      } else if (this.filterDrawn === false) {
+        this.checkBoxLabel = "Filtered on Not Drawn";
+      } else {
+        this.checkBoxLabel =
+          "No Filter Used (Click to see Drawn, or not Drawn)";
+      }
+
+      console.log("Checkbox:", this.filterDrawn);
+      console.log("Indeterminate:", this.indeterminate);
+      // setTimeout(() => {
+      // this.indeterminate = true
+      // this.filterDrawn = null
+
+      // },1000)
+    },
     fundsToBeFunded(event) {
-      console.log("Event", event);
       (this.totalFundsAvailable = event.availableTotalsP),
         (this.allocatedTotalsP = event.allocatedTotalsP);
       this.unallocatedTotalsP = event.unallocatedTotalsP;
@@ -1150,7 +1186,10 @@ export default {
       })
         .then(
           response => {
-            console.log("Initial Data", response.data);
+            console.log(response);
+            response.data[1].forEach(el => [
+              (el.drawNumber = el.drawNumber + ".")
+            ]);
             this.desserts = response.data[0];
             let unitCount = [];
             this.desserts.forEach(el => {
@@ -1197,7 +1236,7 @@ export default {
               } else {
                 el.pledge_date = "";
               }
-              // console.log(el.available_date)
+
               if (el.drawn === 1) {
                 el.drawn = true;
               } else {
@@ -1209,6 +1248,13 @@ export default {
                 el.pledgeUsed = false;
                 el.pledge_date = "";
               }
+              if (el.drawNumber !== null) {
+                el.drawNumber = el.drawNumber + ".";
+              }
+              // if (el.drawNumber.length === 6) {
+              //   console.log(el.drawNumber)
+              //   el.drawNumber += " "
+              // }
 
               el.interest_rate = (el.interest_rate * 100).toFixed(2);
               el.opc_comm = (el.opc_comm * 100).toFixed(2);
@@ -1224,9 +1270,18 @@ export default {
             unitCount = unitCount.sort();
             unitCount = Array.from(new Set(unitCount));
             this.unitCount = unitCount.length;
-            // console.log(unitCount.length)
-            console.log(this.desserts);
+
             this.desserts.forEach(el => {
+              if (el.drawn) {
+                el.drawn2 = "true";
+              } else {
+                el.drawn2 = "false";
+              }
+              if (el.sold === 1) {
+                el.sold = "Yes";
+              } else {
+                el.sold = "No";
+              }
               el.dailyTrustInterest =
                 (parseFloat(el.attorney_inv_amount) *
                   ((parseFloat(el.supplementary_interest) +
@@ -1240,33 +1295,19 @@ export default {
               el.trustInteresRepayableAtRepayment = 0;
               el.trustInterestRepayableAtToday = 0;
               if (el.dailyTrustInterest !== 0) {
-                if (el.quinteDate !== "" && el.drawn && el.amount !== 0) {
+                if (el.quinteDate !== "" && el.amount !== 0) {
                   el.trustInteresRepayableAtRepayment =
                     el.dailyTrustInterest *
-                    dayjs(el.quinteDate).diff(dayjs(el.fica_inv_date), "day");
+                    (dayjs(el.quinteDate).diff(dayjs(el.fica_inv_date), "day") +
+                      1);
 
                   el.trustInterestRepayableAtToday =
                     el.dailyTrustInterest *
                     dayjs(el.quinteDate).diff(dayjs(el.fica_inv_date), "day");
-                } else if (
-                  el.quinteDate !== "" &&
-                  !el.drawn &&
-                  el.amount !== 0
-                ) {
-                  el.trustInteresRepayableAtRepayment =
-                    el.dailyTrustInterest *
-                    dayjs(el.repayment_date).diff(
-                      dayjs(el.fica_inv_date),
-                      "day"
-                    );
-                  el.trustInterestRepayableAtToday =
-                    el.dailyTrustInterest *
-                    dayjs(new Date()).diff(dayjs(el.fica_inv_date), "day");
-                } else if (
-                  el.quinteDate === "" &&
-                  !el.drawn &&
-                  el.amount === 0
-                ) {
+                  // el.trustInterestRepayableAtToday =
+                  //   el.dailyTrustInterest *
+                  //   dayjs(new Date()).diff(dayjs(el.fica_inv_date), "day");
+                } else if (el.quinteDate == "" && el.amount == 0) {
                   el.trustInteresRepayableAtRepayment =
                     el.dailyTrustInterest *
                     dayjs(el.repayment_date).diff(
@@ -1287,11 +1328,10 @@ export default {
                   el.dailyContractInterest *
                   (dayjs(el.repayment_date).diff(dayjs(el.quinteDate), "day") +
                     1);
-                // console.log(el.contractInteresRepayableAtRepayment)
+
                 el.contractInterestRepayableAtToday =
                   el.dailyContractInterest *
                   (dayjs(new Date()).diff(dayjs(el.quinteDate), "day") + 1);
-                // console.log(el.contractInterestRepayableAtToday)
               } else {
                 el.contractInteresRepayableAtRepayment = 0;
                 el.contractInterestRepayableAtToday = 0;
@@ -1304,11 +1344,7 @@ export default {
                 el.contractInterestRepayableAtToday +
                 el.trustInterestRepayableAtToday
               ).toFixed(2);
-              // console.log(el.interestPayableAtRepayment)
-              // console.log(el.interestPayableAtToday)
-              // console.log(
-              //   dayjs(new Date()).diff(dayjs(el.fica_inv_date), "day")
-              // );
+
               el.pledgedStr = this.convertToString(el.pledged);
               el.attorney_inv_amountStr = this.convertToString(
                 el.attorney_inv_amount
@@ -1365,15 +1401,7 @@ export default {
               this.units = response.data[2];
             }
             this.units.sort((a, b) => (a.unitName > b.unitName ? 1 : -1));
-
-            //    this.desserts = this.desserts.map((item) => {
-            //     return {
-            //       details: {},
-            //       ...item
-            //     }
-            // })
-
-            // console.log(this.units);
+            console.log(this.desserts);
           },
           error => {
             console.log(error);
@@ -1386,12 +1414,7 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
-      // if (this.editedItem.la_email_date === null) {
-      //   this.editedItem.la_email_date = ""
-      //   // this.la_email_date = new Date().toISOString().substr(0,10)
-      // }
-      // console.log(new Date().toISOString().substr(0,10))
-      // console.log(this.editedItem.la_email_date)
+
       this.dialog = true;
     },
 
@@ -1456,17 +1479,26 @@ export default {
         this.pledgeUsed = false;
         this.pledge_date = "";
       }
-      if (this.editedItem.drawNumber !== null) {
+      console.log("EditedItem", this.editedItem);
+      console.log("DrawNumber", this.editedItem.drawNumber);
+
+      if (
+        this.editedItem.drawNumber !== null &&
+        this.editedItem.drawNumber !== "null."
+      ) {
         let draw = this.draws.filter(el => {
           return el.drawNumber === this.editedItem.drawNumber;
         });
         this.editedItem.draw = draw[0].id;
+        console.log("draw", draw);
+      } else {
+        this.editedItem.draw = null;
       }
       let unit = this.units.filter(el => {
         return el.unitName === this.editedItem.unitName;
       });
       this.editedItem.unit = unit[0].id;
-      console.log(this.editedItem);
+
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
         await axios({
@@ -1476,13 +1508,13 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessage = "Input succesfully updated!";
               } else {
                 this.snackbarMessage = "Error, please try again";
               }
               this.snackbar = true;
+              this.initialData();
             },
             error => {
               console.log(error);
@@ -1500,7 +1532,6 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
               if (response.data.affectedRows === 1) {
                 this.snackbarMessage = "Input succesfully updated!";
                 this.desserts.push(this.editedItem);
@@ -1509,6 +1540,7 @@ export default {
                 this.snackbarMessage = "Error, please try again";
               }
               this.snackbar = true;
+              this.initialData();
             },
             error => {
               console.log(error);
@@ -1520,12 +1552,10 @@ export default {
       }
       this.close();
     },
-    getColor(sold) {
-      if (sold === "Yes") return "green";
-      else return "orange";
-    },
+
     getFiltered(e) {
       if (this.search === "" || this.search === null) {
+        // this.dataTotals = this.convertToString(
         this.dataTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
             return parseFloat(curr.amount) + prev;
@@ -1577,7 +1607,7 @@ export default {
             }
           }, 0)
         );
-        console.log("Planned Draws", this.plannedDrawTotals);
+
         this.subscribedTotals = this.convertToString(
           this.desserts.reduce((prev, curr) => {
             return parseFloat(curr.pledged) + prev;
@@ -1661,26 +1691,17 @@ export default {
           e.reduce((prev, curr) => {
             return parseFloat(curr.attorney_inv_amount) + prev;
           }, 0);
-        //  +
-        // e.reduce((prev, curr) => {
-        //   return parseFloat(curr.attorney_inv_amount) + prev;
-        // }, 0) -
-        // e.reduce((prev, curr) => {
-        //   if (curr.drawn) {
-        //     return parseFloat(curr.amount) + prev;
-        //   } else {
-        //     return prev;
-        //   }
-        // }, 0) +
-        // e.reduce((prev, curr) => {
-        //   if (curr.drawn) {
-        //     return parseFloat(curr.amount) + prev;
-        //   } else {
-        //     return prev;
-        //   }
-        // }, 0)
       }
-      // let totalFundingInclAvailable = 0
+      setTimeout(() => {
+        if (this.switch2) {
+          this.switch2 = false;
+        }
+        this.calculateTotals();
+      }, 700);
+
+      // console.log(plannedDrawTotals);
+    },
+    calculateTotals() {
       this.totalFundingInclAvailable = this.convertToString(
         parseFloat(
           this.subscribedTotals
@@ -1753,6 +1774,68 @@ export default {
               .join("")
           )
       );
+
+      this.investorCapitalTotal = this.convertToString(
+        parseFloat(
+          this.momentumTotals
+            .split("")
+            .filter(el => {
+              return el !== " " && el !== "R";
+            })
+            .join("")
+        ) +
+          parseFloat(
+            this.drawnTotals
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          )
+      );
+
+      this.availableSecurityTotal = this.convertToString(
+        parseFloat(
+          this.plannedDrawTotals
+            .split("")
+            .filter(el => {
+              return el !== " " && el !== "R";
+            })
+            .join("")
+        ) +
+          parseFloat(
+            this.pledgedTotals
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          ) +
+          parseFloat(
+            this.allocatedTotalsP
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          ) +
+          parseFloat(
+            this.unallocatedTotalsP
+              .split("")
+              .filter(el => {
+                return el !== " " && el !== "R";
+              })
+              .join("")
+          )
+      );
+    },
+    getColor(sold) {
+      if (sold === "Yes") return "green";
+      else return "orange";
+    },
+    getColor2(drawn2) {
+      if (drawn2 === "true") return "green";
+      else return "orange";
     },
     clearla_email_date() {
       this.editedItem.la_email_date = "";
@@ -1828,5 +1911,10 @@ path:hover {
 }
 .toolbar__items {
   flex-wrap: wrap;
+}
+.check {
+  width: 25px;
+  height: 25px;
+  border: 3px solid black;
 }
 </style>

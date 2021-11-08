@@ -38,7 +38,9 @@
               <v-dialog v-model="dialog" max-width="1200px">
                 <v-card>
                   <v-card-title>
-                    <span class="text-h5">{{ formTitle }}</span>
+                    <span class="text-h5"
+                      >{{ formTitle }} - {{ editedItem.unitName }}</span
+                    >
                   </v-card-title>
 
                   <v-card-text>

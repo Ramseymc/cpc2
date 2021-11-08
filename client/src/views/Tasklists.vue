@@ -410,7 +410,7 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/getTaskList`,
+        url: `${url}/getTaskListWb`,
         data: data
       })
         .then(
@@ -459,7 +459,7 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/updateTaskList`,
+        url: `${url}/updateTaskListWb`,
         data: data
       })
         .then(
@@ -490,7 +490,7 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/createTaskListItem`,
+        url: `${url}/createTaskListItemWb`,
         data: insert
       })
         .then(
@@ -598,7 +598,7 @@ export default {
       };
       await axios({
         method: "post",
-        url: `${url}/deleteTaskListItem`,
+        url: `${url}/deleteTaskListItemWb`,
         data: data
       })
         .then(

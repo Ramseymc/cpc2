@@ -5,183 +5,191 @@
     <v-btn id="createButton" outlined text @click="opencompleteTransfer"
       >Complete Transfer</v-btn
     >
-    <br />
-    <br />
-    <!-- Row wrapping the entire app -->
-    <!-- <v-row style="margins: 10px 10px;"> -->
-    <v-row class="text-center">
-      <!-- Entire List of Stock On Hand -->
-      <v-col cols="4" offset="0">
-        <v-list
-          three-line
-          outlined
-          shaped
-          class="overflow-y-auto fullList"
-          max-height="70vh"
-          style="margin-left: 20px;"
-          color="grey lighten-5"
-        >
-          <v-subheader>
-            <h3 justify="center"><b> Stock List </b></h3>
-            <v-text-field
-              prepend-icon="mdi-magnify"
-              placholder="Search"
-              label="Search"
-              v-model="searchStock"
-              clearable
-            ></v-text-field>
-          </v-subheader>
-          <draggable
-            v-model="StockList"
-            :group="group2"
-            style="min-height: 10px"
-            @change="items1Changed"
-            :disabled="disabled"
-          >
-            <template v-for="stock in stockListFiltered">
-              <v-list-item :key="stock.id" ripple class="listItem">
-                <v-list-item-icon>
-                  <v-icon large color="green">{{ stock.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stock.itemDescription"
-                  ></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="`${stock.itemCode}`"
-                  ></v-list-item-subtitle>
-                  <v-list-item-subtitle
-                    v-html="stock.mainCategory"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stock.qtyOnHandLbl"
-                  ></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="stock.qtyOnHand"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
-                <!-- <v-divider></v-divider> -->
-              </v-list-item>
-            </template>
-          </draggable>
-        </v-list>
-      </v-col>
-      <!-- Current SubContractor & StockList in centre-->
-      <v-col cols="4" offset="0">
-        <!-- Current SubContractor -->
-        <!-- <v-row justify="center"> -->
-        <!-- <v-row class="text-center"> -->
-
-        <v-list
-          three-line
-          outlined
-          shaped
-          class="overflow-y-auto"
-          max-height="30vh"
-        >
-          <v-subheader>
-            <h3><b> Selected Sub Contractor </b></h3>
-          </v-subheader>
-          <draggable
+    <v-col cols="8" offset="2">
+      <v-list
+        three-line
+        outlined
+        shaped
+        class="overflow-y-auto"
+        max-height="30vh"
+      >
+        <v-subheader>
+          <h3><b> Selected Sub Contractor XXX</b></h3>
+        </v-subheader>
+        <!-- <draggable
             v-model="currentSubContractor"
             :group="group3"
             style="min-height: 10px"
             @change="currentContractorChanged"
-          >
-            <template v-for="item in currentSubContractor">
-              <v-list-item :key="item.id" ripple>
-                <v-list-item-icon>
-                  <v-icon large color="blue">{{ item.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="item.supplierName"
-                  ></v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn icon :id="item.id" @click="deleteCurrentSubContractor">
-                    <v-icon color="red">mdi-account-off</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
-          </draggable>
-        </v-list>
-        <!-- </v-row> -->
-        <br /><br /><br />
-        <!-- current StockList selected for Transfer -->
-        <!-- <v-row justify="center"> -->
-        <!-- <v-row class="text-center"> -->
-
-        <v-list
-          three-line
-          outlined
-          shaped
-          class="overflow-y-auto fullList"
-          max-height="55vh"
-        >
-          <v-subheader>
-            <h3><b> Selected Stock Transfer List </b></h3>
-            <v-btn
-              icon
-              @click="clearCurrentStockList"
-              label="Clear Stock List "
-            >
-              <v-icon color="red">mdi-close</v-icon>
+          > -->
+        <!-- <template > -->
+        <v-list-item v-for="item in currentSubContractor" :key="item.id" ripple>
+          <v-list-item-icon>
+            <v-icon large color="blue">{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title v-html="item.supplierName"></v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn icon :id="item.id" @click="deleteCurrentSubContractor">
+              <v-icon color="red">mdi-account-off</v-icon>
             </v-btn>
-          </v-subheader>
-          <draggable
+          </v-list-item-action>
+        </v-list-item>
+        <!-- </template>
+          </draggable> -->
+      </v-list>
+      <!-- </v-row> -->
+     
+    </v-col>
+    <v-col cols="8" offset="2">
+      <v-list
+        three-line
+        outlined
+        shaped
+        class="overflow-y-auto fullList"
+        max-height="35vh"
+      >
+        <v-subheader>
+          <h3><b> Selected Stock Transfer List XXX</b></h3>
+          <v-btn icon @click="clearCurrentStockList" label="Clear Stock List ">
+            <v-icon color="red">mdi-close</v-icon>
+          </v-btn>
+        </v-subheader>
+        <!-- <draggable
             v-model="currentStockList"
             :group="group2"
             style="min-height: 10px"
             @change="currentStockListChanged"
             :disabled="disabled"
+          > -->
+        <!-- <template > -->
+        <v-list-item v-for="stock in currentStockList" :key="stock.id" ripple>
+          <v-list-item-icon>
+            <v-icon large color="green">{{ stock.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title v-html="stock.itemCode"></v-list-item-title>
+            <v-list-item-subtitle
+              v-html="stock.mainCategory"
+            ></v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-content>
+            <v-list-item-title v-html="stock.qtyToTrxLbl"></v-list-item-title>
+            <v-text-field
+              v-model="stock.qtyToTransfer"
+              type="number"
+              min="0"
+              class="shrink"
+              label=""
+            ></v-text-field>
+          </v-list-item-content>
+          <v-list-item-content>
+            <v-list-item-title v-html="stock.qtyOnHandLbl"></v-list-item-title>
+            <v-list-item-subtitle
+              v-html="stock.qtyOnHand"
+            ></v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <!-- </template>
+          </draggable> -->
+      </v-list>
+      <!-- </v-row> -->
+    </v-col>
+
+    <v-col cols="8" offset="2">
+
+     <v-radio-group v-model="radioGroup" row>
+      <v-radio
+        label="Show Subcontractor"
+        value="Subcontractor"
+      ></v-radio>
+      <v-radio  
+        label="Show Stock"
+        value="Stock"
+      ></v-radio>
+      <v-radio
+        label="Hide both"
+        value="None"
+      ></v-radio>
+    </v-radio-group>
+    </v-col>
+  
+
+    <!-- Row wrapping the entire app -->
+    <!-- <v-row style="margins: 10px 10px;"> -->
+    <!-- <v-row class="text-center"> -->
+      <!-- Entire List of Stock On Hand -->
+      <v-col :cols="cols" offset="0">
+        <v-list
+        v-if="radioGroup === 'Stock'"
+          three-line
+          outlined
+          shaped
+          class="overflow-y-auto"
+          style="margin-left: 20px; max-height: 70vh"
+          color="grey lighten-5"
+        >
+          <v-subheader>
+            <h4 justify="center"><b> Stock List </b></h4>
+            <v-text-field
+              prepend-icon="mdi-magnify"
+              placholder="Search"
+              label="Search"
+              v-model="searchStock"
+              style="min-height: 10px"
+              clearable
+            ></v-text-field>
+          </v-subheader>
+          <!-- <draggable
+            v-model="StockList"
+            :group="group2"
+            @change="items1Changed"
+            :disabled="disabled"
+          > -->
+          <!-- <template > -->
+          <v-list-item
+            v-for="(stock, index) in stockListFiltered"
+            :id="index"
+            :key="index"
+            ripple
+            class="listItem"
+            @click="clickStockItem"
           >
-            <template v-for="stock in currentStockList">
-              <v-list-item :key="stock.id" ripple>
-                <v-list-item-icon>
-                  <v-icon large color="green">{{ stock.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stock.itemCode"
-                  ></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="stock.mainCategory"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stock.qtyToTrxLbl"
-                  ></v-list-item-title>
-                  <v-text-field
-                    v-model="stock.qtyToTransfer"
-                    type="number"
-                    min="0"
-                    class="shrink"
-                    label=""
-                  ></v-text-field>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stock.qtyOnHandLbl"
-                  ></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="stock.qtyOnHand"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-          </draggable>
+            <v-list-item-icon>
+              <v-icon large color="green">{{ stock.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title
+                v-html="stock.itemDescription"
+              ></v-list-item-title>
+              <v-list-item-subtitle
+                v-html="`${stock.itemCode}`"
+              ></v-list-item-subtitle>
+              <v-list-item-subtitle
+                v-html="stock.mainCategory"
+              ></v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-title
+                v-html="stock.qtyOnHandLbl"
+              ></v-list-item-title>
+              <v-list-item-subtitle
+                v-html="stock.qtyOnHand"
+              ></v-list-item-subtitle>
+            </v-list-item-content>
+            <!-- <v-divider></v-divider> -->
+          </v-list-item>
+          <!-- </template> -->
+          <!-- </draggable> -->
         </v-list>
-        <!-- </v-row> -->
       </v-col>
+      <!-- Current SubContractor & StockList in centre-->
 
       <!-- Sub Contractors List -->
-      <v-col cols="4" offset="0">
+      <v-col :cols="cols" offset="0">
         <v-list
+        v-if="radioGroup === 'Subcontractor'"
           three-line
           outlined
           shaped
@@ -191,7 +199,7 @@
           color="grey lighten-5"
         >
           <v-subheader>
-            <h3><b> Sub Contractors </b></h3>
+            <h4><b> Sub Contractors </b></h4>
             <v-text-field
               prepend-icon="mdi-magnify"
               placholder="Search"
@@ -200,31 +208,34 @@
               clearable
             ></v-text-field>
           </v-subheader>
-          <draggable
+          <!-- <draggable
             v-model="SubContractors"
             :group="group3"
             style="min-height: 10px"
             @change="currentContractorChanged"
+          > -->
+          <!-- <template> -->
+          <v-list-item
+            v-for="item in subContractorsFiltered"
+            :key="item.id"
+            ripple
+            class="listItem"
           >
-            <template v-for="item in subContractorsFiltered">
-              <v-list-item :key="item.id" ripple class="listItem">
-                <v-list-item-icon>
-                  <v-icon large color="blue">{{ item.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="item.supplierName"
-                  ></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-          </draggable>
+            <v-list-item-icon>
+              <v-icon large color="blue">{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-html="item.supplierName"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <!-- </template>
+          </draggable> -->
         </v-list>
       </v-col>
-    </v-row>
+    <!-- </v-row> -->
 
     <!-- Stock Transfer Dialog -->
-    <v-row justify="center">
+    <!-- <v-row justify="center"> -->
       <v-dialog v-model="transferDialog" persistent max-width="600px">
         <v-card>
           <v-card-title>
@@ -320,10 +331,10 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-row>
+    <!-- </v-row> -->
 
     <!-- Task Details-->
-    <v-row justify="center">
+    <!-- <v-row justify="center"> -->
       <v-dialog v-model="dialog" persistent max-width="600px">
         <v-card>
           <v-card-title>
@@ -394,10 +405,10 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-row>
+    <!-- </v-row> -->
 
     <!-- Edit Task -->
-    <v-row justify="center">
+    <!-- <v-row justify="center"> -->
       <v-dialog v-model="dialog1" persistent max-width="600px">
         <v-card>
           <v-card-title>
@@ -468,18 +479,44 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-row>
+    <!-- </v-row> -->
+    <v-dialog v-model="confirmStockTransferDialog" persistent max-width="290">
+      <v-card>
+        <v-card-title class="text-h6">
+          Add to stock transfer list
+        </v-card-title>
+        <!-- <v-card-text>Add to stock transfer list?</v-card-text> -->
+        <v-card-actions>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="confirmStockTransferDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="confirmStockTransferDialog = false"
+          >
+            Yes
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
-import draggable from "vuedraggable";
+// import draggable from "vuedraggable";
 export default {
   name: "StockTrx",
   components: {
-    draggable
+    // draggable
   },
   metaInfo: {
     title: "About us",
@@ -487,16 +524,20 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `About CPC here.`
-      }
+        content: `About CPC here.`,
+      },
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true
-    }
+      amp: true,
+    },
   },
   data() {
     return {
+      radioGroup: "Subcontractor",
+      confirmStockTransferDialog: false,
+      cols: 4,
+      screenWidth: 0,
       dialog: false,
       dialog1: false,
 
@@ -512,7 +553,7 @@ export default {
       group4: "group",
       disabled: true,
       group: {
-        group: "people"
+        group: "people",
       },
       items: [],
 
@@ -543,8 +584,18 @@ export default {
       imageFile: null,
 
       searchStock: "",
-      searchSubContractor: ""
+      searchSubContractor: "",
     };
+  },
+  created() {
+    console.log(screen.width);
+    this.screenWidth = screen.width;
+    if (this.screenWidth < 600) {
+      this.cols = 12;
+    } else {
+      this.cols = 12;
+      // this.cols = 4;
+    }
   },
   beforeDestroy() {
     this.updateTasks();
@@ -555,7 +606,7 @@ export default {
         console.log("salesFiltered = ", this.StockList);
         return this.StockList;
       } else {
-        return this.StockList.filter(el => {
+        return this.StockList.filter((el) => {
           return (
             !this.searchStock ||
             el.itemCode.toLowerCase().indexOf(this.searchStock.toLowerCase()) >
@@ -575,7 +626,7 @@ export default {
         console.log("subContractorsFiltered = ", this.SubContractors);
         return this.SubContractors;
       } else {
-        return this.SubContractors.filter(el => {
+        return this.SubContractors.filter((el) => {
           return (
             !this.searchSubContractor ||
             el.supplierName
@@ -584,7 +635,7 @@ export default {
           );
         });
       }
-    }
+    },
   },
   async mounted() {
     this.getTasks();
@@ -593,72 +644,81 @@ export default {
 
     this.getSubContractors();
 
-    if (
-      this.$store.state.userName === "Wayne Bruton" ||
-      this.$store.state.userName === "Wynand Haywood" ||
-      this.$store.state.userName === "Dirk Coetzee" ||
-      this.$store.state.userName === "Connor McLean"
-    ) {
-      this.disabled = false;
-    }
-    if (
-      this.$store.state.userName === "Wayne Bruton" ||
-      this.$store.state.userName === "Connor McLean"
-    ) {
-      this.group1 = "group";
-      this.group2 = "group";
-      this.group3 = "group";
-      this.group4 = "group";
-    } else {
-      this.group1 = "group1";
-      this.group2 = "group2";
-      this.group3 = "group3";
-      this.group4 = "group4";
-    }
+    // if (
+    //   this.$store.state.userName === "Wayne Bruton" ||
+    //   this.$store.state.userName === "Wynand Haywood" ||
+    //   this.$store.state.userName === "Dirk Coetzee" ||
+    //   this.$store.state.userName === "Connor McLean"
+    // ) {
+    //   this.disabled = false;
+    // }
+    // if (
+    //   this.$store.state.userName === "Wayne Bruton" ||
+    //   this.$store.state.userName === "Connor McLean"
+    // ) {
+    //   this.group1 = "group";
+    //   this.group2 = "group";
+    //   this.group3 = "group";
+    //   this.group4 = "group";
+    // } else {
+    //   this.group1 = "group1";
+    //   this.group2 = "group2";
+    //   this.group3 = "group3";
+    //   this.group4 = "group4";
+    // }
 
     let data = {
-      id: this.$store.state.development.id
+      id: this.$store.state.development.id,
     };
     await axios({
       method: "post",
       // method: "get",
       url: `${url}/getblocksforstock`,
       // url: `${url}/ooo`,
-      data: data
+      data: data,
     })
       .then(
-        response => {
+        (response) => {
           console.log("RESPONSE DATA CONNOR:", response.data);
-          this.blocks = response.data.filter(el => {
+          this.blocks = response.data.filter((el) => {
             return el.subsectionName !== "Common Area";
           });
 
           console.log(this.blocks);
         },
-        error => {
+        (error) => {
           console.log("the Error", error);
         }
       )
-      .catch(e => {
+      .catch((e) => {
         console.log("THERE IS AN ERROR", e);
       });
   },
 
   methods: {
+    clickStockItem(event) {
+      console.log(event.currentTarget.id);
+      console.log("awesome!!!@@");
+      // this.confirmStockTransferDialog = true
+      let thisItem = this.stockListFiltered[event.currentTarget.id];
+      console.log(thisItem);
+      this.currentStockList.push(thisItem);
+      this.stockListFiltered.splice(event.currentTarget.id, 1);
+    },
     // crm
     async getStockList() {
       this.StockList = [];
       let data = {
-        id: this.$store.state.development.id
+        id: this.$store.state.development.id,
       };
       await axios({
         method: "post",
         url: `${url}/getStockList`,
-        data: data
+        data: data,
       })
         .then(
-          response => {
-            response.data.forEach(el => {
+          (response) => {
+            response.data.forEach((el) => {
               el.qtyOnHandLbl = "Qty On Hand";
               el.qtyToTrxLbl = "Qty To Transfer";
               el.qtyToTransfer = 0;
@@ -666,11 +726,11 @@ export default {
             });
             //console.log("this.StockList = ", this.StockList)
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -678,25 +738,25 @@ export default {
     async getSubContractors() {
       this.SubContractors = [];
       let data = {
-        id: this.$store.state.development
+        id: this.$store.state.development,
       };
       await axios({
         method: "post",
         url: `${url}/getSubContractors`,
-        data: data
+        data: data,
       })
         .then(
-          response => {
-            response.data.forEach(el => {
+          (response) => {
+            response.data.forEach((el) => {
               this.SubContractors.push(el);
             });
             //console.log("this.SubContractors = ", this.SubContractors);
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -715,7 +775,7 @@ export default {
       let supplierName = "";
       //let contactID = ""
 
-      this.currentSubContractor.forEach(s => {
+      this.currentSubContractor.forEach((s) => {
         supplierName = s.supplierName;
         // contactID = s.contactID
       });
@@ -745,17 +805,17 @@ export default {
       await axios({
         method: "post",
         url: `${url}/uploadImage`,
-        data: formData
+        data: formData,
       })
         .then(
           () => {
             this.refreshData();
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -777,7 +837,7 @@ export default {
       let supplierName = "";
       let contactID = "";
 
-      this.currentSubContractor.forEach(s => {
+      this.currentSubContractor.forEach((s) => {
         supplierName = s.supplierName;
         contactID = s.contactID;
       });
@@ -808,7 +868,7 @@ export default {
           supplierName +
           "." +
           this.stockImage.name.split(".")[1],
-        transferDate: dateTime
+        transferDate: dateTime,
       };
       // const  keys = Object.keys(insert);
       // const values = Object.values(insert);
@@ -847,17 +907,17 @@ export default {
       await axios({
         method: "post",
         url: `${url}/completeTransfers`,
-        data: insert
+        data: insert,
       })
         .then(
           () => {
             this.refreshData();
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -869,7 +929,7 @@ export default {
           alert("You may only have 1 Sub Contractor selected at a time");
         }
         console.log("SubContractor: ", this.currentSubContractor);
-        this.currentSubContractor.forEach(subContractor => {
+        this.currentSubContractor.forEach((subContractor) => {
           console.log("SubContractor: ", subContractor);
           this.selectedSubContractorName = subContractor.supplierName;
           console.log(
@@ -881,7 +941,7 @@ export default {
     },
     currentStockListChanged(theEvent) {
       if (theEvent.added) {
-        this.StockList.forEach(el => {
+        this.StockList.forEach((el) => {
           if (el.stockId === theEvent.added.element.stockId) {
             el.qtyToTransfer = this.qtyToTransfer;
           }
@@ -919,16 +979,16 @@ export default {
       this.items2 = [];
       this.items3 = [];
       let data = {
-        id: this.$store.state.development.id
+        id: this.$store.state.development.id,
       };
       await axios({
         method: "post",
         url: `${url}/getTaskList`,
-        data: data
+        data: data,
       })
         .then(
-          response => {
-            response.data.forEach(el => {
+          (response) => {
+            response.data.forEach((el) => {
               if (el.typeTask === "WIP") {
                 this.items.push(el);
               } else if (el.typeTask === "Suggested") {
@@ -940,11 +1000,11 @@ export default {
               }
             });
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -968,20 +1028,20 @@ export default {
       });
 
       let data = {
-        info: dataToUpdate
+        info: dataToUpdate,
       };
       await axios({
         method: "post",
         url: `${url}/updateTaskList`,
-        data: data
+        data: data,
       })
         .then(
           () => {},
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -999,12 +1059,12 @@ export default {
         icon: "mdi-thought-bubble",
         typeTask: "Suggested",
         sortIndex: this.items1.length,
-        estimate: this.estimate
+        estimate: this.estimate,
       };
       await axios({
         method: "post",
         url: `${url}/createTaskListItem`,
-        data: insert
+        data: insert,
       })
         .then(
           () => {
@@ -1014,17 +1074,17 @@ export default {
             this.dialog = false;
             this.getTasks();
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
     items1Changed(evt) {
       if (evt.added) {
-        this.items1.forEach(el => {
+        this.items1.forEach((el) => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-thought-bubble";
             el.typeTask = "Suggested";
@@ -1032,7 +1092,7 @@ export default {
         });
       }
       if (evt.moved) {
-        this.items1.forEach(el => {
+        this.items1.forEach((el) => {
           if (el.id === evt.moved.element.id) {
             el.sortIndex = evt.moved.newIndex;
           }
@@ -1041,7 +1101,7 @@ export default {
     },
     itemsChanged(evt) {
       if (evt.added) {
-        this.items.forEach(el => {
+        this.items.forEach((el) => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-progress-wrench";
             el.typeTask = "WIP";
@@ -1051,7 +1111,7 @@ export default {
     },
     items2Changed(evt) {
       if (evt.added) {
-        this.items2.forEach(el => {
+        this.items2.forEach((el) => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-checkbox-marked-circle";
             el.typeTask = "Completed";
@@ -1061,7 +1121,7 @@ export default {
     },
     items3Changed(evt) {
       if (evt.added) {
-        this.items3.forEach(el => {
+        this.items3.forEach((el) => {
           if (el.id === evt.added.element.id) {
             el.icon = "mdi-emoticon-happy";
             el.typeTask = "Finalised";
@@ -1071,7 +1131,7 @@ export default {
     },
     viewTask(event) {
       console.log("the viewTask event", event);
-      let filteredData = this.items1.filter(el => {
+      let filteredData = this.items1.filter((el) => {
         return el.id === parseInt(event.currentTarget.id);
       });
 
@@ -1082,7 +1142,7 @@ export default {
       this.dialog = true;
     },
     editTask(event) {
-      let filteredData = this.items1.filter(el => {
+      let filteredData = this.items1.filter((el) => {
         return el.id === parseInt(event.currentTarget.id);
       });
 
@@ -1093,7 +1153,7 @@ export default {
       this.dialog1 = true;
     },
     saveEditTask() {
-      this.items1.forEach(el => {
+      this.items1.forEach((el) => {
         if (el.id === this.editId) {
           el.taskText = this.text;
           el.estimate = this.estimate;
@@ -1106,22 +1166,22 @@ export default {
     async deleteTask(event) {
       console.log("the event", event);
       let data = {
-        id: event.currentTarget.id
+        id: event.currentTarget.id,
       };
       await axios({
         method: "post",
         url: `${url}/deleteTaskListItem`,
-        data: data
+        data: data,
       })
         .then(
           () => {
             this.getTasks();
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
@@ -1130,8 +1190,8 @@ export default {
       // let blocks = this.block.join(',')
       // console.log("blocks",blocks)
       let blocksId = [];
-      this.block.forEach(el => {
-        let filtered = this.blocks.filter(el2 => {
+      this.block.forEach((el) => {
+        let filtered = this.blocks.filter((el2) => {
           return el2.subsectionName === el;
         });
         blocksId.push(filtered[0].id);
@@ -1145,7 +1205,7 @@ export default {
         id: this.$store.state.development.id,
         // subsection: filteredData[0].id,
         // subsectionName: filteredData[0].subsectionName,
-        blocksId: blocksId
+        blocksId: blocksId,
         //subsectionName:
       };
       console.log(data);
@@ -1154,33 +1214,33 @@ export default {
       await axios({
         method: "post",
         url: `${url}/getAllUnitsforStockPage`,
-        data: data
+        data: data,
       })
         .then(
-          response => {
+          (response) => {
             console.log(response.data);
-            let filteredData = response.data.filter(el => {
+            let filteredData = response.data.filter((el) => {
               return el.unitName.substring(2, 1) !== ".";
             });
             this.units = filteredData;
             console.log("XXXX", this.units);
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
     },
     unitChosen() {
-      let unitId = this.units.filter(el => {
+      let unitId = this.units.filter((el) => {
         return el.unitName === this.unitValue;
       })[0].id;
       console.log(unitId);
       this.unitId = unitId;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -1195,5 +1255,14 @@ export default {
 .fullList {
   padding-left: 15px;
   margin: 0px 25px;
+}
+.headerList {
+  margin: 55px 55px;
+}
+@media only screen and (max-width: 600px) {
+  .headerList {
+    display: flex;
+    flex-direction: column;
+  }
 }
 </style>

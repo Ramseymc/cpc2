@@ -1470,6 +1470,7 @@ export default {
       formData.append("additionalExtrasCost", this.additionalExtrasCost);
       formData.append("bayNo", this.bayNo);
       formData.append("enclosedBalcony", this.enclosedBalcony);
+      formData.append("development", this.$store.state.development.idy);
 
       // formdata append enclosedBalcony - ?? maybe just visual is okay
       // formdata append additionalExtras -
