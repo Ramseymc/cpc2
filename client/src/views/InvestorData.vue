@@ -614,7 +614,7 @@
                             label="OPC Rate"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="12" md="12">
+                        <v-col cols="12" sm="3" md="3">
                           <v-menu
                             v-model="repayment_dateMenu"
                             :close-on-content-click="false"
@@ -641,6 +641,77 @@
                               @input="repayment_dateMenu = false"
                             ></v-date-picker>
                           </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <v-text-field
+                            v-model="editedItem.interestPayableAtRepaymentStr"
+                            label="Interest at transfer"
+                            readonly
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="3" md="3">
+                          <v-text-field
+                            v-model="editedItem.totalRepayableAtEndStr"
+                            label="Repayment Amount"
+                            readonly
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="3" md="3">
+                          <v-autocomplete
+                            v-model="editedItem.actionToTake"
+                            :items="['Exit', 'Rollover']"
+                            outlined
+                            dense
+                            chips
+                            small-chips
+                            clearable
+                            label="Action"
+                            @change="test2"
+                          ></v-autocomplete>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="3"
+                          md="3"
+                          v-if="editedItem.actionToTake === 'Rollover'"
+                        >
+                          <v-text-field
+                            type="number"
+                            v-model="editedItem.rolloverAmount"
+                            label="Rollover Amount (Editable)"
+                            readonly
+                          ></v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="3"
+                          md="3"
+                          v-if="editedItem.actionToTake === 'Exit'"
+                        >
+                          <v-text-field
+                            v-model="editedItem.exitAmount"
+                            label="Repayment Amount"
+                            readonly
+                          ></v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="3"
+                          v-if="editedItem.actionToTake === 'Rollover'"
+                        >
+                          <v-autocomplete
+                            v-model="editedItem.moveInvestorTo"
+                            :items="developments"
+                            outlined
+                            dense
+                            chips
+                            small-chips
+                            item-text="developmentName"
+                            clearable
+                            label="Development"
+                            @change="test2"
+                          ></v-autocomplete>
                         </v-col>
                         <v-col
                           cols="12"
@@ -796,6 +867,8 @@ export default {
   },
   data() {
     return {
+      allUnits: [],
+      developments: [],
       filterDrawn: "",
       indeterminate: true,
       checkBoxCount: 0,
@@ -862,7 +935,7 @@ export default {
         {
           text: "Unit",
           align: "start",
-          sortable: false,
+          sortable: true,
           value: "unitName",
           width: 60
         },
@@ -1110,6 +1183,9 @@ export default {
   },
 
   methods: {
+    test2() {
+      console.log(this.editedItem);
+    },
     filterCheckBox() {
       this.checkBoxCount++;
       console.log(this.checkBoxCount);
@@ -1168,7 +1244,14 @@ export default {
         }
       } else if (
         this.editedItem.amount !== 0 &&
-        (this.editedItem.amount !== null) & (this.editedItem.quinteDate !== 0)
+        this.editedItem.amount !== null &&
+        this.editedItem.quinteDate !== 0
+      ) {
+        this.showSave = true;
+      } else if (
+        this.editedItem.actionToTake === "Rollover" &&
+        (this.editedItem.moveInvestorTo !== null ||
+          this.editedItem.moveInvestorTo !== "")
       ) {
         this.showSave = true;
       } else {
@@ -1190,9 +1273,17 @@ export default {
             response.data[1].forEach(el => [
               (el.drawNumber = el.drawNumber + ".")
             ]);
+            this.developments = response.data[3];
+            this.allUnits = response.data[4];
             this.desserts = response.data[0];
             let unitCount = [];
             this.desserts.forEach(el => {
+              if (
+                el.moveInvestorTo === null ||
+                el.moveInvestorTo === undefined
+              ) {
+                el.moveInvestorTo = this.$store.state.development.developmentName;
+              }
               unitCount.push(el.unitName);
               el.amount = el.amount.toFixed(2);
               el.pledged = el.pledged.toFixed(2);
@@ -1340,6 +1431,7 @@ export default {
                 el.trustInteresRepayableAtRepayment +
                 el.contractInteresRepayableAtRepayment
               ).toFixed(2);
+
               el.interestPayableAtToday = (
                 el.contractInterestRepayableAtToday +
                 el.trustInterestRepayableAtToday
@@ -1356,6 +1448,14 @@ export default {
               el.interestPayableAtRepaymentStr = this.convertToString(
                 el.interestPayableAtRepayment
               );
+              el.totalRepayableAtEnd =
+                parseFloat(el.interestPayableAtRepayment) +
+                parseFloat(el.amount);
+              el.totalRepayableAtEndStr = this.convertToString(
+                el.totalRepayableAtEnd
+              );
+              el.exitAmount = this.convertToString(el.totalRepayableAtEnd);
+              el.rolloverAmount = el.totalRepayableAtEnd;
             });
 
             this.contractInterestRepayableAtRepayment = this.convertToString(
@@ -1395,13 +1495,15 @@ export default {
             this.draws = response.data[1];
             if (this.$store.state.development.id === 1) {
               this.units = response.data[2].filter(el => {
-                return el.subsection <= 6 && !el.unitName.includes(".");
+                return el.unitName.length <= 4;
+                // return (el.subsectionName <= 6 && (el.subsection === 10 || el.subsection === 11)) && !el.unitName.includes(".");
+                // return (el.subsection <= 6 && (el.subsection === 10 || el.subsection === 11)) && !el.unitName.includes(".");
               });
             } else {
               this.units = response.data[2];
             }
             this.units.sort((a, b) => (a.unitName > b.unitName ? 1 : -1));
-            console.log(this.desserts);
+            console.log(this.units);
           },
           error => {
             console.log(error);
@@ -1480,7 +1582,7 @@ export default {
         this.pledge_date = "";
       }
       console.log("EditedItem", this.editedItem);
-      console.log("DrawNumber", this.editedItem.drawNumber);
+      // console.log("DrawNumber", this.editedItem.drawNumber);
 
       if (
         this.editedItem.drawNumber !== null &&
@@ -1490,7 +1592,7 @@ export default {
           return el.drawNumber === this.editedItem.drawNumber;
         });
         this.editedItem.draw = draw[0].id;
-        console.log("draw", draw);
+        // console.log("draw", draw);
       } else {
         this.editedItem.draw = null;
       }
@@ -1498,6 +1600,20 @@ export default {
         return el.unitName === this.editedItem.unitName;
       });
       this.editedItem.unit = unit[0].id;
+      let filtererd = this.developments.filter(el => {
+        return el.developmentName === this.editedItem.moveInvestorTo;
+      });
+      this.editedItem.moveInvestorToId = filtererd[0].id;
+      if (this.editedItem.actionToTake === undefined) {
+        this.editedItem.actionToTake = "None";
+      }
+
+      this.editedItem.moveInvestorToUnitId = this.allUnits.filter(el => {
+        return (
+          el.unitName === "None" &&
+          el.development === this.editedItem.moveInvestorToId
+        );
+      })[0].id;
 
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
@@ -1508,10 +1624,19 @@ export default {
         })
           .then(
             response => {
-              if (response.data.affectedRows === 1) {
-                this.snackbarMessage = "Input succesfully updated!";
+              console.log(response.data);
+              if (response.data.length > 1) {
+                if (response.data[0].affectedRows === 1) {
+                  this.snackbarMessage = "Input succesfully updated!";
+                } else {
+                  this.snackbarMessage = "Error, please try again";
+                }
               } else {
-                this.snackbarMessage = "Error, please try again";
+                if (response.data.affectedRows === 1) {
+                  this.snackbarMessage = "Input succesfully updated!";
+                } else {
+                  this.snackbarMessage = "Error, please try again";
+                }
               }
               this.snackbar = true;
               this.initialData();

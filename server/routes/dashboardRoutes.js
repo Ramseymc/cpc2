@@ -1546,7 +1546,7 @@ router.post("/editsalesDataWb", (req, res) => {
 // Investment DATA
 router.post("/getInvestmentDataForFile", (req, res) => {
   // res.json({awesome: "This Far!!"})
-  let mysql1 = `select i.id, i.development, i.unit,u.unitName,s.sold,i.investor_code,i.investor, i.available, i.available_date, i.la_email_date,i.la_sign_date,i.pledged,i.attorney_inv_amount,i.fica_inv_date,i.amount,
+  let mysql1 = `select i.id, i.development, i.unit,u.unitName,s.sold,i.investor_code,i.investor, i.available, i.available_date, i.la_email_date,i.la_sign_date,i.pledged,i.attorney_inv_amount,i.fica_inv_date,i.amount,i.actionToTake,
   i.quinteDate,i.draw, d.drawNumber,i.drawn,  i.drawAdjustment, i.interest_rate,i.repayment_date, 
   i.trust_account_interest,i.supplementary_interest,i.opc_comm from salesData s, units u,investorDetails i
   left join  draws d
@@ -1564,7 +1564,10 @@ router.post("/getInvestmentDataForFile", (req, res) => {
   //   `;
   let mysql2 = `select * from draws`;
   let mysql3 = `select * from units where development = ${req.body.id}`;
-  let mysql = `${mysql1};${mysql2};${mysql3}`;
+  let mysql4 = `select * from developments`
+  let mysql5 = `select * from units`
+
+  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5}`;
   console.log(chalk.red(mysql));
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -1743,7 +1746,7 @@ router.post("/editInvestmentData", (req, res) => {
 
   // id: 4,
 
-  let mysql = `UPDATE investorDetails set unit = ${
+  let mysql1 = `UPDATE investorDetails set unit = ${
     req.body.unit
   }, investor_code = '${req.body.investor_code}', investor = '${
     req.body.investor
@@ -1763,9 +1766,15 @@ router.post("/editInvestmentData", (req, res) => {
     req.body.available
   }, pledge_date = ${pledge_date}, pledgeUsed = ${
     req.body.pledgeUsed
-  } where id = ${req.body.id}`;
+  }, actionToTake = '${req.body.actionToTake}' where id = ${req.body.id}`;
+  let mysql2 = ""
+  if (req.body.actionToTake === 'Rollover') {
+    mysql2 = `Insert into investorDetails (unit,investor_code, investor, pledged, development) values (${req.body.moveInvestorToUnitId},'${req.body.investor_code}', '${req.body.investor}', ${req.body.rolloverAmount}, ${req.body.moveInvestorToId})`
+  }
+  let mysql = `${mysql1};${mysql2}`
 
   console.log(chalk.red(mysql));
+
 
   pool.getConnection(function (err, connection) {
     if (err) {

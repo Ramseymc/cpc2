@@ -1332,7 +1332,7 @@ export default {
           console.log(response.data);
           this.showUploadButton = false;
           // little box saying 'Posted Successfully
-          this.updateClientData()
+          this.updateClientData();
           this.snackbar = true;
           // close the form after completing
           // this.closeClientInfo();

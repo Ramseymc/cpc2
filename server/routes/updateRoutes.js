@@ -785,17 +785,43 @@ router.post("/getStockList", (req, res) => {
   // res.json({awesome: "It Works"})
   //let mysql = `select distinct mainCategory(reference) from stockonhand
   let mysql = `
-  select 
-        po.reference as mainCategory, 
-        po.itemCode, 
-        po.itemDescription, 
-        SUM(d.quantityDelivered - IFNULL(si.requisitioned,0)) as qtyOnHand, 
-        IFNULL(si.requisitioned,0) as requisitioned 
-      from deliveries d 
-      join purchaseOrders po on po.PONumber = d.PONumber 
-      join stockItems si on si.id = po.stockId    
-      where d.development = ${req.body.id}
-      group by  po.reference, po.itemCode, po.itemDescription, si.requisitioned;`
+  select p.itemCode, p.itemDescription, p.unitDescription, sum(d.quantityDelivered) as qtyOnHand
+from deliveries d, purchaseOrders p
+where  d.PONumber = p.PONumber and d.development = ${req.body.id} and p.development = ${req.body.id}
+group by p.itemCode, p.itemDescription, p.unitDescription
+union all
+select s.stockid as itemCode, 'stockTransfered' as itemDescription, 'zz' as unitDescription, -sum(s.qtyTransfered) as qtyOnHand
+from stocktranfers s
+where development = ${req.body.id}
+group by s.stockid, itemDescription, unitDescription`
+//   let mysql = `
+//   select p.itemCode, p.itemDescription, sum(d.quantityDelivered) as qtyOnHand
+// from deliveries d, purchaseOrders p
+// where  d.PONumber = p.PONumber and d.development = ${req.body.id} and p.development = ${req.body.id}
+// group by p.itemCode, p.itemDescription 
+// union all
+// select s.stockid as itemCode, 'stockTransfered' as itemDescription, -sum(s.qtyTransfered) as qtyOnHand
+// from stocktranfers s
+// where development = ${req.body.id}
+// group by s.stockid, itemDescription;`
+  // let mysql = `
+  // select p.reference as mainCategory,p.itemCode, p.itemDescription, sum(d.quantityDelivered) - coalesce(sum(s.qtyTransfered),0) as qtyOnHand from  deliveries d, purchaseOrders p
+  // left join 
+  // stocktranfers s on s.stockid = p.itemCode
+  // where p.id = d.purchaseNumber and p.unitDescription != 'm³' and d.development = ${req.body.id} and p.development = ${req.body.id}
+  // group by p.reference, p.itemCode, p.itemDescription order by p.itemDescription;`
+  // let mysql = `
+  // select 
+  //       po.reference as mainCategory, 
+  //       po.itemCode, 
+  //       po.itemDescription, 
+  //       SUM(d.quantityDelivered - IFNULL(si.requisitioned,0)) as qtyOnHand, 
+  //       IFNULL(si.requisitioned,0) as requisitioned 
+  //     from deliveries d 
+  //     join purchaseOrders po on po.PONumber = d.PONumber 
+  //     join stockItems si on si.id = po.stockId    
+  //     where d.development = ${req.body.id}
+  //     group by  po.reference, po.itemCode, po.itemDescription, si.requisitioned;`
   //let mysql2 = `select * from deliveries d join purchaseorders po on po.PONumber = d.PONumber join stockitems si on si.id = po.stockId`
   pool.getConnection(function (err, connection) {
     if (err) {
@@ -806,9 +832,52 @@ router.post("/getStockList", (req, res) => {
       if (error) {
         console.log(error);
       } else {
-       // console.log("getStockList success 2")
+       console.log("getStockList success 2")
+       result.sort((a, b) =>  (a.itemCode > b.itemCode) ? 1 : ((b.itemCode > a.itemCode) ? -1 : 0)
+       )
+       console.log("1",result.length)
+       let result2 = []
+       result = result.filter((el) => {
+         return el.unitDescription !== 'm³'
+       } )
+       console.log("2",result.length)
+
+       result.forEach((el) => {
+         let filtered = result.filter((el2) => {
+           return el2.itemCode === el.itemCode
+         })
+         if (filtered.length > 1) {
+           let insert = {}
+           for (let i = 0; i < filtered.length; i++) {
+             if (filtered[i].itemDescription !== 'stockTransfered') {
+               insert.itemDescription = filtered[i].itemDescription
+               insert.itemCode = filtered[i].itemCode
+               break;
+             }
+           }
+           let qtyOnHand = filtered.reduce((prev, curr) => {
+             return prev + curr.qtyOnHand
+           },0)
+           insert.qtyOnHand = qtyOnHand
+           result2.push(insert)
+
+         } 
+         else {
+         
+           result2.push(el)
+         }
+       })
+       result2 = result2.filter((el, index, arr) => arr.findIndex(t => (t.itemCode === el.itemCode && t.itemDescription === el.itemDescription && t.qtyOnHand === el.qtyOnHand)) === index)
+      //  result2 = result2.filter((el, index, arr) => {
+      //   index === arr.findIndex((t) => {t.itemCode === el.itemCode})
+      //  })
+
+       console.log(result)
+       console.log(result2)
+       console.log(result.length)
+       console.log(result2.length)
  
-        res.json(result);
+        res.json(result2);
       }
     });
     connection.release();
@@ -886,21 +955,30 @@ router.post("/uploadImage", upload.single("stockImage"), (req, res) => {
       supplierName = subContract.supplierName;
       contactID = subContract.contactID;
     });
+    console.log(req.body.stockList)
     console.log("XXXS", supplierName);
     console.log("XXXC", contactID);
-    let mysqlPrefix = ` insert into stocktranfers (supplierName, contactID, block, unit, stockId, qtyTransfered, user, userId, stockImageUrl, transferDate) `;
-    let mysql = "";
+    let mysqlPrefix = ` insert into stocktranfers (supplierName, contactID, block, unit, stockId, qtyTransfered, user, userId, stockImageUrl, transferDate) values`;
+    let mysql1 = "";
+    let mysql2 = ""
     let mysql2Prefix = ` update stockitems s join purchaseorders po on po.stockId = s.id set requisitioned = IFNULL(requisitioned,0)  + `;
-    req.body.stockList.forEach((stockItem) => {
-      mysql =
-        mysql +
-        mysqlPrefix +
-        ` VALUES ('${supplierName}', '${req.body.contactID}', '${req.body.block}', '${req.body.unit}',  '${stockItem.stockId}', '${stockItem.qtyToTransfer}' , '${req.body.user}','${req.body.userId}', 'public/uploads/${req.body.imageName}', '${req.body.transferDate}'); ` +
-        mysql2Prefix +
-        ` ${parseInt(stockItem.qtyToTransfer)} WHERE s.id = '${
-          stockItem.stockId
-        }' AND po.reference = '${stockItem.mainCategory}' ;`;
+    req.body.stockList.forEach((stockItem, index, arr) => {
+      // console.log(ArrayBuffer)
+      if (index < arr.length - 1) {
+      mysql1 =    
+        `${mysql1} ('${supplierName}', '${req.body.contactID}', '${req.body.block}', '${req.body.unit}',  '${stockItem.itemCode}', '${stockItem.qtyToTransfer}' , '${req.body.currentUser}','${req.body.currentUserId}', '${req.body.imageName}', '${req.body.transferDate}'), `
+      } else {
+        mysql1 =    
+        `${mysql1} ('${supplierName}', '${req.body.contactID}', '${req.body.block}', '${req.body.unit}',  '${stockItem.itemCode}', '${stockItem.qtyToTransfer}' , '${req.body.currentUser}','${req.body.currentUserId}', '${req.body.imageName}', '${req.body.transferDate}')`
+      }
+        mysql2 = 
+        `${mysql2} ${mysql2Prefix} ${parseInt(stockItem.qtyToTransfer)} WHERE s.itemCode = '${
+          stockItem.itemCode
+        }' AND po.reference = '${stockItem.mainCategory}';`;
     });
+    let insertSql = `${mysqlPrefix}${mysql1}`
+    let updateSql = `${mysql2}`
+    let mysql = `${insertSql};${updateSql}`
     console.log(chalk.cyanBright("completeTransfers sql", mysql));
 
     pool.getConnection(function (err, connection) {
@@ -931,7 +1009,7 @@ router.post("/submitStockTake", (req, res) => {
     }
   });
 
-  let mysqlPrefix = ` insert into stocktake (stockId, itemCode, reference, qtyOnHand, qtyCounted, countCorrect, stockTakeDate, user, userId) `;
+  let mysqlPrefix = ` insert into stocktake ( itemCode, reference, qtyOnHand, qtyCounted, countCorrect, stockTakeDate, user, userId) `;
   var today = new Date();
   var date =
     today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
@@ -942,10 +1020,12 @@ router.post("/submitStockTake", (req, res) => {
   let mysql = "";
   //let mysql2Prefix = ` update stockitems set requisitioned = IFNULL(requisitioned,0)  + `
   req.body.StockList.forEach((stockItem) => {
+    if (!stockItem.CountCorrect) {
     mysql =
       mysql +
       mysqlPrefix +
-      ` VALUES ('${stockItem.stockId}','${stockItem.itemCode}','${stockItem.mainCategory}',  '${stockItem.qtyOnHand}', '${stockItem.qtyCounted}' , '${stockItem.CountCorrect}', '${dateTime}', '${req.body.currentUser}',  '${req.body.currentUserId}' ); `;
+      ` VALUES ('${stockItem.itemCode}','${stockItem.itemDescription}',  '${stockItem.qtyOnHand}', '${stockItem.qtyCounted}' , '${stockItem.CountCorrect}', '${dateTime}', '${req.body.currentUser}',  '${req.body.currentUserId}' ); `;
+    }
     //+ mysql2Prefix + ` ${parseInt(stockItem.qtyToTransfer)} WHERE id = '${stockItem.stockId}';`
   });
   console.log(chalk.greenBright("completeTransfers sql", mysql));
@@ -972,6 +1052,7 @@ router.post("/sendStockTakeEmail", (req, res) => {
   console.log("XXXX", req.body);
   let subject = `Stock Take Completed`;
   let recipient = "morne@cpconstruction.co.za; wayne@opportunity.co.za";
+  // let recipient = " wayne@opportunity.co.za";
   // ${req.body.info[0].firstname} ${req.body.info[0].firstname}
 
   let invalidItemsHtml = "";

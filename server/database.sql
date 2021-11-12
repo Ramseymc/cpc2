@@ -3366,3 +3366,28 @@ insert into smartUploads (
         "Bob",
         "2021-11-03"
     );
+
+    +++++++++++++++++++++++++
+
+    alter table stocktranfers add column development int default 1;
+
+    $$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+    insert into subsection (development, subsectionName) values
+    (1, 'None'),
+    (2, 'None');
+
+    insert into units (development, subsection, unitName) values
+    (1, 10, 'None'),
+    (2, 11, 'None');
+
+    alter table investorDetails add column actionToTake varchar(75);
+
+    insert into salesData (unit,beds,bath,base_price,contract_price,sold,development) values
+(159,0,0,0,0,false,2);
+
+    insert into salesData (unit,beds,bath,base_price,contract_price,sold,development) values
+(158,0,0,0,0,false,1);
+    
+
+

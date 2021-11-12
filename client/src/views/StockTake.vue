@@ -29,59 +29,63 @@
               ></v-text-field>
             </v-col>
           </v-subheader>
-          <draggable v-model="StockList" style="min-height: 10px">
-            <template v-for="stockItem in stockListFiltered">
-              <v-list-item :key="stockItem.id" ripple>
-                <v-list-item-icon>
-                  <v-icon large color="green">{{ stockItem.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stockItem.itemDescription"
-                  ></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="`${stockItem.itemCode}`"
-                  ></v-list-item-subtitle>
-                  <v-list-item-subtitle
-                    v-html="stockItem.mainCategory"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stockItem.qtyOnHandLbl"
-                  ></v-list-item-title>
-                  <v-list-item-subtitle
-                    class="bigFont"
-                    v-html="stockItem.qtyOnHand"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
+          <!-- <draggable v-model="StockList" style="min-height: 10px"> -->
+          <!-- <template > -->
+          <v-list-item
+            v-for="stockItem in stockListFiltered"
+            :key="stockItem.id"
+            ripple
+          >
+            <v-list-item-icon>
+              <v-icon large color="green">{{ stockItem.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title
+                v-html="stockItem.itemDescription"
+              ></v-list-item-title>
+              <v-list-item-subtitle
+                v-html="`${stockItem.itemCode}`"
+              ></v-list-item-subtitle>
+              <v-list-item-subtitle
+                v-html="stockItem.mainCategory"
+              ></v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-title
+                v-html="stockItem.qtyOnHandLbl"
+              ></v-list-item-title>
+              <v-list-item-subtitle
+                class="bigFont"
+                v-html="stockItem.qtyOnHand"
+              ></v-list-item-subtitle>
+            </v-list-item-content>
 
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-html="stockItem.CountCorrectLbl"
-                  ></v-list-item-title>
-                  <v-switch
-                    v-model="stockItem.CountCorrect"
-                    :label="stockItem.CountCorrect ? 'Yes' : 'No'"
-                    @change="changeSwitch"
-                  ></v-switch>
-                </v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-title
+                v-html="stockItem.CountCorrectLbl"
+              ></v-list-item-title>
+              <v-switch
+                v-model="stockItem.CountCorrect"
+                :label="stockItem.CountCorrect ? 'Yes' : 'No'"
+                @change="changeSwitch"
+              ></v-switch>
+            </v-list-item-content>
 
-                <v-list-item-content v-if="!stockItem.CountCorrect">
-                  <v-list-item-title
-                    v-html="stockItem.qtyCountedLbl"
-                  ></v-list-item-title>
-                  <v-text-field
-                    v-model="stockItem.qtyCounted"
-                    type="number"
-                    min="0"
-                    class="shrink"
-                    label=""
-                  ></v-text-field>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-          </draggable>
+            <v-list-item-content v-if="!stockItem.CountCorrect">
+              <v-list-item-title
+                v-html="stockItem.qtyCountedLbl"
+              ></v-list-item-title>
+              <v-text-field
+                v-model="stockItem.qtyCounted"
+                type="number"
+                min="0"
+                class="shrink"
+                label=""
+              ></v-text-field>
+            </v-list-item-content>
+          </v-list-item>
+          <!-- </template> -->
+          <!-- </draggable> -->
         </v-list>
       </v-col>
     </v-row>
@@ -102,20 +106,10 @@
           </v-card-text> -->
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              color="blue darken-1"
-              text
-              @click="closeView"
-              v-if="openSubmitStockTakeDialog"
-            >
+            <v-btn color="blue darken-1" text @click="closeView">
               Cancel
             </v-btn>
-            <v-btn
-              color="blue darken-1"
-              text
-              @click="submitStockTake"
-              v-if="openSubmitStockTakeDialog"
-            >
+            <v-btn color="blue darken-1" text @click="submitStockTake">
               Yes
               <v-icon>
                 mdi-steam
@@ -131,12 +125,12 @@
 <script>
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
-import draggable from "vuedraggable";
+// import draggable from "vuedraggable";
 
 export default {
   name: "StockTake",
   components: {
-    draggable
+    // draggable
   },
   metaInfo: {
     title: "About us",
