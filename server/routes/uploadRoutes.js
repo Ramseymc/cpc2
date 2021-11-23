@@ -58,6 +58,31 @@ router.post("/getuploadDataWB", (req, res) => {
     connection.release();
   });
 });
+
+router.post("/getsmartsheetControlWB", (req, res) => {
+  console.log("THE BODY", req.body);
+  // res.json({awesome: "It Works"})
+  let mysql1 = `select * from smartsheetControl where development = ${req.body.id}`;
+  let mysql2 = `select * from smartToken where development = ${req.body.id}`;
+  let mysql3 = `select * from subsection where development = ${req.body.id}`;
+  let mysql4 = `select * from developments where id = ${req.body.id}`;
+  let mysql  = `${mysql1};${mysql2};${mysql3};${mysql4}`
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
 // upload.single("POP")
 router.post("/SignPDFWB", upload.single("file"), async (req, res) => {
   console.log("THE BODY", req.body);

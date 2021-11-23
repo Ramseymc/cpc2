@@ -77,6 +77,7 @@ router.post("/getqctemplate", (req, res) => {
         console.log("THE ERROR", error);
       } else {
         res.json(result);
+        console.log(result)
       }
     });
     connection.release();
@@ -112,6 +113,67 @@ router.post("/removeQCImage", (req, res) => {
     };
     res.json(response);
   });
+});
+
+router.post("/finaliseQuestionaire", (req, res) => {
+  console.log(req.body)
+  // res.json({ Awesome: "It works" });
+  let finalisedBy;
+  if (req.body.finalised === false) {
+    finalisedBy = null
+  } else {
+    finalisedBy = `'${req.body.finalisedBy}'`
+  }
+  let mysql = `update qcquestionnaireDone set finalised = ${req.body.finalised}, finalisedBy = ${finalisedBy} where section = '${req.body.section}' and shortName = '${req.body.shortName}' and unit = '${req.body.unit}'`
+
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+  
+});
+
+router.post("/qualityReports", (req, res) => {
+  console.log(req.body)
+  // res.json({ Awesome: "It works" });
+  // let finalisedBy;
+  // if (req.body.finalised === false) {
+  //   finalisedBy = null
+  // } else {
+  //   finalisedBy = `'${req.body.finalisedBy}'`
+  // }
+  let mysql = `select distinct shortName, section, unit, if(sum(finalised) > 1, 1,sum(finalised))  as finalised from qcquestionnaireDone
+  where development = ${req.body.id}
+  group by shortName, section, unit
+  order by shortName,section, unit`
+
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+  
 });
 
 router.post("/uploadImageWB", upload.single("image"), (req, res) => {
@@ -288,7 +350,8 @@ router.post("/postQC", (req, res) => {
 });
 
 router.post("/editQC", (req, res) => {
-  console.log(req.body);
+  console.log("XXXXXX",req.body);
+  // if (req.body.finalised === true)
   let uniqueID = uniqid();
   if (req.body.scSignature !== "") {
     var image = req.body.scSignature;

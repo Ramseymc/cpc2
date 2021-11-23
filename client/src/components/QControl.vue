@@ -151,7 +151,14 @@
             ><v-icon color="black">mdi-feather</v-icon>Construction
             Manager</v-btn
           >
+
           <v-spacer></v-spacer>
+
+          <v-checkbox
+            v-model="finalised"
+            label="finalised"
+            @change="changeStatus"
+          ></v-checkbox>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDialog">
             Close
@@ -249,6 +256,7 @@ export default {
   },
   data: () => ({
     viewDialog: false,
+    finalised: false,
     maxWidth: "60%",
     cloudName: `${process.env.VUE_APP_CLOUDNAME}`,
     preset: `${process.env.VUE_APP_PRESET}`,
@@ -335,6 +343,34 @@ export default {
   },
 
   methods: {
+    async changeStatus() {
+      // console.log("AWESOME",this.finalised)
+      // console.log(this.title)
+      // console.log(this.section)
+      // console.log(this.unit)
+      // if (this.finalised) {
+      let data = {
+        shortName: this.title,
+        section: this.section,
+        unit: this.unit,
+        finalised: this.finalised,
+        finalisedBy: this.$store.state.userName
+      };
+      console.log(data);
+      await axios({
+        method: "post",
+        url: `${url}/finaliseQuestionaire`,
+        data: data
+      }).then(
+        response => {
+          console.log(response.data);
+        },
+        error => {
+          console.log(error);
+        }
+      );
+      // }
+    },
     async blobToFile(theBlob, fileName, lastModifiedDate, lastModified) {
       theBlob.lastModifiedDate = lastModifiedDate;
       theBlob.lastModified = lastModified;
@@ -453,7 +489,9 @@ export default {
           cmSignature: this.cmSignature,
           scSignature: this.scSignature,
           sfSignature: this.sfSignature,
-          public_id: this.public_id
+          public_id: this.public_id,
+          finalised: this.finalised,
+          finalisedBy: this.$store.state.userName
         };
         // let formData = new FormData()
         // formData.append("saveDate", now)
@@ -506,8 +544,11 @@ export default {
           cmSignature: this.cmSignature,
           scSignature: this.scSignature,
           sfSignature: this.sfSignature,
-          signaturesOnly: false
+          signaturesOnly: false,
+          finalised: this.finalised,
+          finalisedBy: this.$store.state.userName
         };
+        // console.log(this.$store.state.userName)
         //  let formData = new FormData()
         // formData.append("saveDate", now)
         // formData.append("development", this.$store.state.development.id)
@@ -582,6 +623,7 @@ export default {
         section: this.section,
         development: this.$store.state.development.id
       };
+      // console.log(data)
       this.duplicate = "";
       await axios({
         method: "post",
@@ -589,8 +631,10 @@ export default {
         data: data
       }).then(
         response => {
+          console.log("TESTINGXXX", response.data);
           if (response.data[1].length) {
             this.desserts = response.data[1];
+            // console.log()
             this.desserts.forEach(el => {
               if (el.signedConstructionManager === 1) {
                 el.cmDisabled = true;
@@ -607,7 +651,13 @@ export default {
               } else {
                 el.scDisabled = false;
               }
+              if (el.finalised === 0) {
+                el.finalised = false;
+              } else {
+                el.finalised = true;
+              }
             });
+            this.finalised = this.desserts[0].finalised;
           } else {
             this.desserts = response.data[0];
             this.desserts.forEach(el => {

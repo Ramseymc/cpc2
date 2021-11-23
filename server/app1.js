@@ -3,7 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
-const dotenv = require("dotenv").config();
+// const dotenv = require("dotenv").config();
 const chalk = require("chalk");
 const cookieParser = require("cookie-parser");
 const pool = require("./routes/connection");
@@ -25,8 +25,8 @@ app.use(
       "authorization", 
     ],
     exposedHeaders: ["sessionId"],
-    // 'origin': ['https://cape-projects.co.za', 'https://www.cape-projects.co.za', 'https://cape-projectsbe.co.za', 'https://www.cape-projectsbe.co.za'],
-    origin: "http://localhost:8080",
+    'origin': ['https://cape-projects.co.za', 'https://www.cape-projects.co.za', 'https://cape-projectsbe.co.za', 'https://www.cape-projectsbe.co.za'],
+    // origin: "http://localhost:8080",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: false,
     preflightContinue: false,
@@ -61,6 +61,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const pandgRoutes = require("./routes/pandgRoutes");
 const smartRoutes = require("./routes/smartRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const investorRoutes = require("./routes/investorroutes");
 app.use(
   progressRoutes,
   progressResultsRoutes,
@@ -78,7 +79,8 @@ app.use(
   dashboardRoutes,
   pandgRoutes,
   smartRoutes,
-  uploadRoutes
+  uploadRoutes,
+  investorRoutes
 );
 
 app.listen(port, () => {

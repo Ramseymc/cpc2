@@ -191,6 +191,14 @@ const routes = [
       )
   },
   {
+    path: "/qualityreports",
+    name: "QualityReports",
+    component: () =>
+      import(
+        /* webpackChunkName: "QualityReports" */ "../views/QualityReports.vue"
+      )
+  },
+  {
     path: "/taskList",
     name: "TaskList",
     component: () =>
@@ -261,14 +269,14 @@ const routes = [
         /* webpackChunkName: "SmartSubcontractors" */ "../views/smartSubcontractors.vue"
       )
   },
-  // {
-  //   path: "/investorDataPlanning",
-  //   name: "InvestorDataPlanning",
-  //   component: () =>
-  //     import(
-  //       /* webpackChunkName: "InvestorDataPlanning" */ "../views/InvestorDataPlanning.vue"
-  //     )
-  // },
+  {
+    path: "/addsmartsheets",
+    name: "AddSmartsheets",
+    component: () =>
+      import(
+        /* webpackChunkName: "AddSmartsheet" */ "../views/smartSheetAdd.vue"
+      )
+  },
   {
     path: "/dashboardSummary",
     name: "DashboardSummary",
@@ -283,6 +291,65 @@ const routes = [
     component: () =>
       import(
         /* webpackChunkName: "PercentageInvestors" */ "../views/PercentageInvestors.vue"
+      )
+  },
+  {
+    path: "/investorDashboard",
+    name: "investorDashboard",
+    component: () =>
+      import(
+        /* webpackChunkName: "investorDashboard" */ "../views/InvestorDashboard.vue"
+      )
+  },
+  {
+    path: "/investoradd",
+    name: "investoradd",
+    component: () =>
+      import(
+        /* webpackChunkName: "investoradd" */ "../components/InvestorAdd.vue"
+      )
+  },
+  {
+    path: "/investorupdate/:id",
+    name: "investorupdate",
+    component: () =>
+      import(
+        /* webpackChunkName: "investoradd" */ "../components/InvestorUpdate.vue"
+      )
+  },
+
+  {
+    path: "/investorview",
+    name: "investorview",
+    component: () =>
+      import(
+        /* webpackChunkName: "investorview" */ "../views/InvestorViewMain.vue"
+      )
+  },
+
+  {
+    path: "/investmentview/:id",
+    name: "investmentviewmain",
+    // params: true,
+    component: () =>
+      import(
+        /* webpackChunkName: "investmentview" */ "../views/InvestmentViewMain.vue"
+      )
+  },
+  {
+    path: "/investmentadd",
+    name: "investmentadd",
+    component: () =>
+      import(
+        /* webpackChunkName: "investmentadd" */ "../components/InvestmentAdd.vue"
+      )
+  },
+  {
+    path: "/investmentupdate/:id",
+    name: "investmentupdate",
+    component: () =>
+      import(
+        /* webpackChunkName: "investmentupdate" */ "../components/InvestmentUpdate.vue"
       )
   },
   {

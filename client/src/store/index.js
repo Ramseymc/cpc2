@@ -48,6 +48,10 @@ export default new Vuex.Store({
     chooseDevelopment(state, development) {
       state.development.id = development.id;
       state.development.developmentName = development.developmentName;
+    },
+    clearDevelopment(state) {
+      state.development.id = null;
+      state.development.developmentName = null;
     }
     // setSmartsheetToken(state) {
     //   state.smartsheetToken = true
@@ -79,6 +83,9 @@ export default new Vuex.Store({
     // },
     chooseDevelopment({ commit }, development) {
       commit("chooseDevelopment", development);
+    },
+    clearDevelopment({ commit }) {
+      commit("clearDevelopment");
     }
   },
   modules: {}

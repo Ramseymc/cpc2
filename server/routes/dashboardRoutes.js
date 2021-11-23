@@ -1467,7 +1467,8 @@ router.post("/editsalesDataWb", (req, res) => {
   // res.json({ awesome: "This Far!!" });
 
   console.log(req.body);
-  let unit_type = req.body.unit_type.join(",");
+  let unit_type = req.body.unit_type;
+  // let unit_type = req.body.unit_type.join(",");
   console.log(unit_type);
   let sale_date;
   let bond_app_date;
@@ -1745,6 +1746,12 @@ router.post("/editInvestmentData", (req, res) => {
   let opc_comm = parseFloat(req.body.opc_comm) / 100;
 
   // id: 4,
+  let actionToTake;
+  if (req.body.actionToTake === null) {
+    actionToTake = null
+  } else {
+    actionToTake = `'${req.body.actionToTake}'`
+  }
 
   let mysql1 = `UPDATE investorDetails set unit = ${
     req.body.unit
@@ -1766,14 +1773,15 @@ router.post("/editInvestmentData", (req, res) => {
     req.body.available
   }, pledge_date = ${pledge_date}, pledgeUsed = ${
     req.body.pledgeUsed
-  }, actionToTake = '${req.body.actionToTake}' where id = ${req.body.id}`;
+  }, actionToTake = ${actionToTake} where id = ${req.body.id}`;
   let mysql2 = ""
   if (req.body.actionToTake === 'Rollover') {
     mysql2 = `Insert into investorDetails (unit,investor_code, investor, pledged, development) values (${req.body.moveInvestorToUnitId},'${req.body.investor_code}', '${req.body.investor}', ${req.body.rolloverAmount}, ${req.body.moveInvestorToId})`
   }
   let mysql = `${mysql1};${mysql2}`
+  console.log(chalk.cyan(mysql))
 
-  console.log(chalk.red(mysql));
+  // console.log(chalk.red(mysql));
 
 
   pool.getConnection(function (err, connection) {
@@ -2227,7 +2235,7 @@ router.post("/getunitSalesProjection", (req, res) => {
   let mysql1 = `select s.id, s.unit, u.unitName, s.development, s.beds,s.bath,s.unit_type,s.size,s.base_price,s.contract_price,s.sold,s.isEnclosed,s.bathAdd,s.study,s.parking,
   s.bay_no,s.mood_board,s.extras,s.notes,s.deductions,s.sale_date,s.bond_app_date,s.lodge_date,s.transfer_date , s.actualsale_date
   from salesData s, units u
-  where u.id = s.unit and s.development = ${req.body.id} and u.development = ${req.body.id}
+  where u.id = s.unit and s.development = ${req.body.id} and u.development = ${req.body.id} and unitName != 'None'
   order by u.unitName`;
   let mysql2 = `select i.id, i.development, i.unit,u.unitName,i.investor_code,i.investor,i.la_email_date,i.la_sign_date,i.pledged,i.attorney_inv_amount,i.fica_inv_date,i.amount,
   i.quinteDate,i.draw, d.drawNumber, i.drawAdjustment, i.interest_rate,i.repayment_date, 
@@ -2241,28 +2249,58 @@ router.post("/getunitSalesProjection", (req, res) => {
   from financeInput f, dashboardCategories c
   where c.id = f.category and f.development = ${req.body.id} `;
   let mysql5 = `select distinct discipline from dashboardCategories`;
-  let mysql6 = `select if(s.subsectionName = 'Common Area', u.unitName, s.subsectionName) as discipline, 
-  t.price as budgetAmount, t.price - coalesce(pc.totalValue,0) - if(po.task = 0, 0, coalesce(po.nettCost,0)) as actualAmount,  t.payDate as paymentDate  
-   from units u, subsection s, tasks t
-  left join progress p
-  on p.task = t.id
-  left join paymentCertificatesDetails pc
-  on pc.progressId = p.id
-  left join purchaseOrders po
-  on po.task = t.id
-  where u.id = t.unitNumber and s.id = u.subsection and t.development = ${req.body.id}
-  union all
-select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, pc.totalValue as budgetAmount, pc.totalValue as actualAmount, pc.payDate as paymentDate  
-from paymentCertificatesDetails pc, progress p, units u, subsection s where p.id = pc.progressId and u.id = p.unitNumber and u.subsection = s.id and pc.development = ${req.body.id}
-union all
-select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, po.nettCost as budgetAmount, po.nettCost as actualAmount, po.payDate as paymentDate  
-from purchaseOrders po, units u, subsection s where u.id = po.unitNumber and s.id = po.subsection and po.development = ${req.body.id}`;
-  // let mysql6 = `select if(s.subsectionName = 'Common Area', u.unitName, s.subsectionName) as discipline, if(ss.vatVendor = 1, sum(t.price),sum(t.price /1.15))  as budgetAmount, 0 as actualAmount, if(ss.terms = 1, LAST_DAY(DATE_ADD(t.endDate, INTERVAL 1 MONTH)),
-  // if(ss.terms = 2, DATE_ADD(t.endDate, INTERVAL 14 DAY),
-  // if(ss.terms = 3, date(t.endDate+ INTERVAL 5 - weekday(t.endDate) DAY),
-  // if(ss.terms = 4, DATE_ADD(date(t.endDate+ INTERVAL 5 - weekday(t.endDate) DAY),INTERVAL 7 DAY), t.endDate)))) as paymentDate from tasks t, units u, subsection s, suppliers ss
-  //   where u.id = t.unitNumber and s.id = u.subsection and u.development = ${req.body.id} and t.development = ${req.body.id} and s.development = ${req.body.id} and t.supplier = ss.id
-  //   group by discipline,ss.vatVendor,ss.terms, endDate`;
+  let mysql6 = `
+ 
+  select distinct if(s.subsectionName = 'Common Area', u.unitName, s.subsectionName) as discipline, 
+   if(coalesce(su.vatVendor, 1) = 1, round(t.totalCost * 1.15,2), round(t.totalCost,2)) as budgetAmount,
+  if(coalesce(su.vatVendor, 1) = 1, round(t.totalCost * 1.15,2), round(t.totalCost,2)) as actualAmount, 
+  if(coalesce(su.terms, 1) = 1,  DATE_Add(t.endDate, INTERVAL 30 DAY),if(coalesce(su.terms, 1) = 2,  DATE_Add(t.endDate, INTERVAL 14 DAY),if(coalesce(su.terms, 1) = 3, DATE_ADD(t.endDate,INTERVAL IF(WEEKDAY(t.endDate)>=4,
+                             (6-WEEKDAY(t.endDate)),
+                             (4-WEEKDAY(t.endDate))) DAY)  ,if(coalesce(su.terms, 1) = 4, 
+                           DATE_ADD(DATE_Add(t.endDate, INTERVAL 7 DAY),INTERVAL IF(WEEKDAY(DATE_Add(t.endDate, INTERVAL 7 DAY))>=4,
+                             (6-WEEKDAY(DATE_Add(t.endDate, INTERVAL 7 DAY))),
+                             (4-WEEKDAY(DATE_Add(t.endDate, INTERVAL 7 DAY)))) DAY)   ,t.endDate))))  as paymentDate
+  from  subsection s, smartUnits u  , smartTasks t
+  left join 
+  suppliers su
+  on su.supplierName = t.assignedTo
+  where t.subsection = s.id and u.unitName = t.unitName  and t.development = ${req.body.id}
+ `;
+//  select if(s.subsectionName = 'Common Area', u.unitName, s.subsectionName) as discipline, 
+//   t.price as budgetAmount, t.price - coalesce(pc.totalValue,0) - if(po.task = 0, 0, coalesce(po.nettCost,0)) as actualAmount,  t.payDate as paymentDate  
+//    from units u, subsection s, tasks t
+//   left join progress p
+//   on p.task = t.id
+//   left join paymentCertificatesDetails pc
+//   on pc.progressId = p.id
+//   left join purchaseOrders po
+//   on po.task = t.id
+//   where u.id = t.unitNumber and s.id = u.subsection and t.development = 1
+//   union all
+// select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, pc.totalValue as budgetAmount, pc.totalValue as actualAmount, pc.payDate as paymentDate  
+// from paymentCertificatesDetails pc, progress p, units u, subsection s where p.id = pc.progressId and u.id = p.unitNumber and u.subsection = s.id and pc.development = 1
+// union all
+// select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, po.nettCost as budgetAmount, po.nettCost as actualAmount, po.payDate as paymentDate  
+// from purchaseOrders po, units u, subsection s where u.id = po.unitNumber and s.id = po.subsection and po.development = 1;
+
+
+
+//   let mysql6 = `select if(s.subsectionName = 'Common Area', u.unitName, s.subsectionName) as discipline, 
+//   t.price as budgetAmount, t.price - coalesce(pc.totalValue,0) - if(po.task = 0, 0, coalesce(po.nettCost,0)) as actualAmount,  t.payDate as paymentDate  
+//    from units u, subsection s, tasks t
+//   left join progress p
+//   on p.task = t.id
+//   left join paymentCertificatesDetails pc
+//   on pc.progressId = p.id
+//   left join purchaseOrders po
+//   on po.task = t.id
+//   where u.id = t.unitNumber and s.id = u.subsection and t.development = ${req.body.id}
+//   union all
+// select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, pc.totalValue as budgetAmount, pc.totalValue as actualAmount, pc.payDate as paymentDate  
+// from paymentCertificatesDetails pc, progress p, units u, subsection s where p.id = pc.progressId and u.id = p.unitNumber and u.subsection = s.id and pc.development = ${req.body.id}
+// union all
+// select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, po.nettCost as budgetAmount, po.nettCost as actualAmount, po.payDate as paymentDate  
+// from purchaseOrders po, units u, subsection s where u.id = po.unitNumber and s.id = po.subsection and po.development = ${req.body.id}`;
   let mysql7 = `SELECT
   sum(
     OFFICE_BASED_MANAGEMENT +
@@ -2453,7 +2491,23 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
   from financeConstructionInput
   where development = ${req.body.id} and paid != 0
   group by paymentDate`;
-  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5};${mysql6};${mysql7};${mysql8};${mysql9};${mysql10};${mysql11};${mysql12};${mysql13};${mysql14};${mysql15};${mysql16};${mysql17};${mysql18};${mysql19};${mysql20};${mysql21}`;
+  let mysql22 = `select if(s.subsectionName = 'Common Area', u.unitName, s.subsectionName) as discipline, 
+  t.price as budgetAmount, t.price - coalesce(pc.totalValue,0) - if(po.task = 0, 0, coalesce(po.nettCost,0)) as actualAmount,  t.payDate as paymentDate  
+     from units u, subsection s, tasks t
+    left join progress p
+    on p.task = t.id
+    left join paymentCertificatesDetails pc
+    on pc.progressId = p.id
+    left join purchaseOrders po
+   on po.task = t.id
+    where u.id = t.unitNumber and s.id = u.subsection and t.development = ${req.body.id} and s.subsectionName = 'Common Area'
+    union all
+  select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, pc.totalValue as budgetAmount, pc.totalValue as actualAmount, pc.payDate as paymentDate  
+  from paymentCertificatesDetails pc, progress p, units u, subsection s where p.id = pc.progressId and u.id = p.unitNumber and u.subsection = s.id and pc.development = ${req.body.id} and s.subsectionName = 'Common Area'
+  union all
+  select if(s.subsectionName = 'Common Area', u.unitName,s.subsectionName) as discipline, po.nettCost as budgetAmount, po.nettCost as actualAmount, po.payDate as paymentDate  
+  from purchaseOrders po, units u, subsection s where u.id = po.unitNumber and s.id = po.subsection and po.development = ${req.body.id} and s.subsectionName = 'Common Area'`;
+  let mysql = `${mysql1};${mysql2};${mysql3};${mysql4};${mysql5};${mysql6};${mysql7};${mysql8};${mysql9};${mysql10};${mysql11};${mysql12};${mysql13};${mysql14};${mysql15};${mysql16};${mysql17};${mysql18};${mysql19};${mysql20};${mysql21};${mysql22}`;
   pool.getConnection(function (err, connection) {
     if (err) {
       console.log("THE ERR", err);
@@ -2464,6 +2518,7 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
       if (error) {
         console.log("THE ERROR", error);
       } else {
+  
         result[2].sort(function (a, b) {
           return new Date(a.theDate) - new Date(b.theDate);
         });
@@ -2541,6 +2596,10 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           }
         });
         let dates = [];
+        result[2] =  result[2].filter((el) => {
+          return el.theDate !== null
+        })
+
         dates.push(result[2][0].theDate);
         dates.push(result[2][result[2].length - 1].theDate);
         dates[1] = dayjs(dates[1]).add(12, "months").format("YYYY-MM-DD");
@@ -2564,6 +2623,8 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           disciplineArray.push(el.discipline);
         });
         // console.log(result[10]);
+
+     
 
         const fakeBudget = [
           {
@@ -3675,13 +3736,26 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           },
         ];
         result5.forEach((el) => {
+          // console.log(el.discipline)
           result[3].push(el);
+          // if (el.discipline === 'Block B') {
+          // console.log("XXX",el.discipline)
+          // }
           disciplineArray.push(el.discipline);
         });
-        fakeBudget.forEach((el) => {
+        // console.log(result[3])
+        
+        // fakeBudget.forEach((el) => {
+        //   result[3].push(el);
+        //   disciplineArray.push(el.discipline);
+        // });
+
+        console.log("Result 22",result[22])
+
+        result[22].forEach((el) => {
           result[3].push(el);
           disciplineArray.push(el.discipline);
-        });
+        })
 
         result[17].forEach((el) => {
           result[3].push(el);
@@ -3697,6 +3771,7 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
 
         disciplineArray.sort();
         disciplineArray = Array.from(new Set(disciplineArray));
+        // console.log(disciplineArray)
 
         disciplineArray.forEach((el) => {
           let insert = {
@@ -3835,35 +3910,35 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
         console.log(interestCalcArray.length);
         console.timeEnd("Interest");
 
-        let fakeVAT = JSON.parse(JSON.stringify(fakeBudget));
-        let fakeVATINSERT = [];
-        fakeVAT.forEach((el) => {
-          let month = parseInt(dayjs(el.paymentDate).format("MM"));
-          let dashboardDate;
-          // console.log(month)
-          if (month % 2 === 0) {
-            dashboardDate = dayjs(el.paymentDate)
-              .endOf("month")
-              .add(1, "month")
-              .format("YYYY-MM-DD");
-          } else {
-            dashboardDate = dayjs(el.paymentDate)
-              .endOf("month")
-              .add(2, "month")
-              .format("YYYY-MM-DD");
-          }
-          // let dashboardDate = dayjs(el.paymentDate).format
-          let insert = {
-            discipline: "VAT Construction",
-            dashboardDate: dashboardDate,
-            amount: (el.budgetAmount / 1.15) * 0.15,
-          };
-          fakeVATINSERT.push(insert);
-        });
+        // let fakeVAT = JSON.parse(JSON.stringify(fakeBudget));
+        // let fakeVATINSERT = [];
+        // fakeVAT.forEach((el) => {
+        //   let month = parseInt(dayjs(el.paymentDate).format("MM"));
+        //   let dashboardDate;
+        //   // console.log(month)
+        //   if (month % 2 === 0) {
+        //     dashboardDate = dayjs(el.paymentDate)
+        //       .endOf("month")
+        //       .add(1, "month")
+        //       .format("YYYY-MM-DD");
+        //   } else {
+        //     dashboardDate = dayjs(el.paymentDate)
+        //       .endOf("month")
+        //       .add(2, "month")
+        //       .format("YYYY-MM-DD");
+        //   }
+        //   // let dashboardDate = dayjs(el.paymentDate).format
+        //   let insert = {
+        //     discipline: "VAT Construction",
+        //     dashboardDate: dashboardDate,
+        //     amount: (el.budgetAmount / 1.15) * 0.15,
+        //   };
+        //   fakeVATINSERT.push(insert);
+        // });
 
-        fakeVATINSERT.forEach((el) => {
-          result[13].push(el);
-        });
+        // fakeVATINSERT.forEach((el) => {
+        //   result[13].push(el);
+        // });
 
         // console.log(result[20])
         // console.log(result[21])
@@ -3875,6 +3950,8 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
           }
           result[21].push(insert)
         }
+
+
 
 
         console.time("Merge 7 & 10");
@@ -3901,6 +3978,8 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
 
         console.timeEnd("interest Array Calc");
 
+        // console.log("DATES",dates)
+
         let summaryPageData = [];
         let startDate2 = dayjs(dates[0])
           .subtract(7, "day")
@@ -3917,6 +3996,12 @@ from investorDetailsPlanning where available != 0  and development = ${req.body.
         } while (dayjs(startDate2) < dayjs(dates[1]));
 
         console.time("Populate Data3");
+
+        // let test = summaryPageData.filter((el) => {
+        //   return el.dashboardDate === '2021-11-12' || el.dashboardDate === '2021-11-13' || el.dashboardDate === '2021-11-14' || el.dashboardDate === '2021-11-15' || el.dashboardDate === '2021-11-16' || el.dashboardDate === '2021-11-17' || el.dashboardDate === '2021-11-18' || el.dashboardDate === '2021-11-19'
+        // })
+
+        // console.log("Test",test)
 
         summaryPageData.forEach((el) => {
           let afterDate = dayjs(el.dashboardDate)
@@ -4774,30 +4859,46 @@ const createDashboardXLSX = async (data, data2, data3) => {
     object40[`${dashboardDate}`] = el["Block F"];
     // console.log("ZZXXZZ",el["Block F"])
     object44[`${dashboardDate}`] = el["CPC P&G"];
+    if (!isNaN(el["Refuse Room"])) {
     object41[`${dashboardDate}`] = el["Refuse Room"];
+    } else {
+      object41[`${dashboardDate}`] = 0
+    }
+    if (!isNaN(el["Guard House"])) {
     object42[`${dashboardDate}`] = el["Guard House"];
+    } else {
+      object42[`${dashboardDate}`] = 0
+    }
     object43[`${dashboardDate}`] = el["Boundary Walls_DP2"];
     object51[`${dashboardDate}`] = el["Substation Slab"];
     object56[`${dashboardDate}`] = el["External Works"];
+    if (!isNaN(el["Site Security"])) {
     object57[`${dashboardDate}`] = el["Site Security"];
+    } else {
+      object57[`${dashboardDate}`] = 0
+    }
     object58[`${dashboardDate}`] = el["Boundary Wall"];
     object59[`${dashboardDate}`] = el["Play Equipment"];
+    if (!isNaN(el["Landscaping Site"])) {
     object75[`${dashboardDate}`] = el["Landscaping Site"];
+    } else {
+      object75[`${dashboardDate}`] = 0
+    }
     // object75[`${dashboardDate}`] = el["Waterheating Area"];
     object60[`${dashboardDate}`] = el["Escalations"];
     object61[`${dashboardDate}`] = el["Contingencies"];
     object62[`${dashboardDate}`] = el["Overs / Unders"];
     object48[`${dashboardDate}`] =
       el["Boundary Walls_DP2"] +
-      el["Guard House"] +
-      el["Refuse Room"] +
+      object42[`${dashboardDate}`] +
+      object41[`${dashboardDate}`] +
       el["CPC P&G"] +
       el["Block F"] +
       el["Block E"] +
       el["Block D"] +
       el["Substation Slab"] +
       el["External Works"] +
-      el["Site Security"] +
+      object57[`${dashboardDate}`] +
       el["Boundary Wall"] +
       el["Play Equipment"] +
       el["Block A"] +
@@ -4806,7 +4907,7 @@ const createDashboardXLSX = async (data, data2, data3) => {
       el["Escalations"] +
       el["Contingencies"] +
       el["Overs / Unders"] +
-      el["Landscaping Site"];
+      object75[`${dashboardDate}`];
     // el["Block C"] + el["Escalations"] + el["Contingencies"] + el["Overs / Unders"] + el["Waterheating Area"];
 
     if (index === arr.length - 1) {
@@ -5162,18 +5263,46 @@ const createDashboardXLSX = async (data, data2, data3) => {
 
   data3.forEach((el, index, arr) => {
     let dashboardDate = el.dashboardDate;
-
+    if (!isNaN(el["Loan Agreement Emailed"])) {
     summaryObject1[`${dashboardDate}`] = el["Loan Agreement Emailed"];
+    } else {
+      summaryObject1[`${dashboardDate}`] = 0
+    }
+    if (!isNaN(el["Loan Agreement Expected"])) {
     summaryObject2[`${dashboardDate}`] = el["Loan Agreement Expected"];
+    } else {
+      summaryObject2[`${dashboardDate}`] = 0
+    }
+
     summaryObject3[`${dashboardDate}`] =
       el["Loan Agreement Emailed"] + el["Loan Agreement Expected"];
+      if (!isNaN(el["Received In Attorney Trust Acc"])) {
     summaryObject4[`${dashboardDate}`] = el["Received In Attorney Trust Acc"];
+      } else {
+        summaryObject4[`${dashboardDate}`] = 0
+      }
+    if (!isNaN(el["Loan Agreement Expected"])) {
     summaryObject100[`${dashboardDate}`] = el["Pledges Utilized"];
+    } else {
+      summaryObject100[`${dashboardDate}`] = 0
+    }
+    if (!isNaN(el["Available Income (Units not funded - Debbie)"])) {
     summaryObject52[`${dashboardDate}`] =
       el["Available Income (Units not funded - Debbie)"];
+    } else {
+      summaryObject52[`${dashboardDate}`] = 0
+    }
+    if (!isNaN(el["Actual Draws Done"])) {
     summaryObject5[`${dashboardDate}`] = el["Actual Draws Done"];
+    } else {
+      summaryObject5[`${dashboardDate}`] = 0
+    }
 
+    if (!isNaN(el["Draw (prepopulated - Debbie)"])) {
     summaryObject50[`${dashboardDate}`] = el["Draw (prepopulated - Debbie)"];
+    } else {
+      summaryObject50[`${dashboardDate}`] = 0
+    }
 
     summaryObject101[`${dashboardDate}`] = 0;
 

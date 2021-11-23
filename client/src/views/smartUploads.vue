@@ -49,6 +49,20 @@
                   <v-row>
                     <v-col
                       cols="12"
+                      sm="12"
+                      md="12"
+                      v-if="formTitle === 'New Item'"
+                    >
+                      <span style="color: red;"
+                        ><strong
+                          >The JBCC Document must be the last uploaded
+                          document.(Herbert, please note this carefully)</strong
+                        ></span
+                      >
+                    </v-col>
+
+                    <v-col
+                      cols="12"
                       sm="6"
                       md="6"
                       v-if="formTitle === 'New Item'"

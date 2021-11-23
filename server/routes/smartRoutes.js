@@ -150,10 +150,10 @@ router.get("/callbackProgressWB", async (req, res) => {
 });
 
 router.post("/updateFromSmartSheets", async (req, res) => {
-  console.log("body", req.body.development);
+  // console.log("body", req.body.development);
 
   try {
-    console.log(req.body);
+    // console.log(req.body);
     let mysql = `select * from smartsheetControl where development = ${req.body.development} order by id`;
     let smartSheetControl = [];
 
@@ -173,8 +173,9 @@ router.post("/updateFromSmartSheets", async (req, res) => {
       });
       connection.release();
     });
+    // console.log("smartSheetControl",smartSheetControl)
 
-    smartsheet = client.createClient({
+    smartsheet = await client.createClient({
       accessToken: `${req.body.access_token}`,
       logLevel: "info",
     });
@@ -190,6 +191,15 @@ router.post("/updateFromSmartSheets", async (req, res) => {
     await smartsheet.sheets
       .listSheets(options)
       .then(async function (result) {
+        //     let test = []
+        //     smartSheetControl.forEach((el, index) => {
+        //       if (index === 0) {
+        //       test.push(el)
+        //       }
+        //     })
+        //     smartSheetControl = test
+        // console.log("smartSheetControl",smartSheetControl)
+
         await smartSheetControl.forEach((element, index, arr) => {
           // let sheetId = sheetInfoFromDB[0].id;
           let sheetId = parseFloat(element.smartsheetId);
@@ -197,7 +207,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
           // Load one sheet
           smartsheet.sheets
             .getSheet({ id: sheetId })
-            .then(function (sheetInfo) {
+            .then( async function (sheetInfo) {
               console.time("getReleventRows Time Test:");
               sheetInfo.rows.sort((a, b) =>
                 a.rowNumber < b.rowNumber
@@ -207,31 +217,32 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                   : 0
               );
               // console.log("rows",sheetInfo.rows)
-              sheetInfo.rows.forEach((el) => {
-                let filteredRows = el.cells.filter((el2) => {
-                  if (
-                    (el2.columnId === parseFloat(element.isUnit) &&
-                      el2.value === true) ||
-                    (el2.columnId === parseFloat(element.isTaskType) &&
-                      el2.value === true) ||
-                    (el2.columnId === parseFloat(element.isTask) &&
-                      el2.value === true)
-                  ) {
-                    return el2;
+              const filRows = async () => {
+                console.log(chalk.cyan('One'))
+                await sheetInfo.rows.forEach((el) => {
+                  let filteredRows = el.cells.filter((el2) => {
+                    if (
+                      (el2.columnId === parseFloat(element.isUnit) &&
+                        el2.value === true) ||
+                      (el2.columnId === parseFloat(element.isTaskType) &&
+                        el2.value === true) ||
+                      (el2.columnId === parseFloat(element.isTask) &&
+                        el2.value === true)
+                    ) {
+                      return el2;
+                    }
+                  });
+                  if (filteredRows.length) {
+                    el.cells.forEach((el3) => {
+                      el3.rowId = el.id;
+                      el3.sheetId = sheetId;
+                      el3.rowNumber = el.rowNumber;
+                    });
+
+                    rowsToAddToDatabase.push(el.cells);
                   }
                 });
-                // console.log(filteredRows)
-                if (filteredRows.length) {
-                  // console.log(el.cells[0])
-                  el.cells.forEach((el3) => {
-                    el3.rowId = el.id;
-                    el3.sheetId = sheetId;
-                    el3.rowNumber = el.rowNumber;
-                  });
-
-                  rowsToAddToDatabase.push(el.cells);
-                }
-              });
+             
               // console.log(rowsTßoAddToDatabase)
               rowsToAddToDatabase.sort((a, b) =>
                 a.rowNumber > b.rowNumber
@@ -240,14 +251,19 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                   ? -1
                   : 0
               );
-
+            };
+            await filRows();
               let unitName = "";
               let taskType = "";
               let taskName = "";
               let units = [];
               let infoToInsertToDatabase = [];
               let insertToDBArray = {};
-              rowsToAddToDatabase.forEach((el, index) => {
+           
+              const addRowsToDB = async () => {
+                console.log(chalk.cyan('Two'))
+
+               await rowsToAddToDatabase.forEach((el, index) => {
                 // console.log("el", el)
                 let filteredUnit = el.filter((el2) => {
                   return (
@@ -330,22 +346,8 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       refilteredStartDate[0].value
                     ).format("YYYY-MM-DD HH:mm:ss");
                   }
-                //   if (parseFloat(sheetId) === 6713637168539524) {
-                //     if (refilteredStartDate[0].value === undefined) {
-                //       console.log(chalk.yellowBright("Undefined"));
-                //     } else {
-                //       console.log(chalk.blue(refilteredStartDate[0].value));
-                //     }
-                //   }
-                //   insertToDBArray.startDate = dayjs(
-                //     refilteredStartDate[0].value
-                //   ).format("YYYY-MM-DD HH:mm:ss");
-                // } else {
-                //   insertToDBArray.startDate = "";
                 }
-                // if (parseFloat(sheetId) === 6713637168539524) {
-                //   console.log(chalk.red(insertToDBArray.startDate), unitName);
-                // }
+
                 let filteredEndDate = el.filter((el3) => {
                   return el3.columnId === parseFloat(element.EndDate);
                 });
@@ -457,27 +459,30 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                 insertToDBArray.development = req.body.development;
                 insertToDBArray.block = element.block;
                 infoToInsertToDatabase.push(insertToDBArray);
-                // console.log("insertToDBArray",insertToDBArray)
                 insertToDBArray = {};
               });
+            }
+            await addRowsToDB()
 
-              infoToInsertToDatabase = infoToInsertToDatabase.filter(
+              infoToInsertToDatabase = await infoToInsertToDatabase.filter(
                 (el) => el.taskType !== ""
               );
-              infoToInsertToDatabase = infoToInsertToDatabase.filter(
+              infoToInsertToDatabase = await infoToInsertToDatabase.filter(
                 (el) => el.startDate !== undefined
               );
-              infoToInsertToDatabase = infoToInsertToDatabase.filter(
+              infoToInsertToDatabase = await infoToInsertToDatabase.filter(
                 (el) => el.startDate !== ""
               );
-              infoToInsertToDatabase = infoToInsertToDatabase.filter(
+              infoToInsertToDatabase = await infoToInsertToDatabase.filter(
                 (el) => el.startDate !== null
               );
-              infoToInsertToDatabase = infoToInsertToDatabase.filter(
+              infoToInsertToDatabase = await infoToInsertToDatabase.filter(
                 (el) => el.taskName !== ""
               );
 
               // ************************
+              const getCurrentInfo = async () => {
+                console.log(chalk.cyan('Three'))
 
               let taskTypeSQL = `select * from smartTaskTypes order by taskTypeName`;
               let getUnitsSQl = `select * from smartUnits where development = ${req.body.development} order by unitName`;
@@ -486,13 +491,13 @@ router.post("/updateFromSmartSheets", async (req, res) => {
               let smartTaskTypes = [];
               let smartUnits = [];
               let smartTasks = [];
-              pool.getConnection(function (err, connection) {
+              pool.getConnection( async function  (err, connection) {
                 if (err) {
                   console.log("THE ERR", err);
                   connection.release();
                   resizeBy.send("Error with connection");
                 }
-                connection.query(latestSQL, function (error, result) {
+                await connection.query(latestSQL, async function (error, result) {
                   if (error) {
                     console.log("THE ERROR", error);
                     res.json("latestSQL", error);
@@ -504,7 +509,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                     let taskTypes = [];
                     let newIndex = false;
                     let unitsInSmartsheet = [];
-                    infoToInsertToDatabase.forEach((el, index, arr) => {
+                    await infoToInsertToDatabase.forEach((el, index, arr) => {
                       let insert = {
                         subsection: el.block,
                         development: el.development,
@@ -519,9 +524,9 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       }
                     });
 
-                    taskTypes = Array.from(new Set(taskTypes));
-                    taskTypes.sort();
-                    unitsInSmartsheet = unitsInSmartsheet.filter(
+                    taskTypes = await Array.from(new Set(taskTypes));
+                    await taskTypes.sort();
+                    unitsInSmartsheet = await unitsInSmartsheet.filter(
                       (unit, index, self) =>
                         index ===
                         self.findIndex(
@@ -533,7 +538,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                     );
 
                     // console.log(taskTypes);
-                    const filterByReference = (arr1, arr2) => {
+                    const filterByReference = async (arr1, arr2) => {
                       let res = [];
                       res = arr1.filter((el) => {
                         return !arr2.find((element) => {
@@ -546,7 +551,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       });
                       return res;
                     };
-                    const filterByTasksByReference = (arr1, arr2) => {
+                    const filterByTasksByReference = async (arr1, arr2) => {
                       let res = [];
                       res = arr1.filter((el) => {
                         return !arr2.find((element) => {
@@ -558,7 +563,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       });
                       return res;
                     };
-                    const filterByTasksToUpdate = (arr1, arr2) => {
+                    const filterByTasksToUpdate = async (arr1, arr2) => {
                       let res = [];
                       res = arr1.filter((el) => {
                         return arr2.find((element) => {
@@ -570,7 +575,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       });
                       return res;
                     };
-                    const selectTasksToUpdate = (arr1, arr2) => {
+                    const selectTasksToUpdate = async (arr1, arr2) => {
                       let res = [];
                       res = arr1.filter((el) => {
                         return !arr2.find((element) => {
@@ -591,18 +596,17 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       });
                       return res;
                     };
-                    infoToInsertToDatabase.sort((a, b) =>
+                    await infoToInsertToDatabase.sort((a, b) =>
                       a.rowNumber > b.rowNumber
                         ? 1
                         : b.rowNumber > a.rowNumber
                         ? -1
                         : 0
                     );
-                    // infoToInsertToDatabase.forEach((el) => {
-                    //   console.log(el.rowNumber);
-                    // });
+         
+          
                     let indexToSplice = [];
-                    infoToInsertToDatabase.forEach((el, index, arr) => {
+                    await infoToInsertToDatabase.forEach((el, index, arr) => {
                       if (
                         index > 0 &&
                         el.taskName === arr[index - 1].taskName &&
@@ -610,32 +614,11 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                         el.unitName === arr[index - 1].unitName
                       ) {
                         indexToSplice.push(el.rowNumber);
-                        console.log(
-                          el.unitName,
-                          " ",
-                          arr[index - 1].unitName,
-                          "--",
-                          el.taskType,
-                          " ",
-                          arr[index - 1].taskType,
-                          " -- ",
-                          el.taskName,
-                          "  ",
-                          arr[index - 1].taskName,
-                          "-- ",
-                          index,
-                          " ",
-                          index - 1,
-                          " rowNumber:",
-                          el.rowNumber,
-                          " ",
-                          arr[index - 1].rowNumber
-                        );
                       }
                     });
-                    console.log("indexToSplice", indexToSplice);
+                    // console.log("indexToSplice", indexToSplice);
 
-                    indexToSplice.forEach((el) => {
+                    await indexToSplice.forEach((el) => {
                       infoToInsertToDatabase = infoToInsertToDatabase.filter(
                         (el2) => {
                           return el2.rowNumber !== el;
@@ -643,59 +626,36 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       );
                     });
 
-                    //   indexToSplice.forEach((el) => {
-                    //     infoToInsertToDatabase.splice(el, 1);
-                    //   });
-                    //   setTimeout(() => {
-                    //   infoToInsertToDatabase.forEach((el, index, arr) => {
-                    //     if (
-                    //       index > 0 &&
-                    //       el.taskName === arr[index - 1].taskName &&
-                    //       el.taskType !== arr[index - 1].taskType &&
-                    //       el.unitName === arr[index - 1].unitName
-                    //     ) {
-                    //       // indexToSplice.push(index);
-                    //       console.log(el.unitName, ' ' ,arr[index - 1].unitName ,'--' , el.taskType ,' ', arr[index - 1].taskType,' -- ',el.taskName,'  ', arr[index - 1].taskName,'-- ', index, ' ', index - 1, ' rowNumber:',el.rowNumber,' ', arr[index-1].rowNumber)
-                    //     } else {
-                    //       console.log("All Good")
-                    //     }
-                    //   });
-                    // }, 800)
+             
 
-                    let tasksToInsert = filterByTasksByReference(
+                    let tasksToInsert = await filterByTasksByReference(
                       infoToInsertToDatabase,
                       smartTasks
                     );
-                    let tasksToUpdate = filterByTasksToUpdate(
+                    let tasksToUpdate = await filterByTasksToUpdate(
                       infoToInsertToDatabase,
                       smartTasks
                     );
-                    let tasksToUpdateCheck = filterByTasksToUpdate(
+                    // console.log("tasksToUpdate",tasksToUpdate)
+                    let tasksToUpdateCheck = await filterByTasksToUpdate(
                       infoToInsertToDatabase,
                       tasksToInsert
                     );
-                    let finalisedTasksToUpdate = selectTasksToUpdate(
+                    let finalisedTasksToUpdate = await selectTasksToUpdate(
                       tasksToUpdate,
                       smartTasks
                     );
-                    // console.log("tasksToInsert", tasksToInsert.length);
-                    //  console.log("tasksToUpdate", tasksToUpdate.length)
-                    //  console.log("tasksToUpdateCheck", tasksToUpdateCheck.length)
-                    //  console.log("finalisedTasksToUpdate", finalisedTasksToUpdate[0])
-                    //  console.log("finalisedTasksToUpdate", finalisedTasksToUpdate.length)
+         
 
                     let updateSmartTaskTypes = [];
-                    smartTaskTypes.forEach((el) => {
+                    await smartTaskTypes.forEach((el) => {
                       updateSmartTaskTypes.push(el.taskTypeName);
                     });
-                    // console.log(infoToInsertToDatabase.length, "records");
-                    // console.log(infoToInsertToDatabase, "record");
 
-                    // console.log(infoToInsertToDatabase.length, "records");
-                    let newTaskTypes = taskTypes.filter(
+                    let newTaskTypes = await taskTypes.filter(
                       (taskType) => !updateSmartTaskTypes.includes(taskType)
                     );
-                    let unitsToAddToDatabase = filterByReference(
+                    let unitsToAddToDatabase = await filterByReference(
                       unitsInSmartsheet,
                       smartUnits
                     );
@@ -703,11 +663,13 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                     let mysqlunits = "";
                     let mysqlTasks = "";
                     let mysqlUpdateTasks = "";
+
                     if (
                       finalisedTasksToUpdate.length &&
                       !tasksToInsert.length
                     ) {
-                      finalisedTasksToUpdate.forEach((el) => {
+                      // console.log("TESTING THIS")
+                      await finalisedTasksToUpdate.forEach((el) => {
                         let updateTasksSql = "";
                         if (el.assignedTo === null) {
                           el.assignedTo = null;
@@ -739,6 +701,20 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                           el.sheetId
                         }';`;
                         mysqlUpdateTasks = `${updateTasksSql}`;
+                        if (mysqlUpdateTasks.length) {
+                          connection.query(
+                            mysqlUpdateTasks,
+                            function (error, result) {
+                              if (error) {
+                                console.log("THE ERROR", error);
+                                // crypto.createSecretKey.json("updatesql", error);
+                              } else {
+                                // console.log("mysqlUpdateTasks")
+                              }
+                            }
+                          );
+                        }
+            
                       });
                     }
 
@@ -746,7 +722,7 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                       let startSQL = `Insert into smartTasks (sheetId, rowId, subsection, development, unitName,taskName, taskType, startDate,
                                       endDate, assignedTo, comments , subcontractor1, subcontractor2,labourCost, materialCost, totalCost,  percentComplete ) values `;
                       let insertsql = "";
-                      tasksToInsert.forEach((el, index, arr) => {
+                      await tasksToInsert.forEach((el, index, arr) => {
                         if (el.assignedTo === null) {
                           el.assignedTo = null;
                         } else {
@@ -765,13 +741,23 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                           "${el.endDate}", ${el.assignedTo}, ${el.comments} , ${el.subcontractor1}, ${el.subcontractor2},${el.labourCost}, ${el.materialCost}, ${el.totalCost},${el.percentComplete});`;
                         }
                       });
-                      mysqlTasks = `${startSQL}${insertsql}`;
+                      mysqlTasks = await `${startSQL}${insertsql}`;
+                      if (mysqlTasks.length) {
+                        await connection.query(mysqlTasks, function (error, result) {
+                          if (error) {
+                            console.log("THE ERROR", error);
+  
+                          } else {
+    
+                          }
+                        });
+                      }
                     }
 
                     if (newTaskTypes.length) {
                       let startSQL = `Insert into smartTaskTypes (taskTypeName) values `;
                       let insertsql = "";
-                      newTaskTypes.forEach((el, index, arr) => {
+                      await newTaskTypes.forEach((el, index, arr) => {
                         if (index < arr.length - 1) {
                           insertsql = `${insertsql} ("${el}"),`;
                         } else {
@@ -779,13 +765,26 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                         }
                       });
                       mysqlTasktypes = `${startSQL}${insertsql}`;
+                      if (mysqlTasktypes.length) {
+                        await connection.query(
+                          mysqlTasktypes,
+                          function (error, result) {
+                            if (error) {
+                              console.log("THE ERROR", error);
+                              // crypto.createSecretKey.json("updatesql", error);
+                            } else {
+                              // console.log("mysqlTasktypes")
+                            }
+                          }
+                        );
+                      }
                     }
                     // console.log(chalk.red(mysqlUpdateTasks));
 
                     if (unitsToAddToDatabase.length) {
                       let startSQL = `Insert into smartUnits (subsection, development, unitName) values `;
                       let insertsql = "";
-                      unitsToAddToDatabase.forEach((el, index, arr) => {
+                      await unitsToAddToDatabase.forEach((el, index, arr) => {
                         if (index < arr.length - 1) {
                           insertsql = `${insertsql} (${el.subsection}, ${el.development}, '${el.unitName}'),`;
                         } else {
@@ -793,41 +792,24 @@ router.post("/updateFromSmartSheets", async (req, res) => {
                         }
                       });
                       mysqlunits = `${startSQL}${insertsql}`;
-                    }
-
-                    let updatesql = `${mysqlTasktypes}${mysqlunits}${mysqlTasks}${mysqlUpdateTasks}`;
-                    // console.log("updatesql",updatesql)
-                    // console.log("updatesql", updatesql.length);
-                    // let str = "['abc','xyz']";
-
-                    // str = str.replace(/[\[\]']+/g, "");
-                    // console.log("str", str);
-
-                    // var myString = "This is my string [remove] this";
-                    // console.log("myString",myString)
-
-                    // myString = myString.replace(/ *\([^\])*]/, "");
-                    // console.log("myString",myString)
-
-                    if (updatesql.length) {
-                      connection.query(updatesql, function (error, result) {
-                        if (error) {
-                          console.log("THE ERROR", error);
-                          crypto.createSecretKey.json("updatesql", error);
-                        } else {
-                        }
-                      });
-                    }
-                    if (index === arr.length - 1 && newIndex) {
-                      setTimeout(() => {
-                        console.log(chalk.red("AWESOME"));
-                        res.json({ now: "Only return to sheet" });
-                      }, 1250);
+                      if (mysqlunits.length) {
+                        await connection.query(mysqlunits, function (error, result) {
+                          if (error) {
+                            console.log("THE ERROR", error);
+                            // crypto.createSecretKey.json("updatesql", error);
+                          } else {
+                            // console.log("result",result)
+                            // console.log("mysqlunits")
+                          }
+                        });
+                      }
                     }
                   }
                 });
                 connection.release();
               });
+            }
+            await getCurrentInfo()
 
               console.timeEnd("getReleventRows Time Test:");
             })
@@ -837,13 +819,192 @@ router.post("/updateFromSmartSheets", async (req, res) => {
         });
       })
       .catch(function (error) {
-        console.log(error);
+        console.log("Wayne", error);
       })
       .finally(() => {});
+  } catch (error) {
+    console.log("Wayne", error);
+  } finally {
+    setTimeout(() => {
+      res.json({ now: "Only return to sheet" });
+      console.log(chalk.red("AWESOMEPPPPPPPPPPPPP"));
+    }, 5000);
+  }
+});
+
+router.post("/addSmartSheetsWB", async (req, res) => {
+  console.log("body XXX", req.body);
+
+  try {
+    // console.log(req.body);
+    let mysql = `select * from smartsheetControl where development = ${req.body.id} order by id`;
+    let smartSheetControl = [];
+
+    await pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log("THE ERR", err);
+        connection.release();
+        resizeBy.send("Error with connection");
+      }
+      connection.query(mysql, function (error, result) {
+        if (error) {
+          console.log("THE ERROR", error);
+          res.json("smartSheetControl", error);
+        } else {
+          smartSheetControl = result;
+        }
+      });
+      connection.release();
+    });
+
+    smartsheet = client.createClient({
+      accessToken: `${req.body.access_token}`,
+      logLevel: "info",
+    });
+    var options = {
+      queryParameters: {
+        include: "attachments",
+        includeAll: true,
+      },
+    };
+
+    //  res.json("smartSheetControl",smartSheetControl)
+
+    await smartsheet.sheets
+      .listSheets(options)
+      .then(async function (result) {
+        const myArrayFiltered = result.data.filter((el) => {
+          return smartSheetControl.every((f) => {
+            return parseFloat(f.smartsheetId) !== el.id;
+          });
+        });
+        res.json(myArrayFiltered);
+      })
+      .catch(function (error) {
+        console.log("wayne", error);
+      });
   } catch (error) {
     console.log(error);
   } finally {
   }
+});
+
+router.post("/getNewSheetWB", async (req, res) => {
+  console.log("body XXX", req.body);
+  let sheetId = req.body.id;
+
+  try {
+    smartsheet = client.createClient({
+      accessToken: `${req.body.access_token}`,
+      logLevel: "info",
+    });
+    var options = {
+      queryParameters: {
+        include: "attachments",
+        includeAll: true,
+      },
+    };
+
+    await smartsheet.sheets
+      .getSheet({ id: sheetId })
+      .then(async function (result) {
+        res.json(result.columns);
+      })
+      .catch(function (error) {
+        console.log("wayne", error);
+      });
+  } catch (error) {
+    console.log(error);
+  } finally {
+  }
+});
+
+router.post("/addSmartSheetsToControlWB", (req, res) => {
+  console.log(req.body);
+  let mysql = `insert into smartsheetControl (
+    sheetName,
+    smartsheetId,
+       development,
+       block,
+       TaskName,
+       isUnit,
+       isTaskType,
+       isTask,
+       Duration,
+       StartDate,
+       EndDate,
+       Predecessors,
+       PercentComplete,
+       Status,
+       AssignedTo,
+       Comments,
+       Subcontractor1,
+       Subcontractor2,
+       LabourCost,
+       MaterialCost,
+       TotalCost) values
+   (   
+     '${req.body.smartsheetName}',
+     '${req.body.smartsheetId}',  
+    ${req.body.development},
+      ${req.body.block},
+        '${req.body.TaskName}',
+          '${req.body.isUnit}',
+            '${req.body.isTaskType}',
+              '${req.body.isTask}',
+                '${req.body.Duration}',
+                  '${req.body.StartDate}',
+                    '${req.body.EndDate}',
+                      '${req.body.Predecessors}',
+                        '${req.body.PercentComplete}',
+                          '${req.body.Status}',
+                            '${req.body.AssignedTo}',
+                              '${req.body.Comments}',
+                                '${req.body.Subcontractor1}',
+                                  '${req.body.Subcontractor2}',
+                                    '${req.body.LabourCost}',
+                                      '${req.body.MaterialCost}',
+                                        '${req.body.TotalCost}'
+   );`;
+  console.log(mysql);
+  // let mysql = `select * from subsection where development = ${req.body.id}`;
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
+});
+
+router.post("/deleteSheetFromControlWB", (req, res) => {
+  console.log("booty", req.body);
+  let mysql = `delete from smartsheetControl where id = ${req.body.id}`;
+  console.log(mysql);
+  // let mysql = `select * from subsection where development = ${req.body.id}`;
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log("THE ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function (error, result) {
+      if (error) {
+        console.log("THE ERROR", error);
+      } else {
+        res.json(result);
+      }
+    });
+    connection.release();
+  });
 });
 
 router.post("/getSubsectionForProgress", (req, res) => {

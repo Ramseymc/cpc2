@@ -61,6 +61,12 @@
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="3">
+                          <!-- <v-combobox
+                            v-model="editedItem.unit_type"
+                            :items="unitType"
+                            label="Select a favorite activity or create a new one"
+                            multiple
+                          ></v-combobox> -->
                           <v-autocomplete
                             v-model="editedItem.unit_type"
                             :items="unitType"
@@ -351,7 +357,7 @@ export default {
         },
         // { text: "Bath", value: "bath", width: 60,  },
         // { text: "Beds", value: "beds", width: 60 },
-        // { text: "Type", value: "unit_type", width: 80, },
+        { text: "Type", value: "unit_type", width: 80 },
 
         // { text: "Size", value: "size", width: 60 },
         { text: "Base Price", value: "base_price", width: 150, align: "end" },
@@ -385,7 +391,7 @@ export default {
         id: 0,
         bath: 0,
         beds: 0,
-        unit_type: "",
+        unit_type: [],
         size: 0,
         base_price: 0,
         contract_price: 0,
@@ -409,7 +415,7 @@ export default {
         id: 0,
         bath: 0,
         beds: 0,
-        unit_type: "",
+        unit_type: [],
         size: 0,
         base_price: 0,
         contract_price: 0,
@@ -489,8 +495,10 @@ export default {
           response => {
             let sold = [];
             let unitType = [];
-            console.log(response.data);
-            this.desserts = response.data;
+            // console.log(response.data);
+            this.desserts = response.data.filter(el => {
+              return el.unitName !== "Existing House";
+            });
             this.desserts.forEach(el => {
               el.sale_date = dayjs(el.sale_date).format("YYYY-MM-DD");
               el.bond_app_date = dayjs(el.bond_app_date).format("YYYY-MM-DD");
@@ -505,21 +513,34 @@ export default {
               }
               if (el.sold === 0) {
                 el.sold = "No";
-              } else {
+              } else if (el.sold === 1) {
                 el.sold = "Yes";
               }
 
               sold.push(el.sold);
-              let insertType = el.unit_type.split(",");
-              insertType.forEach(el2 => {
-                unitType.push(el2.trim());
-              });
-              el.unit_type = el.unit_type.split(",");
+              // console.log(el.unitName);
+              console.log("unit_type", el.unit_type);
+
+              if (el.unit_type !== null && el.unit_type !== undefined) {
+                if (el.unit_type.length > 1) {
+                  let insertType = el.unit_type.split(",");
+
+                  // console.log(el.unit_type)
+                  // console.log(unitType)
+                  insertType.forEach(el2 => {
+                    unitType.push(el2.trim());
+                  });
+                } else {
+                  unitType.push(el.unit_type);
+                }
+              }
+              // el.unit_type = el.unit_type.split(",");
             });
             this.sold = Array.from(new Set(sold));
             unitType.sort();
             this.unitType = Array.from(new Set(unitType));
             console.log(this.unitType);
+            console.log(this.desserts);
           },
           error => {
             console.log(error);
@@ -619,8 +640,8 @@ export default {
         })
           .then(
             response => {
-              console.log(response.data);
-              if (response.data.affectedRows === 1) {
+              console.log("XXXXXXXXX", response.data);
+              if (response.data[0].affectedRows === 1) {
                 this.snackbarMessage = "Input succesfully updated!";
               } else {
                 this.snackbarMessage = "Error, please try again";

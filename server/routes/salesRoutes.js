@@ -290,8 +290,29 @@ router.post("/getSalesDataForUnit", (req, res) => {
 // salesinfo routes
 // get all valid salesInfo
 router.post("/getClientInfoForSalesInfo", (req, res) => {
-  // console.log(req.body)
-  let mysql = `CALL spSalesInfoR1(${req.body.id})`
+  console.log("&&&&&&",req.body)
+  // let mysql = `CALL spSalesInfoR1(${req.body.id})`
+
+  let mysql = `select 
+  si.*, 
+  sd.parking, 
+  sd.bay_no, 
+  sd.extras, 
+  sd.deductions, 
+  sd.contract_price, 
+  sd.base_price, 
+  sd.sold, 
+  sd.actualsale_date, 
+  sd.unit_type, 
+  sd.notes as sdnotes, 
+  sd.beds, 
+  sd.bath ,
+          u.id as unitId
+  from salesinfo si 
+  join units u on si.unit = u.unitName 
+  join salesData sd on sd.unit = u.id 
+  where si.id > 0 
+   and si.firstName > ''  and sd.development = ${req.body.id} and u.development = ${req.body.id} ;`
   //  console.log("SERVER-SIDE getting data for salesinfo", mysql);
   // hello
   pool.getConnection(function (err, connection) {
@@ -304,7 +325,7 @@ router.post("/getClientInfoForSalesInfo", (req, res) => {
         console.log(error);
 
       } else {
-        // console.log("SERVER-SIDE, RESULT in salesRoutes.js", result)
+        console.log("SERVER-SIDE, RESULT in salesRoutes.js", result)
         res.json(result);        
       }
     });
@@ -733,7 +754,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 })
 
 router.post("/createClient", upload.array("documents"), (req, res) => {
-  console.log(req.body)
+  console.log("Booty",req.body)
   console.log(req.files)
   // pull the mimetype from req.files - futureproof
   let fileDetails = [];

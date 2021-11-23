@@ -18,7 +18,9 @@
         >
       </v-col>
       <v-col class="mb-4" offset="1" cols="10" sm="10" md="10">
-        <v-btn text @click="reselect">reselect</v-btn>
+        <v-btn text @click="reselect" v-if="token.length || expired"
+          >reselect</v-btn
+        >
       </v-col>
 
       <v-col
@@ -29,7 +31,12 @@
         md="10"
         v-if="showControls"
       >
-        <v-card class="mx-auto" max-width="1050" tile>
+        <v-card
+          class="mx-auto"
+          max-width="1050"
+          tile
+          v-if="token.length || expired"
+        >
           <br />
           <v-col v-if="subsection.length" :cols="flex" :offset="offset">
             <v-autocomplete

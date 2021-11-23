@@ -288,10 +288,10 @@ export default {
       })
         .then(
           response => {
-            console.log("CLIENT-SIDE: RESPONSE DATA: ", response.data[0]);
+            console.log("CLIENT-SIDE: RESPONSE DATA: ", response.data);
 
-            this.sales = response.data[0];
-            this.unitId = response.data[0].unitId;
+            this.sales = response.data;
+            this.unitId = response.data.unitId;
             this.sales.forEach(el => {
               el.fileOTPurl = `${url}/uploads/${el.fileOTP}`;
               // console.log("FileId", el.fileId);

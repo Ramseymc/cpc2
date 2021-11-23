@@ -9,12 +9,16 @@
       Hello {{ this.$store.state.userName }}
     </h2>
     <v-spacer></v-spacer>
-    <v-btn text v-if="this.$store.state.isLoggedIn" :to="{ name: 'TaskList' }">
+    <!-- <v-btn text v-if="this.$store.state.isLoggedIn" :to="{ name: 'TaskList' }">
       <span class="mr-2">Issues</span>
       <v-icon>mdi-wall</v-icon>
     </v-btn>
-    <v-spacer></v-spacer>
+    <v-spacer></v-spacer> -->
 
+    <v-btn text v-if="this.$store.state.isLoggedIn" @click="switchDevelopment">
+      <span class="mr-2">Switch Dev</span>
+      <v-icon>mdi-key-change</v-icon>
+    </v-btn>
     <v-btn text v-if="this.$store.state.isLoggedIn" @click="logout">
       <span class="mr-2">Logout</span>
       <v-icon>mdi-logout-variant</v-icon>
@@ -172,6 +176,15 @@ export default {
             color: "orange"
           },
           {
+            title: "Quality Reports",
+            name: "QualityReports",
+            icon: "mdi-cloud-print",
+            role: 3,
+            menu: 1,
+            id: "QualityReports",
+            color: "red"
+          },
+          {
             title: "Progress",
             name: "Progress",
             icon: "mdi-percent",
@@ -205,6 +218,15 @@ export default {
             role: 2,
             menu: 1,
             id: "SmartUploads",
+            color: "yellow"
+          },
+          {
+            title: "AddSmartsheet",
+            name: "AddSmartsheets",
+            icon: "mdi-table-row-plus-after",
+            role: 2,
+            menu: 1,
+            id: "AddSmartsheet",
             color: "yellow"
           },
           {
@@ -291,6 +313,15 @@ export default {
           //   color: "blue"
           // }
         ]
+      },
+      {
+        title: "Investment App",
+        name: "investorDashboard",
+        icon: "mdi-warehouse",
+        role: 3,
+        menu: 1,
+        id: "investmentApp",
+        color: "blue"
       },
 
       {
@@ -845,6 +876,12 @@ export default {
   watch: {},
   methods: {
     onScroll() {},
+    switchDevelopment() {
+      this.$store.dispatch("clearDevelopment");
+      if (this.$route.name !== "Home") {
+        this.$router.push({ name: "Home" });
+      }
+    },
     closeMenu() {
       this.closeOnClick = true;
       setTimeout(() => {

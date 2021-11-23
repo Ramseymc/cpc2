@@ -1470,7 +1470,7 @@ export default {
       formData.append("additionalExtrasCost", this.additionalExtrasCost);
       formData.append("bayNo", this.bayNo);
       formData.append("enclosedBalcony", this.enclosedBalcony);
-      formData.append("development", this.$store.state.development.idy);
+      formData.append("development", this.$store.state.development.id);
 
       // formdata append enclosedBalcony - ?? maybe just visual is okay
       // formdata append additionalExtras -
@@ -1478,6 +1478,8 @@ export default {
 
       console.log("files:", files);
       console.log("contains:", contains);
+      console.log("XXXXXXX");
+      console.log(this.$store.state.development.id);
 
       await axios({
         method: "post",

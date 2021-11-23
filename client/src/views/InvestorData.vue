@@ -666,7 +666,6 @@
                             small-chips
                             clearable
                             label="Action"
-                            @change="test2"
                           ></v-autocomplete>
                         </v-col>
                         <v-col
@@ -710,7 +709,6 @@
                             item-text="developmentName"
                             clearable
                             label="Development"
-                            @change="test2"
                           ></v-autocomplete>
                         </v-col>
                         <v-col
@@ -1600,23 +1598,35 @@ export default {
         return el.unitName === this.editedItem.unitName;
       });
       this.editedItem.unit = unit[0].id;
-      let filtererd = this.developments.filter(el => {
-        return el.developmentName === this.editedItem.moveInvestorTo;
-      });
-      this.editedItem.moveInvestorToId = filtererd[0].id;
+      if (this.editedItem.actionToTake !== "Rollover") {
+        this.editedItem.moveInvestorToId = null;
+        this.editedItem.moveInvestorTo = null;
+      }
+      if (
+        this.editedItem.moveInvestorTo !== null &&
+        this.editedItem.moveInvestorTo !== undefined
+      ) {
+        let filtererd = this.developments.filter(el => {
+          return el.developmentName === this.editedItem.moveInvestorTo;
+        });
+        this.editedItem.moveInvestorToId = filtererd[0].id;
+
+        this.editedItem.moveInvestorToUnitId = this.allUnits.filter(el => {
+          return (
+            el.unitName === "None" &&
+            el.development === this.editedItem.moveInvestorToId
+          );
+        })[0].id;
+      }
       if (this.editedItem.actionToTake === undefined) {
         this.editedItem.actionToTake = "None";
+        this.editedItem.moveInvestorToUnitId = null;
+        this.editedItem.moveInvestorTo = null;
       }
-
-      this.editedItem.moveInvestorToUnitId = this.allUnits.filter(el => {
-        return (
-          el.unitName === "None" &&
-          el.development === this.editedItem.moveInvestorToId
-        );
-      })[0].id;
 
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        console.log("editedItem", this.editedItem);
         await axios({
           method: "post",
           url: `${url}/editInvestmentData`,
