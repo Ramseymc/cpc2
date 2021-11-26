@@ -1,0 +1,236 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"pakc",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"Bookmarks: Select Previous"
+			],
+			[
+				"pack",
+				"Install Package Control"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 165.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/dev/cpc2main"
+	],
+	"file_history":
+	[
+		"/C/dev/repo/sql_budgetapp/basicStart.sql",
+		"/C/dev/repo/sql_budgetapp/todo.txt",
+		"/C/dev/investorWeb/client/src/components/InvestorUpdate.vue",
+		"/C/dev/investorWeb/server/routes/investorroutes.js",
+		"/C/dev/investorWeb/client/src/views/Home.vue",
+		"/C/dev/investorWeb/client/src/components/InvestmentAdd.vue",
+		"/C/dev/investorWeb/client/src/views/InvestmentView.vue",
+		"/D/dev/todo.txt",
+		"/C/Users/Admin/Documents/views.sql",
+		"/D/dev/repos/timeManagement/node_modules/g/test.js",
+		"/D/dev/repos/timeManagement/node_modules/g/index.js",
+		"/C/dev/cape/spLeft.sql",
+		"/C/Users/Admin/Documents/capeDev/Projects11_Martins_Server_logins.txt",
+		"/C/Program Files/MySQL/MySQL Workbench 8.0/modules/db_mssql_grt.py",
+		"/C/dev/cape/migration_script.sql",
+		"/C/dev/cape/migration_script_flatfile.txt",
+		"/C/Users/Admin/Documents/capeDev/SQL reports/reportQuery.sql",
+		"/C/dev/swimcape/swimjs/index.html",
+		"/C/Users/Admin/Documents/capeDev/SQL reports/InvestorOpportunity/InvestorOpportunity/packages/System.Configuration.ConfigurationManager.4.7.0/lib/net461/System.Configuration.ConfigurationManager.xml",
+		"/C/xampp/htdocs/index.php",
+		"/C/Users/Admin/Documents/SPs_and_Views_Script.sql",
+		"/C/xampp/webdav/webdav.txt",
+		"/C/dev/webfiles/ALTER TABLE salesinfo.sql",
+		"/C/Users/Admin/Downloads/eccentri_capeprojects (2).sql",
+		"/C/Users/Admin/Documents/.env",
+		"/C/Users/Admin/Documents/.env_SERVER"
+	],
+	"find":
+	{
+		"height": 28.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"`dbo`.",
+			"dbo.",
+			"OpportunityCategories",
+			"InvestmentStatement",
+			"Users",
+			"InvestPledges",
+			"Opportunities",
+			"Investments",
+			"Investors",
+			"InvestmentInterest",
+			"ConnectionStrings",
+			"developement",
+			"ConnectionS"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"",
+			"opportunitycategories",
+			"investmentstatement",
+			"users",
+			"investpledges",
+			"opportunities",
+			"investments",
+			"investors",
+			"investmentinterest"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "cpc2_main_sublimepackage.sublime-project",
+	"replace":
+	{
+		"height": 52.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 297.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
