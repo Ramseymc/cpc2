@@ -101,22 +101,28 @@
               <v-col cols="12" sm="12">
                 <h3>Investor One Details</h3>
               </v-col>
-              <v-text-field
-                v-model="investorInitials"
-                label="Investor Initials"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="investorSurname"
-                label="Investor Surname"
-                required
-                @blur="setInvestorCodeFromSurname"
-              ></v-text-field>
-              <v-text-field
-                v-model="investorIDNumber"
-                label="ID Number*"
-                required
-              ></v-text-field>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="investorInitials"
+                  label="Investor Initials"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="investorSurname"
+                  label="Investor Surname"
+                  required
+                  @blur="setInvestorCodeFromSurname"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="investorIDNumber"
+                  label="ID Number*"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -126,21 +132,27 @@
               <v-col cols="12" sm="12">
                 <h3>Investor Two Details</h3>
               </v-col>
-              <v-text-field
-                v-model="investorTwoInitials"
-                label="Investor Two Initials"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="investorTwoSurname"
-                label="Investor Two Surname"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="investorTwoIDNumber"
-                label="Investor Two ID Number*"
-                required
-              ></v-text-field>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="investorTwoInitials"
+                  label="Investor Two Initials"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="investorTwoSurname"
+                  label="Investor Two Surname"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="investorTwoIDNumber"
+                  label="Investor Two ID Number*"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -194,11 +206,15 @@
               <v-col cols="12" sm="12">
                 <h3>Contact One Details</h3>
               </v-col>
-              <v-text-field
-                v-model="contactEmail"
-                label="Contact One Email*"
-                required
-              ></v-text-field>
+              <v-col cols="8" sm="8">
+                <v-text-field
+                  v-model="contactEmail"
+                  label="Contact One Email*"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
               <v-col cols="6" style="background-color: lightgrey">
                 <span>Contact One - Mobile - Required</span>
                 <VuePhoneNumberInput
@@ -211,6 +227,7 @@
                   :only-countries="['ZA']"
                 />
               </v-col>
+
               <v-col cols="6" style="background-color: lightgrey">
                 <span>Contact One - Landline</span>
                 <VuePhoneNumberInput
@@ -232,11 +249,15 @@
               <v-col cols="12" sm="12">
                 <h3>Contact Two Details</h3>
               </v-col>
-              <v-text-field
-                v-model="contactTwoEmail"
-                label="Contact Two Email"
-                required
-              ></v-text-field>
+              <v-col cols="8" sm="8">
+                <v-text-field
+                  v-model="contactTwoEmail"
+                  label="Contact Two Email"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
               <v-col cols="6" style="background-color: lightgrey">
                 <v-col cols="12" sm="12">
                   <span>Contact Two Mobile - Required</span>
@@ -274,31 +295,46 @@
               <v-col cols="12" sm="12">
                 <h3>Address Details</h3>
               </v-col>
-              <v-text-field
-                v-model="streetNo"
-                label="Street No"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="streetName"
-                label="Street Name"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="addressSuburb"
-                label="Suburb"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="province"
-                label="Province"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="addressPostalCode"
-                label="Postal Code"
-                required
-              ></v-text-field>
+            </v-row>
+            <v-row>
+              <v-col cols="2" sm="2">
+                <v-text-field
+                  v-model="streetNo"
+                  label="Street No"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="streetName"
+                  label="Street Name"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="addressSuburb"
+                  label="Suburb"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="province"
+                  label="Province"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2" sm="2"> </v-col>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="addressPostalCode"
+                  label="Postal Code"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -308,21 +344,27 @@
               <v-col cols="12" sm="12">
                 <h3>Postal Address</h3>
               </v-col>
-              <v-text-field
-                v-model="boxNo"
-                label="Box No"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="postalSuburb"
-                label="Suburb"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="postalCode"
-                label="Postal Code"
-                required
-              ></v-text-field>
+              <v-col cols="2" sm="2">
+                <v-text-field
+                  v-model="boxNo"
+                  label="Box No"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="postalSuburb"
+                  label="Suburb"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2" sm="2">
+                <v-text-field
+                  v-model="postalCode"
+                  label="Postal Code"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -332,26 +374,36 @@
               <v-col cols="12" sm="12">
                 <h3>Banking Details</h3>
               </v-col>
-              <v-text-field
-                v-model="bankName"
-                label="Bank Name"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="accountName"
-                label="Account Name"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="branchCode"
-                label="Branch Code"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="accountNumber"
-                label="Account No"
-                required
-              ></v-text-field>
+              <v-col cols="2" sm="2">
+                <v-text-field
+                  v-model="bankName"
+                  label="Bank Name"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="4" sm="4">
+                <v-text-field
+                  v-model="accountName"
+                  label="Account Name"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2" sm="2">
+                <v-text-field
+                  v-model="branchCode"
+                  label="Branch Code"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6" sm="6">
+                <v-text-field
+                  v-model="accountNumber"
+                  label="Account No"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -419,7 +471,7 @@
           <!-- investor2 file uploads - show if company mode-->
           <v-container v-if="person === 'person' && buyers === '2'">
             <v-row>
-              <v-col cols="8" sm="8">
+              <v-col cols="12" sm="12">
                 <h3>Investor Two File Uploads</h3>
               </v-col>
               <v-file-input
@@ -559,9 +611,7 @@
       <!-- </v-row> -->
       <v-snackbar v-model="snackbar" top>
         {{ snackbarMessage }}
-        <v-btn color="pink" text @click="snackbar = false">
-          Close
-        </v-btn>
+        <v-btn color="pink" text @click="snackbar = false"> Close </v-btn>
       </v-snackbar>
     </div>
   </v-container>
@@ -576,7 +626,7 @@ let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "investoradd",
   components: {
-    VuePhoneNumberInput
+    VuePhoneNumberInput,
   },
   metaInfo: {
     title: "Create Investor",
@@ -584,13 +634,13 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `Join CPC here.`
-      }
+        content: `Join CPC here.`,
+      },
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true
-    }
+      amp: true,
+    },
   },
   data: () => ({
     paramId: 0,
@@ -667,13 +717,13 @@ export default {
       countryCode: "ZA",
       isValid: false,
       phoneNumber: "",
-      phoneNumberTwo: ""
+      phoneNumberTwo: "",
     },
     landline: {
       countryCode: "ZA",
       isValid: false,
       phoneNumber: "",
-      phoneNumberTwo: ""
+      phoneNumberTwo: "",
     },
 
     snackbar: false,
@@ -685,16 +735,16 @@ export default {
     mobileResults: {},
     // good rules examples
     nameRules: [
-      v => !!v || "Name is required",
-      v => (v && v.length <= 20) || "Name must be less than 15 characters"
+      (v) => !!v || "Name is required",
+      (v) => (v && v.length <= 20) || "Name must be less than 15 characters",
     ],
     email: "",
     emailRules: [
-      v => !!v || "E-mail is required",
-      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
     icon: "",
-    _investorCode: ""
+    _investorCode: "",
   }),
 
   async mounted() {},
@@ -731,7 +781,7 @@ export default {
     },
     cancel() {
       this.$router.push({
-        name: "investorview"
+        name: "investorview",
         //params: { id: event.currentTarget.id },
       });
     },
@@ -741,17 +791,17 @@ export default {
     async getInvestorDetails() {
       let data = {
         id: this.$store.state.development.id,
-        paramId: this.paramId
+        paramId: this.paramId,
       };
       console.log(data);
       await axios({
         method: "post",
         url: `${url}/getInvestorDetails`, // use store url
-        data: data
+        data: data,
       })
         .then(
-          response => {
-            response.data.forEach(investor => {
+          (response) => {
+            response.data.forEach((investor) => {
               this.SelectedInvestor.push(investor);
               // this.InvestorCode = investment.investor_acc_number;
             });
@@ -765,11 +815,11 @@ export default {
             // and try sending to the route as idNumberThis and idNumberSelected
             // 2 controls, bothgoing into  form append, both being unwrapped in updateinvestor investorroutes
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
       // get the details from the selected investorId
@@ -777,12 +827,12 @@ export default {
     async testServer() {
       await axios({
         method: "get",
-        url: `http://localhost:3000/test`
+        url: `http://localhost:3000/test`,
       }).then(
-        response => {
+        (response) => {
           console.log(response.data);
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -800,14 +850,14 @@ export default {
       let formData = new FormData();
       formData.append("investorPrefix", investorPrefix);
       let data = {
-        investorPrefix: investorPrefix
+        investorPrefix: investorPrefix,
       };
       await axios({
         method: "post",
         url: `${url}/getInvestorSuffix`,
-        data: data
+        data: data,
       }).then(
-        response => {
+        (response) => {
           this.investorSuffix = response.data[0].count;
 
           console.log("SNEK", response.data);
@@ -833,7 +883,7 @@ export default {
           //   }
           // },
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -981,16 +1031,16 @@ export default {
       await axios({
         method: "post",
         url: `${url}/createInvestor`,
-        data: formData
+        data: formData,
       }).then(
-        response => {
+        (response) => {
           console.log(response.data);
           setTimeout(() => {
             this.$router.push("investorview");
           }, 1500);
           //return response.data[0].count;
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -999,8 +1049,8 @@ export default {
     reset() {
       this.$refs.form.reset();
       this.checkbox = false;
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -48,7 +48,7 @@ const progressRoutes = require("./routes/progressRoutes");
 const progressResultsRoutes = require("./routes/progressResultRoutes");
 const userRoutes = require("./routes/userRoutes");
 const updateRoutes = require("./routes/updateRoutes");
-const supplierRoutes = require("./routes/supplierRoutes");
+//const supplierRoutes = require("./routes/supplierRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const purchaseOrderRoutes = require("./routes/purchaseOrderRoutes");
@@ -67,7 +67,7 @@ app.use(
   progressResultsRoutes,
   userRoutes,
   updateRoutes,
-  supplierRoutes,
+  //supplierRoutes,
   paymentRoutes,
   emailRoutes,
   purchaseOrderRoutes,
@@ -84,5 +84,5 @@ app.use(
 );
 
 app.listen(port, () => {
-  console.log(chalk.bold.red(`Wayne's App listening on port: ${port}`));
+  console.log(chalk.bold.red(`Connor's App listening on port: ${port}`));
 });

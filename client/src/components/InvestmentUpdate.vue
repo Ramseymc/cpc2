@@ -4,7 +4,7 @@
     <v-row>
       <v-col cols="7"> </v-col>
       <v-col cols="4">
-        <v-btn-toggle borderless>
+        <v-btn-toggle v-model="icon" borderless>
           <v-btn value="cancel" color="orange lighten-1" @click="cancel">
             <span>Cancel</span>
 
@@ -70,35 +70,38 @@
           <!-- Investor Code & Linked email - read-only fields -->
           <v-container>
             <v-row>
-              <v-text-field
-                v-model="investorCode"
-                label="Investor Code:"
-                readonly
-              ></v-text-field>
-
-              <v-text-field
-                v-model="project"
-                label="Project:"
-                readonly
-              ></v-text-field>
-
-              <v-text-field
-                ref="linkedEmailInput"
-                v-model="linkedUnit"
-                :counter="20"
-                maxValue="20"
-                label="Linked Unit:"
-                required
-              ></v-text-field>
-
-              <v-text-field
-                ref="linkedEmailInput"
-                v-model="investmentAmount"
-                :counter="20"
-                maxValue="20"
-                label="Investment Amount:"
-                required
-              ></v-text-field>
+              <v-col cols="5">
+                <v-text-field
+                  v-model="investorCode"
+                  label="Investor Code:"
+                  required
+                  @blur="checkNames"
+                  readonly
+                ></v-text-field>
+              </v-col>
+              <v-col cols="5">
+                <v-text-field
+                  v-model="project"
+                  label="Project:"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="5">
+                <v-text-field
+                  v-model="linkedUnit"
+                  label="Linked Unit:"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="5">
+                <v-text-field
+                  v-model="investmentAmount"
+                  label="Investment Amount:"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -108,27 +111,27 @@
               <v-col cols="12" sm="12">
                 <!-- <h3>Investor One Details</h3> -->
               </v-col>
-              <v-text-field
-                ref="nameInput"
-                v-model="endDate"
-                :counter="20"
-                maxValue="20"
-                label="Loan Agreement Sign Date (enddate*):"
-                required
-              ></v-text-field>
-              <v-text-field
-                ref="surnameInput"
-                v-model="investmentDate"
-                :counter="20"
-                maxValue="20"
-                label="Investment Date:"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="investmentPerc"
-                label="Investment %:"
-                required
-              ></v-text-field>
+              <v-col cols="10" sm="10">
+                <v-text-field
+                  v-model="loanAgreementSignDate"
+                  label="Loan Agreement Sign Date:"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="8" sm="8">
+                <v-text-field
+                  v-model="investmentDate"
+                  label="Investment Date:"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="investmentPerc"
+                  label="Investment %:"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
           <v-container>
@@ -136,55 +139,57 @@
               <v-col cols="12" sm="12">
                 <!-- <h3>Investor One Details</h3> -->
               </v-col>
-              <v-text-field
-                ref="nameInput"
-                v-model="releaseDate"
-                :counter="20"
-                maxValue="20"
-                label="Release Date:"
-                required
-              ></v-text-field>
-              <v-text-field
-                ref="surnameInput"
-                v-model="releaseAmount"
-                :counter="20"
-                maxValue="20"
-                label="Release Amount:"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="releasePerc"
-                label="Release %:"
-                required
-              ></v-text-field>
+              <v-col cols="10" sm="10">
+                <v-text-field
+                  v-model="releaseDate"
+                  label="Release Date:"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="8" sm="8">
+                <v-text-field
+                  v-model="releaseAmount"
+                  label="Release Amount:"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="3" sm="3">
+                <v-text-field
+                  v-model="releasePerc"
+                  label="Release %:"
+                  required
+                ></v-text-field>
+              </v-col>
             </v-row>
           </v-container>
           <v-container>
             <v-row>
-              <v-col cols="12" sm="12">
-                <!-- <h3>Investor One Details</h3> -->
+              <v-col cols="10" sm="10">
+                <v-text-field
+                  v-model="repaymentDate"
+                  label="Repayment Date:"
+                  required
+                ></v-text-field>
               </v-col>
-              <v-text-field
-                v-model="endDate"
-                label="Repayment Date(*end date):"
-              ></v-text-field>
-              <v-text-field
-                v-model="repaymentAmount"
-                label="Repayment Amount:"
-              ></v-text-field>
-              <!-- to be a checkbox -->
-              <v-checkbox
-                v-model="investmentClosed"
-                label="Investment Closed?"
-                color="success"
-                value="success"
-                hide-details
-              ></v-checkbox>
-              <!-- <v-text-field
-                v-model="investmentClosed"
-                label="Investment Closed?"
-                required
-              ></v-text-field> -->
+              <v-col cols="8" sm="8">
+                <v-text-field
+                  v-model="repaymentAmount"
+                  label="Repayment Amount:"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="3" sm="3">
+                <!-- to be a checkbox -->
+                <v-checkbox
+                  v-model="investmentClosed"
+                  label="Investment Closed?"
+                  color="success"
+                  value="success"
+                  hide-details
+                ></v-checkbox>
+              </v-col>
             </v-row>
           </v-container>
 
@@ -203,9 +208,7 @@
             <v-row>
               View
               <a
-                :href="
-                  `http://localhost:3000/uploads/${singedLoanAgreementFile}`
-                "
+                :href="`http://localhost:3000/uploads/${singedLoanAgreementFile}`"
                 download
                 target="_blank"
                 style="text-decoration: none"
@@ -250,9 +253,7 @@
             <v-row>
               View
               <a
-                :href="
-                  `http://localhost:3000/uploads/${attorneyConfirmLetterFile}`
-                "
+                :href="`http://localhost:3000/uploads/${attorneyConfirmLetterFile}`"
                 download
                 target="_blank"
                 style="text-decoration: none"
@@ -269,15 +270,17 @@
               ></v-file-input>
             </v-row>
           </v-container>
+
+        
         </v-form>
       </v-layout>
-
-      <v-snackbar v-model="snackbar" top>
-        {{ snackbarMessage }}
-        <v-btn color="pink" text @click="snackbar = false">
-          Close
-        </v-btn>
-      </v-snackbar>
+     
+       <v-snackbar v-model="snackbar" top>
+          {{ snackbarMessage }}
+          <v-btn color="pink" text @click="snackbar = false">
+            Close
+          </v-btn>
+        </v-snackbar>
     </div>
   </v-container>
 </template>
@@ -295,7 +298,7 @@ export default {
   },
   props: {
     dialog: Boolean,
-    investmentId: String
+    investmentId: String,
   },
   metaInfo: {
     title: "Update Investment",
@@ -303,13 +306,13 @@ export default {
     meta: [
       {
         name: `description`,
-        content: `Join CPC here.`
-      }
+        content: `Join CPC here.`,
+      },
     ],
     htmlAttrs: {
       lang: "en",
-      amp: true
-    }
+      amp: true,
+    },
   },
   data: () => ({
     // add data models here
@@ -343,7 +346,6 @@ export default {
     repaymentAmount: "",
     endDate: "",
     investmentClosed: false,
-    icon: "",
 
     singedLoanAgreementFile: null,
     POPFile: null,
@@ -355,7 +357,7 @@ export default {
 
     snackbar: false,
     snackbarMessage: "",
-    checkbox: false
+    checkbox: false,
   }),
 
   async mounted() {
@@ -369,7 +371,7 @@ export default {
     cancel() {
       this.$router.push({
         name: "investmentview",
-        params: { id: this.investorId }
+        params: { id: this.investorId },
         //params: { id: event.currentTarget.id },
       });
     },
@@ -379,7 +381,7 @@ export default {
     setFormValues() {
       this.investorCode = this.SelectedInvestment[0].investor_acc_number;
       this.investorId = this.SelectedInvestment[0].investor_id;
-      this.investmentId = this.SelectedInvestment[0].investment_id;
+      this.investmentId = this.SelectedInvestment[0].investment_id
       this.project = this.SelectedInvestment[0].project;
       this.linkedUnit = this.SelectedInvestment[0].linked_unit;
       this.investmentAmount = this.SelectedInvestment[0].investment_amount;
@@ -395,43 +397,44 @@ export default {
       this.investmentClosed = this.SelectedInvestment[0].investment_closed;
       this.singedLoanAgreementFile = this.SelectedInvestment[0].singedLoanAgreementFile;
       this.POPFile = this.SelectedInvestment[0].POPFile;
-      this.attorneyConfirmLetterFile = this.SelectedInvestment[0].attorneyConfirmLetterFile;
+      this.attorneyConfirmLetterFile =  this.SelectedInvestment[0].attorneyConfirmLetterFile;
     },
     async getInvestmentDetails() {
       let data = {
         id: this.$store.state.development.id,
-        paramId: this.paramId
+        paramId: this.paramId,
       };
       console.log(data);
       await axios({
         method: "post",
         url: `${url}/getInvestmentDetails`, // use store url
-        data: data
+        data: data,
       })
         .then(
-          response => {
-            response.data.forEach(investment => {
-              this.SelectedInvestment.push(investment);
-            });
+          (response) => {
+            response.data.forEach((investment) => {
+              this.SelectedInvestment.push(investment);      
+            });        
             this.setFormValues();
           },
-          error => {
+          (error) => {
             console.log(error);
           }
         )
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
+
     },
     async testServer() {
       await axios({
         method: "get",
-        url: `${url}/test`
+        url: `${url}/test`,
       }).then(
-        response => {
+        (response) => {
           console.log(response.data);
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -448,7 +451,7 @@ export default {
     getFiles() {
       let files = [];
       let contains = [];
-
+   
       if (this.singedLoanAgreementFile !== null) {
         contains.push("singedLoanAgreementFile");
         files.push(this.singedLoanAgreementFile);
@@ -457,12 +460,12 @@ export default {
       // investorOneDisclaimerFile: null,
       if (this.POPFile !== null) {
         contains.push("POPFile");
-        files.push(this.POPFile);
+        files.push(this.POPFile); 
       }
       // investorOneIDFile: null,
       if (this.attorneyConfirmLetterFile !== null) {
         contains.push("attorneyConfirmLetterFile");
-        files.push(this.attorneyConfirmLetterFile);
+        files.push(this.attorneyConfirmLetterFile); 
       }
       return files;
     },
@@ -470,27 +473,27 @@ export default {
     async updateInvestment() {
       let files = [];
       let contains = [];
-
+  
       if (this.singedLoanAgreementFileNew !== null) {
         contains.push("singedLoanAgreementFile");
-        files.push(this.singedLoanAgreementFileNew);
+        files.push(this.singedLoanAgreementFileNew); 
       }
 
       // investorOneDisclaimerFile: null,
       if (this.POPFileNew !== null) {
         contains.push("POPFile");
-        files.push(this.POPFileNew);
+        files.push(this.POPFileNew); 
       }
       // investorOneIDFile: null,
       if (this.attorneyConfirmLetterFileNew !== null) {
         contains.push("attorneyConfirmLetterFile");
-        files.push(this.attorneyConfirmLetterFileNew);
+        files.push(this.attorneyConfirmLetterFileNew); 
       }
 
       let formData = new FormData();
       for (var x = 0; x < files.length; x++) {
         formData.append("documents", files[x]);
-      }
+      } 
       formData.append("contains", contains);
 
       formData.append("investorId", this.investorId);
@@ -520,20 +523,17 @@ export default {
       await axios({
         method: "post",
         url: `${url}/updateInvestment`,
-        data: formData
+        data: formData,
       }).then(
-        response => {
-          this.snackbarMessage = "Investment Successfully Updated";
+        (response) => {
+
+          this.snackbarMessage = "Investment Successfully Updated"
           this.snackbar = true;
-          setTimeout(() => {
-            this.$router.push({
-              name: "investmentview",
-              params: { id: this.investorId }
-            });
-          }, 1500);
-          console.log(response);
+          setTimeout(() => {         
+          this.$router.push({name: "investmentview",params: {id: this.investorId},})},1500)
+          console.log(response)
         },
-        error => {
+        (error) => {
           console.log(error);
         }
       );
@@ -542,8 +542,8 @@ export default {
     reset() {
       this.$refs.form.reset();
       this.checkbox = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
