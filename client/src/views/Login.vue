@@ -135,16 +135,16 @@ export default {
   data: () => ({
     valid: true,
     value: true,
-    passwordIncorrect: true,
-    // email: "waynebruton@icloud.com",
-    email: "",
+    passwordIncorrect: false,
+    email: "connorm11111@gmail.com",
+    //email: "",
     emailRules: [
       v => !!v || "E-mail is required",
       v => /.+@.+\..+/.test(v) || "E-mail must be valid"
     ],
-    // password: "Qwerty1!",
-    password: "",
-    emailExists: false,
+    password: "Alasco12!",
+    //password: "",
+    emailExists: true,
     snackbar: false,
     snackbarMessage: "",
     passwordResetToken: null,
@@ -172,12 +172,13 @@ export default {
       this.flex = 6;
       this.offset = 3;
     }
+    this.login();
   },
   methods: {
     async login() {
       let user = {
-        email: this.email,
-        password: this.password
+        email: "connorm11111@gmail.com",
+        password: "Alasco12!"
       };
       if (this.email && this.password) {
         await axios({

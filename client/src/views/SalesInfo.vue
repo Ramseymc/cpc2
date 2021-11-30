@@ -142,6 +142,13 @@
         </v-card>
       </div>
     </v-row>
+    <ClientUpsert
+      v-if="salesEditData.length > 0"
+      :dialog="clientDialog"
+      :editData="salesEditData"
+      @closeForm="closeClientForm"
+      :unitId="unitId"
+    />
     <ClientUpdate
       v-if="salesEditData.length > 0"
       :dialog="clientDialog"
@@ -169,6 +176,7 @@ import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
 import ClientUpdate from "../components/ClientUpdate.vue";
 import ClientFiles from "../components/ClientFiles.vue";
+import ClientUpsert from "../components/ClientUpsert.vue";
 import SignOff from "../components/signOffOTP.vue";
 
 export default {
@@ -177,6 +185,7 @@ export default {
   components: {
     ClientUpdate,
     ClientFiles,
+    ClientUpsert,
     SignOff
   },
   data() {

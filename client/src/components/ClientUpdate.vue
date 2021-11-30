@@ -4,6 +4,8 @@
        PURPOSE: Dialog form to maintain(update) a client sales 
           DATE: July 2021
           AUTH: Connor McLean, Wayne Bruton
+
+          it has edit data, how do you use that - would you launch it with the data given to it from the previous screen, or would you have it run a call 
  -->
 <template>
   <v-container>

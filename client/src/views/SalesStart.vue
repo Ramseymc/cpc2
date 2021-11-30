@@ -66,6 +66,17 @@
         </v-card>
       </v-col>
     </v-row>
+    
+    <ClientUpsert
+      v-if="clientDialog"
+      :blockValue="blockValue"
+      :unitValue="unitValue"
+      :dialog="clientDialog"
+      :planType="planType"
+      :unitId="unitId"
+      @closeForm="closeClientForm"
+    />
+  
     <ClientInfo
       v-if="clientDialog"
       :blockValue="blockValue"
@@ -81,12 +92,14 @@
 <script>
 import axios from "axios";
 import ClientInfo from "../components/ClientInfo.vue";
+import ClientUpsert from "../components/ClientUpsert.vue";
 let url = process.env.VUE_APP_BASEURL;
 
 export default {
   name: "salesstart",
   components: {
-    ClientInfo
+    ClientInfo,
+    ClientUpsert
   },
   data() {
     return {

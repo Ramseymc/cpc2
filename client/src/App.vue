@@ -10,8 +10,8 @@
 
 <script>
 import Header from "./components/Header";
-import axios from "axios";
-let url = process.env.VUE_APP_BASEURL;
+// import axios from "axios";
+// let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "App",
   components: {
@@ -23,23 +23,23 @@ export default {
     //
   }),
   async mounted() {
-    let data = {
-      id: this.$store.state.development.id
-    };
-    await axios({
-      method: "post",
-      url: `${url}/updateTasksWithPayDateWB`,
-      data: data
-    })
-      .then(
-        () => {},
-        error => {
-          console.log(error);
-        }
-      )
-      .catch(e => {
-        console.log(e);
-      });
+    // let data = {
+    //   id: this.$store.state.development.id
+    // };
+    // await axios({
+    //   method: "post",
+    //   url: `${url}/updateTasksWithPayDateWB`,
+    //   data: data
+    // })
+    //   .then(
+    //     () => {},
+    //     error => {
+    //       console.log(error);
+    //     }
+    //   )
+    //   .catch(e => {
+    //     console.log(e);
+    //   });
   }
 };
 </script>
