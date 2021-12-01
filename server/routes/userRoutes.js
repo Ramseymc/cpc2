@@ -150,23 +150,23 @@ router.get("/checkName/:name", (req, res) => {
   });
 });
 
-router.get("/checkEmail/:email", (req, res) => {
-    let mysql = `select userEmail from users where userEmail = '${req.params.email}' and isActive = true`
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection AAA");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        sendErrorReport(mysql, req.path, error);
-      } else {
-        res.json({ result });
-      }
-    });
-    connection.release();
-  });
-});
+// router.get("/checkEmail/:email", (req, res) => {
+//     let mysql = `select userEmail from users where userEmail = '${req.params.email}' and isActive = true`
+//   pool.getConnection(function (err, connection) {
+//     if (err) {
+//       connection.release();
+//       resizeBy.send("Error with connection AAA");
+//     }
+//     connection.query(mysql, function (error, result) {
+//       if (error) {
+//         sendErrorReport(mysql, req.path, error);
+//       } else {
+//         res.json({ result });
+//       }
+//     });
+//     connection.release();
+//   });
+// });
 
 router.post("/createUser", (req, res) => {
 

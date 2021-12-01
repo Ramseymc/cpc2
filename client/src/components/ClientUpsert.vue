@@ -1169,15 +1169,19 @@ import * as dayjs from "dayjs";
 import VuePhoneNumberInput from "vue-phone-number-input";
 let url = process.env.VUE_APP_BASEURL;
 import "vue-phone-number-input/dist/vue-phone-number-input.css";
+
 export default {
-  name: "salesstart",
+  name: "clientupsert",
+
   components: {
     VuePhoneNumberInput
   },
+
   props: {
     dialog: Boolean,
+    upsertMode: String,
     editData: Array,
-    unitId: Number
+    unitId: Number,    
   },
 
   data() {
@@ -1253,7 +1257,6 @@ export default {
       deductions: 0,
       deductionsStr: "",
 
-      _UpsertMode: ""
       // tiles: "Tiles",
       // mood: "Mood 1"
       // finalEditData: {}
@@ -1261,62 +1264,67 @@ export default {
   },
 
   mounted() {
-      if (_UpsertMode === "Add") {
-          //this.editData = [];
-          this.editData.length = 0
-      }
+    console.log("ClientUpsert - in mounted() - upsertMode = ", this.upsertMode)
   },
 
   beforeMount() {
-    this.editData.forEach(el => {
-      el.saleBuyers = parseInt(el.saleBuyers);
-      el.gasStove = parseInt(el.gasStove);
-      el.id = el.id.toString();
-      if (el.flooring === "") {
-        el.flooring = "Tiles";
+    if (this.upsertMode === "Add") {
+          //this.editData = [];
+          this.editData.length = 0
+    } else  // fill in the forms Data from existing sale
+    {
+      this.editData.forEach(el => {
+        el.saleBuyers = parseInt(el.saleBuyers);
+        el.gasStove = parseInt(el.gasStove);
+        el.id = el.id.toString();
+        if (el.flooring === "") {
+          el.flooring = "Tiles";
+        }
+        if (el.mood === "") {
+          el.mood = "Mood1";
+        }
+      });
+
+      this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
+
+      this.plans = this.editData[0].unit_type.split(",");
+      this.parkingPriceStr = this.convertToString(
+        parseFloat(this.editData[0].parking)
+      );
+
+      if (parseFloat(this.editData[0].parking) > 0) {
+        this.editData[0].parkingNumber =
+          parseFloat(this.editData[0].parking) / this.parkingPrice;
       }
-      if (el.mood === "") {
-        el.mood = "Mood1";
+      this.extrasStr = this.convertToString(parseFloat(this.editData[0].extras));
+      this.contractPrice = parseFloat(this.editData[0].contract_price);
+      this.contractPriceStr = this.convertToString(
+        parseFloat(this.contractPrice)
+      );
+      if (parseInt(this.editData[0].gasStove) === 1) {
+        this.gasStoveCost = 2000;
+      } else {
+        this.gasStoveCost = 0;
       }
-    });
+      this.gasStoveStr = this.convertToString(this.gasStoveCost);
+      this.finaliseCosts();
 
-    console.log("WWWWWW", this.editData);
-    this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
-
-    this.plans = this.editData[0].unit_type.split(",");
-    this.parkingPriceStr = this.convertToString(
-      parseFloat(this.editData[0].parking)
-    );
-
-    if (parseFloat(this.editData[0].parking) > 0) {
-      this.editData[0].parkingNumber =
-        parseFloat(this.editData[0].parking) / this.parkingPrice;
-    }
-    this.extrasStr = this.convertToString(parseFloat(this.editData[0].extras));
-    this.contractPrice = parseFloat(this.editData[0].contract_price);
-    this.contractPriceStr = this.convertToString(
-      parseFloat(this.contractPrice)
-    );
-    if (parseInt(this.editData[0].gasStove) === 1) {
-      this.gasStoveCost = 2000;
-    } else {
-      this.gasStoveCost = 0;
-    }
-    this.gasStoveStr = this.convertToString(this.gasStoveCost);
-    this.finaliseCosts();
-
-    this.balanceRemStr = this.convertToString(this.editData[0].balanceRem);
-    this.depositStr = this.convertToString(this.editData[0].deposit);
-    this.basePriceStr = this.convertToString(this.editData[0].base_price);
-    this.depositDate = this.editData[0].depositDate.split(" ")[0];
-    if (this.editData[0].actualSalesdate !== null) {
-      this.editData[0].actualSalesdate = dayjs(
-        this.editData[0].actualSalesdate
-      ).format("YYYY-MM-DD");
+      this.balanceRemStr = this.convertToString(this.editData[0].balanceRem);
+      this.depositStr = this.convertToString(this.editData[0].deposit);
+      this.basePriceStr = this.convertToString(this.editData[0].base_price);
+      this.depositDate = this.editData[0].depositDate.split(" ")[0];
+      if (this.editData[0].actualSalesdate !== null) {
+        this.editData[0].actualSalesdate = dayjs(
+          this.editData[0].actualSalesdate
+        ).format("YYYY-MM-DD");
+      }
     }
   },
 
   methods: {
+    closeClientInfo() {
+      this.$emit("closeForm", false);
+    },
     showUploadBtn() {
       if (this.planFile !== null) {
         this.showUploadButton = true;
@@ -1352,9 +1360,6 @@ export default {
           console.log(error);
         }
       );
-    },
-    closeClientInfo() {
-      this.$emit("closeForm", false);
     },
     convertToString(factor) {
       //CONVERTS NUMBERS TO STRING WTH "R"
@@ -1420,19 +1425,6 @@ export default {
         parseFloat(this.editData[0].deductions);
 
       this.contractPriceStr = this.convertToString(this.contractPrice);
-
-      // if (this.editData[0].balanceRem === 0 && this.editData[0].deposit === 0) {
-      //   this.editData[0].balanceRem = this.editData[0].contract_price
-      // }
-      //this.editData[0].deposit
-      // if (this.editData[0].saleType === 'Cash') {
-      //   this.editData[0].balanceRem = (this.contractPrice - this.editData[0].deposit)
-      //   this.balanceRemStr = this.convertToString(this.editData[0].balanceRem)
-      // }
-      // maybe subtract the deposit here on a cash deal , first get RNan to dissapear
-      // this.contractPriceStr = this.convertToString(
-      //   this.contractPrice
-      // );
     },
     changePricing() {
       this.editData[0].parking =

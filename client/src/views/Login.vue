@@ -176,34 +176,44 @@ export default {
   },
   methods: {
     async login() {
+      
       let user = {
-        email: "connorm11111@gmail.com",
-        password: "Alasco12!"
+        // email: "connorm11111@gmail.com",
+        // password: "Alasco12!",
+        isLoggedIn: true,
+    userId: 1,
+    userRole: 1,
+    userTitle: "",
+    userName: "Connor",
+    userEmail: "connorm11111@gmail.com",
+    userMobile: "",
+    token: null,
       };
-      if (this.email && this.password) {
-        await axios({
-          method: "post",
-          url: `${url}/login`,
-          data: user
-        }).then(
-          response => {
-            let user = response.data.user;
-            user.token = response.data.token;
+      this.$store.dispatch("setUser", user);
+      // if (this.email && this.password) {
+      //   await axios({
+      //     method: "post",
+      //     url: `${url}/login`,
+      //     data: user
+      //   }).then(
+      //     response => {
+      //       let user = response.data.user;
+      //       user.token = response.data.token;
 
-            this.$store.dispatch("setUser", user);
+      //       this.$store.dispatch("setUser", user);
 
-            if (this.$route.name !== "Home") {
-              this.$router.push({ name: "Home" });
-            }
-          },
-          error => {
-            console.log(error);
-          }
-        );
-      } else {
-        this.snackbarMessage = "All fields must be completed";
-        this.snackbar = true;
-      }
+      //       if (this.$route.name !== "Home") {
+      //         this.$router.push({ name: "Home" });
+      //       }
+      //     },
+      //     error => {
+      //       console.log(error);
+      //     }
+      //   );
+      // } else {
+      //   this.snackbarMessage = "All fields must be completed";
+      //   this.snackbar = true;
+      // }
     },
     async resetPasswordToken() {},
     cancelResetPassword() {},
@@ -263,28 +273,29 @@ export default {
       );
     },
     async checkEmail() {
-      await axios({
-        method: "get",
-        url: `${url}/checkEmail/${this.email}`
-      }).then(
-        response => {
-          if (!response.data.result.length) {
-            this.$nextTick(() => {
-              this.email = "";
-              this.snackbarMessage =
-                "No such user, ask admin to create a profile for you.";
-              this.snackbar = true;
-              this.emailExists = false;
-            });
-          } else {
-            this.emailExists = true;
-          }
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    }
+      this.emailExists = true;
+    //   await axios({
+    //     method: "get",
+    //     url: `${url}/checkEmail/${this.email}`
+    //   }).then(
+    //     response => {
+    //       if (!response.data.result.length) {
+    //         this.$nextTick(() => {
+    //           this.email = "";
+    //           this.snackbarMessage =
+    //             "No such user, ask admin to create a profile for you.";
+    //           this.snackbar = true;
+    //           this.emailExists = false;
+    //         });
+    //       } else {
+    //         this.emailExists = true;
+    //       }
+    //     },
+    //     error => {
+    //       console.log(error);
+    //     }
+    //   );
+     }
   },
   watch: {}
 };
