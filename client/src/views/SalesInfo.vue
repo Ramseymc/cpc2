@@ -10,6 +10,7 @@
     <v-row justify="center">
       <div class="about">
         <br /><br /><br />
+       
 
         <v-card class="mx-auto" max-width="1500" width="1000">
           <v-toolbar color="#0F0F0F" dark>
@@ -30,6 +31,9 @@
                 <v-list-item :key="item.id">
                   <v-list-item-content>
                     <v-list-item v-if="showActions">
+                      <v-btn :id="item.id" text @click="upsertItem($event)"
+                        ><v-icon color="green"> mdi-table-edit</v-icon></v-btn
+                      >
                       <v-btn :id="item.id" text @click="deleteItem($event)"
                         ><v-icon color="brown"> mdi-delete</v-icon></v-btn
                       >
@@ -149,6 +153,13 @@
       @closeForm="closeClientForm"
       :unitId="unitId"
     />
+    <ClientUpsert
+      v-if="saleToUpsert.length > 0"
+      :dialog="clientUpsertDialog"
+      :editData="saleToUpsert"
+      @closeForm="closeClientForm"
+      :unitId="unitId"
+    />
     <ClientFiles
       v-if="clientFilesData.length > 0"
       :dialogFiles="clientFileDialog"
@@ -170,11 +181,13 @@ let url = process.env.VUE_APP_BASEURL;
 import ClientUpdate from "../components/ClientUpdate.vue";
 import ClientFiles from "../components/ClientFiles.vue";
 import SignOff from "../components/signOffOTP.vue";
+import ClientUpsert from "../components/ClientUpsert.vue"
 
 export default {
   name: "salesinfo",
   //name: "apartment",
   components: {
+    ClientUpsert,
     ClientUpdate,
     ClientFiles,
     SignOff
@@ -201,6 +214,9 @@ export default {
       clientFileDialog: false,
       clientFilesData: [],
       dialogFiles: null,
+
+      saleToUpsert: [],
+     clientUpsertDialog: false,
 
       signOffDialog: false,
       signOffData: []
@@ -244,6 +260,13 @@ export default {
       });
       console.log("ZZZZZ@@", this.salesEditData);
       this.clientDialog = true;
+    },
+    upsertItem(event) {
+      let targetId = event.currentTarget.id;
+      this.saleToUpsert = this.sales.filter(el => {
+        return el.id = parseInt (targetId)
+      })
+      this.clientUpsertDialog = true;
     },
     async emailItem(event) {
       let targetId = event.currentTarget.id;

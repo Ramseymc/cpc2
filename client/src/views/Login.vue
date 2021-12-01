@@ -70,7 +70,7 @@
               text
               color="success"
               class="mr-4"
-              v-if="emailExists && password && passwordResetToken === null"
+              
               @click="login"
             >
               Login
@@ -186,6 +186,7 @@ export default {
           data: user
         }).then(
           response => {
+            console.log("Connor - successfully found user matching" + this.email)
             let user = response.data.user;
             user.token = response.data.token;
 
@@ -196,6 +197,7 @@ export default {
             }
           },
           error => {
+            console.log("Connor - unsuccessfull in login ");
             console.log(error);
           }
         );
