@@ -29,9 +29,11 @@
           <v-data-table
             :headers="headers"
             :items="desserts"
-            :items-per-page="5"
+            :items-per-page="15"
             class="elevation-1"
           ></v-data-table>
+
+          <!-- Use InvestorViewMain for guide on how to bring in components to the datatable cells -->
 
          
         </v-card>
@@ -203,18 +205,24 @@ export default {
     return {
       headers: [
           {
-            text: 'Dessert (100g serving)',
+            text: 'Block',
             align: 'start',
             sortable: false,
-            value: 'name',
+            value: 'block',
           },
-          { text: 'Calories', value: 'calories' },
-          { text: 'Fat (g)', value: 'fat' },
-          { text: 'Carbs (g)', value: 'carbs' },
-          { text: 'Protein (g)', value: 'protein' },
-          { text: 'Iron (%)', value: 'iron' },
+          { text: 'Unit', value: 'unit' }, // i want to wrap a button around that launches ClientUpsert with upsertMode = "Update"
+          { text: 'Last Name', value: 'lastName' },
+          { text: 'First Name', value: 'firstName' },
+          { text: '2nd Person Last Name', value: 'personTwoLastName' },
+          { text: '2nd Person FirstName', value: 'personTwoFirstName' },
+          { text: 'Step', value: 'step' }, // i might need to build a component to display which step we are on - this is future work - will just show send email for now ? we need db flags, to add a step field to the salesinfo table and perhaps a steps table to hold information about the step (stepId, Name, description, etc )
+          { text: 'Files', value: 'filesicon' },  // i want an icon that launches ClientFiles component   
         ],
       desserts: [],
+
+      filesicon: "",
+      step: "",
+
       showActions: false,
       blockValue: null, //From Dropdown
       unitValue: null,

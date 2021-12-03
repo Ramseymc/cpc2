@@ -70,6 +70,7 @@
     <ClientUpsert
       v-if="clientDialog"
       :blockValue="blockValue"
+      :upsertMode="upsertMode"
       :unitValue="unitValue"
       :dialog="clientDialog"
       :planType="planType"
@@ -110,7 +111,9 @@ export default {
       items: [],
       blocks: [],
       clientDialog: false,
-      planType: ""
+      planType: "",
+      upsertMode: "Add",  // opening upsert in Add mode (ClientUpsert then empties the editData[] beforeMount)
+
     };
   },
   async mounted() {
