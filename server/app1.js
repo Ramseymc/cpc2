@@ -14,8 +14,6 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// console.log("WTF")
-
 app.use(
   cors({
     allowedHeaders: [
