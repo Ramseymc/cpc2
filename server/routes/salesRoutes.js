@@ -552,8 +552,10 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   excecuteSQL(mysql, res);
 })
 
-router.post("/createClient", upload.array("documents"), (req, res) => {
+router.post("/createClientCM", upload.array("documents"), (req, res) => {
   console.log("Booty",req.body)
+
+  // debug this sh1t , does the req.body being sent have a firstName in it ? 
   console.log(req.files)
   // pull the mimetype from req.files - futureproof
   let fileDetails = [];

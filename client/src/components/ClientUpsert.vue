@@ -1032,7 +1032,7 @@
                 Close
               </v-btn>
 
-              <v-btn text  @click="updateClientData" color="primary" elevation="3"  outlined rounded>
+              <v-btn text  @click="submitClientData" color="primary" elevation="3"  outlined rounded>
                 Save
                 <v-icon dark right>
                   mdi-checkbox-marked-circle
@@ -1140,7 +1140,16 @@ export default {
       extrasStr: "",
       deductions: 0,
       deductionsStr: "",
-
+      mobile: {
+        countryCode: "ZA",
+        isValid: false,
+        phoneNumber: ""
+      },
+      landline: {
+        countryCode: "ZA",
+        isValid: false,
+        phoneNumber: ""
+      }
     };
   },
 
@@ -1394,6 +1403,13 @@ export default {
       console.log("landline", event);
       console.log("mobile", event);
     },
+    submitClientData() {
+      if (this.upsertMode === "Add") {
+        this.insertClientData()
+      } else {
+        this.updateClientData()
+      }
+    },
     async updateClientData() {
       // get the form fields data to pass to salesRoutes /updateClient
       let files = [];
@@ -1520,7 +1536,7 @@ export default {
       formData.append("salePerson", this.editData[0].salePerson);
       formData.append("saleBuyers", this.editData[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
-
+      console.log("FormData before sending to server", this.formData)
       await axios({
         method: "post",
         url: `${url}/updateClientCM`,
@@ -1534,6 +1550,147 @@ export default {
           this.closeClientInfo();
         },
 
+        error => {
+          console.log(error);
+        }
+      );
+    },
+    async insertClientData() {
+      // console.log(this.firstName);
+      let files = [];
+      let contains = [];
+      if (this.fileOTP !== null) {
+        contains.push("fileOTP");
+        files.push(this.fileOTP); // append mimetype here?
+      }
+      if (this.fileId !== null) {
+        contains.push("fileId");
+        files.push(this.fileId);
+      }
+      if (this.personTwoFileID !== null) {
+        contains.push("personTwoFileID");
+        files.push(this.personTwoFileID);
+      }
+
+      if (this.fileBank !== null) {
+        contains.push("fileBank");
+        files.push(this.fileBank);
+      }
+      if (this.personTwoFileBank !== null) {
+        contains.push("personTwoFileBank");
+        files.push(this.personTwoFileBank);
+      }
+
+      if (this.filePaySlip) {
+        this.filePaySlip.forEach(el => {
+          contains.push("filePaySlip");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+      if (this.personTwoFilePayslip) {
+        this.personTwoFilePayslip.forEach(el => {
+          contains.push("personTwoFilePayslip");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+
+      if (this.fileFica) {
+        this.fileFica.forEach(el => {
+          contains.push("fileFica");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+      if (this.personTwoFileFica) {
+        this.personTwoFileFica.forEach(el => {
+          contains.push("personTwoFileFica");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+
+      if (this.fileDepositPop !== null) {
+        contains.push("fileDepositPop");
+        files.push(this.fileDepositPop);
+      }
+
+      let formData = new FormData();
+      for (var x = 0; x < files.length; x++) {
+        formData.append("documents", files[x]);
+      }
+            console.log("FormData before sending to server1 ", this.formData)
+      formData.append("firstName", this.firstName);
+      formData.append("lastName", this.lastName);
+      formData.append("iDNumber", this.iDNumber);
+      formData.append("marital", this.marital);
+      formData.append("email", this.email);
+      formData.append("bankName", this.bankName);
+      formData.append("accountNumber", this.accountNumber);
+      formData.append("accountType", this.accountType);
+      formData.append("block", this.blockValue);
+      formData.append("unit", this.unitValue);
+      formData.append("mood", this.mood);
+      formData.append("flooring", this.flooring);
+      formData.append("floorplan", this.floorplan);
+      formData.append("mobile", this.mobile.phoneNumber);
+      formData.append("landline", this.landline.phoneNumber);
+      formData.append("postalAddress", this.postaladdress);
+      formData.append("residentialAddress", this.residentialAddress);
+      formData.append("trustName", this.trustName);
+      formData.append("trustNumber", this.trustNumber);
+      formData.append("personTwoFirstName", this.personTwoFirstName);
+      formData.append("personTwoLastName", this.personTwoLastName);
+      formData.append("personTwoIDNumber", this.personTwoIDNumber);
+      formData.append("personTwoMarital", this.personTwoMarital);
+      formData.append("personTwoEmail", this.personTwoEmail);
+      formData.append("personTwoBankName", this.personTwoBankName);
+      formData.append("personTwoAccountNumber", this.personTwoAccountNumber);
+      formData.append("personTwoAccountType", this.personTwoAccountType);
+      formData.append("personTwoMobile", this.personTwoMobile);
+      formData.append("personTwoLandline", this.personTwoLandline);
+      formData.append("personTwoPostalAddress", this.personTwoPostalAddress);
+      formData.append("personTwoResidentialAddress", this.personTwoResidentialAddress );
+      formData.append("salePerson", this.person);
+      formData.append("saleBuyers", this.buyers);
+      formData.append("saleType", this.saleType);
+      formData.append("salesAgent", this.salesAgent);
+      formData.append("salesAgentPhone", this.salesAgentPhone);
+      formData.append("contains", contains);
+      formData.append("contract_price", this.contractPrice);
+      formData.append("base_price", this.basePrice);
+      formData.append("parking", this.parking);
+      formData.append("originalBayNo", this.originalBayNo);
+      formData.append("extras", this.extras);
+      formData.append("deductions", this.deductions);
+      formData.append("notes", this.notes);
+      formData.append("cashDeal", this.cashDeal);
+      formData.append("balanceRem", this.balanceRem);
+      formData.append("deposit", this.deposit);
+      formData.append("depositDate", this.depositDate);
+      formData.append("gasStove", this.gasStove);
+      formData.append("gasStoveCost", this.gasStoveCost);
+      formData.append("spareRoom", this.spareRoom);
+      formData.append("additionalExtras", this.additionalExtras);
+      formData.append("additionalExtrasCost", this.additionalExtrasCost);
+      formData.append("bayNo", this.bayNo);
+      formData.append("enclosedBalcony", this.enclosedBalcony);
+      formData.append("development", this.$store.state.development.id);
+      console.log("FormData before sending to server", this.formData)
+      await axios({
+        method: "post",
+        url: `${url}/createClientCM`,
+        data: formData
+      }).then(
+        response => {
+          console.log(response.data);
+          this.snackbar = true;
+        },
         error => {
           console.log(error);
         }
