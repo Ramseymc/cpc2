@@ -66,19 +66,17 @@
         </v-card>
       </v-col>
     </v-row>
-    
+
     <ClientUpsert
       v-if="clientDialog"
-      :blockValue="blockValue"
       :upsertMode="upsertMode"
-      :unitValue="unitValue"
       :dialog="clientDialog"
-      :planType="planType"
-      :unitId="unitId"
+      :editData="salesEditData"
       @closeForm="closeClientForm"
+      :unitId="unitId"
     />
   
-    <ClientInfo
+    <!-- <ClientInfo
       v-if="clientDialog"
       :blockValue="blockValue"
       :unitValue="unitValue"
@@ -86,20 +84,20 @@
       :planType="planType"
       :unitId="unitId"
       @closeForm="closeClientForm"
-    />
+    /> -->
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import ClientInfo from "../components/ClientInfo.vue";
+//import ClientInfo from "../components/ClientInfo.vue";
 import ClientUpsert from "../components/ClientUpsert.vue";
 let url = process.env.VUE_APP_BASEURL;
 
 export default {
   name: "salesstart",
   components: {
-    ClientInfo,
+   // ClientInfo,
     ClientUpsert
   },
   data() {
@@ -113,12 +111,17 @@ export default {
       clientDialog: false,
       planType: "",
       upsertMode: "Add",  // opening upsert in Add mode (ClientUpsert then empties the editData[] beforeMount)
+      salesEditData: [ {
+        salePerson: "",
+        }
+      ],
 
     };
   },
   async mounted() {
     let data = {
       id: this.$store.state.development.id
+      //id: 1,
     };
     await axios({
       method: "post",
@@ -156,8 +159,13 @@ export default {
       this.clientDialog = event;
     },
     async getClientInfo() {
+      // help 1
+      //this launches ClientUpsert this.clientDialog = !this.clientDialog; 
+      //but there is a length undefined coming from the ClientUpsert")
+      console.log("get client info ^^^^ ")
+      
       let data = {
-        unitValue: this.unitValue
+        unitValue: this.unitValue,
       };
       await axios({
         method: "post",
@@ -168,11 +176,7 @@ export default {
           console.log(response.data[0].unit_type);
           this.planType = response.data[0].unit_type;
           this.clientDialog = !this.clientDialog;
-
-          // little box saying 'Posted Successfully
-          // this.snackbar = true;
-          // close the form after completing
-          // this.closeClientInfo();
+    
         },
         error => {
           console.log(error);
@@ -202,7 +206,8 @@ export default {
             let filteredData = response.data.filter(el => {
               return el.unitName.substring(2, 1) !== ".";
             });
-            this.items = filteredData;
+            this.items = filteredData
+            this.salesEditData[0].salePerson = ""
             console.log("XXXX", this.items);
           },
           error => {

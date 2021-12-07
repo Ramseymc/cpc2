@@ -28,7 +28,26 @@ const upload = multer({
   },
 });
 
-// Server Methods
+function excecuteSQL(sql, res) {
+  console.log("EXECUTIUNG SQL STATEMENT")
+  pool.getConnection(function (err, connection) {
+      if (err) {
+          connection.release();
+          resizeBy.send("Error with connection");
+      }            
+      connection.query(sql, function (error, result) {
+          if (error) {
+              console.log(error);
+          } else {
+              res.json(result);
+              console.log("SQL Statement executed successfully - see json result in browser.");
+            //  console.log(result);
+          }
+      });
+      connection.release();
+  });
+}
+
 router.get("/test", (req, res) => {
   res.json({ Awesome: "It Works!!!!!" })
 })
@@ -36,10 +55,9 @@ router.get("/test", (req, res) => {
 router.post("/uploadPlansWB", upload.single("plans"), (req, res) => {
   console.log("Body",req.body)
   console.log("File",req.file)
-  // let newFileName =  req.file.originalname.split(".pdf")
-  // console.log("newFileName",newFileName)
+
   let stamp = new Date().getTime()
-  // stamp = stamp.now()
+
   console.log(stamp)
 
   fs.rename(`public/${req.file.filename}`, `public/${req.body.client}-${stamp}.pdf`, (err) => {
@@ -48,36 +66,11 @@ router.post("/uploadPlansWB", upload.single("plans"), (req, res) => {
     } //throw err
   })
   let fileName = `${req.body.client}-${stamp}.pdf`
-  // console.log(fileName)
 
   let mysql = `update salesinfo set planType = '${fileName}' where id = ${req.body.id}`;
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log("XXXXXX", err)//
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
+  excecuteSQL(mysql, res);
+});
 
-      } else {
-        console.log(result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
-
-  // pull the mimetype from req.files - futureproof
- 
-
-  
-    
-    
-  });
-
-// get blocks for development
 router.post("/getblocksForOptions", (req, res) => {
   console.log(req.body)
   let mysql = `select * from subsection where development = ${req.body.id}`;
@@ -105,42 +98,14 @@ router.post("/getSalesDataForSale", (req, res) => {
   let mysql2 = ` select * from balconyinfo`
   // work men :) only needed from create
   let mysql = `${mysql1};${mysql2}`
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("RESULT New",result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 })
 
 router.post("/getUnitPlanTypes", (req, res) => {
   console.log(req.body)
   let mysql = `select unit_type from salesData s, units u where u.id = s.unit and u.unitName = '${req.body.unitValue}'`
   console.log("req.body.unitValue= ", req.body.unitValue);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("RESULT",result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 })
 
 router.post("/getAvailableUnits", (req,res) =>{
@@ -148,150 +113,47 @@ router.post("/getAvailableUnits", (req,res) =>{
     let mysql = `select u.id, s.unit, u.unitName from salesData s, units u where u.id = s.unit and u.subsection = ${req.body.subsection} and s.sold = false and s.development = ${req.body.id}`
 
   console.log("Hello",mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 
 })
 
-// get avail units for selected development and block
 router.post("/getUnitsForOptions", (req, res) => {
-  // let mysql = `SELECT 
-  //     u.unitName 
-  //   FROM units u 
-  //   LEFT JOIN subsection s ON s.id = u.subsection 
-  //   LEFT JOIN salesinfo si ON si.unit = u.unitName AND si.block = s.subsectionName 
-  //   WHERE u.unitName NOT IN 
-  //     ( SELECT 
-  //       u.unitName 
-  //       FROM units u JOIN subsection s ON s.id = u.subsection 
-  //       JOIN salesinfo si ON si.unit = u.unitName AND si.block = s.subsectionName 
-  //       WHERE s.subsectionName = '${req.body.subsectionName}' ) 
-  //   AND s.subsectionName = '${req.body.subsectionName}';`;
+
   console.log(req.body)
     let mysql = `select s.unit, u.unitName from salesData s, units u where u.id = s.unit and u.subsection = ${req.body.subsection} and s.sold = false and s.development = ${req.body.id}`
 
   console.log("Hello",mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      //
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 });
-// end of SalesStart routes 
 
-// Routes for investordetails (unitinfo.vue), and salesData
 router.post("/getInvestmentData", (req, res) => {
   
   console.log("/getInvestmentData req.body = ", req.body)
-    let mysql = `select * from investorDetails i ;`
-    // sql to append when the unit is passed in 
-    //where i.unit = ${req.body.unit}
+  let mysql = `select * from investorDetails i ;`
 
   console.log("Hello",mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      //
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("/getInvestmentData result = ", result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 });
 
-// salesData routes
 router.post("/getSalesData", (req, res) => {
   
   console.log("/getSalesData req.body = ", req.body)
   let mysql = `select * from salesData sd ;`
-  // sql to append when the unit is passed in 
-  //where i.unit = ${req.body.unit}
 
   console.log("Hello",mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      //
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("/getSalesData result = ", result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 });
 
-// salesData routes
 router.post("/getSalesDataForUnit", (req, res) => {
   
   console.log("/getSalesData req.body = ", req.body)
   let mysql = `select * from salesData sd where i.unit = ${req.body.unit};`
-  // sql to append when the unit is passed in 
- 
 
   console.log("Hello",mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      //
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("/getSalesData result = ", result)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 });
 
-
-
-
-// salesinfo routes
-// get all valid salesInfo
 router.post("/getClientInfoForSalesInfo", (req, res) => {
-  console.log("&&&&&&",req.body)
-  // let mysql = `CALL spSalesInfoR1(${req.body.id})`
 
   let mysql = `select 
   si.*, 
@@ -312,48 +174,18 @@ router.post("/getClientInfoForSalesInfo", (req, res) => {
   join units u on si.unit = u.unitName 
   join salesData sd on sd.unit = u.id 
   where si.id > 0 
-   and si.firstName > ''  and sd.development = ${req.body.id} and u.development = ${req.body.id} ;`
-  //  console.log("SERVER-SIDE getting data for salesinfo", mysql);
-  // hello
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
+   and si.firstname > ''  and sd.development = ${req.body.id} and u.development = ${req.body.id} ;`
 
-      } else {
-        console.log("SERVER-SIDE, RESULT in salesRoutes.js", result)
-        res.json(result);        
-      }
-    });
-    connection.release();
-  });
+  console.log(chalk.green("getClientInfoForSalesInfo SQL = ",mysql))
+  excecuteSQL(mysql, res);
+ 
 });
 
-// delete salesinfo record matching 'id'
 router.post("/deleteSalesRecord", (req, res) => {
-  //console.log("THE BODY OF THE DELETE", req.body)
-  // 
+
   let mysql = `delete from salesinfo where id = ${req.body.id}; update salesData inner join units on units.id = salesData.unit set sold = 0, extras = 0, deductions = 0, parking = 0, contract_price = base_price WHERE units.unitName = '${req.body.unit}' ;`
   console.log("Delete SQL", mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-
-      } else {
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 });
 
 router.post("/sendSalesInfoEmail", (req, res) => {
@@ -441,7 +273,6 @@ async function sendMail(subject, recipient, output) {
   });
 }
 
-// upload via multer.single()
 router.post("/updateClientOTP", upload.single("fileOTP"), (req, res) => {
   console.log("ID:", req.body.id);
 
@@ -460,26 +291,10 @@ router.post("/updateClientOTP", upload.single("fileOTP"), (req, res) => {
     console.log("||OVERRIDE OTP||" , mysql)
     //console.log("OVERRIDE OTP SQL = ", mysql);
     // execute the sql and return the res.json
-    pool.getConnection(function (err, connection) {
-      if (err) {
-        connection.release();
-        resizeBy.send("Error with connection");
-      }
-      connection.query(mysql, function (error, result) {
-        if (error) {
-          console.log(error);
-        } else {
-          res.json(result);
-          console.log("After UpdateOTP stmnt")
-          console.log(result)
-        }
-      });
-      connection.release();
-    })
+    excecuteSQL(mysql, res);
   }
 })
 
-// update the salesinfo record matching 'id'
 router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 
   // console.log("Files: ", req.files);
@@ -734,23 +549,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   mysql = `${mysql} ${additionalSQL} WHERE id = ${req.body.id} and development = ${req.body.development} ; ${mysqlSalesData}`
   console.log(chalk.red("FINALmySQL UPDATE Satement, in salesRoutes.js = ", mysql));
 
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        res.json(result);
-        console.log("After Update stmnt")
-        console.log(result)
-      }
-    });
-    connection.release();
-
-  })
+  excecuteSQL(mysql, res);
 })
 
 router.post("/createClient", upload.array("documents"), (req, res) => {
@@ -958,45 +757,16 @@ router.post("/createClient", upload.array("documents"), (req, res) => {
   let mysql = `${mysql1};${mysql2}`
   console.log(chalk.red(mysql));
 
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        res.json(result);
-        console.log("After INSERT stmnt");
-        console.log(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 });
-
 
 router.post("/getblocksforoptionsA", (req,res) => {
   console.log("Awesome")
   // res.json({awesome: "It Works"})
     console.log("TESTING")
   let mysql = `select * from subsection where subsectionName not like 'Common Area' and  development = ${req.body.id}`;
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result);
-        res.json(result);
-      }
-    });
-    connection.release(); 
-  }); 
+  console.log("sql=",mysql)
+  excecuteSQL(mysql, res);
 });
 
 router.post("/getblocksforstock", (req,res) => {
@@ -1004,21 +774,7 @@ router.post("/getblocksforstock", (req,res) => {
   // res.json({awesome: "It Works"})
     //console.log("TESTING")
   let mysql = `select * from subsection where subsectionName not like 'Common Area' and  development = ${req.body.id}`;
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result);
-        res.json(result);
-      }
-    });
-    connection.release(); 
-  }); 
+  excecuteSQL(mysql, res);
 });
 
 router.post("/getAllUnitsforStockPage", (req,res) =>{
@@ -1026,26 +782,10 @@ router.post("/getAllUnitsforStockPage", (req,res) =>{
     let mysql = `select u.id, u.unitName from units u where u.subsection IN (${req.body.blocksId}) and u.development = ${req.body.id}`
 // IN ('1','2')
   console.log("Hello",mysql);
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function (error, result) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("UNITS=", result)
-        console.log("UNITSLength=", result.length)
-        res.json(result);
-      }
-    });
-    connection.release();
-  });
+  excecuteSQL(mysql, res);
 
 });
 
-// CRM 1 : Transporter / formatting here 
 let transporter = nodemailer.createTransport({
   host: process.env.MAILHOST,
   port: 465, //587

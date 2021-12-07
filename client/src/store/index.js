@@ -16,9 +16,13 @@ export default new Vuex.Store({
     userMobile: null,
     token: null,
     development: {
-      id: null,
-      developmentName: null
+      id: 1,
+      developmentName: 'Endulini'
     }
+    // development: {
+    //   id: null,
+    //   developmentName: null,
+    // }
     // smartsheetToken: null
     // gridWidth: true
   },

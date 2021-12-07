@@ -10,11 +10,11 @@
     <v-row justify="center">
       <div class="about">
         <br /><br /><br />
-
         <v-card class="mx-auto" max-width="1500" width="1000">
           <v-toolbar color="#0F0F0F" dark>
             <v-spacer></v-spacer>
             <v-toolbar-title>Sales</v-toolbar-title>
+            <v-spacer></v-spacer>            
             <v-spacer></v-spacer>
             <v-text-field
               prepend-icon="mdi-magnify"
@@ -24,30 +24,44 @@
             ></v-text-field>
           </v-toolbar>
 
-          <!-- data-table -->
-
           <v-data-table
             :headers="headers"
             :items="desserts"
             :items-per-page="15"
             class="elevation-1"
-          ></v-data-table>
+          >
 
-          <!-- Use InvestorViewMain for guide on how to bring in components to the datatable cells -->
+          <template v-slot:item.edit="{ item }">
+            <v-chip
+              :id="item.id"
+              small
+              dark
+              color="blue darken-2"
+              @click="editItem"
+            >
+              Edit
+            </v-chip>
+          </template>
+          
+          <template v-slot:item.files="{ item }">
+            <v-chip
+              :id="item.id"
+              small
+              dark
+              color="green darken-3"
+              @click="showFiles"
+            >
+              Files
+            </v-chip>
+          </template>
+          </v-data-table>
 
-         
         </v-card>
       </div>
     </v-row>
     <ClientUpsert
       v-if="salesEditData.length > 0"
-      :dialog="clientDialog"
-      :editData="salesEditData"
-      @closeForm="closeClientForm"
-      :unitId="unitId"
-    />
-    <ClientUpdate
-      v-if="salesEditData.length > 0"
+      :upsertMode="upsertMode"
       :dialog="clientDialog"
       :editData="salesEditData"
       @closeForm="closeClientForm"
@@ -69,154 +83,34 @@
 </template>
 
 <script>
-//  <v-list two-line>
-//             <v-list-item-group active-class="blue--text" multiple>
-//               <template v-for="item in salesFiltered">
-//                 <v-list-item :key="item.id">
-//                   <v-list-item-content>
-//                     <v-list-item v-if="showActions">
-//                       <v-btn :id="item.id" text @click="deleteItem($event)"
-//                         ><v-icon color="brown"> mdi-delete</v-icon></v-btn
-//                       >
-//                       <v-btn :id="item.id" text @click="editItem($event)"
-//                         ><v-icon :color="item.iconColor"
-//                           >mdi-table-edit</v-icon
-//                         ></v-btn
-//                       >
-
-//                       <v-btn :id="item.id" text @click="emailItem($event)"
-//                         ><v-icon :color="item.emailIconColor"
-//                           >mdi-email-outline</v-icon
-//                         ></v-btn
-//                       >
-
-//                       <v-btn :id="item.id" text @click="showFiles($event)"
-//                         ><v-icon color="black">mdi-eye</v-icon></v-btn
-//                       >
-//                     </v-list-item>
-//                     <div style="display: flex; justify-content: flex-start">
-//                       <v-list-item-subtitle
-//                         v-text="item.block"
-//                       ></v-list-item-subtitle>
-//                       <v-list-item-subtitle>
-//                         <v-chip
-//                           :id="item.id"
-//                           v-text="item.unit"
-//                           @click="redirectToUnitInfo"
-//                         ></v-chip>
-//                       </v-list-item-subtitle>
-
-//                       <v-list-item-subtitle
-//                         v-text="item.lastname"
-//                       ></v-list-item-subtitle>
-//                       <v-list-item-subtitle
-//                         v-text="item.firstname"
-//                       ></v-list-item-subtitle>
-//                     </div>
-
-//                     <!-- Person Two Details -->
-//                     <div style="display: flex; justify-content: flex-start">
-//                       <v-list-item-subtitle :v-text="''"></v-list-item-subtitle>
-//                       <v-list-item-subtitle v-text="''"></v-list-item-subtitle>
-
-//                       <v-list-item-subtitle
-//                         v-text="item.personTwoLastName"
-//                       ></v-list-item-subtitle>
-//                       <v-list-item-subtitle
-//                         v-text="item.personTwoFirstName"
-//                       ></v-list-item-subtitle>
-//                     </div>
-
-//                     <v-stepper elevation="0">
-//                       <v-stepper-header>
-//                         <v-stepper-step
-//                           step="0"
-//                           complete
-//                           :id="item.id"
-//                           color="blue darken-2"
-//                           editable
-//                           @click="showActions = !showActions"
-//                         >
-//                         </v-stepper-step>
-//                         <v-stepper-step
-//                           step="1"
-//                           complete
-//                           :id="item.id"
-//                           :color="item.step1colour"
-//                           @click="openSignOff($event)"
-//                         >
-//                           Info Received
-//                         </v-stepper-step>
-
-//                         <v-divider></v-divider>
-
-//                         <v-stepper-step
-//                           step="2"
-//                           color="indigo"
-//                           :complete="item.signedOff > 0"
-//                         >
-//                           Signed
-//                         </v-stepper-step>
-//                         <v-divider></v-divider>
-
-//                         <v-stepper-step step="3" :id="item.id" color="green">
-//                           Awaiting confirmation
-//                         </v-stepper-step>
-//                         <v-divider></v-divider>
-
-//                         <v-stepper-step step="4" :id="item.id" color="green">
-//                           Next
-//                         </v-stepper-step>
-//                         <v-divider></v-divider>
-
-//                         <v-stepper-step step="5" :id="item.id" color="green">
-//                           Next
-//                         </v-stepper-step>
-//                         <v-divider></v-divider>
-
-//                         <v-stepper-step step="6" :id="item.id" color="green">
-//                           Next
-//                         </v-stepper-step>
-//                       </v-stepper-header>
-//                     </v-stepper>
-//                   </v-list-item-content>
-//                 </v-list-item>
-//               </template>
-//             </v-list-item-group>
-//           </v-list>
 
 import axios from "axios";
 let url = process.env.VUE_APP_BASEURL;
-import ClientUpdate from "../components/ClientUpdate.vue";
 import ClientFiles from "../components/ClientFiles.vue";
 import ClientUpsert from "../components/ClientUpsert.vue";
 import SignOff from "../components/signOffOTP.vue";
 
 export default {
   name: "salesinfo",
-  //name: "apartment",
+
   components: {
-    ClientUpdate,
     ClientFiles,
     ClientUpsert,
     SignOff
   },
   data() {
     return {
+      upsertMode: "Edit",
       headers: [
-          {
-            text: 'Block',
-            align: 'start',
-            sortable: false,
-            value: 'block',
-          },
-          { text: 'Unit', value: 'unit' }, // i want to wrap a button around that launches ClientUpsert with upsertMode = "Update"
-          { text: 'Last Name', value: 'lastName' },
-          { text: 'First Name', value: 'firstName' },
-          { text: '2nd Person Last Name', value: 'personTwoLastName' },
-          { text: '2nd Person FirstName', value: 'personTwoFirstName' },
-          { text: 'Step', value: 'step' }, // i might need to build a component to display which step we are on - this is future work - will just show send email for now ? we need db flags, to add a step field to the salesinfo table and perhaps a steps table to hold information about the step (stepId, Name, description, etc )
-          { text: 'Files', value: 'filesicon' },  // i want an icon that launches ClientFiles component   
+          { text: 'Edit', value: 'edit' , sortable: false,},
+          { text: 'Files', value: 'files', sortable: false,  },  // i want an icon that launches ClientFiles component   
+          { text: 'Block', align: 'start', sortable: true, value: 'block', },          
+          { text: 'Unit', value: 'unit', sortable: true,}, // i want to wrap a button around that launches ClientUpsert with upsertMode = "Update"          
+          { text: 'First Name', value: 'firstname', sortable: true,},
+          { text: 'Last Name', value: 'lastname', sortable: true, },         
+          { text: '2nd Person FirstName', value: 'personTwoFirstName', sortable: true,},
+          { text: '2nd Person Last Name', value: 'personTwoLastName', sortable: true, },
+          { text: 'Step', value: 'step', sortable: true, }, // i might need to build a component to display which step we are on - this is future work - will just show send email for now ? we need db flags, to add a step field to the salesinfo table and perhaps a steps table to hold information about the step (stepId, Name, description, etc )          
         ],
       desserts: [],
 
@@ -321,7 +215,7 @@ export default {
     },
     async initialData() {
       let data = {
-        id: this.$store.state.development.id
+        id: 1
       };
       await axios({
         method: "post",
@@ -333,6 +227,7 @@ export default {
             console.log("CLIENT-SIDE: RESPONSE DATA: ", response.data);
 
             this.sales = response.data;
+            this.desserts = response.data;
             this.unitId = response.data.unitId;
             this.sales.forEach(el => {
               el.fileOTPurl = `${url}/uploads/${el.fileOTP}`;
