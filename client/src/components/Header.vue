@@ -320,7 +320,7 @@ export default {
         icon: "mdi-warehouse",
         role: 3,
         menu: 1,
-        id: "investmentApp",
+        id: "investorDashboard",
         color: "blue"
       },
 

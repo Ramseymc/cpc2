@@ -53,7 +53,7 @@
               <v-col cols="12" md="4">
                 <v-radio-group
                   v-model="buyers"
-                  v-if="this.SelectedInvestor[0].person_mode === 'person'"
+                  v-if="this.person_mode === 'person'"
                   row
                 >
                   <v-radio
@@ -127,7 +127,7 @@
           <!-- 2nd investor details -->
           <v-container
             v-if="
-              this.SelectedInvestor[0].person_mode === 'person' &&
+              this.person_mode === 'person' &&
               this.SelectedInvestor[0].buyers === '2'
             "
           >
@@ -155,7 +155,7 @@
 
           <!-- company details -->
           <v-container
-            v-if="this.SelectedInvestor[0].person_mode === 'company'"
+            v-if="this.person_mode === 'company'"
           >
             <v-row>
               <v-col cols="12" sm="12">
@@ -184,7 +184,7 @@
 
           <!-- company representative details -->
           <v-container
-            v-if="this.SelectedInvestor[0].person_mode === 'company'"
+            v-if="this.person_mode === 'company'"
           >
             <v-row>
               <v-col cols="12" sm="12">
@@ -217,7 +217,7 @@
           </v-container>
 
           <!-- contact 1 details - person -->
-          <v-container v-if="this.SelectedInvestor[0].person_mode === 'person'">
+          <v-container v-if="this.person_mode === 'person'">
             <v-row>
               <v-col cols="12" sm="12">
                 <h3>Contact One Details</h3>
@@ -259,8 +259,8 @@
           <!-- contact 2 details - show if 2 people or trust/company mode-->
           <v-container
             v-if="
-              this.SelectedInvestor[0].person_mode === 'person' &&
-              buyers === '2'
+              this.person_mode === 'person' &&
+              this.buyers === '2'
             "
           >
             <v-row>
@@ -451,7 +451,7 @@
           </v-container>
 
           <!-- investor1 file uploads -->
-          <v-container v-if="this.SelectedInvestor[0].person_mode === 'person'">
+          <v-container v-if="this.person_mode === 'person'">
             <v-col cols="12" sm="12">
               <h3>Investor One File Uploads</h3>
             </v-col>
@@ -528,7 +528,7 @@
           <!-- investor2 file uploads - show if company mode-->
           <v-container
             v-if="
-              this.SelectedInvestor[0].person_mode === 'person' &&
+              this.person_mode === 'person' &&
               this.SelectedInvestor[0].buyers === '2'
             "
           >
@@ -603,7 +603,7 @@
 
           <!-- company/trust file uploads -->
           <v-container
-            v-if="this.SelectedInvestor[0].person_mode === 'company'"
+            v-if="this.person_mode === 'company'"
           >
             <v-col cols="12" sm="12">
               <h3>Company & Representative File Uploads</h3>
@@ -813,6 +813,7 @@ export default {
     },
   },
   data: () => ({
+    investorDashboard: "",
     roleId: null,
     jobId: null,
     jobType: null,
@@ -830,6 +831,7 @@ export default {
 
     person: "",
     person_mode: "person",
+
     buyers: "",
     buyersSwicth: 1,
 
@@ -930,6 +932,7 @@ export default {
       (v) => !!v || "E-mail is required",
       (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
+    icon: "",
   }),
 
   async mounted() {
@@ -938,6 +941,11 @@ export default {
 
     this.testServer();
     this.getInvestorDetails();
+    console.log("1")
+    console.log("this.person_mode=",this.person_mode)
+    console.log("2")
+   // console.log("this.SelectedInvestor[0].person_mode=",this.SelectedInvestor[0].person_mode)
+    console.log("3")
   },
   watch: {},
 

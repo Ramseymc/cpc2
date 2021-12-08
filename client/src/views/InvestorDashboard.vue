@@ -147,14 +147,14 @@ export default {
   beforeMount() {
     let user = this.$store.state.userName;
     console.log(user);
-    if (
-      user !== "Wayne Bruton" &&
-      user !== "Connor McLean" &&
-      user !== "Nick Morgan" &&
-      user !== "Debbie Landsberg"
-    ) {
-      this.$router.push({ name: "Home" });
-    }
+    // if (
+    //   user !== "Wayne Bruton" &&
+    //   user !== "Connor McLean" &&
+    //   user !== "Nick Morgan" &&
+    //   user !== "Debbie Landsberg"
+    // ) {
+    //   this.$router.push({ name: "Home" });
+    // }
   },
 
   methods: {

@@ -753,7 +753,7 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
                 '${req.body.personTwoAccountType}', '${personTwoFileID}', '${personTwoFileBank}', '${personTwoFilePaySlip}', '${personTwoFileFica}', '${req.body.personTwoMobile}', '${req.body.personTwoLandline}', '${req.body.personTwoPostalAddress}', '${req.body.personTwoResidentialAddress}', '${req.body.salePerson}', '${req.body.saleBuyers}', '${req.body.saleType}', '${req.body.cashDeal}', '${req.body.balanceRem}', '${req.body.deposit}', ${depositDate} , '${req.body.gasStove}', '${req.body.spareRoom}','${req.body.additionalExtras}', '${req.body.additionalExtrasCost}' , '${req.body.bayNo}', '${req.body.gasStoveCost}', '${req.body.notes}', '${req.body.trustName}', '${req.body.trustNumber}', '${req.body.originalBayNo}', ${req.body.development}) `;
 
           let mysql2 = ` UPDATE salesData sd 
-             INNER JOIN units u ON sd.unit = u.id     SET     sd.base_price = ${parseFloat(req.body.base_price)},    sd.contract_price = ${parseFloat(req.body.contract_price)}, sd.parking = ${parseFloat(req.body.parking)}, sd.extras = ${parseFloat(req.body.extras)}, sd.deductions = ${parseFloat(req.body.deductions)}, sd.sold = 1,  sd.actualsale_date = '${dateTime}'  WHERE u.unitName = '${req.body.unit}'`;
+             INNER JOIN units u ON sd.unit = u.id     SET     sd.base_price = '${req.body.base_price}',    sd.contract_price = '${req.body.contract_price}', sd.parking = '${req.body.parking}', sd.extras = '${req.body.extras}', sd.deductions = '${req.body.deductions}', sd.sold = 1,  sd.actualsale_date = '${dateTime}'  WHERE u.unitName = '${req.body.unit}'`;
 
   
   let mysql = `${mysql1};${mysql2}`

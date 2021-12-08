@@ -71,6 +71,7 @@
       v-if="clientDialog"
       :upsertMode="upsertMode"
       :dialog="clientDialog"
+      :unitValue="unitValue"
       :editData="salesEditData"
       @closeForm="closeClientForm"
       :unitId="unitId"
@@ -162,7 +163,7 @@ export default {
       // help 1
       //this launches ClientUpsert this.clientDialog = !this.clientDialog; 
       //but there is a length undefined coming from the ClientUpsert")
-      console.log("get client info ^^^^ ")
+      console.log("get client info CONNOOOORRRR ")
       
       let data = {
         unitValue: this.unitValue,
@@ -173,8 +174,9 @@ export default {
         data: data
       }).then(
         response => {
-          console.log(response.data[0].unit_type);
+          console.log("get client info CONNOOOORRRR ", response.data[0]);
           this.planType = response.data[0].unit_type;
+          
           this.clientDialog = !this.clientDialog;
     
         },

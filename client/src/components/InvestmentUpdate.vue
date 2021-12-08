@@ -358,6 +358,7 @@ export default {
     snackbar: false,
     snackbarMessage: "",
     checkbox: false,
+    icon: "",
   }),
 
   async mounted() {
