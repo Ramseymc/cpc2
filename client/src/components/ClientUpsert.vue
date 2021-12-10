@@ -40,17 +40,18 @@
                   <v-col cols="12" sm="4" md="4" offset="1">
                     <v-radio-group
                       v-if="editData[0].salePerson === 'person'"
-                      v-model="editData[0].saleBuyers"
+                      v-model="buyers"
+                      :change="changeBuyers"
                     >
                       <v-radio
                         name="active"
                         label="1 Person"
-                        :value=1
+                        value="1"
                       ></v-radio>
                       <v-radio
                         name="active"
                         label="2 People"
-                        :value=2
+                        value="2"
                       ></v-radio>
                     </v-radio-group>
                   </v-col>
@@ -161,6 +162,7 @@
                       default-country-code="ZA"
                       show-code-on-list
                       :only-countries="['ZA']"
+                      @update="mobileStuff"
                     />
                   </v-col>
                   <v-col cols="6" style="background-color: lightgrey">
@@ -198,7 +200,7 @@
                   <!-- </div> -->
                   <v-col
                     cols="12"
-                    v-if=" (editData[0].salePerson === 'person' && editData[0].saleBuyers === 2) || editData[0].salePerson === 'Legal'  "
+                    v-if=" (editData[0].salePerson === 'person' && buyers === '2') || editData[0].salePerson === 'Legal'  "
                   >
                     <hr color="red" />
                   </v-col>
@@ -206,11 +208,11 @@
                     cols="12"
                     sm="12"
                     md="12"
-                    v-if=" (editData[0].salePerson === 'person' && editData[0].saleBuyers === 2) ||  editData[0].salePerson === 'Legal' "
+                    v-if=" (editData[0].salePerson === 'person' && buyers === '2') ||  editData[0].salePerson === 'Legal' "
                     style="background-color: lightblue"
                   >
                     <span
-                      v-if=" editData[0].salePerson === 'person' &&  editData[0].saleBuyers === 2 "
+                      v-if=" editData[0].salePerson === 'person' &&  buyers === '2' "
                       ><strong>2nd Purchaser</strong></span
                     >
                     <span v-else-if="editData[0].salePerson === 'Legal'"
@@ -222,12 +224,12 @@
                     sm="12"
                     md="12"
                     style="background-color: lightblue"
-                    v-if=" editData[0].salePerson === 'person' && editData[0].saleBuyers === 2 "
+                    v-if=" editData[0].salePerson === 'person' && buyers === '2' "
                   >
                     <v-radio-group
                       v-model="editData[0].personTwoMarital"
                       row
-                      v-if=" editData[0].salePerson === 'person' && editData[0].saleBuyers === 2 "
+                      v-if=" editData[0].salePerson === 'person' && buyers === '2' "
                     >
                       <v-radio
                         label="Not married"
@@ -250,7 +252,7 @@
                     cols="12"
                     sm="6"
                     md="6"
-                    v-if="(editData[0].salePerson === 'person' && editData[0].saleBuyers === 2) || editData[0].salePerson === 'Legal'  "
+                    v-if="(editData[0].salePerson === 'person' && buyers === '2') || editData[0].salePerson === 'Legal'  "
                     style="background-color: lightblue"
                   >
                     <v-text-field
@@ -263,7 +265,7 @@
                     cols="12"
                     sm="6"
                     md="6"
-                    v-if=" (editData[0].salePerson === 'person' && editData[0].saleBuyers === 2) ||editData[0].salePerson === 'Legal' "
+                    v-if=" (editData[0].salePerson === 'person' && buyers === '2') ||editData[0].salePerson === 'Legal' "
                     style="background-color: lightblue"
                   >
                     <v-text-field
@@ -274,7 +276,7 @@
                   </v-col>
                   <v-col
                     cols="6"
-                    v-if="(editData[0].salePerson === 'person' &&  editData[0].saleBuyers === 2) || editData[0].salePerson === 'Legal' "
+                    v-if="(editData[0].salePerson === 'person' &&  buyers === '2') || editData[0].salePerson === 'Legal' "
                     style="background-color: lightblue"
                   >
                     <v-text-field
@@ -287,7 +289,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === 2) ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -303,7 +305,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === 2) ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -327,7 +329,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === 2) ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -348,7 +350,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === 2) ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -365,7 +367,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === 2) ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -935,7 +937,7 @@
                     <hr color="red" />
                   </v-col>
                   <label
-                    v-if="editData[0].salePerson === 'person' && editData[0].saleBuyers === 2"
+                    v-if="editData[0].salePerson === 'person' && buyers === '2'"
                   >
                     Person 2 File Uploads
                   </label>
@@ -948,7 +950,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if=" !editData[0].personTwoFileID.length || editData[0].personTwoFileID === 'undefined' && editData[0].saleBuyers === 2"
+                    v-if="!editData[0].personTwoFileID.length && buyers === '2'"
                   >
                     <v-file-input
                       v-model="personTwoFileID"
@@ -962,7 +964,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileFica.length || editData[0].personTwoFileFica === 'undefined' && editData[0].saleBuyers === 2"
+                    v-if="!editData[0].personTwoFileFica.length && buyers === '2'"
                   >
                     <v-file-input
                       v-model="personTwoFileFica"
@@ -977,7 +979,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileBank.length || editData[0].personTwoFileBank === 'undefined' && editData[0].saleBuyers === 2"
+                    v-if="!editData[0].personTwoFileBank.length && buyers === '2'"
                   >
                     <v-file-input
                       v-model="personTwoFileBank"
@@ -991,8 +993,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFilePaySlip.length || editData[0].personTwoFilePaySlip === 'undefined' 
-                    && editData[0].saleBuyers === 2"
+                    v-if="!editData[0].personTwoFilePaySlip.length && buyers === '2'"
                   >
                     <v-file-input
                       v-model="personTwoFilePaySlip"
@@ -1077,6 +1078,7 @@ export default {
 
   data() {
     return {
+      buyers: 1,
       snackbar: false,
       snackBarmessage: "Successfully Updated!!",
 
@@ -1164,7 +1166,7 @@ export default {
     if (this.upsertMode === "Add") {
       console.log("upsertMode", this.upsertMode)
 
-      this.editData[0].saleBuyers                      = null,
+      this.editData[0].saleBuyers                      = 2,
       this.editData[0].trustName                       = null,
       this.editData[0].trustNumber                     = null,
       this.editData[0].marital                         = null,
@@ -1172,8 +1174,8 @@ export default {
       this.editData[0].lastname                        = null,
       this.editData[0].iDNumber                        = null,
       this.editData[0].email                           = null,
-      this.editData[0].mobile                          = null,
-      this.editData[0].landline                        = null,
+      this.editData[0].mobile                          = "",
+      this.editData[0].landline                        = "",
       this.editData[0].postalAddress                   = null,
       this.editData[0].residentialAddress              = null,
       this.editData[0].personTwoMarital                = null,
@@ -1285,6 +1287,9 @@ export default {
   },
 
   methods: {
+    changeBuyers() {
+        console.log("this.editData[0].saleBuyers=",this.editData[0].saleBuyers)
+    },
     closeClientInfo() {
       this.$emit("closeForm", false);
     },

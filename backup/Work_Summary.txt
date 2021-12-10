@@ -1,0 +1,20 @@
+Investors
+
+•	Join code and push up live so that the investment app works
+•	Info not working so that Debbie dan start testing on all Investment app.
+o	Create new investor
+o	Cannot load page to add new investment
+o	View investor information – info missing (update Investor Mode)
+
+Sales
+•	Bugs
+•	Cannot save new sale
+•	No amendments on all items – had to make changes on other screens
+•	Uploading of documents not working (Plans uploaded and wasn’t working in the past wont be there)
+•	Dates to be editable
+•	Create sale – fell through, cannot change to new purchaser’s name
+•	Price – Base price changes will not be on new sale page
+
+Wayne
+•	Bond dates – Only pull from SmartSheet if a sale was not populated.  The other dates will be editable when a sale is created.  Until Transfer date “lapses” or is in the past, it will pull the dates from what Debbie created. 
+

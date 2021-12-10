@@ -28,6 +28,53 @@ const upload = multer({
   },
 });
 
+function renameFile(req) {
+  let fileDetails = [];
+  // file manipulation
+  if (req.files.length) {
+      let contains = req.body.contains.split(",");
+ 
+      contains.forEach((el, index, arr) => {
+          let mainIndex = index;
+          if (req.files[mainIndex] !== "undefined" || req.files[mainIndex] !== undefined ) {
+              console.log("FILES AFTER CHECK::: ", req.files[mainIndex])
+              let insert = {
+                  fileType: el,
+                  //fileName: `${req.files[mainIndex].filename}.${req.files[mainIndex].mimetype.split("/")[1]}`,
+                  fileName: req.files[mainIndex].filename,
+                  originalName: req.files[mainIndex].originalname,
+              };
+              fileDetails.push(insert);
+          }
+      });
+
+      console.log("fileDetails", fileDetails);
+
+      fileDetails.forEach((el) => {
+          let filtered = req.files.filter((el2) => {
+              return el2.filename === el.originalName;
+          });
+          el.fileNameUpdated = `${el.fileName}`;
+          fs.rename(
+              
+              `public/${el.fileNameUpdated}`,
+              `public/${el.originalName}`,
+              (err) => {
+                  if (err) console.log("Error renaming", err);
+                  else {
+                console.log("CONNOR:: file renamed from" + `${el.fileNameUpdated}` + " to " + `${el.originalName}`)
+
+              }
+                  //throw err
+              } 
+              
+          );
+      });
+      
+  }
+  return fileDetails
+}
+
 function excecuteSQL(sql, res) {
   console.log("EXECUTIUNG SQL STATEMENT")
   pool.getConnection(function (err, connection) {
@@ -300,43 +347,47 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   // console.log("Files: ", req.files);
   console.log("InfoWayne:", req.body);
 
-  let fileDetails = []
-  //console.log(req.body.contains)
-  let contains = []
-  try {
-    contains = req.body.contains.split(",")
-  } catch {
-    contains.push(req.body.contains)
-  }
-  contains = Array.from(new Set(contains))
-  contains.forEach((el) => {
+  let fileDetails = renameFile(req) 
 
-    req.files.forEach((el2) => {
-      el2.filenameA = `${el2.filename}.${el2.mimetype.split("/")[1]}`
-      let insert = {
-        fileType: el,
-        fileName: el2.filenameA,
-        originalName: el2.filename
-      }
-      fileDetails.push(insert)
-    })
-  })
+  // let fileDetails = []
 
-  console.log("fileDetails",fileDetails)
+  
+  // //console.log(req.body.contains)
+  // let contains = []
+  // try {
+  //   contains = req.body.contains.split(",")
+  // } catch {
+  //   contains.push(req.body.contains)
+  // }
+  // contains = Array.from(new Set(contains))
+  // contains.forEach((el) => {
 
-  // renaming files if required
-  fileDetails.forEach((el) => {
-    let filtered = req.files.filter((el2) => {
-      return el2.filename === el.originalName
-    })
-    // el.fileNameUpdated = `${el.fileName}.${filtered[0].mimetype.split("/")[1]}`
-    el.fileNameUpdated = `${el.fileName}`
-    fs.rename(`public/uploads/${el.originalName}`, `public/uploads/${el.fileNameUpdated}`, (err) => {
-      if (err)
-        console.log("Error renaiming");
-      //throw err
-    })
-  })
+  //   req.files.forEach((el2) => {
+  //     el2.filenameA = `${el2.filename}.${el2.mimetype.split("/")[1]}`
+  //     let insert = {
+  //       fileType: el,
+  //       fileName: el2.filenameA,
+  //       originalName: el2.filename
+  //     }
+  //     fileDetails.push(insert)
+  //   })
+  // })
+
+  // console.log("fileDetails",fileDetails)
+
+  // // renaming files if required
+  // fileDetails.forEach((el) => {
+  //   let filtered = req.files.filter((el2) => {
+  //     return el2.filename === el.originalName
+  //   })
+  //   // el.fileNameUpdated = `${el.fileName}.${filtered[0].mimetype.split("/")[1]}`
+  //   el.fileNameUpdated = `${el.fileName}`
+  //   fs.rename(`public/uploads/${el.originalName}`, `public/uploads/${el.fileNameUpdated}`, (err) => {
+  //     if (err)
+  //       console.log("Error renaiming");
+  //     //throw err
+  //   })
+  // })
 
   var today = new Date();
   var date =
@@ -557,53 +608,55 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
 
   // debug this sh1t , does the req.body being sent have a firstName in it ? 
   console.log(req.files)
+
+  let fileDetails = renameFile(req) 
   // pull the mimetype from req.files - futureproof
-  let fileDetails = [];
+//   let fileDetails = [];
 
-  if (req.files.length) {
-  let contains = req.body.contains.split(",");
+//   if (req.files.length) {
+//   let contains = req.body.contains.split(",");
 
-  contains.forEach((el, index) => {
-    //1 - 5 loops
-    let mainIndex = index;
+//   contains.forEach((el, index) => {
+//     //1 - 5 loops
+//     let mainIndex = index;
 
-    // req.files[mainIndex]
-    // req.files.forEach((el2) => {
-    //another 5 loops (maybe more if multi)
-    console.log("FILES::: ", req.files[mainIndex])
-    console.log("FILES::: ", req.files[mainIndex])
-    // el2.filenameA = `${el2.filename}.${el2.mimetype.split("/")[1]}`
-    if (req.files[mainIndex] !== "undefined") {
-      console.log("FILES AFTER CHECK::: ", req.files[mainIndex])
-    let insert = {
-      fileType: el,
-      fileName: `${req.files[mainIndex].filename}.${
-        req.files[mainIndex].mimetype.split("/")[1]
-      }`,
-      originalName: req.files[mainIndex].filename,
-    };
-    fileDetails.push(insert);
-    }
-  });
-// 
-  console.log("fileDetails", fileDetails);
+//     // req.files[mainIndex]
+//     // req.files.forEach((el2) => {
+//     //another 5 loops (maybe more if multi)
+//     console.log("FILES::: ", req.files[mainIndex])
+//     console.log("FILES::: ", req.files[mainIndex])
+//     // el2.filenameA = `${el2.filename}.${el2.mimetype.split("/")[1]}`
+//     if (req.files[mainIndex] !== "undefined") {
+//       console.log("FILES AFTER CHECK::: ", req.files[mainIndex])
+//     let insert = {
+//       fileType: el,
+//       fileName: `${req.files[mainIndex].filename}.${
+//         req.files[mainIndex].mimetype.split("/")[1]
+//       }`,
+//       originalName: req.files[mainIndex].filename,
+//     };
+//     fileDetails.push(insert);
+//     }
+//   });
+// // 
+//   console.log("fileDetails", fileDetails);
 
 
-  fileDetails.forEach((el) => {
-    let filtered = req.files.filter((el2) => {
-      return el2.filename === el.originalName;
-    });
-    el.fileNameUpdated = `${el.fileName}`;
-    fs.rename(
-      `public/uploads/${el.originalName}`,
-      `public/uploads/${el.fileNameUpdated}`,
-      (err) => {
-        if (err) console.log("Error renaming", err);
-        //throw err
-      }
-    );
-  });
-}
+//   fileDetails.forEach((el) => {
+//     let filtered = req.files.filter((el2) => {
+//       return el2.filename === el.originalName;
+//     });
+//     el.fileNameUpdated = `${el.fileName}`;
+//     fs.rename(
+//       `public/uploads/${el.originalName}`,
+//       `public/uploads/${el.fileNameUpdated}`,
+//       (err) => {
+//         if (err) console.log("Error renaming", err);
+//         //throw err
+//       }
+//     );
+//   });
+// }
 
   let fileFica;
   let fileOTP;
