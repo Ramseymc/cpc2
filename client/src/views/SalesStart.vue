@@ -72,6 +72,7 @@
       :upsertMode="upsertMode"
       :dialog="clientDialog"
       :unitValue="unitValue"
+      :planType="planType"
       :editData="salesEditData"
       @closeForm="closeClientForm"
       :unitId="unitId"
@@ -177,6 +178,7 @@ export default {
           console.log("get client info CONNOOOORRRR ", response.data[0]);
           this.planType = response.data[0].unit_type;
           
+          
           this.clientDialog = !this.clientDialog;
     
         },
@@ -195,6 +197,8 @@ export default {
         subsectionName: filteredData[0].subsectionName
         //subsectionName:
       };
+      this.blockValue = data.subsectionName;
+      console.log("blockValue = ", this.blockValue);
       console.log(data);
       console.log(process.env.VUE_APP_BASEURL);
       // console.log("filteredData for getting subsectionname:", filteredData),
@@ -210,7 +214,7 @@ export default {
             });
             this.items = filteredData
             this.salesEditData[0].salePerson = ""
-            console.log("XXXX", this.items);
+            this.salesEditData[0].blockValue = this.blockValue
           },
           error => {
             console.log(error);

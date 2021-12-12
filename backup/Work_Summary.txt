@@ -8,8 +8,10 @@ o	View investor information – info missing (update Investor Mode)
 
 Sales
 •	Bugs
-•	Cannot save new sale
-•	No amendments on all items – had to make changes on other screens
+•	Cannot save new sale - test this , every field
+
+-- the block is not populating on creating a new sale  make sure it is coming through) planTYpe is organized 
+•	No amendments on all items – had to make changes on other screens - test the update
 •	Uploading of documents not working (Plans uploaded and wasn’t working in the past wont be there)
 •	Dates to be editable
 •	Create sale – fell through, cannot change to new purchaser’s name
@@ -18,3 +20,6 @@ Sales
 Wayne
 •	Bond dates – Only pull from SmartSheet if a sale was not populated.  The other dates will be editable when a sale is created.  Until Transfer date “lapses” or is in the past, it will pull the dates from what Debbie created. 
 
+
+---- 
+going great, only like 3 bugs left, leave them for Sunday :) 

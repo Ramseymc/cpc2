@@ -468,7 +468,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   if (otpSQL.length > 0) {
     // 
     otpSQL.forEach((el) => {
-      additionalSQL = `${additionalSQL}, fileOTP = '${el.fileName}'`
+      additionalSQL = `${additionalSQL}, fileOTP = '${el.originalName}'`
     })
   }
 
@@ -480,7 +480,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   if (depSQL.length > 0) {
     // 
     depSQL.forEach((el) => {
-      additionalSQL = `${additionalSQL}, fileDepositPop = '${el.fileName}'`
+      additionalSQL = `${additionalSQL}, fileDepositPop = '${el.originalName}'`
     })
   }
 
@@ -494,7 +494,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   if (idSQL.length > 0) {
     // 
     idSQL.forEach((el) => {
-      additionalSQL = `${additionalSQL}, fileId = '${el.fileName}'`
+      additionalSQL = `${additionalSQL}, fileId = '${el.originalName}'`
     })
   }
   // ID 2nd Person
@@ -507,7 +507,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   if (twoPersonFileIDSQL.length > 0) {
     // 
     twoPersonFileIDSQL.forEach((el) => {
-      additionalSQL = `${additionalSQL}, personTwoFileID = '${el.fileName}'`
+      additionalSQL = `${additionalSQL}, personTwoFileID = '${el.originalName}'`
     })
   }
 
@@ -520,7 +520,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   if (bankSQL.length > 0) {
     // 
     bankSQL.forEach((el) => {
-      additionalSQL = `${additionalSQL}, fileBank = '${el.fileName}'`
+      additionalSQL = `${additionalSQL}, fileBank = '${el.originalName}'`
     })
   }
   // BANK 2nd Person
@@ -532,7 +532,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
   if (twoPersonFileBankSQL.length > 0) {
     // 
     twoPersonFileBankSQL.forEach((el) => {
-      additionalSQL = `${additionalSQL}, personTwoFileBank = '${el.fileName}'`
+      additionalSQL = `${additionalSQL}, personTwoFileBank = '${el.originalName}'`
     })
   }
 
@@ -546,7 +546,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 
   if (ficaSQL.length > 0) {
     ficaSQL.forEach((el) => {
-      insertArrayFica.push(el.fileName)
+      insertArrayFica.push(el.originalName)
     })
     additionalSQL = `${additionalSQL}, fileFica = '${insertArrayFica.join(",")}'`
   }
@@ -560,7 +560,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 
   if (twoPersonFileFicaSQL.length > 0) {
     twoPersonFileFicaSQL.forEach((el) => {
-      insertTwoPersonArrayFica.push(el.fileName)
+      insertTwoPersonArrayFica.push(el.originalName)
     })
     additionalSQL = `${additionalSQL}, personTwoFileFica = '${insertTwoPersonArrayFica.join(",")}'`
   }
@@ -575,7 +575,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 
   if (paySlipSQL.length > 0) {
     paySlipSQL.forEach((el) => {
-      insertArrayPaySlip.push(el.fileName)
+      insertArrayPaySlip.push(el.originalName)
     })
     additionalSQL = `${additionalSQL}, filePaySlip = '${insertArrayPaySlip.join(",")}'`
   }
@@ -589,7 +589,7 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 
   if (twoPersonPayslipSQL.length > 0) {
     twoPersonPayslipSQL.forEach((el) => {
-      insertTwoPersonArrayPaySlip.push(el.fileName)
+      insertTwoPersonArrayPaySlip.push(el.originalName)
     })
     additionalSQL = `${additionalSQL}, personTwoFilePaySlip = '${insertTwoPersonArrayPaySlip.join(",")}'`
   }
@@ -610,6 +610,8 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
   console.log(req.files)
 
   let fileDetails = renameFile(req) 
+
+
   // pull the mimetype from req.files - futureproof
 //   let fileDetails = [];
 
@@ -674,7 +676,8 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "fileOTP";
     });
     if (fileOTP.length) {
-      fileOTP = fileOTP[0].fileName;
+      //fileOTP = fileOTP[0].fileName;
+      fileOTP = fileOTP[0].originalName;
     } else {
       fileOTP = "";
     }
@@ -683,7 +686,8 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "fileBank";
     });
     if (fileBank.length) {
-      fileBank = fileBank[0].fileName;
+      //fileBank = fileBank[0].fileName;
+      fileBank = fileBank[0].originalName
     } else {
       fileBank = "";
     }
@@ -691,7 +695,7 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "personTwoFileBank";
     });
     if (personTwoFileBank.length) {
-      personTwoFileBank = personTwoFileBank[0].fileName;
+      personTwoFileBank = personTwoFileBank[0].originalName;
     } else {
       personTwoFileBank = "";
     }
@@ -700,7 +704,7 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "fileId";
     });
     if (fileId.length) {
-      fileId = fileId[0].fileName;
+      fileId = fileId[0].originalName;
     } else {
       fileId = "";
     } 
@@ -708,7 +712,7 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "personTwoFileID";
     });
     if (personTwoFileID.length) {
-      personTwoFileID = personTwoFileID[0].fileName;
+      personTwoFileID = personTwoFileID[0].originalName;
     } else {
       personTwoFileID = "";
     }
@@ -717,7 +721,7 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "fileDepositPop";
     });
     if (fileDepositPop.length) {
-      fileDepositPop = fileDepositPop[0].fileName;
+      fileDepositPop = fileDepositPop[0].originalName;
     } else {
       fileDepositPop = "";
     } 
@@ -726,11 +730,11 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "fileFica";
     });
     if (fileFica.length === 1) {
-      fileFica = fileFica[0].fileName;
+      fileFica = fileFica[0].originalName;
     } else if (fileFica.length > 1) {
       let ficaData = [];
       fileFica.forEach((el) => {
-        ficaData.push(el.fileName);
+        ficaData.push(el.originalName);
       });
       fileFica = ficaData.join(",");
     } else {
@@ -740,11 +744,11 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "personTwoFileFica";
     });
     if (personTwoFileFica.length === 1) {
-      personTwoFileFica = personTwoFileFica[0].fileName;
+      personTwoFileFica = personTwoFileFica[0].originalName;
     } else if (personTwoFileFica.length > 1) {
       let ficaData = [];
       personTwoFileFica.forEach((el) => {
-        ficaData.push(el.fileName);
+        ficaData.push(el.originalName);
       });
       personTwoFileFica = ficaData.join(",");
     } else {
@@ -755,11 +759,11 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "filePaySlip";
     });
     if (filePaySlip.length === 1) {
-      filePaySlip = filePaySlip[0].fileName;
+      filePaySlip = filePaySlip[0].originalName;
     } else if (filePaySlip.length > 1) {
       let fileData = [];
       filePaySlip.forEach((el) => {
-        fileData.push(el.fileName);
+        fileData.push(el.originalName);
       });
       filePaySlip = fileData.join(",");
     } else {
@@ -769,11 +773,11 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       return el.fileType === "personTwoFilePaySlip";
     });
     if (personTwoFilePaySlip.length === 1) {
-      personTwoFilePaySlip = personTwoFilePaySlip[0].fileName;
+      personTwoFilePaySlip = personTwoFilePaySlip[0].originalName;
     } else if (personTwoFilePaySlip.length > 1) {
       let fileData = [];
       personTwoFilePaySlip.forEach((el) => {
-        fileData.push(el.fileName);
+        fileData.push(el.originalName);
       });
       personTwoFilePaySlip = fileData.join(",");
     } else {

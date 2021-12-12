@@ -26,7 +26,7 @@
 
           <v-data-table
             :headers="headers"
-            :items="desserts"
+            :items="salesFiltered"
             :items-per-page="15"
             class="elevation-1"
           >
@@ -145,16 +145,18 @@ export default {
   computed: {
     salesFiltered() {
       if (this.search === "") {
-        return this.sales;
+        return this.desserts;
       } else {
-        return this.sales.filter(el => {
+        return this.desserts.filter(el => {
           return (
             !this.search ||
+            
             el.block.toLowerCase().indexOf(this.search.toLowerCase()) > -1 ||
             el.unit.toLowerCase().indexOf(this.search.toLowerCase()) > -1 ||
-            el.firstname.toLowerCase().indexOf(this.search.toLowerCase()) >
-              -1 ||
-            el.lastname.toLowerCase().indexOf(this.search.toLowerCase()) > -1
+            el.firstname.toLowerCase().indexOf(this.search.toLowerCase()) > -1 
+            || el.lastname.toLowerCase().indexOf(this.search.toLowerCase()) > -1 
+            || el.personTwoFirstName.toLowerCase().indexOf(this.search.toLowerCase()) > -1 
+            || el.personTwoLastName.toLowerCase().indexOf(this.search.toLowerCase()) > -1 
           );
         });
       }
