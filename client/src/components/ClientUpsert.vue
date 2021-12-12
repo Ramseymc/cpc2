@@ -15,7 +15,7 @@
         <v-dialog v-model="dialog" persistent max-width="900px">
           <v-card>
             <v-card-title>
-              <span class="text-h5">Client Info xx</span>
+              <span class="text-h5">Client Info </span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -156,7 +156,7 @@
                     <span>Mobile - Required</span>
                     <VuePhoneNumberInput
                       id="phoneNumber1"
-                      v-model="editData[0].mobile"
+                      v-model="mobile.phoneNumber1"
                       ref="mobile"
                       clearable
                       default-country-code="ZA"
@@ -169,7 +169,7 @@
                     <span>Landline</span>
                     <VuePhoneNumberInput
                       id="phoneNumber2"
-                      v-model="editData[0].landline"
+                      v-model="landline.phoneNumber2"
                       ref="landline"
                       clearable
                       default-country-code="ZA"
@@ -315,8 +315,8 @@
           
                     <span>Mobile - Required</span>
                     <VuePhoneNumberInput
-                      id="phoneNumber1"
-                      v-model="editData[0].personTwoMobile"
+                      id="phoneNumber3"
+                      v-model="mobile.phoneNumber3"
                       ref="mobile"
                       clearable
                       default-country-code="ZA"
@@ -337,7 +337,7 @@
                     <span>Landline</span>
                     <VuePhoneNumberInput
                       id="phoneNumber2"
-                      v-model="editData[0].personTwoLandline"
+                      v-model="landline.phoneNumber4"
                       ref="landline"
                       clearable
                       default-country-code="ZA"
@@ -950,7 +950,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileID.length && buyers === '2'"
+                    v-if="!editData[0].personTwoFileID.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFileID"
@@ -964,7 +964,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileFica.length && buyers === '2'"
+                    v-if="!editData[0].personTwoFileFica.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFileFica"
@@ -979,7 +979,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileBank.length && buyers === '2'"
+                    v-if="!editData[0].personTwoFileBank.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFileBank"
@@ -993,7 +993,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFilePaySlip.length && buyers === '2'"
+                    v-if="!editData[0].personTwoFilePaySlip.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFilePaySlip"
@@ -1017,8 +1017,8 @@
                   <v-col cols="6" style="background-color: lightsalmon">
                     <span>Mobile</span>
                     <VuePhoneNumberInput
-                      id="phoneNumber3"
-                      v-model="editData[0].salesAgentPhone"
+                      id="phoneNumber5"
+                      v-model="mobile.phoneNumber5"
                       ref="mobile"
                       clearable
                       default-country-code="ZA"
@@ -1072,6 +1072,7 @@ export default {
     dialog: Boolean,
     upsertMode: String,
     unitValue: String,
+    planType: String,
     editData: Array,
     unitId: Number,    
   },
@@ -1149,12 +1150,16 @@ export default {
       mobile: {
         countryCode: "ZA",
         isValid: false,
-        phoneNumber: ""
+        phoneNumber1: "",
+        phoneNumber3: "",
+        phoneNumber5: "",
+        
       },
       landline: {
         countryCode: "ZA",
         isValid: false,
-        phoneNumber: ""
+        phoneNumber2: "",
+        phoneNumber4: ""
       }
     };
   },
@@ -1162,13 +1167,15 @@ export default {
   mounted() {
     console.log("ClientUpsert.Vue - mounted() : upsertMode = ", this.upsertMode)
     console.log("ClientUpsert.Vue - mounted() : unitValue = ", this.unitValue) 
-    console.log("ClientUpsert.Vue - mounted() : saleBuyers = ", this.editData[0].saleBuyers) 
+    console.log("ClientUpsert.Vue - mounted() : saleBuyers = ", this.buyers) 
+    console.log("ClientUpsert.Vue - mounted() : planType = ", this.planType) 
+
     if (this.upsertMode === "Add") {
       console.log("upsertMode", this.upsertMode)
 
       this.editData[0].saleBuyers                      = 2,
-      this.editData[0].trustName                       = null,
-      this.editData[0].trustNumber                     = null,
+      this.editData[0].trustName                       = "",
+      this.editData[0].trustNumber                     = "",
       this.editData[0].marital                         = null,
       this.editData[0].firstname                       = null,
       this.editData[0].lastname                        = null,
@@ -1183,8 +1190,8 @@ export default {
       this.editData[0].personTwoLastName               = null,
       this.editData[0].personTwoIDNumber               = null,
       this.editData[0].personTwoEmail                  = null,
-      this.editData[0].personTwoMobile                 = null,
-      this.editData[0].personTwoLandline               = null,
+      this.editData[0].personTwoMobile                 = "",
+      this.editData[0].personTwoLandline               = "",
       this.editData[0].personTwoPostalAddress          = null,
       this.editData[0].personTwoResidentialAddress     = null,
       this.editData[0].saleType                        = null,
@@ -1226,7 +1233,12 @@ export default {
       console.log("editData[0]=", this.editData[0])
 
       this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
-      this.plans = this.editData[0].unit_type.split(",");
+      this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
+      this.plans = this.planType.split(",");
+      console.log("ClientUpsert.Vue - mounted() : planType = ", this.planType) 
+
+      //console.log("MOUNTED HIGHLANDER unitType = ", this.editData[0].unit_type)
+      
       this.contractPrice = parseFloat(this.editData[0].contract_price);
       this.contractPriceStr = this.convertToString(parseFloat(this.contractPrice));
 
@@ -1261,11 +1273,16 @@ export default {
         this.editData[0].parkingNumber =
           parseFloat(this.editData[0].parking) / this.parkingPrice;
       }
+
+      // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
       this.extrasStr = this.convertToString(parseFloat(this.editData[0].extras));
-      this.contractPrice = parseFloat(this.editData[0].contract_price);
+      // debug 1212
+      this.contractPrice = parseFloat(this.editData[0].contract_price);      
       this.contractPriceStr = this.convertToString(
         parseFloat(this.contractPrice)
       );
+       // debug 1212  // debug 1212 // debug 1212 // debug 1212 // debug 1212
+
       if (parseInt(this.editData[0].gasStove) === 1) {
         this.gasStoveCost = 2000;
       } else {
@@ -1276,7 +1293,11 @@ export default {
 
       this.balanceRemStr = this.convertToString(this.editData[0].balanceRem);
       this.depositStr = this.convertToString(this.editData[0].deposit);
+
+      // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
       this.basePriceStr = this.convertToString(this.editData[0].base_price);
+       // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
+
       this.depositDate = this.editData[0].depositDate.split(" ")[0];
       if (this.editData[0].actualSalesdate !== null) {
         this.editData[0].actualSalesdate = dayjs(
@@ -1518,10 +1539,11 @@ export default {
       formData.append("mood", this.editData[0].mood);
       formData.append("flooring", this.editData[0].flooring);
       formData.append("floorplan", this.editData[0].floorplan);
-      formData.append("mobile", this.editData[0].mobile);
-      formData.append("landline", this.editData[0].landline);
+      //formData.append("mobile", this.editData[0].mobile);
+      formData.append("mobile", this.mobile.phoneNumber1);
+      formData.append("landline", this.landline.phoneNumber2);
       formData.append("postalAddress", this.editData[0].postalAddress);
-      formData.append( "residentialAddress",  this.editData[0].residentialAddress );
+      formData.append("residentialAddress",  this.editData[0].residentialAddress );
       formData.append("contract_price", this.editData[0].contract_price);
       formData.append("personTwoFirstName", this.editData[0].personTwoFirstName);
       formData.append("personTwoLastName", this.editData[0].personTwoLastName);
@@ -1529,19 +1551,19 @@ export default {
       formData.append("personTwoMarital", this.editData[0].personTwoMarital);
       formData.append("personTwoEmail", this.editData[0].personTwoEmail);
       formData.append("personTwoBankName", this.editData[0].personTwoBankName);
-      formData.append( "personTwoAccountNumber", this.editData[0].personTwoAccountNumber );
+      formData.append("personTwoAccountNumber", this.editData[0].personTwoAccountNumber );
       formData.append("personTwoAccountType", this.editData[0].personTwoAccountType );
-      formData.append("personTwoMobile", this.editData[0].personTwoMobile);
-      formData.append("personTwoLandline", this.editData[0].personTwoLandline);
-      formData.append( "personTwoPostalAddress", this.editData[0].personTwoPostalAddress );
-      formData.append( "personTwoResidentialAddress", this.editData[0].personTwoResidentialAddress);
+      formData.append("personTwoMobile", this.mobile.phoneNumber3);
+      formData.append("personTwoLandline", this.landline.phoneNumber4);
+      formData.append("personTwoPostalAddress", this.editData[0].personTwoPostalAddress );
+      formData.append("personTwoResidentialAddress", this.editData[0].personTwoResidentialAddress);
       formData.append("base_price", this.editData[0].base_price);
       formData.append("parking", this.editData[0].parking);
       formData.append("originalBayNo", this.editData[0].originalBayNo);
       formData.append("extras", this.editData[0].extras);
       formData.append("deductions", this.editData[0].deductions);
       formData.append("salesAgent", this.editData[0].salesAgent);
-      formData.append("salesAgentPhone", this.editData[0].salesAgentPhone);
+      formData.append("salesAgentPhone", this.mobile.phoneNumber5);
       formData.append("contains", contains);
       formData.append("id", this.editData[0].id);
       formData.append("notes", this.editData[0].notes);
@@ -1558,7 +1580,7 @@ export default {
       formData.append("salePerson", this.editData[0].salePerson);
       formData.append("saleBuyers", this.editData[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
-      console.log("FormData before sending to server", this.formData)
+ 
       await axios({
         method: "post",
         url: `${url}/updateClientCM`,
@@ -1566,17 +1588,15 @@ export default {
       }).then(
         response => {
           console.log(response.data);
-
           this.snackbar = true;
-
           this.closeClientInfo();
         },
-
         error => {
           console.log(error);
         }
       );
     },
+
     async insertClientData() {
       // console.log(this.firstName);
       let files = [];
@@ -1646,64 +1666,8 @@ export default {
       for (var x = 0; x < files.length; x++) {
         formData.append("documents", files[x]);
       }
-            console.log("FormData before sending to server1 ", this.formData)
-      // formData.append("firstName", this.firstName);
-      // formData.append("lastName", this.lastName);
-      // formData.append("iDNumber", this.iDNumber);
-      // formData.append("marital", this.marital);
-      // formData.append("email", this.email);
-      // formData.append("bankName", this.bankName);
-      // formData.append("accountNumber", this.accountNumber);
-      // formData.append("accountType", this.accountType);
-      // formData.append("block", this.blockValue);
-      // formData.append("unit", this.unitValue);
-      // formData.append("mood", this.mood);
-      // formData.append("flooring", this.flooring);
-      // formData.append("floorplan", this.floorplan);
-      // formData.append("mobile", this.mobile.phoneNumber);
-      // formData.append("landline", this.landline.phoneNumber);
-      // formData.append("postalAddress", this.postaladdress);
-      // formData.append("residentialAddress", this.residentialAddress);
-      // formData.append("trustName", this.trustName);
-      // formData.append("trustNumber", this.trustNumber);
-      // formData.append("personTwoFirstName", this.personTwoFirstName);
-      // formData.append("personTwoLastName", this.personTwoLastName);
-      // formData.append("personTwoIDNumber", this.personTwoIDNumber);
-      // formData.append("personTwoMarital", this.personTwoMarital);
-      // formData.append("personTwoEmail", this.personTwoEmail);
-      // formData.append("personTwoBankName", this.personTwoBankName);
-      // formData.append("personTwoAccountNumber", this.personTwoAccountNumber);
-      // formData.append("personTwoAccountType", this.personTwoAccountType);
-      // formData.append("personTwoMobile", this.personTwoMobile);
-      // formData.append("personTwoLandline", this.personTwoLandline);
-      // formData.append("personTwoPostalAddress", this.personTwoPostalAddress);
-      // formData.append("personTwoResidentialAddress", this.personTwoResidentialAddress );
-      // formData.append("salePerson", this.person);
-      // formData.append("saleBuyers", this.buyers);
-      // formData.append("saleType", this.saleType);
-      // formData.append("salesAgent", this.salesAgent);
-      // formData.append("salesAgentPhone", this.salesAgentPhone);
-      // formData.append("contains", contains);
-      // formData.append("contract_price", this.contractPrice);
-      // formData.append("base_price", this.basePrice);
-      // formData.append("parking", this.parking);
-      // formData.append("originalBayNo", this.originalBayNo);
-      // formData.append("extras", this.extras);
-      // formData.append("deductions", this.deductions);
-      // formData.append("notes", this.notes);
-      // formData.append("cashDeal", this.cashDeal);
-      // formData.append("balanceRem", this.balanceRem);
-      // formData.append("deposit", this.deposit);
-      // formData.append("depositDate", this.depositDate);
-      // formData.append("gasStove", this.gasStove);
-      // formData.append("gasStoveCost", this.gasStoveCost);
-      // formData.append("spareRoom", this.spareRoom);
-      // formData.append("additionalExtras", this.additionalExtras);
-      // formData.append("additionalExtrasCost", this.additionalExtrasCost);
-      // formData.append("bayNo", this.bayNo);
-      // formData.append("enclosedBalcony", this.enclosedBalcony);
-      // formData.append("development", this.$store.state.development.id);
-       formData.append("trustName", this.editData[0].trustName);
+
+      formData.append("trustName", this.editData[0].trustName);
       formData.append("trustNumber", this.editData[0].trustNumber);
       formData.append("firstName", this.editData[0].firstname);
       formData.append("lastName", this.editData[0].lastname);
@@ -1713,7 +1677,7 @@ export default {
       formData.append("bankName", this.editData[0].bankName);
       formData.append("accountNumber", this.editData[0].accountNumber);
       formData.append("accountType", this.editData[0].accountType);
-      formData.append("block", this.editData[0].block);
+      formData.append("block", this.editData[0].blockValue);
       formData.append("unit", this.unitValue);
       formData.append("mood", this.editData[0].mood);
       formData.append("flooring", this.editData[0].flooring);
@@ -1758,9 +1722,7 @@ export default {
       formData.append("salePerson", this.editData[0].salePerson);
       formData.append("saleBuyers", this.editData[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
-      console.log("FormData before sending to server", this.formData)
-      console.log("FormData  this.editData[0].unit before sending to server",  this.editData[0].unit)
-      
+ 
       await axios({
         method: "post",
         url: `${url}/createClientCM`,
