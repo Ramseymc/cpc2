@@ -14,6 +14,7 @@ import VueMeta from "vue-meta";
 
 import Tooltip from "vue-directive-tooltip";
 import "vue-directive-tooltip/dist/vueDirectiveTooltip.css";
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 import VueCurrencyInput from "vue-currency-input";
 

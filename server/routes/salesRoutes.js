@@ -56,9 +56,10 @@ function renameFile(req) {
           });
           el.fileNameUpdated = `${el.fileName}`;
           fs.rename(
-              
-              `public/${el.fileNameUpdated}`,
-              `public/${el.originalName}`,
+            `public/uploads/${el.fileNameUpdated}`,
+            `public/uploads/${el.originalName}`,
+              // `public/${el.fileNameUpdated}`,
+              // `public/${el.originalName}`,
               (err) => {
                   if (err) console.log("Error renaming", err);
                   else {

@@ -40,17 +40,18 @@
                   <v-col cols="12" sm="4" md="4" offset="1">
                     <v-radio-group
                       v-if="editData[0].salePerson === 'person'"
-                      v-model="editData[0].saleBuyers"
+                      v-model="buyers"
+                      :change="changeBuyers"
                     >
                       <v-radio
                         name="active"
                         label="1 Person"
-                        :value="1"
+                        value="1"
                       ></v-radio>
                       <v-radio
                         name="active"
                         label="2 People"
-                        :value="2"
+                        value="2"
                       ></v-radio>
                     </v-radio-group>
                   </v-col>
@@ -155,7 +156,7 @@
                     <span>Mobile - Required</span>
                     <VuePhoneNumberInput
                       id="phoneNumber1"
-                      v-model="editData[0].mobile"
+                      v-model="mobile.phoneNumber1"
                       ref="mobile"
                       clearable
                       default-country-code="ZA"
@@ -168,7 +169,7 @@
                     <span>Landline</span>
                     <VuePhoneNumberInput
                       id="phoneNumber2"
-                      v-model="editData[0].landline"
+                      v-model="landline.phoneNumber2"
                       ref="landline"
                       clearable
                       default-country-code="ZA"
@@ -199,7 +200,7 @@
                   <!-- </div> -->
                   <v-col
                     cols="12"
-                    v-if=" (editData[0].salePerson === 'person' && editData[0].saleBuyers === '2') || editData[0].salePerson === 'Legal'  "
+                    v-if=" (editData[0].salePerson === 'person' && buyers === '2') || editData[0].salePerson === 'Legal'  "
                   >
                     <hr color="red" />
                   </v-col>
@@ -207,11 +208,11 @@
                     cols="12"
                     sm="12"
                     md="12"
-                    v-if=" (editData[0].salePerson === 'person' && editData[0].saleBuyers === '2') ||  editData[0].salePerson === 'Legal' "
+                    v-if=" (editData[0].salePerson === 'person' && buyers === '2') ||  editData[0].salePerson === 'Legal' "
                     style="background-color: lightblue"
                   >
                     <span
-                      v-if=" editData[0].salePerson === 'person' &&  editData[0].saleBuyers === '2' "
+                      v-if=" editData[0].salePerson === 'person' &&  buyers === '2' "
                       ><strong>2nd Purchaser</strong></span
                     >
                     <span v-else-if="editData[0].salePerson === 'Legal'"
@@ -223,12 +224,12 @@
                     sm="12"
                     md="12"
                     style="background-color: lightblue"
-                    v-if=" editData[0].salePerson === 'person' && editData[0].saleBuyers === '2' "
+                    v-if=" editData[0].salePerson === 'person' && buyers === '2' "
                   >
                     <v-radio-group
                       v-model="editData[0].personTwoMarital"
                       row
-                      v-if=" editData[0].salePerson === 'person' && editData[0].saleBuyers === '2' "
+                      v-if=" editData[0].salePerson === 'person' && buyers === '2' "
                     >
                       <v-radio
                         label="Not married"
@@ -251,7 +252,7 @@
                     cols="12"
                     sm="6"
                     md="6"
-                    v-if="(editData[0].salePerson === 'person' && editData[0].saleBuyers === '2') || editData[0].salePerson === 'Legal'  "
+                    v-if="(editData[0].salePerson === 'person' && buyers === '2') || editData[0].salePerson === 'Legal'  "
                     style="background-color: lightblue"
                   >
                     <v-text-field
@@ -264,7 +265,7 @@
                     cols="12"
                     sm="6"
                     md="6"
-                    v-if=" (editData[0].salePerson === 'person' && editData[0].saleBuyers === '2') ||editData[0].salePerson === 'Legal' "
+                    v-if=" (editData[0].salePerson === 'person' && buyers === '2') ||editData[0].salePerson === 'Legal' "
                     style="background-color: lightblue"
                   >
                     <v-text-field
@@ -275,7 +276,7 @@
                   </v-col>
                   <v-col
                     cols="6"
-                    v-if="(editData[0].salePerson === 'person' &&  editData[0].saleBuyers === '2') || editData[0].salePerson === 'Legal' "
+                    v-if="(editData[0].salePerson === 'person' &&  buyers === '2') || editData[0].salePerson === 'Legal' "
                     style="background-color: lightblue"
                   >
                     <v-text-field
@@ -288,7 +289,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === '2') ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -304,28 +305,31 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === '2') ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
                   >
+   
+                <span>Contact One - Mobile - Required</span>
+          
                     <span>Mobile - Required</span>
                     <VuePhoneNumberInput
-                      id="phoneNumber1"
-                      v-model="editData[0].personTwoMobile"
+                      id="phoneNumber3"
+                      v-model="mobile.phoneNumber3"
                       ref="mobile"
                       clearable
                       default-country-code="ZA"
                       show-code-on-list
                       :only-countries="['ZA']"
-                      @update="mobileStuff"
+                     
                     />
                   </v-col>
                   <v-col
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === '2') ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -333,7 +337,7 @@
                     <span>Landline</span>
                     <VuePhoneNumberInput
                       id="phoneNumber2"
-                      v-model="editData[0].personTwoLandline"
+                      v-model="landline.phoneNumber4"
                       ref="landline"
                       clearable
                       default-country-code="ZA"
@@ -346,7 +350,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === '2') ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -363,7 +367,7 @@
                     cols="6"
                     v-if="
                       (editData[0].salePerson === 'person' &&
-                        editData[0].saleBuyers === '2') ||
+                        buyers === '2') ||
                         editData[0].salePerson === 'Legal'
                     "
                     style="background-color: lightblue"
@@ -933,7 +937,7 @@
                     <hr color="red" />
                   </v-col>
                   <label
-                    v-if="editData[0].salePerson === 'person' && editData[0].saleBuyers === '2'"
+                    v-if="editData[0].salePerson === 'person' && buyers === '2'"
                   >
                     Person 2 File Uploads
                   </label>
@@ -946,7 +950,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if=" !editData[0].personTwoFileID.length || editData[0].personTwoFileID === 'undefined' "
+                    v-if="!editData[0].personTwoFileID.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFileID"
@@ -960,7 +964,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileFica.length || editData[0].personTwoFileFica === 'undefined'"
+                    v-if="!editData[0].personTwoFileFica.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFileFica"
@@ -975,7 +979,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFileBank.length || editData[0].personTwoFileBank === 'undefined'"
+                    v-if="!editData[0].personTwoFileBank.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFileBank"
@@ -989,7 +993,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!editData[0].personTwoFilePaySlip.length || editData[0].personTwoFilePaySlip === 'undefined'"
+                    v-if="!editData[0].personTwoFilePaySlip.length && (buyers === '2' || editData[0].salePerson === 'Legal')"
                   >
                     <v-file-input
                       v-model="personTwoFilePaySlip"
@@ -1013,8 +1017,8 @@
                   <v-col cols="6" style="background-color: lightsalmon">
                     <span>Mobile</span>
                     <VuePhoneNumberInput
-                      id="phoneNumber3"
-                      v-model="editData[0].salesAgentPhone"
+                      id="phoneNumber5"
+                      v-model="mobile.phoneNumber5"
                       ref="mobile"
                       clearable
                       default-country-code="ZA"
@@ -1067,12 +1071,17 @@ export default {
   props: {
     dialog: Boolean,
     upsertMode: String,
+    unitValue: String,
+    planType: String,
     editData: Array,
     unitId: Number,    
   },
 
   data() {
     return {
+      dataToPost: [],
+
+      buyers: 1,
       snackbar: false,
       snackBarmessage: "Successfully Updated!!",
 
@@ -1143,82 +1152,109 @@ export default {
       mobile: {
         countryCode: "ZA",
         isValid: false,
-        phoneNumber: ""
+        phoneNumber1: "",
+        phoneNumber3: "",
+        phoneNumber5: "",
+        
       },
       landline: {
         countryCode: "ZA",
         isValid: false,
-        phoneNumber: ""
+        phoneNumber2: "",
+        phoneNumber4: ""
       }
     };
   },
 
   mounted() {
-    if (this.upsertMode === "Add") {
-         console.log("upsertMode", this.upsertMode)
-          this.editData[0].saleBuyers                      = null,
-          this.editData[0].trustName                       = null,
-          this.editData[0].trustNumber                     = null,
-          this.editData[0].marital                         = null,
-          this.editData[0].firstname                       = null,
-          this.editData[0].lastname                        = null,
-          this.editData[0].iDNumber                        = null,
-          this.editData[0].email                           = null,
-          this.editData[0].mobile                          = null,
-          this.editData[0].landline                        = null,
-          this.editData[0].postalAddress                   = null,
-          this.editData[0].residentialAddress              = null,
-          this.editData[0].personTwoMarital                = null,
-          this.editData[0].personTwofirstName              = null,
-          this.editData[0].personTwoLastName               = null,
-          this.editData[0].personTwoIDNumber               = null,
-          this.editData[0].personTwoEmail                  = null,
-          this.editData[0].personTwoMobile                 = null,
-          this.editData[0].personTwoLandline               = null,
-          this.editData[0].personTwoPostalAddress          = null,
-          this.editData[0].personTwoResidentialAddress     = null,
-          this.editData[0].saleType                        = null,
-          this.editData[0].floorplan                       = null,
-          this.editData[0].url                             = null,
-          this.editData[0].planType                        = null,
-          this.editData[0].deposit                         = null,
-          this.editData[0].parkingNumber                   = null,
-          this.editData[0].gasStove                        = null,
-          this.editData[0].kitchenOption                   = null,
-          this.editData[0].additionalExtrasCost            = null,
-          this.editData[0].notes                           = null,
-          this.editData[0].gardenNumber                    = null,
-          this.editData[0].gardenSize                      = null,
-          this.editData[0].originalBayNo                   = null,
-          this.editData[0].bayNo                           = null,
-          this.editData[0].beds                            = null,
-          this.editData[0].bath                            = null,
-          this.editData[0].enclosedBalcony                 = null,
-          this.editData[0].spareRoom                       = null,
-          this.editData[0].mood                            = null,
-          this.editData[0].flooring                        = null,
-          this.editData[0].actualSalesdate                 = null,
-                                  
-          this.editData[0].fileOTP                         = "",
-          this.editData[0].fileId                          = "",
-          this.editData[0].fileFica                        = "",
-          this.editData[0].fileDepositPop                  = "",
-          this.editData[0].fileBank                        = "",
-          this.editData[0].filePaySlip                     = "",
-          this.editData[0].personTwoFileID                 = "",
-          this.editData[0].personTwoFileFica               = "",
-          this.editData[0].personTwoFileBank               = "",
-          this.editData[0].personTwoFilePaySlip            = "",
+    console.log("ClientUpsert.Vue - mounted() : upsertMode = ", this.upsertMode)
+    console.log("ClientUpsert.Vue - mounted() : unitValue = ", this.unitValue) 
+    console.log("ClientUpsert.Vue - mounted() : saleBuyers = ", this.buyers) 
+    console.log("ClientUpsert.Vue - mounted() : planType = ", this.planType) 
 
-          this.editData[0].salesAgent  					           = null,
-          this.editData[0].salesAgentPhone				         = null
-         console.log("editData[0]=", this.editData[0])
+    // if (this.upsertMode === "Add") {
+    //   console.log("upsertMode", this.upsertMode)
 
-    console.log("ClientUpsert - in mounted() - upsertMode = ", this.upsertMode)
+    //   this.editData[0].saleBuyers                      = 2,
+    //   this.editData[0].trustName                       = "",
+    //   this.editData[0].trustNumber                     = "",
+    //   this.editData[0].marital                         = null,
+    //   this.editData[0].firstname                       = null,
+    //   this.editData[0].lastname                        = null,
+    //   this.editData[0].iDNumber                        = null,
+    //   this.editData[0].email                           = null,
+    //   this.editData[0].mobile                          = "",
+    //   this.editData[0].landline                        = "",
+    //   this.editData[0].postalAddress                   = null,
+    //   this.editData[0].residentialAddress              = null,
+    //   this.editData[0].personTwoMarital                = null,
+    //   this.editData[0].personTwofirstName              = null,
+    //   this.editData[0].personTwoLastName               = null,
+    //   this.editData[0].personTwoIDNumber               = null,
+    //   this.editData[0].personTwoEmail                  = null,
+    //   this.editData[0].personTwoMobile                 = "",
+    //   this.editData[0].personTwoLandline               = "",
+    //   this.editData[0].personTwoPostalAddress          = null,
+    //   this.editData[0].personTwoResidentialAddress     = null,
+    //   this.editData[0].saleType                        = null,
+    //   this.editData[0].floorplan                       = null,
+    //   this.editData[0].url                             = null,
+    //   this.editData[0].planType                        = null,
+    //   this.editData[0].deposit                         = null,
+    //   this.editData[0].parkingNumber                   = null,
+    //   this.editData[0].gasStove                        = null,
+    //   this.editData[0].kitchenOption                   = null,
+    //   this.editData[0].additionalExtrasCost            = null,
+    //   this.editData[0].notes                           = null,
+    //   this.editData[0].gardenNumber                    = null,
+    //   this.editData[0].gardenSize                      = null,
+    //   this.editData[0].originalBayNo                   = null,
+    //   this.editData[0].bayNo                           = null,
+    //   this.editData[0].beds                            = null,
+    //   this.editData[0].bath                            = null,
+    //   this.editData[0].enclosedBalcony                 = null,
+    //   this.editData[0].spareRoom                       = null,
+    //   this.editData[0].mood                            = null,
+    //   this.editData[0].flooring                        = null,
+    //   this.editData[0].actualSalesdate                 = null,
+                              
+    //   this.editData[0].fileOTP                         = "",
+    //   this.editData[0].fileId                          = "",
+    //   this.editData[0].fileFica                        = "",
+    //   this.editData[0].fileDepositPop                  = "",
+    //   this.editData[0].fileBank                        = "",
+    //   this.editData[0].filePaySlip                     = "",
+    //   this.editData[0].personTwoFileID                 = "",
+    //   this.editData[0].personTwoFileFica               = "",
+    //   this.editData[0].personTwoFileBank               = "",
+    //   this.editData[0].personTwoFilePaySlip            = "",
 
-    } else  // fill in the forms Data from existing sale
-    {
-      console.log("Mode", this.upsertMode)
+    //   this.editData[0].salesAgent  					           = null,
+    //   this.editData[0].salesAgentPhone				         = null
+
+    //   console.log("editData[0]=", this.editData[0])
+
+    //   this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
+    //   this.editData[0].url = `${process.env.VUE_APP_BASEURL}/${this.editData[0].planType}`;
+    //   this.plans = this.planType.split(",");
+    //   console.log("ClientUpsert.Vue - mounted() : planType = ", this.planType) 
+
+    //   //console.log("MOUNTED HIGHLANDER unitType = ", this.editData[0].unit_type)
+      
+    //   this.contractPrice = parseFloat(this.editData[0].contract_price);
+    //   this.contractPriceStr = this.convertToString(parseFloat(this.contractPrice));
+
+    //   if (parseInt(this.editData[0].gasStove) === 1) { this.gasStoveCost = 2000; } 
+    //     else { this.gasStoveCost = 0; }
+    //   this.gasStoveStr = this.convertToString(this.gasStoveCost);
+    //   this.finaliseCosts();     
+    // } else  // fill in the forms Data from existing sale
+    // {
+      console.log("CONNOR : this.editData[0].salePerson =", this.editData[0].salePerson)
+      
+      this.dataToPost = JSON.parse(JASON.stringify(this.editData))
+      console.log("CONNOR WINNING: dataToPost =", this.dataToPost)
+
       this.editData.forEach(el => {
         el.saleBuyers = parseInt(el.saleBuyers);
         el.gasStove = parseInt(el.gasStove);
@@ -1242,11 +1278,16 @@ export default {
         this.editData[0].parkingNumber =
           parseFloat(this.editData[0].parking) / this.parkingPrice;
       }
+
+      // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
       this.extrasStr = this.convertToString(parseFloat(this.editData[0].extras));
-      this.contractPrice = parseFloat(this.editData[0].contract_price);
+      // debug 1212
+      this.contractPrice = parseFloat(this.editData[0].contract_price);      
       this.contractPriceStr = this.convertToString(
         parseFloat(this.contractPrice)
       );
+       // debug 1212  // debug 1212 // debug 1212 // debug 1212 // debug 1212
+
       if (parseInt(this.editData[0].gasStove) === 1) {
         this.gasStoveCost = 2000;
       } else {
@@ -1257,17 +1298,24 @@ export default {
 
       this.balanceRemStr = this.convertToString(this.editData[0].balanceRem);
       this.depositStr = this.convertToString(this.editData[0].deposit);
+
+      // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
       this.basePriceStr = this.convertToString(this.editData[0].base_price);
+       // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
+
       this.depositDate = this.editData[0].depositDate.split(" ")[0];
       if (this.editData[0].actualSalesdate !== null) {
         this.editData[0].actualSalesdate = dayjs(
           this.editData[0].actualSalesdate
         ).format("YYYY-MM-DD");
       }
-    }
+   // }
   },
 
   methods: {
+    changeBuyers() {
+        console.log("this.editData[0].saleBuyers=",this.editData[0].saleBuyers)
+    },
     closeClientInfo() {
       this.$emit("closeForm", false);
     },
@@ -1496,10 +1544,11 @@ export default {
       formData.append("mood", this.editData[0].mood);
       formData.append("flooring", this.editData[0].flooring);
       formData.append("floorplan", this.editData[0].floorplan);
-      formData.append("mobile", this.editData[0].mobile);
-      formData.append("landline", this.editData[0].landline);
+      //formData.append("mobile", this.editData[0].mobile);
+      formData.append("mobile", this.mobile.phoneNumber1);
+      formData.append("landline", this.landline.phoneNumber2);
       formData.append("postalAddress", this.editData[0].postalAddress);
-      formData.append( "residentialAddress",  this.editData[0].residentialAddress );
+      formData.append("residentialAddress",  this.editData[0].residentialAddress );
       formData.append("contract_price", this.editData[0].contract_price);
       formData.append("personTwoFirstName", this.editData[0].personTwoFirstName);
       formData.append("personTwoLastName", this.editData[0].personTwoLastName);
@@ -1507,19 +1556,19 @@ export default {
       formData.append("personTwoMarital", this.editData[0].personTwoMarital);
       formData.append("personTwoEmail", this.editData[0].personTwoEmail);
       formData.append("personTwoBankName", this.editData[0].personTwoBankName);
-      formData.append( "personTwoAccountNumber", this.editData[0].personTwoAccountNumber );
+      formData.append("personTwoAccountNumber", this.editData[0].personTwoAccountNumber );
       formData.append("personTwoAccountType", this.editData[0].personTwoAccountType );
-      formData.append("personTwoMobile", this.editData[0].personTwoMobile);
-      formData.append("personTwoLandline", this.editData[0].personTwoLandline);
-      formData.append( "personTwoPostalAddress", this.editData[0].personTwoPostalAddress );
-      formData.append( "personTwoResidentialAddress", this.editData[0].personTwoResidentialAddress);
+      formData.append("personTwoMobile", this.mobile.phoneNumber3);
+      formData.append("personTwoLandline", this.landline.phoneNumber4);
+      formData.append("personTwoPostalAddress", this.editData[0].personTwoPostalAddress );
+      formData.append("personTwoResidentialAddress", this.editData[0].personTwoResidentialAddress);
       formData.append("base_price", this.editData[0].base_price);
       formData.append("parking", this.editData[0].parking);
       formData.append("originalBayNo", this.editData[0].originalBayNo);
       formData.append("extras", this.editData[0].extras);
       formData.append("deductions", this.editData[0].deductions);
       formData.append("salesAgent", this.editData[0].salesAgent);
-      formData.append("salesAgentPhone", this.editData[0].salesAgentPhone);
+      formData.append("salesAgentPhone", this.mobile.phoneNumber5);
       formData.append("contains", contains);
       formData.append("id", this.editData[0].id);
       formData.append("notes", this.editData[0].notes);
@@ -1536,7 +1585,7 @@ export default {
       formData.append("salePerson", this.editData[0].salePerson);
       formData.append("saleBuyers", this.editData[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
-      console.log("FormData before sending to server", this.formData)
+ 
       await axios({
         method: "post",
         url: `${url}/updateClientCM`,
@@ -1544,17 +1593,15 @@ export default {
       }).then(
         response => {
           console.log(response.data);
-
           this.snackbar = true;
-
           this.closeClientInfo();
         },
-
         error => {
           console.log(error);
         }
       );
     },
+
     async insertClientData() {
       // console.log(this.firstName);
       let files = [];
@@ -1624,64 +1671,8 @@ export default {
       for (var x = 0; x < files.length; x++) {
         formData.append("documents", files[x]);
       }
-            console.log("FormData before sending to server1 ", this.formData)
-      // formData.append("firstName", this.firstName);
-      // formData.append("lastName", this.lastName);
-      // formData.append("iDNumber", this.iDNumber);
-      // formData.append("marital", this.marital);
-      // formData.append("email", this.email);
-      // formData.append("bankName", this.bankName);
-      // formData.append("accountNumber", this.accountNumber);
-      // formData.append("accountType", this.accountType);
-      // formData.append("block", this.blockValue);
-      // formData.append("unit", this.unitValue);
-      // formData.append("mood", this.mood);
-      // formData.append("flooring", this.flooring);
-      // formData.append("floorplan", this.floorplan);
-      // formData.append("mobile", this.mobile.phoneNumber);
-      // formData.append("landline", this.landline.phoneNumber);
-      // formData.append("postalAddress", this.postaladdress);
-      // formData.append("residentialAddress", this.residentialAddress);
-      // formData.append("trustName", this.trustName);
-      // formData.append("trustNumber", this.trustNumber);
-      // formData.append("personTwoFirstName", this.personTwoFirstName);
-      // formData.append("personTwoLastName", this.personTwoLastName);
-      // formData.append("personTwoIDNumber", this.personTwoIDNumber);
-      // formData.append("personTwoMarital", this.personTwoMarital);
-      // formData.append("personTwoEmail", this.personTwoEmail);
-      // formData.append("personTwoBankName", this.personTwoBankName);
-      // formData.append("personTwoAccountNumber", this.personTwoAccountNumber);
-      // formData.append("personTwoAccountType", this.personTwoAccountType);
-      // formData.append("personTwoMobile", this.personTwoMobile);
-      // formData.append("personTwoLandline", this.personTwoLandline);
-      // formData.append("personTwoPostalAddress", this.personTwoPostalAddress);
-      // formData.append("personTwoResidentialAddress", this.personTwoResidentialAddress );
-      // formData.append("salePerson", this.person);
-      // formData.append("saleBuyers", this.buyers);
-      // formData.append("saleType", this.saleType);
-      // formData.append("salesAgent", this.salesAgent);
-      // formData.append("salesAgentPhone", this.salesAgentPhone);
-      // formData.append("contains", contains);
-      // formData.append("contract_price", this.contractPrice);
-      // formData.append("base_price", this.basePrice);
-      // formData.append("parking", this.parking);
-      // formData.append("originalBayNo", this.originalBayNo);
-      // formData.append("extras", this.extras);
-      // formData.append("deductions", this.deductions);
-      // formData.append("notes", this.notes);
-      // formData.append("cashDeal", this.cashDeal);
-      // formData.append("balanceRem", this.balanceRem);
-      // formData.append("deposit", this.deposit);
-      // formData.append("depositDate", this.depositDate);
-      // formData.append("gasStove", this.gasStove);
-      // formData.append("gasStoveCost", this.gasStoveCost);
-      // formData.append("spareRoom", this.spareRoom);
-      // formData.append("additionalExtras", this.additionalExtras);
-      // formData.append("additionalExtrasCost", this.additionalExtrasCost);
-      // formData.append("bayNo", this.bayNo);
-      // formData.append("enclosedBalcony", this.enclosedBalcony);
-      // formData.append("development", this.$store.state.development.id);
-       formData.append("trustName", this.editData[0].trustName);
+
+      formData.append("trustName", this.editData[0].trustName);
       formData.append("trustNumber", this.editData[0].trustNumber);
       formData.append("firstName", this.editData[0].firstname);
       formData.append("lastName", this.editData[0].lastname);
@@ -1691,8 +1682,8 @@ export default {
       formData.append("bankName", this.editData[0].bankName);
       formData.append("accountNumber", this.editData[0].accountNumber);
       formData.append("accountType", this.editData[0].accountType);
-      formData.append("block", this.editData[0].block);
-      formData.append("unit", this.editData[0].unit);
+      formData.append("block", this.editData[0].blockValue);
+      formData.append("unit", this.unitValue);
       formData.append("mood", this.editData[0].mood);
       formData.append("flooring", this.editData[0].flooring);
       formData.append("floorplan", this.editData[0].floorplan);
@@ -1729,14 +1720,14 @@ export default {
       formData.append("depositDate", this.depositDate);
       formData.append("gasStove", this.editData[0].gasStove);
       formData.append("additionalExtras", this.editData[0].additionalExtras);
-      formData.append( "additionalExtrasCost", this.editData[0].additionalExtrasCost );
+      formData.append("additionalExtrasCost", this.editData[0].additionalExtrasCost );
       formData.append("spareRoom", this.editData[0].spareRoom);
       formData.append("enclosedBalcony", this.editData[0].enclosedBalcony);
       formData.append("saleType", this.editData[0].saleType);
       formData.append("salePerson", this.editData[0].salePerson);
       formData.append("saleBuyers", this.editData[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
-      console.log("FormData before sending to server", this.formData)
+ 
       await axios({
         method: "post",
         url: `${url}/createClientCM`,

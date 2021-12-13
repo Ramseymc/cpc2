@@ -1,5 +1,16 @@
 <template>
-     <v-card class="mx-auto" max-width="1800" > 
+  <!-- 
+          TYPE: View
+          NAME: SalesInfo
+       PURPOSE: a list of the sales with actions (update, delete, edit, view files)
+          DATE: July 2021
+          AUTH: Connor McLean, Wayne Bruton
+ -->
+  <v-container>
+    <v-row justify="center">
+      <div class="about">
+        <br /><br /><br />
+        <v-card class="mx-auto" max-width="1500" width="1000">
           <v-toolbar color="#0F0F0F" dark>
             <v-spacer></v-spacer>
             <v-toolbar-title>Sales</v-toolbar-title>
@@ -18,7 +29,6 @@
             :items="salesFiltered"
             :items-per-page="15"
             class="elevation-1"
-            dense
           >
 
           <template v-slot:item.edit="{ item }">
@@ -26,10 +36,10 @@
               :id="item.id"
               small
               dark
-              color="blue darken-3"
+              color="blue darken-2"
               @click="editItem"
             >
-              <span style="font-size:0.905em">Edit</span> 
+              Edit
             </v-chip>
           </template>
           
@@ -41,48 +51,14 @@
               color="green darken-3"
               @click="showFiles"
             >
-              <span class="mdi mdi-file-multiple"></span>
+              Files
             </v-chip>
-            </template>
-
-            <template v-slot:item.signOff="{ item }">
-            <v-chip
-              :id="item.id"
-              small
-              dark
-              color="grey darken-3"
-              @click="openSignOff"
-            >
-              <span class="mdi mdi-checkbox-marked"></span>
-            </v-chip>
-            </template>
-
-            <template v-slot:item.email="{ item }">
-            <v-chip
-              :id="item.id"
-              small
-              dark
-              color="purple darken-3"
-              @click="emailItem"
-            >
-             <span style="font-size:0.905em">Email</span> 
-            </v-chip>
-            </template>
-            <template v-slot:item.delete="{ item }">
-            <v-chip
-              :id="item.id"
-              small
-              dark
-              color="red darken-3"
-              @click="deleteItem"
-            >
-             <span style="font-size:0.905em">X</span> 
-            </v-chip>
-
           </template>
           </v-data-table>
-         
-     
+
+        </v-card>
+      </div>
+    </v-row>
     <ClientUpsert
       v-if="salesEditData.length > 0"
       :upsertMode="upsertMode"
@@ -102,8 +78,8 @@
       :dialogFiles="signOffDialog"
       :fileData="signOffData"
       @closeForm="closeSignOffForm"
-    /> 
-  </v-card> 
+    />
+  </v-container>
 </template>
 
 <script>
@@ -128,7 +104,6 @@ export default {
       headers: [
           { text: 'Edit', value: 'edit' , sortable: false,},
           { text: 'Files', value: 'files', sortable: false,  },  // i want an icon that launches ClientFiles component   
-          { text: 'Delete', value: 'delete', sortable: false,  },
           { text: 'Block', align: 'start', sortable: true, value: 'block', },          
           { text: 'Unit', value: 'unit', sortable: true,}, // i want to wrap a button around that launches ClientUpsert with upsertMode = "Update"          
           { text: 'First Name', value: 'firstname', sortable: true,},
@@ -136,15 +111,14 @@ export default {
           { text: '2nd Person FirstName', value: 'personTwoFirstName', sortable: true,},
           { text: '2nd Person Last Name', value: 'personTwoLastName', sortable: true, },
           { text: 'Step', value: 'step', sortable: true, }, // i might need to build a component to display which step we are on - this is future work - will just show send email for now ? we need db flags, to add a step field to the salesinfo table and perhaps a steps table to hold information about the step (stepId, Name, description, etc )          
-          { text: 'OTP', value: 'signOff' , sortable: false,},
-          { text: 'Email', value: 'email' , sortable: false,},
         ],
       desserts: [],
 
       filesicon: "",
       step: "",
+
       showActions: false,
-      blockValue: null, 
+      blockValue: null, //From Dropdown
       unitValue: null,
       flatPic: require("../assets/flat.jpg"),
       items: [],
@@ -163,6 +137,7 @@ export default {
       clientFileDialog: false,
       clientFilesData: [],
       dialogFiles: null,
+
       signOffDialog: false,
       signOffData: []
     };
@@ -175,6 +150,7 @@ export default {
         return this.desserts.filter(el => {
           return (
             !this.search ||
+            
             el.block.toLowerCase().indexOf(this.search.toLowerCase()) > -1 ||
             el.unit.toLowerCase().indexOf(this.search.toLowerCase()) > -1 ||
             el.firstname.toLowerCase().indexOf(this.search.toLowerCase()) > -1 
@@ -336,7 +312,41 @@ export default {
       });
       this.signOffDialog = true;
     },
-    
+    checkForAllFiles() {
+      let files = [];
+      let contains = [];
+      if (this.fileOPT !== null) {
+        contains.push("fileOTP");
+        files.push(this.fileOPT); // append mimetype here?
+      }
+      if (this.fileId !== null) {
+        contains.push("fileId");
+        files.push(this.fileId);
+      }
+      if (this.fileBank !== null) {
+        contains.push("fileBank");
+        files.push(this.fileBank);
+      }
+      if (this.filePaySlip) {
+        this.filePaySlip.forEach(el => {
+          contains.push("filePaySlip");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+
+      if (this.fileFica) {
+        this.fileFica.forEach(el => {
+          contains.push("fileFica");
+          files.push(el);
+        });
+      } else {
+        console.log("No File");
+      }
+
+      console.log("Check for all files, files = ", files);
+    },
     closeClientForm(event) {
       this.clientDialog = event;
       this.initialData();

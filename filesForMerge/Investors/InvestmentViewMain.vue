@@ -75,9 +75,8 @@
       v-if="openInvestmentViewForm"
       :dialog="openInvestmentViewForm"
       :investorId="investorId"
-      @closeForm="closeForm" />
-      -->
-   
+      @closeForm="closeForm" -->
+    />
   </div>
 </template>
 

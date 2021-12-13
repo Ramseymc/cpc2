@@ -77,7 +77,7 @@
       @closeForm="closeClientForm"
       :unitId="unitId"
     />
-
+  
     <!-- <ClientInfo
       v-if="clientDialog"
       :blockValue="blockValue"
@@ -99,12 +99,12 @@ let url = process.env.VUE_APP_BASEURL;
 export default {
   name: "salesstart",
   components: {
-    // ClientInfo,
-    ClientUpsert,
+   // ClientInfo,
+    ClientUpsert
   },
   data() {
     return {
-      blockValue: null,
+      blockValue: null, //From Dropdown
       unitValue: null,
       unitId: null,
       flatPic: require("../assets/flat.jpg"),
@@ -112,74 +112,17 @@ export default {
       blocks: [],
       clientDialog: false,
       planType: "",
-      upsertMode: "Add", // opening upsert in Add mode (ClientUpsert then empties the editData[] beforeMount)
-      salesEditData: [
-        {
-          salePerson: "",
-          saleBuyers: "",
-          trustName: "",
-          trustNumber: "",
-          marital: "",
-          firstname: "",
-          lastname: "",
-          iDNumber: "",
-          email: "",
-          mobile: "",
-          landline: "",
-          postalAddress: "",
-          residentialAddress: "",
-          personTwoMarital: "",
-          personTwofirstName: "",
-          personTwoLastName: "",
-          personTwoIDNumber: "",
-          personTwoEmail: "",
-          personTwoMobile: "",
-          personTwoLandline: "",
-          personTwoPostalAddress: "",
-          personTwoResidentialAddress: "",
-          saleType: "",
-          floorplan: "",
-          url: "",
-          planType: "",
-          deposit: "",
-          parkingNumber: "",
-          gasStove: "",
-          kitchenOption: "",
-          additionalExtrasCost: "",
-          notes: "",
-          gardenNumber: "",
-          gardenSize: "",
-          originalBayNo: "",
-          bayNo: "",
-          beds: "",
-          bath: "",
-          enclosedBalcony: "",
-          spareRoom: "",
-          mood: "",
-          flooring: "",
-          actualSalesdate: "",
-
-          fileOTP: "",
-          fileId: "",
-
-          fileFica: "",
-          fileDepositPop: "",
-          fileBank: "",
-          filePaySlip: "",
-          personTwoFileID: "",
-          personTwoFileFica: "",
-          personTwoFileBank: "",
-          personTwoFilePaySlip: "",
-          salesAgent: "",
-
-          salesAgentPhone: "",
-        },
+      upsertMode: "Add",  // opening upsert in Add mode (ClientUpsert then empties the editData[] beforeMount)
+      salesEditData: [ {
+        salePerson: "",
+        }
       ],
+
     };
   },
   async mounted() {
     let data = {
-      id: this.$store.state.development.id,
+      id: this.$store.state.development.id
       //id: 1,
     };
     await axios({
@@ -187,28 +130,28 @@ export default {
       // method: "get",
       url: `${url}/getblocksforoptionsA`,
       // url: `${url}/ooo`,
-      data: data,
+      data: data
     })
       .then(
-        (response) => {
+        response => {
           console.log("RESPONSE DATA CONNOR:", response.data);
-          this.blocks = response.data.filter((el) => {
+          this.blocks = response.data.filter(el => {
             return el.subsectionName !== "Common Area";
           });
 
           console.log(this.blocks);
         },
-        (error) => {
+        error => {
           console.log("the Error", error);
         }
       )
-      .catch((e) => {
+      .catch(e => {
         console.log("THERE IS AN ERROR", e);
       });
   },
   methods: {
     unitChosen() {
-      let unitId = this.items.filter((el) => {
+      let unitId = this.items.filter(el => {
         return el.unitName === this.unitValue;
       })[0].id;
       console.log(unitId);
@@ -218,33 +161,40 @@ export default {
       this.clientDialog = event;
     },
     async getClientInfo() {
+      // help 1
+      //this launches ClientUpsert this.clientDialog = !this.clientDialog; 
+      //but there is a length undefined coming from the ClientUpsert")
+      console.log("get client info CONNOOOORRRR ")
+      
       let data = {
         unitValue: this.unitValue,
       };
       await axios({
         method: "post",
         url: `${url}/getUnitPlanTypes`,
-        data: data,
+        data: data
       }).then(
-        (response) => {
+        response => {
           console.log("get client info CONNOOOORRRR ", response.data[0]);
           this.planType = response.data[0].unit_type;
-
+          
+          
           this.clientDialog = !this.clientDialog;
+    
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
     },
     async chooseUnit() {
-      let filteredData = this.blocks.filter((el) => {
+      let filteredData = this.blocks.filter(el => {
         return el.subsectionName === this.blockValue;
       });
       let data = {
         id: this.$store.state.development.id,
         subsection: filteredData[0].id,
-        subsectionName: filteredData[0].subsectionName,
+        subsectionName: filteredData[0].subsectionName
         //subsectionName:
       };
       this.blockValue = data.subsectionName;
@@ -255,26 +205,26 @@ export default {
       await axios({
         method: "post",
         url: `${url}/getAvailableUnits`,
-        data: data,
+        data: data
       })
         .then(
-          (response) => {
-            let filteredData = response.data.filter((el) => {
+          response => {
+            let filteredData = response.data.filter(el => {
               return el.unitName.substring(2, 1) !== ".";
             });
-            this.items = filteredData;
-            this.salesEditData[0].salePerson = "";
-            this.salesEditData[0].blockValue = this.blockValue;
+            this.items = filteredData
+            this.salesEditData[0].salePerson = ""
+            this.salesEditData[0].blockValue = this.blockValue
           },
-          (error) => {
+          error => {
             console.log(error);
           }
         )
-        .catch((e) => {
+        .catch(e => {
           console.log(e);
         });
-    },
-  },
+    }
+  }
 };
 </script>
 
