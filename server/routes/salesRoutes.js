@@ -32,6 +32,7 @@ function renameFile(req) {
   let fileDetails = [];
   // file manipulation
   if (req.files.length) {
+    console.log("renaming files = ", req.files)
       let contains = req.body.contains.split(",");
  
       contains.forEach((el, index, arr) => {
@@ -56,10 +57,10 @@ function renameFile(req) {
           });
           el.fileNameUpdated = `${el.fileName}`;
           fs.rename(
-            `public/uploads/${el.fileNameUpdated}`,
-            `public/uploads/${el.originalName}`,
-              // `public/${el.fileNameUpdated}`,
-              // `public/${el.originalName}`,
+           // `public/uploads/${el.fileNameUpdated}`,
+            //`public/uploads/${el.originalName}`,
+               `public/${el.fileNameUpdated}`,
+               `public/${el.originalName}`,
               (err) => {
                   if (err) console.log("Error renaming", err);
                   else {
@@ -160,7 +161,7 @@ router.post("/getAvailableUnits", (req,res) =>{
   console.log(req.body) // this is the only changed method the rest are new
     let mysql = `select u.id, s.unit, u.unitName from salesData s, units u where u.id = s.unit and u.subsection = ${req.body.subsection} and s.sold = false and s.development = ${req.body.id}`
 
-  console.log("Hello",mysql);
+  console.log(chalk.bgMagentaBright("Hello",mysql));
   excecuteSQL(mysql, res);
 
 })
@@ -183,10 +184,11 @@ router.post("/getInvestmentData", (req, res) => {
   excecuteSQL(mysql, res);
 });
 
-router.post("/getSalesData", (req, res) => {
+router.post("/getSalesDataCM", (req, res) => {
   
+
   console.log("/getSalesData req.body = ", req.body)
-  let mysql = `select * from salesData sd ;`
+  let mysql = `select * from salesData sd where sd.unit = ; `
 
   console.log("Hello",mysql);
   excecuteSQL(mysql, res);
@@ -194,11 +196,12 @@ router.post("/getSalesData", (req, res) => {
 
 router.post("/getSalesDataForUnit", (req, res) => {
   
-  console.log("/getSalesData req.body = ", req.body)
-  let mysql = `select * from salesData sd where i.unit = ${req.body.unit};`
+  console.log("44444 /getSalesData req.body = ", req.body)
+  let mysql = `select * from salesData sd where sd.unit = ${req.body.id};`
 
   console.log("Hello",mysql);
   excecuteSQL(mysql, res);
+  console.log("RESULT FROM GETTING salesData for unit = ", res)
 });
 
 router.post("/getClientInfoForSalesInfo", (req, res) => {
@@ -325,14 +328,15 @@ router.post("/updateClientOTP", upload.single("fileOTP"), (req, res) => {
   console.log("ID:", req.body.id);
 
   // rename with file on server the extension appended
-  fs.rename(`public/uploads/${req.file.filename}`, `public/uploads/${req.file.filename}.${req.file.mimetype.split("/")[1]}`, (err) => {
+  fs.rename(`public/${req.file.filename}`, `public/${req.file.originalname}`, (err) => {
     if (err) {
       console.log("Error renaming");
     } //throw err
   })
-
+  console.log("The fooking file",req.file)
   // insert the filename with extension into the fileOTP db field
-  let fileOTP = `${req.file.filename}.${req.file.mimetype.split("/")[1]}`
+  //let fileOTP = `${req.file.filename}.${req.file.mimetype.split("/")[1]}`
+  let fileOTP = `${req.file.originalname}`
   if (req.body.fileOTP !== null || req.body.fileOTP !== 'undefined' || req.body.fileOTP !== '') {
     let mysql = `UPDATE salesinfo 
       SET fileOTP = '${fileOTP}', signedOff = true WHERE id = ${req.body.id}`
@@ -347,9 +351,11 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
 
   // console.log("Files: ", req.files);
   console.log("InfoWayne:", req.body);
+  console.log("InfoConnorFiles: ", req.files);
+  console.log("InfoConnorContains: ", req.body.contains);
 
   let fileDetails = renameFile(req) 
-
+  console.log("InfoConnorfileDetails: ", fileDetails);
   // let fileDetails = []
 
   
@@ -447,7 +453,9 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
        additionalExtrasCost='${req.body.additionalExtrasCost}',
        trustName='${req.body.trustName}',
        trustNumber='${req.body.trustNumber}',
-       originalBayNo='${req.body.originalBayNo}' 
+       originalBayNo='${req.body.originalBayNo}', 
+       bayNo='${req.body.bayNo}', 
+       kitchenOption='${req.body.kitchenOption}' );   
       `;
       //enclosedBalcony='${req.body.enclosedBalcony}'
 
@@ -482,6 +490,18 @@ router.post("/updateClientCM", upload.array("documents"), (req, res) => {
     // 
     depSQL.forEach((el) => {
       additionalSQL = `${additionalSQL}, fileDepositPop = '${el.originalName}'`
+    })
+  }
+
+  // whiteknight
+  let depNewSQL = fileDetails.filter((el) => {
+    return el.fileType === 'fileDepPop'
+  })  // does this below need to be inside the loop?
+  console.log(chalk.green("depNewSQL = ", depNewSQL))
+  if (depNewSQL.length > 0) {
+    // 
+    depNewSQL.forEach((el) => {
+      additionalSQL = `${additionalSQL}, fileDepPop = '${el.originalName}'`
     })
   }
 
@@ -661,12 +681,20 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
 //   });
 // }
 
+  console.log("the fileDetails when inserting , does it contain the depPop ?", fileDetails)
+  if (fileDetails.fileDepPop) {
+    console.log("the fileDepPop when inserting , does it contain the depPop ?", fileDetails.fileDepPop)
+  } else {
+    console.log("the fileDepPop when inserting , does it contain the depPop ?", fileDetails.fileDepPop)
+  }
+
   let fileFica;
   let fileOTP;
   let filePaySlip;
   let fileBank;
   let fileId;
   let fileDepositPop;
+  let fileDepPop;
   let personTwoFileID;
   let personTwoFileBank;
   let personTwoFilePaySlip;
@@ -725,6 +753,16 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
       fileDepositPop = fileDepositPop[0].originalName;
     } else {
       fileDepositPop = "";
+    } 
+
+    fileDepPop = fileDetails.filter((el) => {
+      return el.fileType === "fileDepPop";
+    });
+    if (fileDepPop.length) {
+      console.log("fileDepPop has data in the salesRoutes inserting", fileDepPop)
+      fileDepPop = fileDepPop[0].originalName;
+    } else {
+      fileDepPop = "";
     } 
 
     fileFica = fileDetails.filter((el) => {
@@ -786,8 +824,6 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
     }
   }
 
-
-
   var dateTime = new Date().toISOString().substring(0,10)
   let depositDate;
 
@@ -796,7 +832,8 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
   } else {
     depositDate = `'${req.body.depositDate}'`
   }
-  console.log("FFFFFF",depositDate)
+  console.log("Haha, depositDate",depositDate)
+  console.log("HA HA HA HA , dateTime",dateTime)
 
 
   // var date =
@@ -805,17 +842,148 @@ router.post("/createClientCM", upload.array("documents"), (req, res) => {
   //   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
   // var dateTime = date + " " + time;
 
-  let mysql1 = `INSERT INTO salesinfo 
-  (firstname, lastname, iDNumber, marital, email, bankName, accountNumber, accountType, block, unit, mood, flooring, fileOTP, fileId, fileBank, filePaySlip, fileFica, fileDepositPop, dateCreated, floorplan, mobile, landline, postalAddress, residentialAddress, salesAgent, salesAgentPhone, personTwoFirstName, personTwoLastName, personTwoIDNumber, personTwoMarital, personTwoEmail, personTwoBankName, personTwoAccountNumber, personTwoAccountType, personTwoFileID, personTwoFileBank, personTwoFilePaySlip, personTwoFileFica, personTwoMobile, personTwoLandline, personTwoPostalAddress, personTwoResidentialAddress, salePerson, saleBuyers, saleType, cashDeal, balanceRem, deposit, depositDate, gasStove, spareRoom, additionalExtras, additionalExtrasCost, bayNo, gasStoveCost, notes, trustName, trustNumber, originalBayNo, development ) VALUES (
-                '${req.body.firstName}','${req.body.lastName}','${req.body.iDNumber}', '${req.body.marital}','${req.body.email}','${req.body.bankName}','${req.body.accountNumber}','${req.body.accountType}','${req.body.block}','${req.body.unit}','${req.body.mood}','${req.body.flooring}','${fileOTP}','${fileId}', '${fileBank}','${filePaySlip}','${fileFica}','${fileDepositPop}','${dateTime}','${req.body.floorplan}','${req.body.mobile}','${req.body.landline}','${req.body.postalAddress}','${req.body.residentialAddress}','${req.body.salesAgent}','${req.body.salesAgentPhone}', '${req.body.personTwoFirstName}' , '${req.body.personTwoLastName}' , '${req.body.personTwoIDNumber}' , '${req.body.personTwoMarital}', '${req.body.personTwoEmail}' , '${req.body.personTwoBankName}', '${req.body.personTwoAccountNumber}', 
-                '${req.body.personTwoAccountType}', '${personTwoFileID}', '${personTwoFileBank}', '${personTwoFilePaySlip}', '${personTwoFileFica}', '${req.body.personTwoMobile}', '${req.body.personTwoLandline}', '${req.body.personTwoPostalAddress}', '${req.body.personTwoResidentialAddress}', '${req.body.salePerson}', '${req.body.saleBuyers}', '${req.body.saleType}', '${req.body.cashDeal}', '${req.body.balanceRem}', '${req.body.deposit}', ${depositDate} , '${req.body.gasStove}', '${req.body.spareRoom}','${req.body.additionalExtras}', '${req.body.additionalExtrasCost}' , '${req.body.bayNo}', '${req.body.gasStoveCost}', '${req.body.notes}', '${req.body.trustName}', '${req.body.trustNumber}', '${req.body.originalBayNo}', ${req.body.development}) `;
+  let mysql1 = `INSERT INTO salesinfo (
+      firstname, 
+      lastname, 
+      iDNumber, 
+      marital, 
+      email, 
+      bankName, 
+      accountNumber, 
+      accountType, 
+      block, 
+      unit, 
+      mood, 
+      flooring, 
+      fileOTP, 
+      fileId, 
+      fileBank, 
+      filePaySlip, 
+      fileFica, 
+      fileDepositPop, 
+      dateCreated, 
+      floorplan, 
+      mobile, 
+      landline, 
+      postalAddress, 
+      residentialAddress, 
+      salesAgent, 
+      salesAgentPhone, 
+      personTwoFirstName, 
+      personTwoLastName, 
+      personTwoIDNumber, 
+      personTwoMarital, 
+      personTwoEmail, 
+      personTwoBankName, 
+      personTwoAccountNumber, 
+      personTwoAccountType, 
+      personTwoFileID, 
+      personTwoFileBank, 
+      personTwoFilePaySlip, 
+      personTwoFileFica, 
+      personTwoMobile, 
+      personTwoLandline, 
+      personTwoPostalAddress, 
+      personTwoResidentialAddress, 
+      salePerson, 
+      saleBuyers, 
+      saleType, 
+      cashDeal, 
+      balanceRem, 
+      deposit, 
+      depositDate, 
+      gasStove, 
+      spareRoom, 
+      additionalExtras, 
+      additionalExtrasCost, 
+      bayNo, 
+      gasStoveCost, 
+      notes, 
+      trustName, 
+      trustNumber, 
+      originalBayNo, 
+      development, 
+      fileDepPop
+      kitchenOption
+    ) VALUES (
+      '${req.body.firstName}',
+      '${req.body.lastName}',
+      '${req.body.iDNumber}', 
+      '${req.body.marital}',
+      '${req.body.email}',
+      '${req.body.bankName}',
+      '${req.body.accountNumber}',
+      '${req.body.accountType}',
+      '${req.body.block}',
+      '${req.body.unit}',
+      '${req.body.mood}',
+      '${req.body.flooring}',
+      '${fileOTP}',
+      '${fileId}', 
+      '${fileBank}',
+      '${filePaySlip}',
+      '${fileFica}',
+      '${fileDepositPop}',
+      '${dateTime}',
+      '${req.body.floorplan}',
+      '${req.body.mobile}',
+      '${req.body.landline}',
+      '${req.body.postalAddress}',
+      '${req.body.residentialAddress}',
+      '${req.body.salesAgent}',
+      '${req.body.salesAgentPhone}',
+      '${req.body.personTwoFirstName}' ,
+      '${req.body.personTwoLastName}' ,
+      '${req.body.personTwoIDNumber}' ,
+      '${req.body.personTwoMarital}',
+      '${req.body.personTwoEmail}' ,
+      '${req.body.personTwoBankName}',
+      '${req.body.personTwoAccountNumber}', 
+      '${req.body.personTwoAccountType}', 
+      '${personTwoFileID}', 
+      '${personTwoFileBank}', 
+      '${personTwoFilePaySlip}', 
+      '${personTwoFileFica}', 
+      '${req.body.personTwoMobile}', 
+      '${req.body.personTwoLandline}', 
+      '${req.body.personTwoPostalAddress}', 
+      '${req.body.personTwoResidentialAddress}', 
+      '${req.body.salePerson}', 
+      '${req.body.saleBuyers}', 
+      '${req.body.saleType}', 
+      '${req.body.cashDeal}', 
+      '${req.body.balanceRem}', 
+      '${req.body.deposit}',
+       ${depositDate} ,
+      '${req.body.gasStove}',
+      '${req.body.spareRoom}',
+      '${req.body.additionalExtras}',
+      '${req.body.additionalExtrasCost}' ,
+      '${req.body.bayNo}',
+      '${req.body.gasStoveCost}', 
+      '${req.body.notes}', 
+      '${req.body.trustName}',
+      '${req.body.trustNumber}',
+      '${req.body.originalBayNo}',
+       ${req.body.development},
+      '${fileDepPop}',
+      '${req.body.kitchenOption}' 
+    ') `;
 
-          let mysql2 = ` UPDATE salesData sd 
-             INNER JOIN units u ON sd.unit = u.id     SET     sd.base_price = '${req.body.base_price}',    sd.contract_price = '${req.body.contract_price}', sd.parking = '${req.body.parking}', sd.extras = '${req.body.extras}', sd.deductions = '${req.body.deductions}', sd.sold = 1,  sd.actualsale_date = '${dateTime}'  WHERE u.unitName = '${req.body.unit}'`;
+    let mysql2 = `UPDATE salesData sd 
+        INNER JOIN units u ON sd.unit = u.id     
+        SET           
+          sd.contract_price    = '${req.body.contract_price}', 
+          sd.parking           = '${req.body.parking}', 
+          sd.extras            = '${req.body.extras}', 
+          sd.deductions        = '${req.body.deductions}', 
+          sd.sold              = 1,  
+          sd.actualsale_date   = '${dateTime}'  
+        WHERE                
+          u.unitName = '${req.body.unit}'`;
 
-  
   let mysql = `${mysql1};${mysql2}`
-  console.log(chalk.red(mysql));
+  console.log(chalk.blue("INSERT INTO salesinfo and update the salesData --- "), chalk.red(mysql));
 
   excecuteSQL(mysql, res);
 });
@@ -839,6 +1007,7 @@ router.post("/getblocksforstock", (req,res) => {
 
 router.post("/getAllUnitsforStockPage", (req,res) =>{
   console.log("getAllUnitsforStockPage" , req.body) // this is the only changed method the rest are new
+  console.log(chalk.bgMagentaBright("blocksId for the units avail in dropdown,"), chalk.cyanBright(req.body.blocksId))
     let mysql = `select u.id, u.unitName from units u where u.subsection IN (${req.body.blocksId}) and u.development = ${req.body.id}`
 // IN ('1','2')
   console.log("Hello",mysql);
