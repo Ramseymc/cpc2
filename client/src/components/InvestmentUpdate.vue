@@ -314,9 +314,17 @@ export default {
       amp: true,
     },
   },
-  data: () => ({
-    // add data models here
-
+  data() {
+    return {
+      rules: {
+        required: (value) => !!value || "Required.",
+        iDLength: (value) => value.length <= 13 || "Max 13 characters",
+        email: (value) => {
+          const pattern =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Invalid e-mail.";
+        },
+      },
     roleId: null,
     jobId: null,
     jobType: null,
@@ -331,7 +339,7 @@ export default {
     investorCode: "",
 
     investorId: "",
-    investmentId: "",
+    //investmentId: "",
 
     project: "",
     linkedUnit: "",
@@ -359,7 +367,8 @@ export default {
     snackbarMessage: "",
     checkbox: false,
     icon: "",
-  }),
+  }
+  },
 
   async mounted() {
     this.paramId = parseInt(this.$route.params.id);

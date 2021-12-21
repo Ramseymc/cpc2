@@ -111,7 +111,7 @@ router.post("/uploadPlansWB", upload.single("plans"), (req, res) => {
 
   fs.rename(`public/${req.file.filename}`, `public/${req.body.client}-${stamp}.pdf`, (err) => {
     if (err) {
-      console.log("Error renaming");
+      console.log("Error renaming");rtzrtemplate
     } //throw err
   })
   let fileName = `${req.body.client}-${stamp}.pdf`
@@ -195,11 +195,9 @@ router.post("/getSalesDataCM", (req, res) => {
 });
 
 router.post("/getSalesDataForUnit", (req, res) => {
-  
-  console.log("44444 /getSalesData req.body = ", req.body)
-  let mysql = `select * from salesData sd where sd.unit = ${req.body.id};`
 
-  console.log("Hello",mysql);
+  
+  let mysql = `select * from salesData sd where sd.unit = ${req.body.id};`
   excecuteSQL(mysql, res);
   console.log("RESULT FROM GETTING salesData for unit = ", res)
 });

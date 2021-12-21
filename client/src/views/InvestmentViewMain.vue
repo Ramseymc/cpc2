@@ -1,23 +1,22 @@
 <template>
   <div class="about">
-    <br />
+
     <v-row>
-      <v-col cols="3">
-        <h1>View Investments</h1>
+    <v-toolbar color="#0F0F0F" dark>
+      <v-spacer></v-spacer>
+      <v-toolbar-title>Investments</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-col cols="8">
+        <h2>{{ this.InvestorCode }} - {{ this.InvestorName }}</h2>
       </v-col>
-      <!-- Search -->
-      <v-col cols="4">
-        <v-text-field
-          prepend-icon="mdi-magnify"
-          placholder="Search"
-          label="Search"
-          v-model="searchInvestments"
-        ></v-text-field>
-      </v-col>
+      <v-spacer></v-spacer>
+         <v-row>
+  
+     
       <v-col cols="4">
         <v-btn-toggle v-model="icon" borderless>
-          <v-btn value="back" color="grey" @click="back">
-            <v-icon right> mdi-keyboard-backspace </v-icon>
+          <v-btn value="home" color="cyan lighten-2" @click="home">
+            <v-icon right> mdi-home </v-icon>
           </v-btn>
 
           <v-btn value="refresh" color="green lighten-1" @click="refresh">
@@ -32,12 +31,21 @@
             <v-icon right> mdi-account-plus </v-icon>
           </v-btn>
         </v-btn-toggle>
+              <v-spacer></v-spacer>
       </v-col>
     </v-row>
+
+   
+    </v-toolbar>
+    </v-row>
     <v-row>
-      <v-col cols="8">
-        <h2>{{ this.InvestorCode }} - {{ this.InvestorName }}</h2>
-      </v-col>
+     <v-spacer></v-spacer>
+      <v-text-field
+        prepend-icon="mdi-magnify"
+        placholder="Search"
+        label="Search"
+        v-model="searchInvestments"
+      ></v-text-field>
     </v-row>
 
     <span v-if="!investmentsExist">
@@ -51,6 +59,7 @@
       :items-per-page="10"
       class="elevation-1"
       v-if="investmentsExist"
+      dense
     >
       <template v-slot:item.edit="{ item }">
         <v-chip
@@ -113,7 +122,7 @@ export default {
     dialog: Boolean,
     investorId: String
   },
-  data() {
+   data() {
     return {
       // investment data
       InvestmentList: [],
@@ -141,9 +150,10 @@ export default {
         { text: "Investment Amount", value: "investment_amount" }
         // { text: 'Email', value: 'investor_email' },
       ],
-      desserts: []
+      investments: []
     };
-  },
+   },
+
 
   async mounted() {
     // get the investor_id to filter on
@@ -155,10 +165,10 @@ export default {
   computed: {
     investmentsFiltered() {
       if (this.searchInvestments === "") {
-        console.log("InvestorList = ", this.desserts);
-        return this.desserts;
+        console.log("InvestorList = ", this.investments);
+        return this.investments;
       } else {
-        return this.desserts.filter(el => {
+        return this.investments.filter(el => {
           console.log("Search Investors  ", this.searchInvestments);
           return (
             !this.searchInvestments ||
@@ -224,7 +234,7 @@ export default {
     // },
 
     async getInvestorDetails() {
-      this.desserts = [];
+      this.investments = [];
       let data = {
         id: this.$store.state.development.id,
         paramId: this.paramId
@@ -238,13 +248,13 @@ export default {
         .then(
           response => {
             response.data.forEach(investment => {
-              this.desserts.push(investment);
+              this.investments.push(investment);
 
               this.InvestorCode = investment.investor_acc_number;
               this.InvestorName =
                 investment.investor_name + " " + investment.investor_surname;
             });
-            console.log("this.Investment List = ", this.desserts);
+            console.log("this.Investment List = ", this.investments);
           },
           error => {
             console.log(error);
@@ -255,7 +265,7 @@ export default {
         });
     },
     async getAllInvestments() {
-      this.desserts = [];
+      this.investments = [];
       let data = {
         id: 1, // use the $store.developement.id
         paramId: this.paramId
@@ -269,18 +279,18 @@ export default {
         .then(
           response => {
             response.data.forEach(investment => {
-              this.desserts.push(investment);
+              this.investments.push(investment);
               this.InvestorCode = investment.investor_acc_number;
               this.InvestorName =
                 investment.investor_name + " " + investment.investor_surname;
             });
-            if (this.desserts.length === 0) {
+            if (this.investments.length === 0) {
               this.investmentsExist = false;
               this.getInvestorDetails();
             } else {
               this.investmentsExist = true;
             }
-            console.log("this.Investment List = ", this.desserts);
+            console.log("this.Investment List = ", this.investments);
           },
           error => {
             console.log(error);

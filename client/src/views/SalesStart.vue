@@ -4,9 +4,7 @@
       <v-col cols="10" offset="1" mb-4>
         <v-card class="mx-auto" max-width="100vw">
           <v-img height="350" :src="flatPic"></v-img>
-
           <v-card-title>Choose your options</v-card-title>
-
           <v-card-text>
             <div style="display: flex">
               <v-autocomplete
@@ -19,8 +17,7 @@
                 label="Choose Block"
                 @change="chooseUnit"
               ></v-autocomplete>
-              <!-- </div>
-        <div> -->
+    
               <v-autocomplete
                 style="margin-left: 8px"
                 v-model="unitValue"
@@ -45,23 +42,7 @@
               >
             </div>
           </v-card-text>
-          <!-- <v-card-actions>
-            <v-spacer></v-spacer>
 
-            <v-btn
-              v-if="blockValue && unitValue"
-              text
-              @click="getClientInfo"
-              color="primary"
-              elevation="3"
-              large
-              outlined
-              rounded
-              >Create Sale</v-btn
-            >
-
-            <v-spacer></v-spacer>
-          </v-card-actions> -->
           <v-divider class="mx-4"></v-divider>
         </v-card>
       </v-col>
@@ -73,20 +54,11 @@
       :dialog="clientDialog"
       :unitValue="unitValue"
       :planType="planType"
-      :editData="salesEditData"
+      :editData="salesAddData"
       @closeForm="closeClientForm"
       :unitId="unitId"
     />
 
-    <!-- <ClientInfo
-      v-if="clientDialog"
-      :blockValue="blockValue"
-      :unitValue="unitValue"
-      :dialog="clientDialog"
-      :planType="planType"
-      :unitId="unitId"
-      @closeForm="closeClientForm"
-    /> -->
   </div>
 </template>
 
@@ -113,10 +85,10 @@ export default {
       clientDialog: false,
       planType: "",
       upsertMode: "Add", // opening upsert in Add mode (ClientUpsert then empties the editData[] beforeMount)
-      salesEditData: [
+      salesAddData: [
         {
           salePerson: "",
-          saleBuyers: "",
+          saleBuyers: 1,
           trustName: "",
           trustNumber: "",
           marital: "",
@@ -174,6 +146,7 @@ export default {
           salesAgent: "",
 
           salesAgentPhone: "",
+ 
         },
       ],
     };
@@ -230,11 +203,7 @@ export default {
       }).then(
         (response) => {
           console.log("get getSalesDataForUnit", response.data[0]);
-          // filter through and add each element to the editData 
-          // response.data.forEach(salesdata => {
-          //   this.salesEditData.push(salesdata);
-            
-          // });
+  
           console.log("salesDAta",response.data[0].unit_type.length)
           let unitType = []
           if (response.data[0].unit_type.length >= 3) {
@@ -246,7 +215,7 @@ export default {
             unitType.push(response.data[0].unit_type)
           }
           this.planType = unitType
-          this.salesEditData.forEach((el) => {
+          this.salesAddData.forEach((el) => {
             el.base_price = response.data[0].base_price
             el.parking = response.data[0].parking
             el.extras = response.data[0].extras
@@ -254,10 +223,8 @@ export default {
          
             
           })
-          console.log("salesEditData after gettingSalesData for unit in SalesStart", this.salesEditData);
-          // this.planType = response.data[0].unit_type;
+          console.log("salesAddData after gettingSalesData for unit in SalesStart", this.salesAddData);
 
-          // this.clientDialog = !this.clientDialog;
         },
         (error) => {
           console.log(error);
@@ -313,8 +280,8 @@ export default {
               return el.unitName.substring(2, 1) !== ".";
             });
             this.items = filteredData;
-            this.salesEditData[0].salePerson = "";
-            this.salesEditData[0].blockValue = this.blockValue;
+            this.salesAddData[0].salePerson = "";
+            this.salesAddData[0].blockValue = this.blockValue;
           },
           (error) => {
             console.log(error);

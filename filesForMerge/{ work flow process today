@@ -1,0 +1,62 @@
+{ work flow process today
+[before demo with Debbie for the day prep for 20 min]
+Clean debug and test
+Clean database salesinfo out
+Create a person with no file
+create 1 person with files  (might show up fileDepPop error)
+create two people with no file
+create two people with files (might show up fileDepPop error)
+Show the updated SalesInfo table
+
+
+explain the finalizeCosting is being fixed currently, along with fileDepPop & floorplans loading in edit mode
+these are the last bugs left 
+
+(Make a fresh sublime note with these steps)
+------------------------------------------------------------------------------------------------
+
+{ work flow process today
+	Done: Send Wayne my ClientUpsert and SalesInfo, and SalesStart, and ask if he can please try to get the 
+	  finalizeCosts to work 
+	WIP at work -> While i debug the floorPlans not appearing in edit mode (UnitValue being passed in must come from   unit in the salesEditData[])
+	  
+		Ask Wayne to Please Code share when he has a moment, go tell Debbie what is up :) 
+
+	  NB say hi to Debs, gonna get it ready to go through every possible scenario with you, just 2 small things i would like to look at quickly
+	  (floorplan and fileDepositPop - these can also be fixed throughout the day so be chilled and trust that, Wayne is helping too)
+	  note any extra bugs
+	fileDepositPop - how is this any different from the other files?
+	  just comment out existing fileDepPop go and copy the code for another file and rename it (fileDepPop) , create it and place into the methods x2(updateClient formAppend and insertClient formAppend) routes x2(update updateClientCM and createClientCM) , there may be a silly error somewhere
+
+	 debug and show Debbie when she is ready, take any notes from her, will deploy when 
+	 100% happy (they desnt know any better, and i can get the code working)
+
+	 if there is time, move onto investors demo and notes (i need to copy the database into mine from desktop)
+	 is the codebase latest ? and bug free, check this for myself as ill need to go through it tomorrow and fix it
+	 will deploy when 100% happy 
+}
+
+1) the fileDepositPop document is not uploading via files 
+  - this is an easy fix i am definitely overlooking or something :) 
+
+ask Wayne for help here, I am busy with the fileDepositPop and getting th efloorplans to load in edit mode
+2) finalize Pricing mechanism - just try it with the new Edit / Update - Wayne might need to do this
+
+3) floorplans in editMode 
+4) any null data in form
+---------
+get leave for Friday today.. I asked long ago, how can it be withheld against me. 
+------
+be grateful for small things
+stop and smell the roses
+
+imagine being at the office,
+taking breaks when major milestones reached, use headphones, take weed, take my sesh bag 
+
+
+%%
+fetch my coffee, use the coffee their today all day
+speak to Debbie and be patient and happy :) 
+keep things on me - sorry i am late traffic, i'll try be here by 7am tomorrow to make up for it - leave before 8am  :) Sorted 
+Get some flavoured smokes at the shop, maybe mybulen at the pharmacy :)
+go in boi 

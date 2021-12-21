@@ -8,18 +8,26 @@ o	View investor information – info missing (update Investor Mode)
 
 Sales
 •	Bugs
-•	Cannot save new sale - test this , every field
+•	[test this] Cannot save new sale - test every field
 
--- the block is not populating on creating a new sale  make sure it is coming through) planTYpe is organized 
-•	No amendments on all items – had to make changes on other screens - test the update
-•	Uploading of documents not working (Plans uploaded and wasn’t working in the past wont be there)
-•	Dates to be editable
-•	Create sale – fell through, cannot change to new purchaser’s name
-•	Price – Base price changes will not be on new sale page
+[test check this] the block is not populating on creating a new sale  make sure it is coming through) planTYpe is organized 
 
+ •	No amendments on all items - working aside finalisePricing()
+•	Uploading of documents not working (Plans uploaded and wasn’t working in the past wont be there) 
+working 
+
+[TODO] quick add the SignOffOTP component to SalesInfo - to overwrite the OTP - 
+  also make sure that route uses the renameFile function 
+  Add email button / method at juncture to send again 
+
+to check
+???•	Dates to be editable
+
+y•	Create sale – fell through, cannot change to new purchaser’s name
+  a sale can now be created,need to finish the costing calc
+???•	Price – Base price changes will not be on new sale page
+
+-> later dev
 Wayne
 •	Bond dates – Only pull from SmartSheet if a sale was not populated.  The other dates will be editable when a sale is created.  Until Transfer date “lapses” or is in the past, it will pull the dates from what Debbie created. 
 
-
----- 
-going great, only like 3 bugs left, leave them for Sunday :) 

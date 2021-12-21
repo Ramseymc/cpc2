@@ -1,0 +1,31 @@
+take no prisoners 
+
+
+Did Wayne do the sql statements
+
+check if all the code is the same in one i sent, then ask him to check changes?
+
+done by 12:30,
+
+get my haircut 
+
+
+[Investments needs like 8 hours of work, will be done by 22nd]
+
+[] linkedUserEmail is null 10m
+
+[] it does not automatically close after an add or update 15m
+
+[] use a dense style table for both investors and investments 5m
+
+[] make a dark header bar 10m
+
+[] go through all data in add mode  1h
+
+[] and all data in edit mode 1h
+
+[] test all together in sync system 1h
+
+[] getFiles pushed and sent to Wayne 20m
+
+4 hours work in total can do it on Tuesday 22nd :) 

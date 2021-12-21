@@ -323,40 +323,51 @@ export default {
       amp: true,
     },
   },
-  data: () => ({
-    // input investorId param
-    paramId: 0,
+  data() {
+    return {
+      rules: {
+        required: (value) => !!value || "Required.",
+        iDLength: (value) => value.length <= 13 || "Max 13 characters",
+        email: (value) => {
+          const pattern =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Invalid e-mail.";
+        },
+      },
+      // input investorId param
+      paramId: 0,
 
-    // add data models here
+      // add data models here
 
-    roleId: null,
-    jobId: null,
-    jobType: null,
-    jobTypes: [],
-    role: [],
-    roles: [],
-    valid: true, // crm
-    value: true,
+      roleId: null,
+      jobId: null,
+      jobType: null,
+      jobTypes: [],
+      role: [],
+      roles: [],
+      valid: true, // crm
+      value: true,
 
-    // investment form data
-    investorCode: "",
-    project: "",
-    linkedUnit: "",
-    investmentAmount: "",
-    loanAgreementSignDate: "",
-    investmentDate: "",
-    investmentPerc: "",
-    releaseDate: "",
-    releaseAmount: "",
-    releasePerc: "",
-    repaymentDate: "",
-    repaymentAmount: "",
-    investmentClosed: false,
-    singedLoanAgreementFile: null,
-    POPFile: null,
-    attorneyConfirmLetterFile: null,
-    SelectedInvestor: [],
-  }),
+      // investment form data
+      investorCode: "",
+      project: "",
+      linkedUnit: "",
+      investmentAmount: "",
+      loanAgreementSignDate: "",
+      investmentDate: "",
+      investmentPerc: "",
+      releaseDate: "",
+      releaseAmount: "",
+      releasePerc: "",
+      repaymentDate: "",
+      repaymentAmount: "",
+      investmentClosed: false,
+      singedLoanAgreementFile: null,
+      POPFile: null,
+      attorneyConfirmLetterFile: null,
+      SelectedInvestor: [],
+    }
+  },
 
   async mounted() {
     this.paramId = parseInt(this.$route.params.id);

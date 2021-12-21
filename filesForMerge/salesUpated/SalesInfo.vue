@@ -87,6 +87,8 @@
       :dialog="clientDialog"
       :editData="salesEditData"
       @closeForm="closeClientForm"
+      :unitValue="unitValue"
+      :planType="planType"
       :unitId="unitId"
     />
     <ClientFiles
@@ -142,7 +144,8 @@ export default {
       step: "",
       showActions: false,
       blockValue: null,
-      unitValue: null,
+      unitValue: "",
+      planType: null,
       flatPic: require("../assets/flat.jpg"),
       items: [],
       blocks: [],
@@ -162,6 +165,7 @@ export default {
       dialogFiles: null,
       signOffDialog: false,
       signOffData: [],
+      
     };
   },
   computed: {
@@ -205,8 +209,10 @@ export default {
       // console.log("id",event.currentTarget.id;)
       this.salesEditData = this.sales.filter((el) => {
         return el.id === parseInt(targetId);
+
       });
       console.log("DEZ$ editItem & salesEditData= ", this.salesEditData);
+      console.log("DEZ$ editItem & UnitValue= ", this.unitValue);
       this.clientDialog = true;
     },
     async emailItem(event) {
@@ -257,7 +263,9 @@ export default {
             this.sales = response.data;
             this.desserts = response.data;
             this.unitId = response.data.unitId;
+            this.unitValue = response.data.unit;
             this.sales.forEach((el) => {
+              el.unitValue = response.data.unit;
               el.fileOTPurl = `${url}/uploads/${el.fileOTP}`;
               // console.log("FileId", el.fileId);
               if (

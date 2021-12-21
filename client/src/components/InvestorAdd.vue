@@ -121,6 +121,7 @@
                   v-model="investorIDNumber"
                   label="ID Number*"
                   required
+                  :rules="[rules.iDLength]"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -150,6 +151,7 @@
                 <v-text-field
                   v-model="investorTwoIDNumber"
                   label="Investor Two ID Number*"
+                  :rules="[rules.iDLength]"
                   required
                 ></v-text-field>
               </v-col>
@@ -195,6 +197,7 @@
               <v-text-field
                 v-model="companyRepIDNumber"
                 label="Investor Two ID Number*"
+                :rules="[rules.iDLength]"
                 required
               ></v-text-field>
             </v-row>
@@ -210,6 +213,7 @@
                 <v-text-field
                   v-model="contactEmail"
                   label="Contact One Email*"
+                  :rules="[rules.email]"
                   required
                 ></v-text-field>
               </v-col>
@@ -223,6 +227,7 @@
                   ref="mobile"
                   clearable
                   default-country-code="ZA"
+                  :rules="[rules.mobileRules]"
                   show-code-on-list
                   :only-countries="['ZA']"
                 />
@@ -253,6 +258,7 @@
                 <v-text-field
                   v-model="contactTwoEmail"
                   label="Contact Two Email"
+                  :rules="[rules.email]"
                   required
                 ></v-text-field>
               </v-col>
@@ -642,111 +648,126 @@ export default {
       amp: true,
     },
   },
-  data: () => ({
-    paramId: 0,
-    roleId: null,
-    jobId: null,
-    jobType: null,
-    jobTypes: [],
-    role: [],
-    roles: [],
-    valid: true, // crm
-    value: true,
+  data() {
+    return {
+      rules: {
+        required: (value) => !!value || "Required.",
+        iDLength: (value) => value.length <= 13 || "Max 13 characters",
+        email: (value) => {
+          const pattern =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Invalid e-mail.";
+        },
+        mobileRules: (v) => (v && v.length <= 10 || "Number must be less than 10 Characters"),
+        
+      },
+      paramId: 0,
+      roleId: null,
+      jobId: null,
+      jobType: null,
+      jobTypes: [],
+      role: [],
+      roles: [],
+      valid: true, // crm
+      value: true,
 
-    // investor form data
-    investorCode: "",
-    linkedEmail: "",
+      // investor form data
+      investorCode: "",
+      linkedEmail: "",
 
-    person: "",
-    buyers: 0,
-    buyersSwicth: 1,
+      person: "",
+      buyers: 0,
+      buyersSwicth: 1,
 
-    investorInitials: "",
-    investorSurname: "",
-    investorIDNumber: "",
+      investorInitials: "",
+      investorSurname: "",
+      investorIDNumber: "",
 
-    investorTwoCode: "",
-    investorTwoInitials: "",
-    investorTwoSurname: "",
-    investorTwoIDNumber: "",
+      investorTwoCode: "",
+      investorTwoInitials: "",
+      investorTwoSurname: "",
+      investorTwoIDNumber: "",
 
-    companyName: "",
-    regNumber: "",
+      companyName: "",
+      regNumber: "",
 
-    companyRepInitials: "",
-    companyRepSurname: "",
-    companyRepIDNumber: "",
+      companyRepInitials: "",
+      companyRepSurname: "",
+      companyRepIDNumber: "",
 
-    contact: "",
-    contactEmail: "",
-    contactTwoEmail: "",
+      contact: "",
+      contactEmail: "",
+      contactTwoEmail: "",
 
-    streetNo: "",
-    streetName: "",
-    addressSuburb: "",
-    province: "",
-    addressPostalCode: "",
+      streetNo: "",
+      streetName: "",
+      addressSuburb: "",
+      province: "",
+      addressPostalCode: "",
 
-    boxNo: "",
-    postalSuburb: "",
-    postalCode: "",
+      boxNo: "",
+      postalSuburb: "",
+      postalCode: "",
 
-    bankName: "",
-    accountName: "",
-    branchCode: "",
-    accountNumber: "",
+      bankName: "",
+      accountName: "",
+      branchCode: "",
+      accountNumber: "",
 
-    ficaDate: "",
+      ficaDate: "",
 
-    investorOneDisclaimerFile: "",
-    investorOneIDFile: null,
-    investorOnePOAFile: null,
+      investorOneDisclaimerFile: "",
+      investorOneIDFile: null,
+      investorOnePOAFile: null,
 
-    investorTwoDisclaimerFile: null,
-    investorTwoIDFile: null,
-    investorTwoPOAFile: null,
+      investorTwoDisclaimerFile: null,
+      investorTwoIDFile: null,
+      investorTwoPOAFile: null,
 
-    representativeDisclaimerFile: null,
-    representativeIDFile: null,
-    representativePOAFile: null,
-    companyResolutionFile: null,
-    companyRefDocsFile: null,
-    companyPOAFile: null,
+      representativeDisclaimerFile: null,
+      representativeIDFile: null,
+      representativePOAFile: null,
+      companyResolutionFile: null,
+      companyRefDocsFile: null,
+      companyPOAFile: null,
 
-    mobile: {
-      countryCode: "ZA",
-      isValid: false,
-      phoneNumber: "",
-      phoneNumberTwo: "",
-    },
-    landline: {
-      countryCode: "ZA",
-      isValid: false,
-      phoneNumber: "",
-      phoneNumberTwo: "",
-    },
+      mobile: {
+        countryCode: "ZA",
+        isValid: false,
+        phoneNumber: "",
+        phoneNumberTwo: "",
+      },
+      landline: {
+        countryCode: "ZA",
+        isValid: false,
+        phoneNumber: "",
+        phoneNumberTwo: "",
+      },
 
-    snackbar: false,
-    snackbarMessage: "",
-    checkbox: false,
-    // ^^ wip
-    investorSuffix: 0,
+      snackbar: false,
+      snackbarMessage: "",
+      checkbox: false,
+      // ^^ wip
+      investorSuffix: 0,
 
-    mobileResults: {},
-    // good rules examples
-    nameRules: [
-      (v) => !!v || "Name is required",
-      (v) => (v && v.length <= 20) || "Name must be less than 15 characters",
-    ],
-    email: "",
-    emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
-    ],
-    icon: "",
-    _investorCode: "",
-  }),
+      mobileResults: {},
+      // good rules examples
+      nameRules: [
+        (v) => !!v || "Name is required",
+        (v) => (v && v.length <= 20) || "Name must be less than 15 characters",
+      ],
+      email: "",
+      emailRules: [
+        (v) => !!v || "E-mail is required",
+        (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+      ],
+      
+      icon: "",
 
+      //
+      leInvestorCode: "",
+    };
+  },
   async mounted() {},
   watch: {},
 
@@ -759,6 +780,7 @@ export default {
       _investSurnameSnippet = _investSurnameSnippet.substring(0, 3);
       _investSurnameSnippet = _investSurnameSnippet.toUpperCase();
       // send to db, use the returning count
+      console.log("Legolas was here~ the investorSurnameSnippet to go to dbCall = ", _investSurnameSnippet)
       this.getInvestorSuffixNumber(_investSurnameSnippet);
       console.log(
         "### Investor Count new logic from Blur = ",

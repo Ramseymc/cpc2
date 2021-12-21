@@ -164,6 +164,7 @@ export default {
 
           fileFica: "",
           fileDepositPop: "",
+          fileDepPop: "",
           fileBank: "",
           filePaySlip: "",
           personTwoFileID: "",
@@ -196,7 +197,7 @@ export default {
             return el.subsectionName !== "Common Area";
           });
 
-          console.log(this.blocks);
+          console.log("THIS BLOCKS:",this.blocks);
         },
         (error) => {
           console.log("the Error", error);
@@ -211,8 +212,57 @@ export default {
       let unitId = this.items.filter((el) => {
         return el.unitName === this.unitValue;
       })[0].id;
-      console.log(unitId);
+      // maybe getSalesData here if it doesnt work 
+      console.log("Unit Chosen" , unitId); 
+
+      this.getSalesDataForUnit(unitId);
+
       this.unitId = unitId;
+    },
+    async getSalesDataForUnit(unitId) {
+      let data = {
+        id: unitId,
+      };
+      await axios({
+        method: "post",
+        url: `${url}/getSalesDataForUnit`,
+        data: data,
+      }).then(
+        (response) => {
+          console.log("get getSalesDataForUnit", response.data[0]);
+          // filter through and add each element to the editData 
+          // response.data.forEach(salesdata => {
+          //   this.salesEditData.push(salesdata);
+            
+          // });
+          console.log("salesDAta",response.data[0].unit_type.length)
+          let unitType = []
+          if (response.data[0].unit_type.length >= 3) {
+            let units = response.data[0].unit_type.split(",")
+            units.forEach((el) => {
+              unitType.push(el)
+            })
+          } else {
+            unitType.push(response.data[0].unit_type)
+          }
+          this.planType = unitType
+          this.salesEditData.forEach((el) => {
+            el.base_price = response.data[0].base_price
+            el.parking = response.data[0].parking
+            el.extras = response.data[0].extras
+            el.contract_price = response.data[0].contract_price
+         
+            
+          })
+          console.log("salesEditData after gettingSalesData for unit in SalesStart", this.salesEditData);
+          // this.planType = response.data[0].unit_type;
+
+          // this.clientDialog = !this.clientDialog;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
     },
     closeClientForm(event) {
       this.clientDialog = event;

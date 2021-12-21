@@ -87,6 +87,7 @@
                   ref="linkedEmailInput"
                   v-model="linkedEmail"
                   label="Linked User Email (Portal):"
+                  :rules="[rules.email]"
                   required
                 ></v-text-field>
               </v-col>
@@ -119,6 +120,7 @@
                   v-model="investorIDNumber"
                   label="ID Number*"
                   required
+                  :rules=[rules.iDLength]
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -210,6 +212,9 @@
               ></v-text-field>
               <v-text-field
                 v-model="companyRepIDNumber"
+                :rules=[rules.iDLength]
+
+                
                 label="companyRep ID Number*"
                 required
               ></v-text-field>
@@ -225,6 +230,7 @@
               <v-col cols="8" sm="8">
                 <v-text-field
                   v-model="contactEmail"
+                  :rules="[rules.email]"
                   label="Contact One Email*"
                   required
                 ></v-text-field>
@@ -271,6 +277,7 @@
                 <v-text-field
                   v-model="contactTwoEmail"
                   label="Contact Two Email"
+                  :rules="[rules.email]"
                   required
                 ></v-text-field>
               </v-col>
@@ -799,7 +806,7 @@ export default {
     VuePhoneNumberInput,
   },
   metaInfo: {
-    title: "Create Investor",
+    title: "Update Investor",
     titleTemplate: "CPC - %s",
     meta: [
       {
@@ -812,7 +819,17 @@ export default {
       amp: true,
     },
   },
-  data: () => ({
+   data() {
+    return {
+      rules: {
+        required: (value) => !!value || "Required.",
+        iDLength: (value) => value.length <= 13 || "Max 13 characters",
+        email: (value) => {
+          const pattern =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Invalid e-mail.";
+        },
+      },
     investorDashboard: "",
     roleId: null,
     jobId: null,
@@ -933,7 +950,8 @@ export default {
       (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
     icon: "",
-  }),
+    }
+  },
 
   async mounted() {
     this.paramId = parseInt(this.$route.params.id);

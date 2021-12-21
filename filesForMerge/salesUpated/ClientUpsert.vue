@@ -256,7 +256,7 @@
                     style="background-color: lightblue"
                   >
                     <v-text-field
-                      v-model="dataToPost[0].personTwofirstName"
+                      v-model="dataToPost[0].personTwoFirstName"
                       :label="this.twoPersonFirstNameLabel"
                       required
                     ></v-text-field>
@@ -839,7 +839,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!dataToPost[0].fileOTP.length ||  dataToPost[0].fileOTP === 'undefined' "
+                    v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
                   >
                     <v-file-input
                       v-model="fileOTP"
@@ -854,7 +854,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if=" !dataToPost[0].fileId.length || dataToPost[0].fileId === 'undefined' "
+                   v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
                   >
                     <v-file-input
                       v-model="fileId"
@@ -869,7 +869,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if=" !dataToPost[0].fileFica.length || dataToPost[0].fileFica === 'undefined'"
+                    v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
                   >
                     <v-file-input
                       v-model="fileFica"
@@ -885,14 +885,31 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if="!dataToPost[0].fileDepositPop.length || dataToPost[0].fileDepositPop === 'undefined' "
+                    v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
                   >
                     <v-file-input
                       v-model="fileDepositPop"
                       accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
                       label="Upload Deposit POP"
                       filled
-                      multiple
+                
+                      hint="Upload Deposit POP"
+                      persistent-hint
+                    ></v-file-input>
+                  </v-col>
+
+                  <!-- // whiteknight -->
+                  <v-col
+                    cols="12"
+                    sm="12"
+                   v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
+                  >
+                    <v-file-input
+                      v-model="fileDepPop"
+                      accept="image/png, image/jpeg, image/bmp, image/jpg, application/pdf"
+                      label="Upload Deposit POP New"
+                      filled
+                
                       hint="Upload Deposit POP"
                       persistent-hint
                     ></v-file-input>
@@ -901,7 +918,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if=" !dataToPost[0].fileBank.length || dataToPost[0].fileBank === 'undefined' "
+                    v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
                   >
                     <v-file-input
                       v-if="dataToPost[0].salePerson !== 'Legal'"
@@ -917,7 +934,7 @@
                   <v-col
                     cols="12"
                     sm="12"
-                    v-if=" !dataToPost[0].filePaySlip.length || dataToPost[0].filePaySlip === 'undefined'"
+                    v-if="upsertMode === 'Add' || upsertMode === 'Edit'"
                   >
                     <v-file-input
                       v-if="dataToPost[0].salePerson !== 'Legal'"
@@ -1091,6 +1108,7 @@ export default {
       filePaySlip: null,
       fileFica: null,
       fileDepositPop: null,
+      fileDepPop: null,
       planFile: null,
       showUploadButton: false,
 
@@ -1167,18 +1185,36 @@ export default {
   },
 
   beforeMount() {
-    console.log("ClientUpsert.Vue - beforeMount() : upsertMode = ", this.upsertMode)
-    console.log("ClientUpsert.Vue - beforeMount() : unitValue = ", this.unitValue) 
-    console.log("ClientUpsert.Vue - beforeMount() : saleBuyers = ", this.buyers) 
+    try {
+    // console.log("ClientUpsert.Vue - beforeMount() : upsertMode = ", this.upsertMode)
+    // console.log("ClientUpsert.Vue - beforeMount() : unitValue = ", this.unitValue) 
+    // console.log("ClientUpsert.Vue - beforeMount() : saleBuyers = ", this.buyers) 
     console.log("ClientUpsert.Vue - beforeMount() : planType = ", this.planType) 
+    console.log("getSalesData ^^^^^^^^") 
 
 
-      console.log("CONNOR : this.editData =", this.editData)
+      this.getTheSalesData();
+
+      console.log("DEZ$ ClientUpsert beforeMount: this.editData =", this.editData)
+      console.log("DEZ$ ClientUpsert beforeMount: this.unitValue =", this.unitValue)
       
       this.dataToPost = JSON.parse(JSON.stringify(this.editData))
      // this.dataToPost[0].id = 0
 
       console.log("CONNOR WINNING: dataToPost =", this.dataToPost)
+
+      this.basePriceStr = this.convertToString(this.dataToPost[0].base_price);
+
+      
+
+      this.dataToPost[0].url = `${process.env.VUE_APP_BASEURL}/${this.dataToPost[0].planType}`;
+      this.plans = []
+      if (this.planType.length >= 3) {
+        this.plans = this.planType.split(",");
+      } else {
+        this.plans.push(this.planType)
+      }
+      console.log("plans",this.plans)
 
       this.dataToPost.forEach(el => {
         el.saleBuyers = parseInt(el.saleBuyers);
@@ -1192,9 +1228,6 @@ export default {
         }
       });
 
-      this.dataToPost[0].url = `${process.env.VUE_APP_BASEURL}/${this.dataToPost[0].planType}`;
-
-      this.plans = this.unitValue.split(",");
       this.parkingPriceStr = this.convertToString(
         parseFloat(this.dataToPost[0].parking)
       );
@@ -1226,6 +1259,7 @@ export default {
 
       // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
       this.basePriceStr = this.convertToString(this.dataToPost[0].base_price);
+      console.log("This base price str=", this.basePriceStr)
        // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
 
       if (this.upsertMode === "Add") {
@@ -1239,7 +1273,56 @@ export default {
           this.dataToPost[0].actualSalesdate
         ).format("YYYY-MM-DD");
       }
+      //
+      
+      // this.plans = this.unitValue.split(",");
+      // this.parkingPriceStr = this.convertToString(
+      //   parseFloat(this.dataToPost[0].parking)
+      // );
 
+      // if (parseFloat(this.dataToPost[0].parking) > 0) {
+      //   this.dataToPost[0].parkingNumber =
+      //     parseFloat(this.dataToPost[0].parking) / this.parkingPrice;
+      // }
+
+      // // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
+      // this.extrasStr = this.convertToString(parseFloat(this.dataToPost[0].extras));
+      // // debug 1212
+      // this.contractPrice = parseFloat(this.dataToPost[0].contract_price);      
+      // this.contractPriceStr = this.convertToString(
+      //   parseFloat(this.contractPrice)
+      // );
+      //  // debug 1212  // debug 1212 // debug 1212 // debug 1212 // debug 1212
+
+      // if (parseInt(this.dataToPost[0].gasStove) === 1) {
+      //   this.gasStoveCost = 2000;
+      // } else {
+      //   this.gasStoveCost = 0;
+      // }
+      // this.gasStoveStr = this.convertToString(this.gasStoveCost);
+      // this.finaliseCosts();
+
+      // this.balanceRemStr = this.convertToString(this.dataToPost[0].balanceRem);
+      // this.depositStr = this.convertToString(this.dataToPost[0].deposit);
+
+      // // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
+      // this.basePriceStr = this.convertToString(this.dataToPost[0].base_price);
+      //  // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212 // debug 1212
+
+      // if (this.upsertMode === "Add") {
+      //   this.dataToPost[0].depositDate = ""
+      // }
+      //   console.log("NOT NULL DepDate")
+      //    this.depositDate = this.dataToPost[0].depositDate.split(" ")[0];
+      
+      // if (this.dataToPost[0].actualSalesdate !== null) {
+      //   this.dataToPost[0].actualSalesdate = dayjs(
+      //     this.dataToPost[0].actualSalesdate
+      //   ).format("YYYY-MM-DD");
+      // }
+    } catch(error) {
+      console.log("An Error Occured during the before mount in ClientUpsert, the Error = ", error);
+    }
   },
 
   methods: {
@@ -1255,6 +1338,34 @@ export default {
       } else {
         this.showUploadButton = false;
       }
+    },
+
+    getTheSalesData() {
+      console.log("inside non async method")
+      //this.getSalesData()
+    },
+
+    // ask Wayne for his getSalesData axios call in the ClientUpsert from yesterday please 
+    async getSalesData() {
+      let data = {
+        id: this.unitId,
+      };
+      
+      // select * from salesdata where the unit matches the unit id in the upsert - maybe passin the unitname and join in the units table 
+      await axios({
+        method: "post",
+        url: `${url}/getSalesDataForUnit`,
+        data: data
+      }).then(
+        response => {
+          console.log("response.data in get SalesData", response.data);
+          this.dataToPost = response.data;
+          console.log("this.dataToPost in get SalesData", this.dataToPost);
+        },
+        error => {
+          console.log(error);
+        }
+      );
     },
     async addPlans() {
       let formData = new FormData();
@@ -1284,37 +1395,37 @@ export default {
         }
       );
     },
-    convertToString(factor) {
-      //CONVERTS NUMBERS TO STRING WTH "R"
-      let str = ""
-      try {
-      console.log("FACTOR1 === ", factor)
-      if (typeof factor === "string" || factor instanceof String) {
-        factor = parseFloat(factor);
-      }
-      console.log("FACTOR === ", factor)
-      if (factor.length < 1) { console.log("") } else {
-        str = factor
-          .toFixed(2)
-          .toString()
-          .split("")
-          .reverse();
-          if (str.length < 1) { console.log("") } else {
-        if (str.length > 9) {
-          str.splice(9, 0, " ");
-        }
-        if (str.length > 6) {
-          str.splice(6, 0, " ");
-        }
-        str.reverse().unshift("R");
-        str = str.join("");
-        }
-      } 
-      } catch (e) {
-        console.log("YO",e)
-      }
-      return str;
-    },
+    // convertToString(factor) {
+    //   //CONVERTS NUMBERS TO STRING WTH "R"
+    //   let str = ""
+    //   try {
+    //   console.log("FACTOR1 === ", factor)
+    //   if (typeof factor === "string" || factor instanceof String) {
+    //     factor = parseFloat(factor);
+    //   }
+    //   console.log("FACTOR === ", factor)
+    //   if (factor.length < 1) { console.log("") } else {
+    //     str = factor
+    //       .toFixed(2)
+    //       .toString()
+    //       .split("")
+    //       .reverse();
+    //       if (str.length < 1) { console.log("") } else {
+    //     if (str.length > 9) {
+    //       str.splice(9, 0, " ");
+    //     }
+    //     if (str.length > 6) {
+    //       str.splice(6, 0, " ");
+    //     }
+    //     str.reverse().unshift("R");
+    //     str = str.join("");
+    //     }
+    //   } 
+    //   } catch (e) {
+    //     console.log("YO",e)
+    //   }
+    //   return str;
+    // },
     setBalanceRemaining() {
       this.balanceRem =
         parseFloat(this.contractPrice) - parseFloat(this.dataToPost[0].deposit);
@@ -1345,10 +1456,12 @@ export default {
       this.finaliseCosts();
     },
     finaliseCosts() {
+      console.log("Finalising the costs now...")
       this.dataToPost[0].extras =
         parseFloat(this.floorplancost) +
         parseFloat(this.gasStoveCost) +
         parseFloat(this.dataToPost[0].parking);
+      console.log("Finalising the costs now... Extras Total = ", this.dataToPost[0].extras)
 
       this.extrasStr = this.convertToString(this.dataToPost[0].extras);
       this.contractPrice =
@@ -1357,6 +1470,7 @@ export default {
         parseFloat(this.dataToPost[0].extras) +
         parseFloat(this.dataToPost[0].additionalExtrasCost) -
         parseFloat(this.dataToPost[0].deductions);
+      console.log("Finalising the costs now... contractPrice Total = ", this.contractPrice)
 
       this.contractPriceStr = this.convertToString(this.contractPrice);
     },
@@ -1424,8 +1538,16 @@ export default {
         files.push(this.personTwoFileBank);
       }
 
+      // copy another component and place it here, like the fileBank (new name FileDepPop)
+      // whiteknight / wayne - why is this not working 
+       if (this.fileDepPop !== null) {
+        console.log("fileDepPop has data, this.fileDepPop = ", this.fileDepPop)
+        contains.push("fileDepPop");
+        files.push(this.fileDepPop);
+      }
+      
       if (this.fileDepositPop !== null) {
-        console.log("fileDepPop has data, this.fileDepositPop = ", this.fileDepositPop)
+        console.log("fileDepositPop has data, this.fileDepositPop = ", this.fileDepositPop)
         contains.push("fileDepositPop");
         files.push(this.fileDepositPop);
       }
@@ -1506,6 +1628,7 @@ export default {
       formData.append("base_price", this.dataToPost[0].base_price);
       formData.append("parking", this.dataToPost[0].parking);
       formData.append("originalBayNo", this.dataToPost[0].originalBayNo);
+
       formData.append("extras", this.dataToPost[0].extras);
       formData.append("deductions", this.dataToPost[0].deductions);
       formData.append("salesAgent", this.dataToPost[0].salesAgent);
@@ -1526,6 +1649,10 @@ export default {
       formData.append("salePerson", this.dataToPost[0].salePerson);
       formData.append("saleBuyers", this.dataToPost[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
+      formData.append("kitchenOption", this.dataToPost[0].kitchenOption);   
+      formData.append("bayNo", this.dataToPost[0].bayNo);   
+      formData.append("originalBayNo", this.dataToPost[0].originalBayNo);   
+      
  
       await axios({
         method: "post",
@@ -1604,14 +1731,24 @@ export default {
       }
 
       if (this.fileDepositPop !== null) {
+        console.log("fileDepositPop has data when adding = ", this.fileDepositPop)
         contains.push("fileDepositPop");
+
         files.push(this.fileDepositPop);
+      }
+
+      if (this.fileDepPop !== null) {
+        console.log("fileDepPop has data when adding = ", this.fileDepPop)
+        contains.push("fileDepPop");
+        files.push(this.fileDepPop);
       }
 
       let formData = new FormData();
       for (var x = 0; x < files.length; x++) {
         formData.append("documents", files[x]);
       }
+
+      console.log("files",files)
 
       formData.append("trustName", this.dataToPost[0].trustName);
       formData.append("trustNumber", this.dataToPost[0].trustNumber);
@@ -1668,6 +1805,10 @@ export default {
       formData.append("salePerson", this.dataToPost[0].salePerson);
       formData.append("saleBuyers", this.dataToPost[0].saleBuyers);
       formData.append("development", this.$store.state.development.id);
+      formData.append("kitchenOption", this.dataToPost[0].kitchenOption);   
+      formData.append("bayNo", this.dataToPost[0].bayNo);   
+      formData.append("originalBayNo", this.dataToPost[0].originalBayNo);  
+
  
       await axios({
         method: "post",

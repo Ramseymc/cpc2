@@ -1,0 +1,24 @@
+(floorplan and fileDepositPop - these can also be fixed throughout the day so be chilled and trust that, Wayne is helping too)
+	  note any extra bugs
+
+
+fileDepositPop - how is this any different from the other files?
+  just comment out existing fileDepPop go and copy the code for another file and rename it (fileDepPop) , create it and place into the methods x2(updateClient formAppend and insertClient formAppend) routes x2(update updateClientCM and createClientCM) , there may be a silly error somewhere
+
+
+finalize Pricing mechanism - just try it with the new Edit / Update - Wayne might need to do this	  
+
+ any null data in form
+
+ ----
+
+ get Leave for Friday, 
+
+ ---- 
+
+ i am free, do not need to show Debbie, just finish the damn code and get leave. 
+
+ --- 
+
+ Screw Kaven - don't ask him for anything - he is full of shit, just stay there with Kappa and love it. 
+ get my leave for Friday NB, speak to Dirk about Debbie being gone now, going to make sure it's all done and deployed by the end of tomorrow. I will be available remotely the whole time we are closed. 

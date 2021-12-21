@@ -206,7 +206,7 @@ export default {
 
     editItem(event) {
       let targetId = event.currentTarget.id; //Spot on
-      // console.log("id",event.currentTarget.id;)
+
       this.salesEditData = this.sales.filter((el) => {
         return el.id === parseInt(targetId);
 
@@ -267,18 +267,13 @@ export default {
             this.sales.forEach((el) => {
               el.unitValue = response.data.unit;
               el.fileOTPurl = `${url}/uploads/${el.fileOTP}`;
-              // console.log("FileId", el.fileId);
+
               if (
-                el.fileOTP === "" ||
-                el.fileOTP === "undefined" ||
-                el.fileId === "" ||
-                el.fileId === "undefined" ||
-                el.fileBank === "" ||
-                el.fileBank === "undefined" ||
-                el.filePaySlip === "" ||
-                el.filePaySlip === "undefined" ||
-                el.fileFica === "" ||
-                el.fileFica === "undefined"
+                el.fileOTP === "" || el.fileOTP === "undefined" ||
+                el.fileId === "" || el.fileId === "undefined" ||
+                el.fileBank === "" || el.fileBank === "undefined" ||
+                el.filePaySlip === "" || el.filePaySlip === "undefined" ||
+                el.fileFica === "" ||  el.fileFica === "undefined"
               ) {
                 el.iconColor = "red";
                 el.step1colour = "lime lighten-2";
