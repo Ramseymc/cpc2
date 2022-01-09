@@ -134,6 +134,7 @@ export default {
       icon: "justify",
       InvestorCode: "",
       InvestorName: "",
+      InvestorAccNumber: "",
       investmentsExist: false,
       //investorId: "",
       headers: [
@@ -209,7 +210,7 @@ export default {
     create() {
       this.$router.push({
         name: "investmentadd",
-        params: { id: this.paramId }
+        params: { id: this.paramId  }
         //params: { id: event.currentTarget.id },
       });
     },
@@ -253,6 +254,7 @@ export default {
               this.InvestorCode = investment.investor_acc_number;
               this.InvestorName =
                 investment.investor_name + " " + investment.investor_surname;
+                this.InvestorAccNumber = investment.investor_acc_number
             });
             console.log("this.Investment List = ", this.investments);
           },

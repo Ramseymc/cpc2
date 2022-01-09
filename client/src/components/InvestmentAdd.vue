@@ -83,7 +83,7 @@
                   v-model="investorCode"
                   label="Investor Code:"
                   required
-                  @blur="checkNames"
+                  
                   readonly
                 ></v-text-field>
               </v-col>
@@ -338,7 +338,7 @@ export default {
       paramId: 0,
 
       // add data models here
-
+      icon: "",
       roleId: null,
       jobId: null,
       jobType: null,
@@ -366,6 +366,8 @@ export default {
       POPFile: null,
       attorneyConfirmLetterFile: null,
       SelectedInvestor: [],
+      snackbar: false,
+      snackbarMessage: "",
     }
   },
 
@@ -381,7 +383,7 @@ export default {
   methods: {
     cancel() {
       this.$router.push({
-        name: "investmentview",
+        name: "investmentviewmain",
         params: { id: this.paramId },
       });
     },
@@ -404,12 +406,12 @@ export default {
           (response) => {
             response.data.forEach((investor) => {
               this.SelectedInvestor.push(investor);
-              // this.InvestorCode = investment.investor_acc_number;
+              this.investorCode = investor.investor_acc_number;
             });
             console.log("this.SelectedInvestor List = ", this.SelectedInvestor);
             // use a method here to set the local properties for v-models setFormValues()
             // this.setFormValues() // this.InvestorName = this.SelectedInvestor.investor_name etc
-            this.setFormValues();
+            //this.setFormValues();
             // get this working, demo when ready, see if Wayne is coming
             // set and see the form values (this.investorId) here console.log is my friend
             // create a new control for the id, so i have two, use a different model for each of them
@@ -524,10 +526,13 @@ export default {
           console.log(response.data);
           this.snackbarMessage = "Investment Successfully Created";
           this.snackbar = true;
+          //  setTimeout(() => {
+          //   this.$router.push("investorview");
+          // }, 1500);
           setTimeout(() => {
             this.$router.push({
               //name: "investmentview",
-              name: "investmentview",
+              name: "investmentviewmain",
               params: { id: this.paramId },
             });
           }, 1500);

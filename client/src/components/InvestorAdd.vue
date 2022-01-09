@@ -1004,7 +1004,7 @@ export default {
       // }
 
       formData.append("contains", contains);
-      formData.append("investorCode", this._investorCode);
+      formData.append("investorCode", this.investorCode);
       formData.append("linkedEmail", this.linkedEmail);
       formData.append("investorInitials", this.investorInitials);
       formData.append("investorSurname", this.investorSurname);

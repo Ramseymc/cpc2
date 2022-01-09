@@ -473,13 +473,18 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.investorOneDisclaimerFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-file-input
-                v-model="investorOneDisclaimerFileNew"
+                v-model="investorOneDisclaimerFile"
                 label="Upload Disclaimer Letter"
                 accept="image/jpeg, image/jpg, image/png, image/bmp, application/pdf"
                 filled
                 hint="Upload Disclaimer Letter"
+                v-if="this.investorOneDisclaimerFile"
                 persistent-hint
               ></v-file-input>
             </v-row>
@@ -492,11 +497,16 @@
                 download
                 target="_blank"
                 style="text-decoration: none"
+                v-if="this.investorOneIDFile"
               >
                 <v-icon color="green">mdi-eye-outline</v-icon>
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.investorOneIDFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-file-input
                 v-model="investorOneIDFileNew"
@@ -520,6 +530,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.investorOnePOAFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-file-input
                 v-model="investorOnePOAFileNew"
@@ -554,6 +568,10 @@
               </a>
               - View
             </v-row>
+             <v-subheader v-if="this.investorTwoDisclaimerFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-file-input
                 v-model="investorTwoDisclaimerFileNew"
@@ -575,6 +593,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.investorTwoIDFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-file-input
                 v-model="investorTwoIDFileNew"
@@ -596,6 +618,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.investorTwoPOAFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-file-input
                 v-model="investorTwoPOAFileNew"
@@ -626,6 +652,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.representativeDisclaimerFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-col cols="4" sm="4">
                 <v-file-input
@@ -649,6 +679,10 @@
               </a>
               - View
             </v-row>
+             <v-subheader v-if="this.representativeIDFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-col cols="4" sm="4">
                 <v-file-input
@@ -672,6 +706,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.representativePOAFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-col cols="4" sm="4">
                 <v-file-input
@@ -696,6 +734,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.companyResolutionFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-col cols="4" sm="4">
                 <v-file-input
@@ -714,11 +756,16 @@
                 download
                 target="_blank"
                 style="text-decoration: none"
+                v-if="this.companyRefDocsFile"
               >
                 <v-icon color="green">mdi-eye-outline</v-icon>
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.companyRefDocsFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-col cols="4" sm="4">
                 <v-file-input
@@ -742,6 +789,10 @@
               </a>
               - View
             </v-row>
+            <v-subheader v-if="this.companyPOAFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
             <v-row>
               <v-col cols="4" sm="4">
                 <v-file-input
@@ -1023,7 +1074,7 @@ export default {
       this.ficaDate = this.SelectedInvestor[0].fica_date;
       this.investorOneDisclaimerFile =
         this.SelectedInvestor[0].investorOneDisclaimerFile;
-
+      console.log("Disclaimer file = ",this.investorOneDisclaimerFile)
       this.investorOneIDFile = this.SelectedInvestor[0].investorOneIDFile;
       (this.investorOnePOAFile = this.SelectedInvestor[0].investorOnePOAFile),
         (this.investorTwoDisclaimerFile =
@@ -1040,6 +1091,8 @@ export default {
         this.SelectedInvestor[0].companyResolutionFile;
       this.companyRefDocsFile = this.SelectedInvestor[0].companyRefDocsFile;
       this.companyPOAFile = this.SelectedInvestor[0].companyPOAFile;
+
+
     },
     async getInvestorDetails() {
       let data = {
@@ -1056,6 +1109,7 @@ export default {
             response.data.forEach((investor) => {
               this.SelectedInvestor.push(investor);
             });
+            console.log("Selected investor values: ", this.SelectedInvestor)
             this.setFormValues();
           },
           (error) => {
@@ -1092,9 +1146,9 @@ export default {
       //this.setFormValues()
       let files = [];
       let contains = [];
-      if (this.investorOneDisclaimerFileNew !== null) {
+      if (this.investorOneDisclaimerFile !== null) {
         contains.push("investorOneDisclaimerFile");
-        files.push(this.investorOneDisclaimerFileNew); // append mimetype here?
+        files.push(this.investorOneDisclaimerFile); // append mimetype here?
       }
 
       // investorOneDisclaimerFile: null,

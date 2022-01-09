@@ -259,7 +259,11 @@
                 style="text-decoration: none"
               >
                 <v-icon color="green">mdi-eye-outline</v-icon>
-              </a>
+              </a>  
+              <v-subheader v-if="this.attorneyConfirmLetterFile" color="red"> 
+               <v-icon color="orange">mdi-alert-plus-outline</v-icon>
+              Uploading will overwrite existing file
+            </v-subheader>
               <v-file-input
                 v-model="attorneyConfirmLetterFileNew"
                 label="Attorney Confirmation Letter"
@@ -380,7 +384,7 @@ export default {
   methods: {
     cancel() {
       this.$router.push({
-        name: "investmentview",
+        name: "investmentviewmain",
         params: { id: this.investorId },
         //params: { id: event.currentTarget.id },
       });
@@ -540,7 +544,7 @@ export default {
           this.snackbarMessage = "Investment Successfully Updated"
           this.snackbar = true;
           setTimeout(() => {         
-          this.$router.push({name: "investmentview",params: {id: this.investorId},})},1500)
+          this.$router.push({name: "investmentviewmain",params: {id: this.investorId},})},1500)
           console.log(response)
         },
         (error) => {
